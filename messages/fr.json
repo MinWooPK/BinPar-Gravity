@@ -111,7 +111,7 @@
     "challengeForce": "Force obtenue dans ce défi",
     "seeExperiment": "Voir dans le laboratoire",
     "visualTitle": "Attraction entre deux corps",
-    "visualDescription": "Deux masses s’attirent avec des forces égales et opposées. Les flèches indiquent uniquement la direction, pas l’intensité. Tailles et distances sont illustratives.",
+    "visualDescription": "Les deux corps s’attirent avec des forces égales et opposées. Les flèches de longueur fixe indiquent uniquement la direction. Un indicateur séparé compare la force actuelle à la force initiale. Tailles et distances sont illustratives.",
     "stageNote": "Tailles illustratives · corps fixes pour comparer la force",
     "liveResult": "EN TEMPS RÉEL",
     "takeaway": "Plus de masse, plus d’attraction. Deux fois la distance, quatre fois moins de force.",
@@ -182,7 +182,13 @@
       "distanceChanged": "Seule la distance change : la force suit son inverse au carré et vaut environ {percentage} de sa valeur initiale.",
       "combined": "Vous avez modifié plusieurs variables : leurs effets se combinent. La force totale vaut environ {percentage} de sa valeur initiale.",
       "combinedUnchanged": "Vous avez modifié plusieurs variables, mais leurs effets se compensent : la force totale reste identique à celle du départ."
-    }
+    },
+    "forceComparisonTitle": "Force relative à la configuration initiale",
+    "forceComparisonDescription": "La force actuelle vaut {ratio} fois la force initiale. Les deux barres partagent une échelle linéaire ajustée à la force la plus grande.",
+    "forceComparisonInitial": "Initiale",
+    "forceComparisonCurrent": "Actuelle",
+    "forceComparisonScale": "1× correspond à la force initiale. Les deux barres utilisent la même échelle linéaire, ajustée à la force la plus grande.",
+    "directionOnlyNote": "Les flèches égales et de longueur fixe indiquent la direction, pas l’intensité."
   },
   "ThreeBody": {
     "title": "Le problème des trois corps",

@@ -111,7 +111,7 @@
     "challengeForce": "Force obtained in this challenge",
     "seeExperiment": "View in the laboratory",
     "visualTitle": "Attraction between two bodies",
-    "visualDescription": "Two masses attract with equal and opposite forces. Arrows show direction only; their length does not measure force. Sizes and separation are illustrative.",
+    "visualDescription": "The two bodies attract with equal and opposite forces. Fixed-length arrows show direction only. A separate indicator compares current and initial forces. Sizes and separation are illustrative.",
     "stageNote": "Illustrative sizes · fixed bodies to compare force",
     "liveResult": "LIVE RESULT",
     "takeaway": "More mass, more attraction. Twice the distance, one quarter of the force.",
@@ -182,7 +182,13 @@
       "distanceChanged": "Only distance changed: force follows its inverse square and is approximately {percentage} of its initial value.",
       "combined": "You changed several variables: their effects combine. The total force is approximately {percentage} of its initial value.",
       "combinedUnchanged": "You changed several variables, but their effects cancel out: the total force stays the same as at the start."
-    }
+    },
+    "forceComparisonTitle": "Force relative to the initial configuration",
+    "forceComparisonDescription": "Current force is {ratio} times the initial force. Both bars share a linear scale that adjusts to the larger force.",
+    "forceComparisonInitial": "Initial",
+    "forceComparisonCurrent": "Current",
+    "forceComparisonScale": "1× is the initial force. Both bars share a linear scale, adjusted to the larger force.",
+    "directionOnlyNote": "Equal, fixed-length arrows show direction, not strength."
   },
   "ThreeBody": {
     "title": "The Three-Body Problem",

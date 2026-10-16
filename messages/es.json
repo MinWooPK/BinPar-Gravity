@@ -111,7 +111,7 @@
     "challengeForce": "Fuerza obtenida en este reto",
     "seeExperiment": "Ver en el laboratorio",
     "visualTitle": "Atracción entre dos cuerpos",
-    "visualDescription": "Dos masas se atraen con fuerzas iguales y opuestas. Las flechas muestran solo la dirección; su longitud no mide la fuerza. Los tamaños y la separación son ilustrativos.",
+    "visualDescription": "Los dos cuerpos se atraen con fuerzas iguales y opuestas. Las flechas tienen longitud fija e indican solo la dirección. El indicador separado compara la fuerza actual con la inicial. Tamaños y separación son ilustrativos.",
     "stageNote": "Tamaños ilustrativos · cuerpos fijos para comparar la fuerza",
     "liveResult": "EN TIEMPO REAL",
     "takeaway": "Más masa, más atracción. El doble de distancia, la cuarta parte de fuerza.",
@@ -182,7 +182,13 @@
       "distanceChanged": "Solo cambia la distancia: la fuerza depende de su inverso al cuadrado y equivale aproximadamente al {percentage} de la inicial.",
       "combined": "Has cambiado varias variables: sus efectos se combinan. La fuerza total equivale aproximadamente al {percentage} de la inicial.",
       "combinedUnchanged": "Has cambiado varias variables, pero sus efectos se compensan: la fuerza total se mantiene igual que al inicio."
-    }
+    },
+    "forceComparisonTitle": "Fuerza relativa a la configuración inicial",
+    "forceComparisonDescription": "La fuerza actual es {ratio} veces la inicial. Las dos barras comparten una escala lineal que se ajusta a la fuerza mayor.",
+    "forceComparisonInitial": "Inicial",
+    "forceComparisonCurrent": "Actual",
+    "forceComparisonScale": "1× es la fuerza inicial. Misma escala lineal en ambas barras, ajustada a la fuerza mayor.",
+    "directionOnlyNote": "Flechas iguales y de longitud fija: indican la dirección, no la intensidad."
   },
   "ThreeBody": {
     "title": "El problema de los tres cuerpos",

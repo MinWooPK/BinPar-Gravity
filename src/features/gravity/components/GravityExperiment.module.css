@@ -279,6 +279,11 @@
 
 .experimentLayout { display: grid; grid-template-columns: minmax(0,1fr); }
 .controlPanel { min-width: 0; }
+.directionNote { display: block; margin-top: 6px; color: #c3c9da; font-size: 14px; line-height: 1.6; }
+.forceComparison { flex: 1 1 100%; min-width: 0; margin: 0; padding-top: 14px; border-top: 1px solid #ffffff10; }
+.forceComparison h3 { margin: 0 0 8px; color: #d0d4e3; font-size: 15px; font-weight: 500; line-height: 1.5; }
+.comparisonSvg { display: block; width: 100%; height: auto; max-width: 440px; }
+.forceComparison figcaption { margin-top: 2px; max-width: 52ch; color: #a0a7be; font-size: 13px; line-height: 1.5; }
 .forceExplanation {
   flex: 1 1 100%;
   min-width: 0;

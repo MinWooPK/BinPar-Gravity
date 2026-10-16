@@ -6,6 +6,8 @@ import styles from "./GravityExperiment.module.css";
 import { useFormatter, useTranslations } from "next-intl";
 import { compareGravitation } from "../domain/compareGravitation";
 import type { GravityParameters } from "../domain/gravitation";
+import { getGravityDiagram } from "./gravityVisualization";
+import { GravityForceComparison } from "./GravityForceComparison";
 
 const controls = [
   {
@@ -120,15 +122,8 @@ export const GravityExperiment = ({
     maximumFractionDigits: 2,
   });
   const distanceKm = parameters.distance / 1000;
-  const separation = 160 + (distanceKm - 5) * 12;
-  const x1 = 260 - separation / 2;
-  const x2 = 260 + separation / 2;
-  const radius1 = 15 + Math.cbrt(parameters.mass1 / 1e12) * 5;
-  const radius2 = 15 + Math.cbrt(parameters.mass2 / 1e12) * 5;
-  const arrowLength = Math.min(
-    49,
-    Math.max(8, (separation - radius1 - radius2) / 2 - 14),
-  );
+  const { separation, x1, x2, radius1, radius2, leftArrow, rightArrow } =
+    getGravityDiagram(parameters);
 
   return (
     <section
@@ -164,153 +159,178 @@ export const GravityExperiment = ({
         </button>
       </div>
       <div className={styles.experimentLayout}>
-      <figure className={`${styles["gravity-stage"]} ${styles["space-grid"]}`}>
-        <svg
-          viewBox="0 0 520 240"
-          role="img"
-          aria-labelledby={`${id}-title ${id}-desc`}
+        <figure
+          className={`${styles["gravity-stage"]} ${styles["space-grid"]}`}
         >
-          <title id={`${id}-title`}>{t("visualTitle")}</title>
-          <desc id={`${id}-desc`}>{t("visualDescription")}</desc>
-          <defs>
-            <radialGradient id={`${id}-blue`} cx="30%" cy="25%">
-              <stop stopColor="#d6cfff" />
-              <stop offset=".5" stopColor="#9677ed" />
-              <stop offset="1" stopColor="#392662" />
-            </radialGradient>
-            <radialGradient id={`${id}-gold`} cx="30%" cy="25%">
-              <stop stopColor="#c9fff3" />
-              <stop offset=".5" stopColor="#65d9c5" />
-              <stop offset="1" stopColor="#184b4e" />
-            </radialGradient>
-            <marker
-              id={`${id}-arrow`}
-              viewBox="0 0 10 10"
-              refX="8"
-              refY="5"
-              markerWidth="5"
-              markerHeight="5"
-              orient="auto"
+          <svg
+            viewBox="0 0 520 240"
+            role="img"
+            aria-labelledby={`${id}-title ${id}-desc`}
+          >
+            <title id={`${id}-title`}>{t("visualTitle")}</title>
+            <desc id={`${id}-desc`}>{t("visualDescription")}</desc>
+            <defs>
+              <radialGradient id={`${id}-blue`} cx="30%" cy="25%">
+                <stop stopColor="#d6cfff" />
+                <stop offset=".5" stopColor="#9677ed" />
+                <stop offset="1" stopColor="#392662" />
+              </radialGradient>
+              <radialGradient id={`${id}-gold`} cx="30%" cy="25%">
+                <stop stopColor="#c9fff3" />
+                <stop offset=".5" stopColor="#65d9c5" />
+                <stop offset="1" stopColor="#184b4e" />
+              </radialGradient>
+              <marker
+                id={`${id}-arrow`}
+                viewBox="0 0 10 10"
+                refX="10"
+                refY="5"
+                markerUnits="userSpaceOnUse"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto"
+              >
+                <path d="M0 0 10 5 0 10Z" fill="#e2e8f0" />
+              </marker>
+            </defs>
+            <path
+              d="M40 100H480 M260 25V205"
+              stroke="#94a3b8"
+              strokeOpacity=".08"
+              strokeDasharray="3 8"
+            />
+            <line
+              x1={x1}
+              y1="100"
+              x2={x2}
+              y2="100"
+              stroke="#94a3b8"
+              strokeOpacity=".4"
+              strokeDasharray="3 6"
+            />
+            <circle
+              cx={x1}
+              cy="100"
+              r={radius1 + 9}
+              fill="#a997ff"
+              opacity=".05"
+            />
+            <circle
+              cx={x2}
+              cy="100"
+              r={radius2 + 9}
+              fill="#5ee7d5"
+              opacity=".05"
+            />
+            <circle cx={x1} cy="100" r={radius1} fill={`url(#${id}-blue)`} />
+            <circle cx={x2} cy="100" r={radius2} fill={`url(#${id}-gold)`} />
+            <text
+              x={x1}
+              y="105"
+              textAnchor="middle"
+              fill="#fff"
+              fontSize="13"
+              fontWeight="500"
             >
-              <path d="M0 0 10 5 0 10Z" fill="#e2e8f0" />
-            </marker>
-          </defs>
-          <path
-            d="M40 100H480 M260 25V205"
-            stroke="#94a3b8"
-            strokeOpacity=".08"
-            strokeDasharray="3 8"
-          />
-          <line
-            x1={x1}
-            y1="100"
-            x2={x2}
-            y2="100"
-            stroke="#94a3b8"
-            strokeOpacity=".4"
-            strokeDasharray="3 6"
-          />
-          <circle
-            cx={x1}
-            cy="100"
-            r={radius1 + 9}
-            fill="#a997ff"
-            opacity=".05"
-          />
-          <circle
-            cx={x2}
-            cy="100"
-            r={radius2 + 9}
-            fill="#5ee7d5"
-            opacity=".05"
-          />
-          <circle cx={x1} cy="100" r={radius1} fill={`url(#${id}-blue)`} />
-          <circle cx={x2} cy="100" r={radius2} fill={`url(#${id}-gold)`} />
-          <text
-            x={x1}
-            y="105"
-            textAnchor="middle"
-            fill="#fff"
-            fontSize="13"
-            fontWeight="500"
-          >
-            m₁
-          </text>
-          <text
-            x={x2}
-            y="105"
-            textAnchor="middle"
-            fill="#fff"
-            fontSize="13"
-            fontWeight="500"
-          >
-            m₂
-          </text>
-          <line
-            x1={x1 + radius1 + 6}
-            y1="100"
-            x2={x1 + radius1 + 6 + arrowLength}
-            y2="100"
-            stroke="#e2e8f0"
-            strokeWidth="1.8"
-            markerEnd={`url(#${id}-arrow)`}
-          />
-          <line
-            x1={x2 - radius2 - 6}
-            y1="100"
-            x2={x2 - radius2 - 6 - arrowLength}
-            y2="100"
-            stroke="#e2e8f0"
-            strokeWidth="1.8"
-            markerEnd={`url(#${id}-arrow)`}
-          />
-          <path d={`M${x1} 164v12m0-6h${separation}m0-6v12`} stroke="#94a3b8" />
-          <text
-            x="260"
-            y="202"
-            textAnchor="middle"
-            fill="#e2e8f0"
-            fontSize="15"
-          >
-            r = {format.number(distanceKm)} km · {t("betweenCentres")}
-          </text>
-        </svg>
-        <figcaption className={styles["stage-note"]}>
-          {t("stageNote")}
-          <span className={styles.modelNote}>{t("modelNote")}</span>
-        </figcaption>
-      </figure>
-      <div className={styles.controlPanel}>
-      <div className={styles["force-result"]}>
-        <div>
-          <span>{t("force")}</span>
-          <output aria-live="off" aria-describedby={`${id}-force-explanation`}>
-            {mantissa} × 10^{exponent} <small>N</small>
-          </output>
+              m₁
+            </text>
+            <text
+              x={x2}
+              y="105"
+              textAnchor="middle"
+              fill="#fff"
+              fontSize="13"
+              fontWeight="500"
+            >
+              m₂
+            </text>
+            <line
+              data-force-arrow="left"
+              x1={leftArrow.start}
+              y1="100"
+              x2={leftArrow.end}
+              y2="100"
+              stroke="#e2e8f0"
+              strokeWidth="1.8"
+              markerEnd={`url(#${id}-arrow)`}
+            />
+            <line
+              data-force-arrow="right"
+              x1={rightArrow.start}
+              y1="100"
+              x2={rightArrow.end}
+              y2="100"
+              stroke="#e2e8f0"
+              strokeWidth="1.8"
+              markerEnd={`url(#${id}-arrow)`}
+            />
+            <path
+              d={`M${x1} 164v12m0-6h${separation}m0-6v12`}
+              stroke="#94a3b8"
+            />
+            <text
+              x="260"
+              y="202"
+              textAnchor="middle"
+              fill="#e2e8f0"
+              fontSize="15"
+            >
+              r = {format.number(distanceKm)} km · {t("betweenCentres")}
+            </text>
+          </svg>
+          <figcaption className={styles["stage-note"]}>
+            {t("stageNote")}
+            <span className={styles.directionNote}>
+              {t("directionOnlyNote")}
+            </span>
+            <span className={styles.modelNote}>{t("modelNote")}</span>
+          </figcaption>
+        </figure>
+        <div className={styles.controlPanel}>
+          <div className={styles["force-result"]}>
+            <div>
+              <span>{t("force")}</span>
+              <output
+                aria-live="off"
+                aria-describedby={`${id}-force-explanation ${id}-intensity-description`}
+              >
+                {mantissa} × 10^{exponent} <small>N</small>
+              </output>
+            </div>
+            <span className={styles["live-pill"]}>{t("liveResult")}</span>
+            <GravityForceComparison
+              currentForce={force}
+              initialForce={comparison.referenceForce}
+              idPrefix={`${id}-intensity`}
+            />
+            <p
+              id={`${id}-force-explanation`}
+              className={styles.forceExplanation}
+            >
+              {forceExplanation}
+            </p>
+          </div>
+          <div className={styles["lab-sliders"]}>
+            {controls.map((control) => (
+              <GravitySlider
+                key={control.key}
+                control={control}
+                value={parameters[control.key] / control.scale}
+                descriptionId={`${id}-force-explanation ${id}-intensity-description`}
+                onChange={(value) =>
+                  onChange({
+                    ...parameters,
+                    [control.key]: value * control.scale,
+                  })
+                }
+              />
+            ))}
+          </div>
+          <div className={styles["lab-takeaway"]}>
+            <span aria-hidden="true">↗</span>
+            <p>{t("takeaway")}</p>
+          </div>
         </div>
-        <span className={styles["live-pill"]}>{t("liveResult")}</span>
-        <p id={`${id}-force-explanation`} className={styles.forceExplanation}>
-          {forceExplanation}
-        </p>
-      </div>
-      <div className={styles["lab-sliders"]}>
-        {controls.map((control) => (
-          <GravitySlider
-            key={control.key}
-            control={control}
-            value={parameters[control.key] / control.scale}
-            descriptionId={`${id}-force-explanation`}
-            onChange={(value) =>
-              onChange({ ...parameters, [control.key]: value * control.scale })
-            }
-          />
-        ))}
-      </div>
-      <div className={styles["lab-takeaway"]}>
-        <span aria-hidden="true">↗</span>
-        <p>{t("takeaway")}</p>
-      </div>
-      </div>
       </div>
     </section>
   );
