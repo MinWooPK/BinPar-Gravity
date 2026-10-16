@@ -29,3 +29,19 @@ test("the gravity experiment has all its directly referenced messages", () => {
     }
   }
 });
+
+test("orbit animation controls and descriptions are translated in every locale", () => {
+  const files = [
+    "../src/features/three-body/components/OrbitAnimation.tsx",
+    "../src/features/three-body/components/OrbitPlayer.tsx",
+    "../src/components/gallery.tsx",
+  ];
+  const usedKeys = files.flatMap((file) => [...readFileSync(new URL(file, import.meta.url), "utf8").matchAll(/\bt\("([^"]+)"/g)].map((match) => match[1]));
+  usedKeys.push("animationPlay", "animationPause", "animationPlayAll", "animationPauseAll");
+  for (const { locale, messages } of dictionaries) {
+    for (const key of usedKeys) {
+      assert.equal(typeof messages.ThreeBody[key], "string", `${locale}: ThreeBody.${key}`);
+      assert.ok(messages.ThreeBody[key].trim(), `${locale}: ThreeBody.${key}`);
+    }
+  }
+});

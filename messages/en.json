@@ -206,7 +206,20 @@
     "formulaCurrentValue": "Current value: {value} {unit}"
   },
   "ThreeBody": {
+    "animationTitle": "Motion of the three bodies: {name}",
+    "animationDescription": "Three bodies follow their paths under mutual gravitational attraction. Each color identifies the same body throughout the orbit. Gravity determines their motion.",
+    "animationControls": "Orbit playback",
+    "animationPlay": "Play",
+    "animationPause": "Pause",
+    "animationPlayAll": "Play orbits",
+    "animationPauseAll": "Pause orbits",
+    "animationReset": "Restart",
+    "animationSpeed": "Speed",
+    "animationBodies": "Body identification",
+    "animationBody": "Body {number}",
+    "animationGalleryNote": "Follow the three colored dots: each represents a moving body.",
+    "animationTiming": "At 1×, one second plays one unit of orbital time. The lines show the paths over one complete period.",
     "title": "The Three-Body Problem",
-    "description": "Explore the motion of three bodies under gravity."
+    "description": "Discover six orbits and the initial conditions of different solutions to the three-body problem."
   }
 }

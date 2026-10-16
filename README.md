@@ -22,6 +22,28 @@ El panel de la fórmula permite introducir tres valores positivos entre F, m₁,
 
 El tutor recibe los valores actuales, la última predicción y el idioma. Puede explicar el experimento, simplificarlo o dar un ejemplo. Las llamadas son explícitas: mover los controles no consume IA. La UI marca respuestas que pertenecen a valores anteriores y permite reintentar errores. El cálculo físico no depende del modelo.
 
+## Tres cuerpos
+
+`/[locale]/three-body` muestra las seis órbitas de Lagrange, figura de ocho,
+Butterfly I, Goggles, Moth I y Yin-Yang I. Las tarjetas animan los tres cuerpos;
+cada detalle permite pausar, reiniciar y cambiar la velocidad. A 1×, un segundo
+reproduce una unidad de tiempo adimensional. Las trayectorias completas quedan
+visibles como referencia y los colores conservan la identidad de cada cuerpo.
+
+Las muestras se calculan en el servidor a partir de las posiciones y velocidades
+de `src/data/orbits.ts`, con G = m₁ = m₂ = m₃ = 1. Las semillas publicadas y los
+ajustes de velocidades y períodos de `refinements.json` se conservan por separado.
+El integrador usa las fuerzas de Newton con RK4 adaptativo, duplicación de paso y
+corrección de Richardson, sin suavizar la gravedad ni forzar el cierre del período.
+La reproducción interpola 1.200 muestras espaciadas en tiempo físico, de modo que
+los encuentros cercanos no se recorren a velocidad geométrica constante.
+
+Para Lagrange, un radio al baricentro R = 1 da un lado √3 y una aceleración radial
+1/√3. Por tanto, ω² = 1/√3 y cada velocidad inicial es ω(−y, x).
+
+La animación empieza pausada cuando se prefiere movimiento reducido y puede
+activarse explícitamente. Se suspende fuera de pantalla y con la pestaña oculta.
+
 ## Arquitectura
 
 - `app/`: rutas y adaptador HTTP; valida entradas del tutor y gestiona errores.
@@ -29,6 +51,9 @@ El tutor recibe los valores actuales, la última predicción y el idioma. Puede 
 - `features/gravity/application/`: contrato del tutor.
 - `features/gravity/infrastructure/`: adaptador OpenAI protegido con `server-only`; usa fetch y Responses API, sin SDK adicional.
 - `features/gravity/components/`: laboratorio, retos, fórmula y tutor.
+- `features/three-body/domain/`: integración Newtoniana y diagnósticos numéricos independientes de React.
+- `features/three-body/server/`: cálculo y caché de muestras para las seis órbitas.
+- `features/three-body/components/`: proyección SVG y reproducción sin renders React por fotograma.
 - `components/` e `i18n/`: interfaz compartida e internacionalización.
 
 Consulta también `ARCHITECTURE.md`. Se ha utilizado IA para ayudar con implementación, estructura y textos.
@@ -47,4 +72,4 @@ Las pruebas verifican unidades SI, simetría, proporcionalidad con las masas, le
 
 ## Pendiente de la prueba técnica
 
-La galería de seis órbitas, sus detalles y controles todavía no están implementados. Tampoco está configurada una entrega desplegada ni Docker. La integración real de IA requiere las variables anteriores; no se simula con respuestas prefijadas.
+Todavía no está configurada una entrega desplegada ni Docker. La integración real de IA requiere las variables anteriores; no se simula con respuestas prefijadas.

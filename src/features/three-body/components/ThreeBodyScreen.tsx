@@ -1,13 +1,43 @@
-import { useTranslations } from "next-intl";
+import { Gallery } from "@/components/gallery";
+import styles from "@/components/gallery.module.css";
+import { orbits } from "@/data/orbits";
+import { getOrbitPlayback } from "../server/orbit-data";
 
 export const ThreeBodyScreen = () => {
-  const t = useTranslations("ThreeBody");
-
+  const animationData = Object.fromEntries(orbits.map(({ slug }) => [slug, getOrbitPlayback(slug)]));
   return (
-    <section className="page-enter mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
-      <h1 className="max-w-4xl text-4xl leading-tight font-bold tracking-tight break-words text-balance sm:text-5xl lg:text-6xl">{t("title")}</h1>
-
-      <p className="mt-4 max-w-2xl text-lg leading-relaxed text-slate-300 sm:text-xl">{t("description")}</p>
+    <section lang="es" aria-labelledby="gallery-title" className={`${styles.page} page-enter`}>
+      <div className="page-intro">
+        <p className="eyebrow">
+          <span className="status-dot" /> EL PROBLEMA DE LOS TRES CUERPOS
+        </p>
+        <h1 id="gallery-title">
+          El orden dentro
+          <br />
+          de la <span>complejidad.</span>
+        </h1>
+        <div className="intro-bottom">
+          <p>
+            Seis soluciones extraordinarias. Tres cuerpos que se atraen.
+            <br />
+            Descubre los patrones que esconde la gravedad.
+          </p>
+          <span className="catalog-meta">
+            06 SOLUCIONES
+            <br />
+            <span>Un mismo universo</span>
+          </span>
+        </div>
+      </div>
+      <Gallery animationData={animationData} />
+      <aside className="gallery-science-note">
+        <span>i</span>
+        <p>
+          Estas no son curvas decorativas. Cada trayectoria se calcula
+          integrando las ecuaciones de Newton con condiciones iniciales
+          documentadas. Masas iguales, G = 1 y unidades normalizadas.
+        </p>
+      </aside>
     </section>
   );
 };

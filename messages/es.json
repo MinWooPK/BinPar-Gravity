@@ -206,7 +206,20 @@
     "formulaCurrentValue": "Valor actual: {value} {unit}"
   },
   "ThreeBody": {
+    "animationTitle": "Movimiento de los tres cuerpos: {name}",
+    "animationDescription": "Tres cuerpos recorren sus trayectorias bajo la atracción gravitatoria mutua. Cada color identifica el mismo cuerpo durante todo el recorrido. La gravedad determina su movimiento.",
+    "animationControls": "Reproducción de la órbita",
+    "animationPlay": "Reproducir",
+    "animationPause": "Pausar",
+    "animationPlayAll": "Reproducir órbitas",
+    "animationPauseAll": "Pausar órbitas",
+    "animationReset": "Reiniciar",
+    "animationSpeed": "Velocidad",
+    "animationBodies": "Identificación de los cuerpos",
+    "animationBody": "Cuerpo {number}",
+    "animationGalleryNote": "Sigue los tres puntos de colores: cada uno representa un cuerpo en movimiento.",
+    "animationTiming": "A 1×, un segundo reproduce una unidad de tiempo de la órbita. Las líneas muestran las trayectorias de un período completo.",
     "title": "El problema de los tres cuerpos",
-    "description": "Explora el movimiento de tres cuerpos bajo la gravedad."
+    "description": "Descubre seis órbitas y las condiciones iniciales de distintas soluciones del problema de los tres cuerpos."
   }
 }

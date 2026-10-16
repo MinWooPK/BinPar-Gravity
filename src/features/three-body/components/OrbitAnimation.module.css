@@ -1,0 +1,103 @@
+.stage {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  overflow: hidden;
+  border-radius: inherit;
+}
+
+.player {
+  min-width: 0;
+  margin: 0;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid #2d344a;
+  border-radius: 1rem;
+  background-color: #0c1120;
+  background-image: linear-gradient(#ffffff04 1px, transparent 1px), linear-gradient(90deg, #ffffff04 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.player .stage {
+  max-width: 52rem;
+  margin-inline: auto;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-block: 1rem;
+  border-block: 1px solid #2d344a;
+}
+
+.controls button,
+.controls select {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.875rem;
+  border: 1px solid #60517f;
+  border-radius: 0.6rem;
+  background: #211d32;
+  color: #e3dafa;
+  font-size: 1rem;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.controls button:hover {
+  background: #302748;
+  border-color: #aa97ff;
+}
+
+.controls :is(button, select):focus-visible {
+  outline: 3px solid #c7baff;
+  outline-offset: 4px;
+}
+
+.controls label {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  color: #b6bfd3;
+  font-size: 1rem;
+}
+
+.legend {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: #e3dafa;
+  font-size: 0.9375rem;
+}
+
+.legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend span {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+}
+
+.player figcaption p {
+  max-width: 52rem;
+  margin: 0.875rem auto 0;
+  color: #b6bfd3;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  text-align: center;
+}

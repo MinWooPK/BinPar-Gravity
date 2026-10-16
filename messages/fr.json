@@ -206,7 +206,20 @@
     "formulaCurrentValue": "Valeur actuelle : {value} {unit}"
   },
   "ThreeBody": {
+    "animationTitle": "Mouvement des trois corps : {name}",
+    "animationDescription": "Trois corps suivent leurs trajectoires sous leur attraction gravitationnelle mutuelle. Chaque couleur identifie le même corps tout au long du parcours. La gravité détermine leur mouvement.",
+    "animationControls": "Lecture de l’orbite",
+    "animationPlay": "Lire",
+    "animationPause": "Pause",
+    "animationPlayAll": "Animer les orbites",
+    "animationPauseAll": "Mettre en pause",
+    "animationReset": "Recommencer",
+    "animationSpeed": "Vitesse",
+    "animationBodies": "Identification des corps",
+    "animationBody": "Corps {number}",
+    "animationGalleryNote": "Suivez les trois points colorés : chacun représente un corps en mouvement.",
+    "animationTiming": "À 1×, une seconde représente une unité de temps orbital. Les lignes montrent les trajectoires sur une période complète.",
     "title": "Le problème des trois corps",
-    "description": "Explorez le mouvement de trois corps sous l'effet de la gravité."
+    "description": "Découvrez six orbites et les conditions initiales de différentes solutions du problème des trois corps."
   }
 }
