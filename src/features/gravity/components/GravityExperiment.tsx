@@ -4,7 +4,7 @@ import { useId } from "react";
 import type { CSSProperties } from "react";
 import styles from "./GravityExperiment.module.css";
 import { useFormatter, useTranslations } from "next-intl";
-import { gravitationalForce } from "../domain/gravitation";
+import { compareGravitation } from "../domain/compareGravitation";
 import type { GravityParameters } from "../domain/gravitation";
 
 const controls = [
@@ -50,10 +50,12 @@ const GravitySlider = ({
   control,
   value,
   onChange,
+  descriptionId,
 }: {
   control: (typeof controls)[number];
   value: number;
   onChange: (value: number) => void;
+  descriptionId: string;
 }) => {
   const id = useId();
   const t = useTranslations("Gravity");
@@ -82,6 +84,7 @@ const GravitySlider = ({
         step={control.step}
         value={value}
         aria-valuetext={`${format.number(value)} ${control.unit}`}
+        aria-describedby={descriptionId}
         onChange={(event) => onChange(Number(event.target.value))}
       />
       <div aria-hidden="true" className={styles["range-limits"]}>
@@ -104,7 +107,14 @@ export const GravityExperiment = ({
   const id = useId();
   const t = useTranslations("Gravity");
   const format = useFormatter();
-  const force = gravitationalForce(parameters);
+  const comparison = compareGravitation(parameters);
+  const force = comparison.currentForce;
+  const forceExplanation = t(`forceExplanation.${comparison.explanation}`, {
+    percentage: format.number(comparison.forceRatio, {
+      style: "percent",
+      maximumFractionDigits: 2,
+    }),
+  });
   const exponent = Math.floor(Math.log10(force));
   const mantissa = format.number(force / 10 ** exponent, {
     maximumFractionDigits: 2,
@@ -274,11 +284,14 @@ export const GravityExperiment = ({
       <div className={styles["force-result"]}>
         <div>
           <span>{t("force")}</span>
-          <output aria-live="off">
+          <output aria-live="off" aria-describedby={`${id}-force-explanation`}>
             {mantissa} × 10^{exponent} <small>N</small>
           </output>
         </div>
         <span className={styles["live-pill"]}>{t("liveResult")}</span>
+        <p id={`${id}-force-explanation`} className={styles.forceExplanation}>
+          {forceExplanation}
+        </p>
       </div>
       <div className={styles["lab-sliders"]}>
         {controls.map((control) => (
@@ -286,6 +299,7 @@ export const GravityExperiment = ({
             key={control.key}
             control={control}
             value={parameters[control.key] / control.scale}
+            descriptionId={`${id}-force-explanation`}
             onChange={(value) =>
               onChange({ ...parameters, [control.key]: value * control.scale })
             }

@@ -173,7 +173,16 @@
     "tryChallengeLabel": "NOW IT’S YOUR TURN",
     "tryChallengeTitle": "What if you move the bodies twice as far apart?",
     "tryChallengeDescription": "Set the distance to 5 km, then to 10 km, without changing the masses. Compare the force: it should fall to one quarter.",
-    "checkInLab": "Try it"
+    "checkInLab": "Try it",
+    "forceExplanation": {
+      "initial": "Initial values: change one mass or the distance and compare the force with its initial value.",
+      "massDoubled": "You doubled just one mass, keeping the other mass and distance unchanged: force doubles compared with the start.",
+      "distanceDoubled": "You doubled the distance, keeping both masses unchanged: force falls to one quarter of its initial value.",
+      "massChanged": "Only one mass changed: force changes in the same proportion and is approximately {percentage} of its initial value.",
+      "distanceChanged": "Only distance changed: force follows its inverse square and is approximately {percentage} of its initial value.",
+      "combined": "You changed several variables: their effects combine. The total force is approximately {percentage} of its initial value.",
+      "combinedUnchanged": "You changed several variables, but their effects cancel out: the total force stays the same as at the start."
+    }
   },
   "ThreeBody": {
     "title": "The Three-Body Problem",

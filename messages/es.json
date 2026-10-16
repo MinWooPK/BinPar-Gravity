@@ -173,7 +173,16 @@
     "tryChallengeLabel": "AHORA TE TOCA A TI",
     "tryChallengeTitle": "¿Y si alejas los cuerpos el doble?",
     "tryChallengeDescription": "Pon la distancia en 5 km y después en 10 km, sin cambiar las masas. Compara la fuerza: debería quedar en una cuarta parte.",
-    "checkInLab": "Comprobarlo"
+    "checkInLab": "Comprobarlo",
+    "forceExplanation": {
+      "initial": "Valores iniciales: cambia una masa o la distancia y compara la fuerza con la del inicio.",
+      "massDoubled": "Has duplicado una sola masa, sin cambiar la otra ni la distancia: la fuerza se duplica respecto al inicio.",
+      "distanceDoubled": "Has duplicado la distancia, sin cambiar las masas: la fuerza queda en una cuarta parte de la inicial.",
+      "massChanged": "Solo cambia una masa: la fuerza cambia en la misma proporción y equivale aproximadamente al {percentage} de la inicial.",
+      "distanceChanged": "Solo cambia la distancia: la fuerza depende de su inverso al cuadrado y equivale aproximadamente al {percentage} de la inicial.",
+      "combined": "Has cambiado varias variables: sus efectos se combinan. La fuerza total equivale aproximadamente al {percentage} de la inicial.",
+      "combinedUnchanged": "Has cambiado varias variables, pero sus efectos se compensan: la fuerza total se mantiene igual que al inicio."
+    }
   },
   "ThreeBody": {
     "title": "El problema de los tres cuerpos",

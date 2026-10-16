@@ -173,7 +173,16 @@
     "tryChallengeLabel": "À VOUS DE JOUER",
     "tryChallengeTitle": "Et si vous doublez la distance entre les corps ?",
     "tryChallengeDescription": "Réglez la distance sur 5 km puis sur 10 km, sans modifier les masses. Comparez la force : elle devrait être divisée par quatre.",
-    "checkInLab": "Vérifier"
+    "checkInLab": "Vérifier",
+    "forceExplanation": {
+      "initial": "Valeurs initiales : modifiez une masse ou la distance et comparez la force à sa valeur de départ.",
+      "massDoubled": "Vous avez doublé une seule masse, sans changer l’autre ni la distance : la force double par rapport au départ.",
+      "distanceDoubled": "Vous avez doublé la distance, sans changer les masses : la force vaut un quart de sa valeur initiale.",
+      "massChanged": "Une seule masse change : la force varie dans la même proportion et vaut environ {percentage} de sa valeur initiale.",
+      "distanceChanged": "Seule la distance change : la force suit son inverse au carré et vaut environ {percentage} de sa valeur initiale.",
+      "combined": "Vous avez modifié plusieurs variables : leurs effets se combinent. La force totale vaut environ {percentage} de sa valeur initiale.",
+      "combinedUnchanged": "Vous avez modifié plusieurs variables, mais leurs effets se compensent : la force totale reste identique à celle du départ."
+    }
   },
   "ThreeBody": {
     "title": "Le problème des trois corps",
