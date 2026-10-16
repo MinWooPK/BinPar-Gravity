@@ -192,7 +192,11 @@
     "formulaDistanceHint": "Introduce r en metros (m), sin elevarlo al cuadrado: lo hacemos automáticamente.",
     "automaticField": "Automático",
     "calculatedFormulaVariable": "{symbol} en {unit}, resultado automático de solo lectura",
-    "invalidFormulaValue": "Revisa {symbol}: introduce un número mayor que cero."
+    "invalidFormulaValue": "Revisa {symbol}: introduce un número mayor que cero.",
+    "challengeBefore": "Antes",
+    "challengeAfter": "Después",
+    "challengeComparisonTitle": "Fuerza antes y después",
+    "challengeComparisonScale": "Antes = 100 % de la fuerza inicial. Misma escala lineal en los tres retos: ancho completo = {percentage}."
   },
   "ThreeBody": {
     "title": "El problema de los tres cuerpos",

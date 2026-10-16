@@ -17,15 +17,21 @@ export const getGravityDiagram = ({ mass1, mass2, distance }: GravityParameters)
   };
 };
 
-/** Both bars share a linear scale; their length ratio equals the force ratio. */
-export const getRelativeForceBars = (currentForce: number, initialForce: number) => {
+/** A shared linear scale preserves force ratios; an optional scale fixes it across views. */
+export const getRelativeForceBars = (
+  currentForce: number,
+  initialForce: number,
+  scaleForce = Math.max(currentForce, initialForce),
+) => {
   if (![currentForce, initialForce].every((value) => Number.isFinite(value) && value > 0)) {
     throw new RangeError("Force comparison requires finite, positive forces.");
   }
-  const scale = Math.max(currentForce, initialForce);
+  if (!Number.isFinite(scaleForce) || scaleForce < Math.max(currentForce, initialForce)) {
+    throw new RangeError("The shared scale must contain both forces without clipping.");
+  }
   return {
-    currentFraction: currentForce / scale,
-    initialFraction: initialForce / scale,
+    currentFraction: currentForce / scaleForce,
+    initialFraction: initialForce / scaleForce,
     ratio: currentForce / initialForce,
   };
 };

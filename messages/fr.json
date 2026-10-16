@@ -192,7 +192,11 @@
     "formulaDistanceHint": "Saisissez r en mètres (m), sans le mettre au carré : le calcul le fait automatiquement.",
     "automaticField": "Automatique",
     "calculatedFormulaVariable": "{symbol} en {unit}, résultat automatique en lecture seule",
-    "invalidFormulaValue": "Vérifiez {symbol} : saisissez un nombre supérieur à zéro."
+    "invalidFormulaValue": "Vérifiez {symbol} : saisissez un nombre supérieur à zéro.",
+    "challengeBefore": "Avant",
+    "challengeAfter": "Après",
+    "challengeComparisonTitle": "Force avant et après",
+    "challengeComparisonScale": "Avant = 100 % de la force initiale. Même échelle linéaire pour les trois défis : largeur totale = {percentage}."
   },
   "ThreeBody": {
     "title": "Le problème des trois corps",

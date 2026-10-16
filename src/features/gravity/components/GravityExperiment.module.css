@@ -284,6 +284,14 @@
 .forceComparison h3 { margin: 0 0 8px; color: #d0d4e3; font-size: 15px; font-weight: 500; line-height: 1.5; }
 .comparisonSvg { display: block; width: 100%; height: auto; max-width: 440px; }
 .forceComparison figcaption { margin-top: 2px; max-width: 52ch; color: #a0a7be; font-size: 13px; line-height: 1.5; }
+.challengeComparison { min-width: 0; margin: 0; color: #e2e8f0; }
+.challengeComparison h4 { margin: 0 0 18px; font-size: 18px; font-weight: 600; line-height: 1.5; }
+.comparisonRow { min-width: 0; margin-top: 16px; }
+.comparisonLabel { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; font-size: 16px; line-height: 1.5; }
+.comparisonLabel strong { color: #95efde; font-variant-numeric: tabular-nums; }
+.challengeBar { display: block; width: 100%; height: 12px; margin-top: 8px; }
+.comparisonForce { margin: 6px 0 0; color: #b6bdd0; font-size: 14px; line-height: 1.5; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.challengeComparison figcaption { margin-top: 18px; max-width: 70ch; color: #b6bdd0; font-size: 14px; line-height: 1.6; overflow-wrap: anywhere; }
 .forceExplanation {
   flex: 1 1 100%;
   min-width: 0;

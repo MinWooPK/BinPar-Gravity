@@ -11,7 +11,7 @@ after(() => rmSync(directory, { recursive: true, force: true }));
 execFileSync(process.execPath, ['node_modules/typescript/bin/tsc', 'src/features/gravity/components/gravityVisualization.ts', '--outDir', directory, '--module', 'commonjs', '--target', 'es2017', '--skipLibCheck']);
 const require = createRequire(import.meta.url);
 const { getGravityDiagram: diagram, getRelativeForceBars: bars } = require(join(directory, 'components/gravityVisualization.js'));
-const { gravitationalForce: force, initialParameters: base } = require(join(directory, 'domain/gravitation.js'));
+const { gravitationalForce: force, initialParameters: base, challenges } = require(join(directory, 'domain/gravitation.js'));
 const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < Math.abs(expected) * 1e-12, `${actual} != ${expected}`);
 const compare = (parameters) => bars(force(parameters), force(base));
 
@@ -92,6 +92,37 @@ test('invalid force measurements cannot generate a visual intensity', () => {
   for (const invalid of [0, -1, NaN, Infinity]) {
     assert.throws(() => bars(invalid, 1), RangeError);
     assert.throws(() => bars(1, invalid), RangeError);
+  }
+});
+test('all challenge bars share one scale and retain their true 200%, 400% and 25% proportions', () => {
+  const initialForce = force(base);
+  const scaleForce = Math.max(initialForce, ...challenges.map((challenge) => force(challenge.parameters)));
+  const expected = {
+    oneMass: { percentage: 200, fraction: 0.5 },
+    bothMasses: { percentage: 400, fraction: 1 },
+    distance: { percentage: 25, fraction: 0.0625 },
+  };
+  const widths = new Set();
+  for (const challenge of challenges) {
+    const current = bars(force(challenge.parameters), initialForce, scaleForce);
+    near(current.ratio * 100, expected[challenge.id].percentage);
+    near(current.initialFraction, 0.25);
+    near(current.currentFraction, expected[challenge.id].fraction);
+    near(current.currentFraction / current.initialFraction, current.ratio);
+    widths.add(current.currentFraction);
+  }
+  assert.equal(widths.size, challenges.length, 'Different final forces must have different widths across challenges');
+});
+test('explicit scales cannot clip larger forces or turn different forces into equivalent bars', () => {
+  for (const scale of [0, -1, NaN, Infinity, 1, 3]) assert.throws(() => bars(4, 1, scale), RangeError);
+  assert.deepEqual(bars(4, 1, 8), { currentFraction: 0.5, initialFraction: 0.125, ratio: 4 });
+});
+test('before/after labels and shared-scale explanation are translated in all locales', () => {
+  for (const locale of ['es', 'en', 'fr']) {
+    const messages = JSON.parse(readFileSync(new URL(`../messages/${locale}.json`, import.meta.url), 'utf8')).Gravity;
+    for (const key of ['challengeBefore', 'challengeAfter', 'challengeComparisonTitle', 'challengeComparisonScale']) assert.ok(messages[key]?.trim(), `${locale}.${key}`);
+    assert.ok(messages.challengeComparisonScale.includes('{percentage}'));
+    for (const challenge of challenges) assert.ok(messages[`feedback_${challenge.id}`]?.trim());
   }
 });
 test('comparison and direction descriptions are translated in ES/EN/FR', () => {

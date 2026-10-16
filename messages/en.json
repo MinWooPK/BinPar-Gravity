@@ -192,7 +192,11 @@
     "formulaDistanceHint": "Enter r in metres (m), without squaring it: this is done automatically.",
     "automaticField": "Automatic",
     "calculatedFormulaVariable": "{symbol} in {unit}, read-only automatic result",
-    "invalidFormulaValue": "Check {symbol}: enter a number greater than zero."
+    "invalidFormulaValue": "Check {symbol}: enter a number greater than zero.",
+    "challengeBefore": "Before",
+    "challengeAfter": "After",
+    "challengeComparisonTitle": "Force before and after",
+    "challengeComparisonScale": "Before = 100% of the initial force. Same linear scale in all three challenges: full width = {percentage}."
   },
   "ThreeBody": {
     "title": "The Three-Body Problem",

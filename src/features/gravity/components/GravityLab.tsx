@@ -1,11 +1,10 @@
 "use client";
 
 import { useId, useRef, useState } from "react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
   challenges,
-  gravitationalForce,
 } from "../domain/gravitation";
 import type {
   LearningAttempt,
@@ -13,6 +12,7 @@ import type {
 } from "../domain/gravitation";
 import { GravityTutor } from "./GravityTutor";
 import { GravityExperiment } from "./GravityExperiment";
+import { GravityChallengeComparison } from "./GravityChallengeComparison";
 import { GravityPrinciples } from "./GravityPrinciples";
 import { useGravityParameters } from "./GravityParametersProvider";
 
@@ -21,7 +21,6 @@ const buttonClass =
 
 export const GravityLab = () => {
   const t = useTranslations("Gravity");
-  const format = useFormatter();
   const id = useId();
   const experimentRef = useRef<HTMLElement>(null);
   const { parameters, setParameters, resetParameters } = useGravityParameters();
@@ -151,6 +150,26 @@ export const GravityLab = () => {
               <p className="mt-2 text-base text-slate-200">
                 {t(`feedback_${challenge.id}`)}
               </p>
+              <div className="mt-4 rounded-xl border border-sky-800 bg-sky-950/40 p-4">
+                <GravityChallengeComparison parameters={challenge.parameters} />
+                <button
+                  type="button"
+                  onClick={() => {
+                    experimentRef.current?.focus();
+                    experimentRef.current?.scrollIntoView({
+                      behavior: window.matchMedia(
+                        "(prefers-reduced-motion: reduce)",
+                      ).matches
+                        ? "instant"
+                        : "smooth",
+                      block: "start",
+                    });
+                  }}
+                  className={`${buttonClass} mt-3`}
+                >
+                  {t("seeExperiment")}
+                </button>
+              </div>
               <p className="mt-2 text-sm text-slate-400">{t("feedbackNote")}</p>
               <button
                 type="button"
@@ -160,35 +179,6 @@ export const GravityLab = () => {
                 className={`${buttonClass} mt-4 w-full`}
               >
                 {t(step < 2 ? "next" : "finish")}
-              </button>
-            </div>
-          )}
-          {revealed && (
-            <div className="mt-4 rounded-xl border border-sky-800 bg-sky-950/40 p-4">
-              <p className="text-base text-slate-200">{t("challengeForce")}</p>
-              <p className="mt-1 font-mono text-xl text-sky-200">
-                {format.number(gravitationalForce(challenge.parameters), {
-                  notation: "scientific",
-                  maximumSignificantDigits: 3,
-                })}{" "}
-                N
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  experimentRef.current?.focus();
-                  experimentRef.current?.scrollIntoView({
-                    behavior: window.matchMedia(
-                      "(prefers-reduced-motion: reduce)",
-                    ).matches
-                      ? "instant"
-                      : "smooth",
-                    block: "start",
-                  });
-                }}
-                className={`${buttonClass} mt-3`}
-              >
-                {t("seeExperiment")}
               </button>
             </div>
           )}
