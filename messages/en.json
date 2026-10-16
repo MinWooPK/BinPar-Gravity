@@ -156,7 +156,7 @@
     "outsideLabRange": "Valid result outside the laboratory’s visual range (masses of 10–100 × 10¹² kg and distance of 5–20 km). The previous experiment is preserved.",
     "massEquationSpoken": "Unknown mass equals force times distance squared, divided by G times the other mass.",
     "distanceEquationSpoken": "Distance equals the square root of G times both masses divided by force.",
-    "clickToEditFormulaHint": "Click F, m₁, m₂ or r² to enter a value. On blur, it shows the value or its symbol if empty. Three inputs calculate the fourth; reset to choose another unknown.",
+    "clickToEditFormulaHint": "Click or tap F, m₁, m₂ or r² to enter values. With three values greater than zero, the fourth is calculated automatically. Reset to choose another unknown.",
     "editFormulaVariable": "Edit {symbol} in {unit}",
     "legendConstantHighlighted": "The gravitational <highlight>constant</highlight>",
     "legendForceUnitHighlighted": "in newtons (<highlight>N</highlight>)",
@@ -188,7 +188,11 @@
     "forceComparisonInitial": "Initial",
     "forceComparisonCurrent": "Current",
     "forceComparisonScale": "1× is the initial force. Both bars share a linear scale, adjusted to the larger force.",
-    "directionOnlyNote": "Equal, fixed-length arrows show direction, not strength."
+    "directionOnlyNote": "Equal, fixed-length arrows show direction, not strength.",
+    "formulaDistanceHint": "Enter r in metres (m), without squaring it: this is done automatically.",
+    "automaticField": "Automatic",
+    "calculatedFormulaVariable": "{symbol} in {unit}, read-only automatic result",
+    "invalidFormulaValue": "Check {symbol}: enter a number greater than zero."
   },
   "ThreeBody": {
     "title": "The Three-Body Problem",

@@ -6,6 +6,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { solveGravity } from "../domain/gravitation";
 import type { GravityValues, GravityVariable } from "../domain/gravitation";
 import { useGravityParameters } from "./GravityParametersProvider";
+import { parseFormulaValue } from "./parseFormulaValue";
 import styles from "./GravityIntroduction.module.css";
 
 const definitions = [
@@ -41,6 +42,7 @@ const GravityFormulaContent = () => {
   const active = hovered ?? focused ?? selected;
   const [editing, setEditing] = useState<GravityVariable | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const panelRef = useRef<HTMLElement>(null);
   const variableRefs = useRef<Partial<Record<GravityVariable, HTMLButtonElement | null>>>({});
   useEffect(() => {
     if (editing) { inputRef.current?.focus(); inputRef.current?.select(); }
@@ -61,17 +63,17 @@ const GravityFormulaContent = () => {
     setValues(next);
     setResult(null);
     setNumericalError(false);
-    const filled = fields.filter((field) => next[field.key].trim() !== "");
-    const target = unknown ?? (filled.length === 3 ? fields.find((field) => !next[field.key].trim())!.key : null);
+    const valid = fields.filter((field) => parseFormulaValue(next[field.key]) !== null);
+    const target = unknown ?? (valid.length === 3 ? fields.find((field) => parseFormulaValue(next[field.key]) === null)!.key : null);
     if (!target) return;
-    setUnknown(target);
     const known: Partial<GravityValues> = {};
     for (const field of fields) {
       if (field.key === target) continue;
-      const value = Number(next[field.key]);
-      if (!next[field.key].trim() || !Number.isFinite(value) || value <= 0) return;
+      const value = parseFormulaValue(next[field.key]);
+      if (value === null) return;
       known[field.key] = value * field.scale;
     }
+    setUnknown(target);
     try {
       const solution = solveGravity(target, known);
       setResult(solution);
@@ -82,15 +84,23 @@ const GravityFormulaContent = () => {
   const fieldInput = (field: typeof fields[number], squared = false) => {
     const calculated = unknown === field.key;
     const text = values[field.key];
-    const invalid = !calculated && text !== "" && (!Number.isFinite(Number(text)) || Number(text) <= 0);
+    const invalid = !calculated && text.trim() !== "" && parseFormulaValue(text) === null;
     const computed = calculated && result ? Number((result[field.key] / field.scale).toPrecision(12)).toString() : "";
     return (
       <span className={styles.formulaEditor} key={field.key}>
         <label htmlFor={`${id}-input-${field.key}`} className="sr-only">{field.symbol} ({field.unit})</label>
-        <span className={styles.inputWithUnit} data-calculated={calculated} data-invalid={invalid}>
-        <input ref={inputRef} id={`${id}-input-${field.key}`} name={field.key} type="number" inputMode="decimal" step="any" min="0" placeholder="-" value={calculated ? computed : text} readOnly={calculated} aria-invalid={invalid || undefined} aria-describedby={`${id}-hint-${field.key}`} onFocus={() => setFocused(definitionKey(field.key))} onBlur={() => closeEditor()} onKeyDown={(event) => { if (event.key === "Enter" || event.key === "Escape") { event.preventDefault(); event.stopPropagation(); closeEditor(true); } }} onChange={(event) => changeValue(field.key, event.target.value)} />
-          {squared && <sup className={styles.editorSquare}>2</sup>}
-          <small>{squared ? "m²" : field.unit}</small>
+        <span className={styles.formulaInputGroup}>
+          <span className={styles.inputWithUnit} data-calculated={calculated} data-invalid={invalid}>
+        <input ref={inputRef} id={`${id}-input-${field.key}`} name={field.key} type="text" inputMode="decimal" autoComplete="off" spellCheck={false} placeholder="-" value={calculated ? computed : text} readOnly={calculated} aria-invalid={invalid || undefined} aria-describedby={`${id}-hint-${field.key} ${id}-instructions${squared ? ` ${id}-distance-hint` : ""}`} onFocus={() => setFocused(definitionKey(field.key))} onBlur={() => closeEditor()} onKeyDown={(event) => {
+          if (event.key === "Tab") {
+            const controls = Array.from(panelRef.current?.querySelectorAll<HTMLElement>("button, input") ?? []);
+            const next = controls[controls.indexOf(event.currentTarget) + (event.shiftKey ? -1 : 1)];
+            if (next) { event.preventDefault(); closeEditor(); next.focus(); }
+          } else if (event.key === "Enter" || event.key === "Escape") { event.preventDefault(); event.stopPropagation(); closeEditor(true); }
+        }} onChange={(event) => changeValue(field.key, event.target.value)} />
+          <small>{field.unit}</small>
+          </span>
+          {squared && <sup aria-hidden="true" className={styles.editorSquare}>2</sup>}
         </span>
         <span id={`${id}-hint-${field.key}`} className={invalid ? styles.fieldError : styles.fieldHint}>{invalid ? t("positiveValue") : calculated ? t("automaticallyCalculated") : ""}</span>
       </span>
@@ -103,7 +113,7 @@ const GravityFormulaContent = () => {
   };
   const displayedValue = (key: GravityVariable, squared = false) => {
     const field = fields.find((item) => item.key === key)!;
-    const value = unknown === key ? (result ? result[key] / field.scale : null) : values[key].trim() ? Number(values[key]) : null;
+    const value = unknown === key ? (result ? result[key] / field.scale : null) : parseFormulaValue(values[key]);
     if (value === null || !Number.isFinite(value) || value <= 0) return `${field.symbol}${squared ? "²" : ""}`;
     return (
       <span className={styles.substitutedValue}>
@@ -116,14 +126,15 @@ const GravityFormulaContent = () => {
   const openEditor = (key: GravityVariable) => {
     setSelected(definitionKey(key));
     setEditing(key);
-    requestAnimationFrame(() => { inputRef.current?.focus(); inputRef.current?.select(); });
   };
 
   const editableTerm = (key: GravityVariable, squared = false) => {
     if (editing === key) return fieldInput(fields.find((field) => field.key === key)!, squared);
     const definition = definitionKey(key);
     const field = fields.find((item) => item.key === key)!;
-    return <button ref={(element) => { variableRefs.current[key] = element; }} type="button" className={styles.term} data-active={active === definition} data-calculated={unknown === key} aria-label={t("editFormulaVariable", { symbol: field.symbol, unit: field.unit })} aria-describedby={`${id}-${definition}`} onPointerEnter={(event) => { if (event.pointerType === "mouse") setHovered(definition); }} onPointerLeave={() => setHovered(null)} onFocus={() => setFocused(definition)} onBlur={() => setFocused(null)} onClick={() => openEditor(key)}>{displayedValue(key, squared)}</button>;
+    const calculated = unknown === key;
+    const invalid = !calculated && values[key].trim() !== "" && parseFormulaValue(values[key]) === null;
+    return <button ref={(element) => { variableRefs.current[key] = element; }} type="button" data-formula-variable={key} className={`${styles.term} ${styles.formulaVariable}`} data-active={active === definition} data-calculated={calculated} data-invalid={invalid} aria-label={t(calculated ? "calculatedFormulaVariable" : "editFormulaVariable", { symbol: field.symbol, unit: field.unit })} aria-describedby={`${id}-${definition} ${id}-instructions${squared ? ` ${id}-distance-hint` : ""}${invalid || calculated ? ` ${id}-status` : ""}`} onPointerEnter={(event) => { if (event.pointerType === "mouse") setHovered(definition); }} onPointerLeave={() => setHovered(null)} onFocus={() => setFocused(definition)} onBlur={() => setFocused(null)} onClick={() => openEditor(key)}>{displayedValue(key, squared)}{calculated && <span className={styles.calculatedLabel}>{t("automaticField")}</span>}</button>;
   };
 
   const equation = (
@@ -138,14 +149,17 @@ const GravityFormulaContent = () => {
       </span>
     </>
   );
-  const status = numericalError ? t("numericalError") : result ? t("automaticResult", { symbol: fields.find((field) => field.key === unknown)!.symbol, value: format.number(result[unknown!] / fields.find((field) => field.key === unknown)!.scale, { maximumSignificantDigits: 6 }), unit: fields.find((field) => field.key === unknown)!.unit }) : "";
+  const invalidField = fields.find((field) => field.key !== unknown && values[field.key].trim() !== "" && parseFormulaValue(values[field.key]) === null);
+  const status = invalidField ? t("invalidFormulaValue", { symbol: invalidField.symbol }) : numericalError ? t("numericalError") : result ? t("automaticResult", { symbol: fields.find((field) => field.key === unknown)!.symbol, value: format.number(result[unknown!] / fields.find((field) => field.key === unknown)!.scale, { maximumSignificantDigits: 6 }), unit: fields.find((field) => field.key === unknown)!.unit }) : "";
 
   return (
-    <section aria-labelledby={`${id}-heading`} className={styles.panel} onKeyDown={(event) => { if (event.key === "Escape") { setSelected(null); setHovered(null); setFocused(null); } }}>
+    <section ref={panelRef} aria-labelledby={`${id}-heading`} className={styles.panel} onKeyDown={(event) => { if (event.key === "Escape") { setSelected(null); setHovered(null); setFocused(null); } }}>
       <div className={styles.calculatorHeader}><h2 id={`${id}-heading`} className={styles.eyebrow}>{t("introFormulaTitle")}</h2><button type="button" onClick={resetParameters} className={styles.resetButton}>{t("reset")}</button></div>
+      <p id={`${id}-instructions`} className={styles.formulaInstructions}>{t("clickToEditFormulaHint")}</p>
+      <p id={`${id}-distance-hint`} className={styles.distanceHint}>{t("formulaDistanceHint")}</p>
       <p className="sr-only">{t("formulaSpoken")}</p>
       <div className={`${styles.formula} ${styles.autoEquation}`}>{equation}</div>
-      <p className={numericalError ? styles.fieldError : styles.formulaHint} role="status" hidden={!status}>{status}</p>
+      <p id={`${id}-status`} className={invalidField || numericalError ? styles.fieldError : styles.formulaHint} role="status" hidden={!status}>{status}</p>
       {result && !inLabRange(result) && <p className={styles.fieldError}>{t("outsideLabRange")}</p>}
       <dl className={styles.legend}>
         {definitions.map(({ key, symbol, label, detail }) => (

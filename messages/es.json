@@ -156,7 +156,7 @@
     "outsideLabRange": "Resultado válido, fuera del intervalo visual del laboratorio (masas de 10–100 × 10¹² kg y distancia de 5–20 km). Se conserva el experimento anterior.",
     "massEquationSpoken": "Masa desconocida igual a fuerza por distancia al cuadrado, dividida entre G por la otra masa.",
     "distanceEquationSpoken": "Distancia igual a la raíz cuadrada de G por las dos masas dividido entre la fuerza.",
-    "clickToEditFormulaHint": "Pulsa F, m₁, m₂ o r² para introducir un valor. Al salir, el campo vuelve a mostrar su valor o su símbolo si está vacío. Con tres datos se calcula el cuarto; restablece para elegir otra incógnita.",
+    "clickToEditFormulaHint": "Pulsa F, m₁, m₂ o r² para introducir valores. Con tres valores mayores que cero, el cuarto se calcula automáticamente. Restablece para elegir otra incógnita.",
     "editFormulaVariable": "Editar {symbol} en {unit}",
     "legendConstantHighlighted": "La <highlight>constante</highlight> de la gravedad",
     "legendForceUnitHighlighted": "en newtons (<highlight>N</highlight>)",
@@ -188,7 +188,11 @@
     "forceComparisonInitial": "Inicial",
     "forceComparisonCurrent": "Actual",
     "forceComparisonScale": "1× es la fuerza inicial. Misma escala lineal en ambas barras, ajustada a la fuerza mayor.",
-    "directionOnlyNote": "Flechas iguales y de longitud fija: indican la dirección, no la intensidad."
+    "directionOnlyNote": "Flechas iguales y de longitud fija: indican la dirección, no la intensidad.",
+    "formulaDistanceHint": "Introduce r en metros (m), sin elevarlo al cuadrado: lo hacemos automáticamente.",
+    "automaticField": "Automático",
+    "calculatedFormulaVariable": "{symbol} en {unit}, resultado automático de solo lectura",
+    "invalidFormulaValue": "Revisa {symbol}: introduce un número mayor que cero."
   },
   "ThreeBody": {
     "title": "El problema de los tres cuerpos",

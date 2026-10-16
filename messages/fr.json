@@ -156,7 +156,7 @@
     "outsideLabRange": "Résultat valide hors de la plage visuelle du laboratoire (masses de 10–100 × 10¹² kg et distance de 5–20 km). L’expérience précédente est conservée.",
     "massEquationSpoken": "La masse inconnue égale la force fois la distance au carré, divisée par G fois l’autre masse.",
     "distanceEquationSpoken": "La distance égale la racine carrée de G fois les deux masses divisée par la force.",
-    "clickToEditFormulaHint": "Cliquez sur F, m₁, m₂ ou r² pour saisir une valeur. En quittant le champ, sa valeur ou son symbole apparaît. Trois données permettent de calculer la quatrième ; réinitialisez pour changer d’inconnue.",
+    "clickToEditFormulaHint": "Cliquez ou touchez F, m₁, m₂ ou r² pour saisir des valeurs. Avec trois valeurs supérieures à zéro, la quatrième est calculée automatiquement. Réinitialisez pour choisir une autre inconnue.",
     "editFormulaVariable": "Modifier {symbol} en {unit}",
     "legendConstantHighlighted": "La <highlight>constante</highlight> de gravitation",
     "legendForceUnitHighlighted": "en newtons (<highlight>N</highlight>)",
@@ -188,7 +188,11 @@
     "forceComparisonInitial": "Initiale",
     "forceComparisonCurrent": "Actuelle",
     "forceComparisonScale": "1× correspond à la force initiale. Les deux barres utilisent la même échelle linéaire, ajustée à la force la plus grande.",
-    "directionOnlyNote": "Les flèches égales et de longueur fixe indiquent la direction, pas l’intensité."
+    "directionOnlyNote": "Les flèches égales et de longueur fixe indiquent la direction, pas l’intensité.",
+    "formulaDistanceHint": "Saisissez r en mètres (m), sans le mettre au carré : le calcul le fait automatiquement.",
+    "automaticField": "Automatique",
+    "calculatedFormulaVariable": "{symbol} en {unit}, résultat automatique en lecture seule",
+    "invalidFormulaValue": "Vérifiez {symbol} : saisissez un nombre supérieur à zéro."
   },
   "ThreeBody": {
     "title": "Le problème des trois corps",
