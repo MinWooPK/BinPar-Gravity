@@ -1,24 +1,18 @@
-"use client";
-
-import { useId } from "react";
 import { useTranslations } from "next-intl";
 import styles from "./GravityPrinciples.module.css";
 
-export const GravityPrinciples = ({ onCheck }: { onCheck: () => void }) => {
+export const GravityPrinciples = () => {
   const t = useTranslations("Gravity");
-  const id = useId();
   return (
-    <section aria-labelledby={`${id}-title`} className={styles.section}>
-      <h2 id={`${id}-title`} className="sr-only">
+    <section aria-labelledby="gravity-principles-title" className={styles.section}>
+      <h3 id="gravity-principles-title" className={styles.heading}>
         {t("principlesTitle")}
-      </h2>
+      </h3>
       <div className={styles.principles}>
-        {(["mass", "distance", "mutual"] as const).map((key, index) => (
+        {(["mass", "distance", "mutual"] as const).map((key) => (
           <article key={key} className={styles.principle}>
-            <span aria-hidden="true" className={styles.number} data-tone={key}>
-              {String(index + 1).padStart(2, "0")}
-            </span>
-            <h3>{t(`principle_${key}_title`)}</h3>
+            <span aria-hidden="true" className={styles.marker} data-tone={key} />
+            <h4>{t(`principle_${key}_title`)}</h4>
             <p>{t(`principle_${key}_description`)}</p>
           </article>
         ))}
@@ -29,10 +23,10 @@ export const GravityPrinciples = ({ onCheck }: { onCheck: () => void }) => {
         </span>
         <div className={styles.copy}>
           <p className={styles.eyebrow}>{t("tryChallengeLabel")}</p>
-          <h3>{t("tryChallengeTitle")}</h3>
+          <h4>{t("tryChallengeTitle")}</h4>
           <p>{t("tryChallengeDescription")}</p>
         </div>
-        <button type="button" onClick={onCheck} className={styles.button}>
+        <a href="#gravity-laboratory" className={styles.button}>
           {t("checkInLab")}
           <svg
             aria-hidden="true"
@@ -47,7 +41,7 @@ export const GravityPrinciples = ({ onCheck }: { onCheck: () => void }) => {
               strokeLinejoin="round"
             />
           </svg>
-        </button>
+        </a>
       </div>
     </section>
   );

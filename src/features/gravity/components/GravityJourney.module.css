@@ -1,0 +1,25 @@
+.navigation { max-width: 1152px; margin: 0 auto 32px; }
+.navigationTitle { margin: 0 0 12px; color: #b8b0d6; font-size: 13px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.navigation ol { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.navigation li { min-width: 0; }
+.navigation a { display: flex; align-items: baseline; gap: 12px; height: 100%; min-height: 48px; padding: 14px 16px; border: 1px solid #30364b; border-radius: 10px; background: #111624; color: #e4e8f2; font-size: 16px; line-height: 1.5; text-decoration: none; overflow-wrap: anywhere; transition: background 180ms, border-color 180ms; }
+.navigation a:hover { border-color: #aa97ff80; background: #1b2032; }
+.navigation a:focus-visible, .continueLink:focus-visible { outline: 3px solid #c0b3ff; outline-offset: 4px; }
+.stageNumber { flex-shrink: 0; color: #b9a8ff; font-family: var(--font-geist-mono), monospace; font-size: 14px; font-variant-numeric: tabular-nums; }
+.freedomNote { margin: 10px 0 0; color: #a0a7be; font-size: 14px; line-height: 1.6; }
+.stageHeader { display: flex; align-items: baseline; gap: 16px; max-width: 1152px; margin: 0 auto 24px; padding: 16px 0; border-bottom: 1px solid #30364b; }
+.stageHeader h2 { min-width: 0; margin: 0; color: #f2f2fa; font-size: clamp(23px, 2.3vw, 30px); font-weight: 600; line-height: 1.3; letter-spacing: -.025em; overflow-wrap: anywhere; }
+.stage { min-width: 0; scroll-margin-top: 12rem; }
+.stage:focus-visible { outline: 2px solid #c0b3ff; outline-offset: 8px; border-radius: 8px; }
+.nextStage { margin-top: 24px; }
+.continueLink { display: inline-flex; align-items: center; gap: 16px; min-height: 48px; padding: 8px 0; border-radius: 5px; color: #c9bcff; font-size: 16px; text-decoration: none; }
+.continueLink:hover { color: #eee7ff; }
+.continueLink svg { width: 22px; height: 22px; flex-shrink: 0; }
+@media (min-width: 1100px) { .stage { scroll-margin-top: 7rem; } }
+@media (max-width: 600px) {
+  .navigation { margin-bottom: 24px; }
+  .navigation ol { grid-template-columns: minmax(0,1fr); gap: 8px; }
+  .navigation a { padding: 12px 14px; }
+  .stageHeader { gap: 12px; margin-bottom: 20px; }
+}
+@media (prefers-reduced-motion: reduce) { .navigation a { transition: none; } }

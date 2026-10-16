@@ -196,7 +196,13 @@
     "challengeBefore": "Avant",
     "challengeAfter": "Après",
     "challengeComparisonTitle": "Force avant et après",
-    "challengeComparisonScale": "Avant = 100 % de la force initiale. Même échelle linéaire pour les trois défis : largeur totale = {percentage}."
+    "challengeComparisonScale": "Avant = 100 % de la force initiale. Même échelle linéaire pour les trois défis : largeur totale = {percentage}.",
+    "learningNavigationTitle": "Parcours d’apprentissage",
+    "learningFreedom": "Choisissez une étape. Explorez et revenez quand vous le souhaitez.",
+    "learningUnderstand": "Comprendre la gravité",
+    "learningExperiment": "Expérimenter",
+    "learningCheck": "Vérifier vos acquis",
+    "learningContinue": "Continuer : vérifier vos acquis"
   },
   "ThreeBody": {
     "title": "Le problème des trois corps",

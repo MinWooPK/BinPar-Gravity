@@ -1,20 +1,22 @@
 import { useTranslations } from "next-intl";
 import styles from "./GravityIntroduction.module.css";
 import { GravityFormula } from "./GravityFormula";
+import { GravityPrinciples } from "./GravityPrinciples";
+import { GravityStageHeading } from "./GravityStageHeading";
+import { gravityStages } from "./gravityJourney";
+import journeyStyles from "./GravityJourney.module.css";
 
 export const GravityIntroduction = () => {
   const t = useTranslations("Gravity");
+  const stage = gravityStages[0];
 
   return (
-    <section aria-labelledby="gravity-intro-title" className={styles.introduction}>
-      <div className={styles.chapter}>
-        <span>{t("introChapter")}</span>
-        <span>{t("introChapterNote")}</span>
-      </div>
+    <section id={stage.id} tabIndex={-1} aria-labelledby={`${stage.id}-heading`} className={`${styles.introduction} ${journeyStyles.stage}`}>
+      <GravityStageHeading stage={stage} />
       <div className={styles.layout}>
         <div className={styles.copy}>
           <p className={styles.eyebrow}>{t("introEyebrow")}</p>
-          <h1 id="gravity-intro-title">{t("introTitle")}</h1>
+          <h3 id="gravity-intro-title">{t("introTitle")}</h3>
           <p>{t("introParagraph")}</p>
           <p>{t("introNewton")}</p>
           <a href="#gravity-laboratory" className={styles.link}>
@@ -24,6 +26,7 @@ export const GravityIntroduction = () => {
         </div>
         <GravityFormula />
       </div>
+      <GravityPrinciples />
     </section>
   );
 };

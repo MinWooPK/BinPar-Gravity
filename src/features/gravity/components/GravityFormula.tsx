@@ -154,7 +154,7 @@ const GravityFormulaContent = () => {
 
   return (
     <section ref={panelRef} aria-labelledby={`${id}-heading`} className={styles.panel} onKeyDown={(event) => { if (event.key === "Escape") { setSelected(null); setHovered(null); setFocused(null); } }}>
-      <div className={styles.calculatorHeader}><h2 id={`${id}-heading`} className={styles.eyebrow}>{t("introFormulaTitle")}</h2><button type="button" onClick={resetParameters} className={styles.resetButton}>{t("reset")}</button></div>
+      <div className={styles.calculatorHeader}><h3 id={`${id}-heading`} className={styles.eyebrow}>{t("introFormulaTitle")}</h3><button type="button" onClick={resetParameters} className={styles.resetButton}>{t("reset")}</button></div>
       <p id={`${id}-instructions`} className={styles.formulaInstructions}>{t("clickToEditFormulaHint")}</p>
       <p id={`${id}-distance-hint`} className={styles.distanceHint}>{t("formulaDistanceHint")}</p>
       <p className="sr-only">{t("formulaSpoken")}</p>

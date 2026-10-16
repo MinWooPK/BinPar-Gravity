@@ -131,10 +131,10 @@ export const GravityExperiment = ({
       className={`${styles["gravity-lab"]} ${styles.panel}`}
     >
       <div className={styles["lab-header"]}>
-        <h2 id={`${id}-heading`} className={styles.eyebrow}>
+        <h3 id={`${id}-heading`} className={styles.eyebrow}>
           <span aria-hidden="true" className={styles["status-dot"]} />
           {t("interactiveLab")}
-        </h2>
+        </h3>
         <button
           type="button"
           onClick={onReset}

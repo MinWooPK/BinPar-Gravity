@@ -196,7 +196,13 @@
     "challengeBefore": "Before",
     "challengeAfter": "After",
     "challengeComparisonTitle": "Force before and after",
-    "challengeComparisonScale": "Before = 100% of the initial force. Same linear scale in all three challenges: full width = {percentage}."
+    "challengeComparisonScale": "Before = 100% of the initial force. Same linear scale in all three challenges: full width = {percentage}.",
+    "learningNavigationTitle": "Learning journey",
+    "learningFreedom": "Choose a stage. Explore and return whenever you like.",
+    "learningUnderstand": "Understand gravity",
+    "learningExperiment": "Experiment",
+    "learningCheck": "Check your understanding",
+    "learningContinue": "Continue: check your understanding"
   },
   "ThreeBody": {
     "title": "The Three-Body Problem",

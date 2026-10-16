@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useId, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
@@ -13,7 +13,9 @@ import type {
 import { GravityTutor } from "./GravityTutor";
 import { GravityExperiment } from "./GravityExperiment";
 import { GravityChallengeComparison } from "./GravityChallengeComparison";
-import { GravityPrinciples } from "./GravityPrinciples";
+import { GravityStageHeading } from "./GravityStageHeading";
+import { gravityStages } from "./gravityJourney";
+import journeyStyles from "./GravityJourney.module.css";
 import { useGravityParameters } from "./GravityParametersProvider";
 
 const buttonClass =
@@ -22,7 +24,6 @@ const buttonClass =
 export const GravityLab = () => {
   const t = useTranslations("Gravity");
   const id = useId();
-  const experimentRef = useRef<HTMLElement>(null);
   const { parameters, setParameters, resetParameters } = useGravityParameters();
   const [step, setStep] = useState(0);
   const [prediction, setPrediction] = useState<Prediction | "">("");
@@ -45,34 +46,33 @@ export const GravityLab = () => {
 
   return (
     <div className="mx-auto mt-8 max-w-6xl space-y-6 sm:mt-10">
-      <GravityPrinciples onCheck={() => {
-        experimentRef.current?.focus({ preventScroll: true });
-        experimentRef.current?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth", block: "start" });
-      }} />
       <section
-        ref={experimentRef}
-        id="gravity-laboratory"
-        aria-label={t("laboratory")}
+        id={gravityStages[1].id}
+        aria-labelledby={`${gravityStages[1].id}-heading`}
         tabIndex={-1}
-        className="space-y-6 scroll-mt-48 lg:scroll-mt-28 rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300"
+        className={journeyStyles.stage}
       >
+        <GravityStageHeading stage={gravityStages[1]} />
         <GravityExperiment
           parameters={parameters}
           onChange={setParameters}
           onReset={reset}
         />
+        <div className={journeyStyles.nextStage}>
+          <a href={`#${gravityStages[2].id}`} className={journeyStyles.continueLink}>
+            {t("learningContinue")}
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 12h16m-6-6 6 6-6 6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </a>
+        </div>
       </section>
       <section
-        aria-labelledby={`${id}-challenges-heading`}
-        className="space-y-6 border-t border-slate-700 pt-10 sm:pt-14"
+        id={gravityStages[2].id}
+        aria-labelledby={`${gravityStages[2].id}-heading`}
+        tabIndex={-1}
+        className={`${journeyStyles.stage} space-y-6 pt-6 sm:pt-10`}
       >
         <div>
-          <h2
-            id={`${id}-challenges-heading`}
-            className="text-2xl font-bold text-white sm:text-3xl"
-          >
-            {t("challengesTab")}
-          </h2>
+          <GravityStageHeading stage={gravityStages[2]} />
           <p className="mt-3 max-w-3xl text-base leading-relaxed text-slate-300">
             {t("challengesHint")}
           </p>
@@ -152,23 +152,12 @@ export const GravityLab = () => {
               </p>
               <div className="mt-4 rounded-xl border border-sky-800 bg-sky-950/40 p-4">
                 <GravityChallengeComparison parameters={challenge.parameters} />
-                <button
-                  type="button"
-                  onClick={() => {
-                    experimentRef.current?.focus();
-                    experimentRef.current?.scrollIntoView({
-                      behavior: window.matchMedia(
-                        "(prefers-reduced-motion: reduce)",
-                      ).matches
-                        ? "instant"
-                        : "smooth",
-                      block: "start",
-                    });
-                  }}
-                  className={`${buttonClass} mt-3`}
+                <a
+                  href={`#${gravityStages[1].id}`}
+                  className={`${buttonClass} mt-3 inline-flex items-center`}
                 >
                   {t("seeExperiment")}
-                </button>
+                </a>
               </div>
               <p className="mt-2 text-sm text-slate-400">{t("feedbackNote")}</p>
               <button

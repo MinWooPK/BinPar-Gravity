@@ -93,7 +93,7 @@ export const GravityForceComparison = ({
 
   return (
     <figure className={styles.forceComparison}>
-      <h3 id={`${idPrefix}-title`}>{t("forceComparisonTitle")}</h3>
+      <h4 id={`${idPrefix}-title`}>{t("forceComparisonTitle")}</h4>
       <svg
         viewBox="0 0 360 110"
         role="img"
