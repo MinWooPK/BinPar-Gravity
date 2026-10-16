@@ -1,0 +1,20 @@
+.section { min-width: 0; margin-block: clamp(28px, 4vw, 48px); padding-block: clamp(24px, 3vw, 36px); border-block: 1px solid #272c40; }
+.heading { max-width: 48rem; margin-bottom: 24px; }
+.eyebrow { margin: 0 0 12px; color: #b8b0d6; font-size: .75rem; font-weight: 600; line-height: 1.5; letter-spacing: .12em; text-transform: uppercase; }
+.heading h2 { margin: 0; color: #f2f2fa; font-size: clamp(1.5rem, 2.5vw, 2rem); font-weight: 500; line-height: 1.25; letter-spacing: -.025em; overflow-wrap: anywhere; }
+.description { margin: 14px 0 0; color: #b2bad0; font-size: 1rem; line-height: 1.6; }
+.examples { display: grid; grid-template-columns: minmax(0,1fr); gap: 16px; margin: 0; padding: 0; list-style: none; }
+.example { display: grid; grid-template-columns: 44px minmax(0,1fr); align-items: start; gap: 16px; min-width: 0; padding: clamp(18px, 2vw, 24px); border: 1px solid #30364b; border-radius: 14px; background: #111624; }
+.example > div { min-width: 0; }
+.example h3 { margin: 0 0 10px; color: #e9e7f4; font-size: 1.125rem; font-weight: 500; line-height: 1.4; overflow-wrap: anywhere; }
+.example p { max-width: 64ch; margin: 0; color: #b2bad0; font-size: 1rem; line-height: 1.6; overflow-wrap: anywhere; }
+.illustration { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 10px; color: #b9a8ff; background: #aa97ff10; }
+.illustration svg { display: block; width: 34px; height: 34px; }
+.example[data-tone="moon"] .illustration { color: #5ee7d5; background: #5ee7d510; }
+.example[data-tone="objects"] .illustration { color: #f7bd79; background: #f7bd7910; }
+@media (min-width: 64rem) {
+  .examples { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 20px; }
+}
+@media (max-width: 400px) {
+  .example { grid-template-columns: minmax(0,1fr); }
+}

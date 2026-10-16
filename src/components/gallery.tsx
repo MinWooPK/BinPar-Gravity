@@ -10,7 +10,11 @@ import type { OrbitPlayback } from "@/features/three-body/components/orbit-visua
 import { useGalleryState, type Category } from "./gallery-state";
 import { Icon } from "./icons";
 const categories: Category[] = ["Todas", "Clásica", "Coreografía", "Periódica"];
-export function Gallery({ animationData }: { animationData: Readonly<Record<string, OrbitPlayback>> }) {
+export function Gallery({
+  animationData,
+}: {
+  animationData: Readonly<Record<string, OrbitPlayback>>;
+}) {
   const { state, update } = useGalleryState();
   const t = useTranslations("ThreeBody");
   const locale = useLocale();
@@ -37,7 +41,11 @@ export function Gallery({ animationData }: { animationData: Readonly<Record<stri
     <div className={styles.gallery}>
       <div className={styles.motionControls} lang={locale}>
         <p>{t("animationGalleryNote")}</p>
-        <button type="button" className="button" onClick={() => update({ playing: !playing })}>
+        <button
+          type="button"
+          className="button"
+          onClick={() => update({ playing: !playing })}
+        >
           <Icon name={playing ? "pause" : "play"} />
           {t(playing ? "animationPauseAll" : "animationPlayAll")}
         </button>
@@ -70,7 +78,11 @@ export function Gallery({ animationData }: { animationData: Readonly<Record<stri
             <option value="curated">Orden de exploración</option>
             <option value="alphabetic">Nombre: A–Z</option>
           </select>
-          <div className="view-switch" role="group" aria-label="Vista de galería">
+          <div
+            className="view-switch"
+            role="group"
+            aria-label="Vista de galería"
+          >
             <button
               aria-label="Vista de tarjetas"
               aria-pressed={state.view === "grid"}
@@ -89,7 +101,11 @@ export function Gallery({ animationData }: { animationData: Readonly<Record<stri
         </div>
       </div>
       <div className="gallery-filter-row">
-        <div className="filter-pills" role="group" aria-label="Filtrar por tipo">
+        <div
+          className="filter-pills"
+          role="group"
+          aria-label="Filtrar por tipo"
+        >
           {categories.map((category) => (
             <button
               key={category}
@@ -122,7 +138,11 @@ export function Gallery({ animationData }: { animationData: Readonly<Record<stri
               <span className="orbit-index">
                 {String(orbits.indexOf(orbit) + 1).padStart(2, "0")}
               </span>
-              <OrbitAnimation data={animationData[orbit.slug]} name={orbit.name} playing={playing} />
+              <OrbitAnimation
+                data={animationData[orbit.slug]}
+                name={orbit.name}
+                playing={playing}
+              />
               <span className="orbit-open">
                 <Icon name="arrow" />
               </span>

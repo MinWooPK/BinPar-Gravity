@@ -1,4 +1,5 @@
 import { useTranslations } from "next-intl";
+import { gravityStages } from "./gravityJourney";
 import styles from "./GravityPrinciples.module.css";
 
 export const GravityPrinciples = () => {
@@ -10,14 +11,21 @@ export const GravityPrinciples = () => {
       </h3>
       <div className={styles.principles}>
         {(["mass", "distance", "mutual"] as const).map((key) => (
-          <article key={key} className={styles.principle}>
+          <article key={key} aria-labelledby={`gravity-principle-${key}`} className={styles.principle}>
             <span aria-hidden="true" className={styles.marker} data-tone={key} />
-            <h4>{t(`principle_${key}_title`)}</h4>
+            <h4 id={`gravity-principle-${key}`}>{t(`principle_${key}_title`)}</h4>
             <p>{t(`principle_${key}_description`)}</p>
           </article>
         ))}
       </div>
-      <div className={styles.challenge}>
+    </section>
+  );
+};
+
+export const GravityPrinciplesChallenge = () => {
+  const t = useTranslations("Gravity");
+  return (
+    <div className={styles.challenge}>
         <span aria-hidden="true" className={styles.question}>
           ?
         </span>
@@ -26,7 +34,7 @@ export const GravityPrinciples = () => {
           <h4>{t("tryChallengeTitle")}</h4>
           <p>{t("tryChallengeDescription")}</p>
         </div>
-        <a href="#gravity-laboratory" className={styles.button}>
+        <a href={`#${gravityStages[1].id}`} className={styles.button}>
           {t("checkInLab")}
           <svg
             aria-hidden="true"
@@ -42,7 +50,6 @@ export const GravityPrinciples = () => {
             />
           </svg>
         </a>
-      </div>
-    </section>
+    </div>
   );
 };

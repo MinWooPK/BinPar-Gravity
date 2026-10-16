@@ -47,6 +47,7 @@ export const GravityForceComparison = ({
       <figure
         className={styles.challengeComparison}
         aria-labelledby={`${idPrefix}-title`}
+        aria-describedby={`${idPrefix}-note`}
       >
         <h4 id={`${idPrefix}-title`}>{t("challengeComparisonTitle")}</h4>
         {rows.map((row) => (
@@ -79,7 +80,7 @@ export const GravityForceComparison = ({
             </p>
           </div>
         ))}
-        <figcaption>
+        <figcaption id={`${idPrefix}-note`}>
           {t("challengeComparisonScale", {
             percentage: percentage(
               (scaleForce ?? Math.max(currentForce, initialForce)) /
@@ -96,7 +97,11 @@ export const GravityForceComparison = ({
     { key: "current", label: t("forceComparisonCurrent"), fraction: bars.currentFraction, value: `${ratio}×`, color: "#5ee7d5" },
   ];
   return (
-    <figure className={styles.forceComparison} aria-labelledby={`${idPrefix}-title`}>
+    <figure
+      className={styles.forceComparison}
+      aria-labelledby={`${idPrefix}-title`}
+      aria-describedby={`${idPrefix}-description ${idPrefix}-note`}
+    >
       <h4 id={`${idPrefix}-title`}>{t("forceComparisonTitle")}</h4>
       <p id={`${idPrefix}-description`} className="sr-only">
         {t("forceComparisonDescription", { ratio })}

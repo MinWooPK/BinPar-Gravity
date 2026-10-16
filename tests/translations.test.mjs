@@ -19,7 +19,7 @@ test("all locales contain the same translation keys", () => {
 });
 
 test("the gravity experiment has all its directly referenced messages", () => {
-  const source = readFileSync(new URL("../src/features/gravity/components/GravityExperiment.tsx", import.meta.url), "utf8");
+  const source = ["GravityExperiment", "GravityFormula", "GravityLab", "GravityScreen"].map((component) => readFileSync(new URL(`../src/features/gravity/components/${component}.tsx`, import.meta.url), "utf8")).join("\n");
   const usedKeys = [...source.matchAll(/\bt\("([^"]+)"\)/g)].map((match) => match[1]);
   usedKeys.push("firstMass", "secondMass", "centreDistance");
   for (const { locale, messages } of dictionaries) {

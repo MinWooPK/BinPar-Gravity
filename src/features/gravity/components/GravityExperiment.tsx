@@ -138,9 +138,7 @@ export const GravityExperiment = ({
         <button
           type="button"
           onClick={onReset}
-          className={styles["icon-button"]}
-          aria-label={t("reset")}
-          title={t("reset")}
+          className={styles.resetButton}
         >
           <svg
             aria-hidden="true"
@@ -156,14 +154,34 @@ export const GravityExperiment = ({
               strokeLinejoin="round"
             />
           </svg>
+          <span>{t("reset")}</span>
         </button>
       </div>
       <div className={styles.experimentLayout}>
+        <div className={styles["force-result"]}>
+          <div>
+            <span>{t("force")}</span>
+            <output
+              aria-live="off"
+              aria-label={`${format.number(force, { maximumSignificantDigits: 3 })} N`}
+              aria-describedby={`${id}-force-explanation ${id}-intensity-description`}
+            >
+              {mantissa} × 10<sup>{exponent}</sup> <small>N</small>
+            </output>
+          </div>
+          <span className={styles["live-pill"]}>{t("liveResult")}</span>
+          <p
+            id={`${id}-force-explanation`}
+            className={styles.forceExplanation}
+          >
+            {forceExplanation}
+          </p>
+        </div>
         <figure
           className={`${styles["gravity-stage"]} ${styles["space-grid"]}`}
         >
           <svg
-            viewBox="0 0 520 240"
+            viewBox="0 40 520 180"
             role="img"
             aria-labelledby={`${id}-title ${id}-desc`}
           >
@@ -226,9 +244,9 @@ export const GravityExperiment = ({
             <circle cx={x2} cy="100" r={radius2} fill={`url(#${id}-gold)`} />
             <text
               x={x1}
-            y="100"
-            dominantBaseline="middle"
-            className={styles.sphereLabel}
+              y="100"
+              dominantBaseline="middle"
+              className={styles.sphereLabel}
               textAnchor="middle"
               fill="#fff"
               fontSize="13"
@@ -238,9 +256,9 @@ export const GravityExperiment = ({
             </text>
             <text
               x={x2}
-            y="100"
-            dominantBaseline="middle"
-            className={styles.sphereLabel}
+              y="100"
+              dominantBaseline="middle"
+              className={styles.sphereLabel}
               textAnchor="middle"
               fill="#fff"
               fontSize="13"
@@ -288,40 +306,23 @@ export const GravityExperiment = ({
             <span className={styles.directionNote}>
               {t("directionOnlyNote")}
             </span>
-            <span className={styles.modelNote}>{t("modelNote")}</span>
+            <details className={styles.helperDetails}>
+              <summary>{t("laboratoryModelDetails")}</summary>
+              <p>{t("modelNote")}</p>
+            </details>
           </figcaption>
         </figure>
         <div className={styles.controlPanel}>
-          <div className={styles["force-result"]}>
-            <div>
-              <span>{t("force")}</span>
-              <output
-                aria-live="off"
-                aria-describedby={`${id}-force-explanation ${id}-intensity-description`}
-              >
-                {mantissa} × 10^{exponent} <small>N</small>
-              </output>
-            </div>
-            <span className={styles["live-pill"]}>{t("liveResult")}</span>
-            <GravityForceComparison
-              currentForce={force}
-              initialForce={comparison.referenceForce}
-              idPrefix={`${id}-intensity`}
-            />
-            <p
-              id={`${id}-force-explanation`}
-              className={styles.forceExplanation}
-            >
-              {forceExplanation}
-            </p>
-          </div>
           <div className={styles["lab-sliders"]}>
+            <p id={`${id}-controls-hint`} className={styles.controlsHint}>
+              {t("experimentControlsHint")}
+            </p>
             {controls.map((control) => (
               <GravitySlider
                 key={control.key}
                 control={control}
                 value={parameters[control.key] / control.scale}
-                descriptionId={`${id}-force-explanation ${id}-intensity-description`}
+                descriptionId={`${id}-controls-hint ${id}-force-explanation ${id}-intensity-description`}
                 onChange={(value) =>
                   onChange({
                     ...parameters,
@@ -330,10 +331,15 @@ export const GravityExperiment = ({
                 }
               />
             ))}
-          </div>
-          <div className={styles["lab-takeaway"]}>
-            <span aria-hidden="true">↗</span>
-            <p>{t("takeaway")}</p>
+            <GravityForceComparison
+              currentForce={force}
+              initialForce={comparison.referenceForce}
+              idPrefix={`${id}-intensity`}
+            />
+            <details className={styles.helperDetails}>
+              <summary>{t("laboratoryUnitsDetails")}</summary>
+              <p>{t("tinyForce")}</p>
+            </details>
           </div>
         </div>
       </div>

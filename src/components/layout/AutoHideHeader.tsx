@@ -13,6 +13,18 @@ export const AutoHideHeader = ({ children }: { children: ReactNode }) => {
     let direction = 0;
     let distance = 0;
     let frame = 0;
+    const header = containerRef.current;
+    const updateHeight = () => {
+      if (header) {
+        document.documentElement.style.setProperty(
+          "--site-header-height",
+          `${header.getBoundingClientRect().height}px`,
+        );
+      }
+    };
+    const resizeObserver = new ResizeObserver(updateHeight);
+    if (header) resizeObserver.observe(header);
+    updateHeight();
 
     const update = () => {
       frame = 0;
@@ -21,7 +33,11 @@ export const AutoHideHeader = ({ children }: { children: ReactNode }) => {
       previousY = currentY;
       const header = containerRef.current;
 
-      if (currentY <= (header?.offsetHeight ?? 100) || pointerInside.current || header?.contains(document.activeElement)) {
+      if (
+        currentY <= (header?.offsetHeight ?? 100) ||
+        pointerInside.current ||
+        header?.contains(document.activeElement)
+      ) {
         setHidden(false);
         distance = 0;
         return;
@@ -42,7 +58,8 @@ export const AutoHideHeader = ({ children }: { children: ReactNode }) => {
       if (!frame) frame = requestAnimationFrame(update);
     };
     const onPointerMove = (event: PointerEvent) => {
-      if (event.pointerType === "mouse" && event.clientY <= 24) setHidden(false);
+      if (event.pointerType === "mouse" && event.clientY <= 24)
+        setHidden(false);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pointermove", onPointerMove, { passive: true });
@@ -50,6 +67,8 @@ export const AutoHideHeader = ({ children }: { children: ReactNode }) => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onPointerMove);
       cancelAnimationFrame(frame);
+      resizeObserver.disconnect();
+      document.documentElement.style.removeProperty("--site-header-height");
     };
   }, []);
 
@@ -62,7 +81,9 @@ export const AutoHideHeader = ({ children }: { children: ReactNode }) => {
           setHidden(false);
         }
       }}
-      onPointerLeave={() => { pointerInside.current = false; }}
+      onPointerLeave={() => {
+        pointerInside.current = false;
+      }}
       onFocusCapture={() => setHidden(false)}
       className={`sticky top-0 z-50 shrink-0 transition-transform duration-200 ease-out focus-within:translate-y-0 motion-reduce:transition-none ${hidden ? "-translate-y-full" : "translate-y-0"}`}
     >

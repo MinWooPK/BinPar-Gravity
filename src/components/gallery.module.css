@@ -265,7 +265,9 @@
   min-width: 0;
   color: inherit;
   text-decoration: none;
-  transition: border-color 160ms ease, transform 160ms ease;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease;
 }
 
 .gallery :global(.orbit-card):hover {
@@ -285,7 +287,9 @@
 }
 
 .gallery :global(.space-grid) {
-  background-image: linear-gradient(#ffffff04 1px, transparent 1px), linear-gradient(90deg, #ffffff04 1px, transparent 1px);
+  background-image:
+    linear-gradient(#ffffff04 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff04 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
@@ -531,7 +535,9 @@
   border: 1px solid #2d344a;
   border-radius: 1rem;
   background-color: #0c1120;
-  background-image: linear-gradient(#ffffff04 1px, transparent 1px), linear-gradient(90deg, #ffffff04 1px, transparent 1px);
+  background-image:
+    linear-gradient(#ffffff04 1px, transparent 1px),
+    linear-gradient(90deg, #ffffff04 1px, transparent 1px);
   background-size: 28px 28px;
 }
 

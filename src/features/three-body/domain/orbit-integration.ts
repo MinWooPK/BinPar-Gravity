@@ -38,10 +38,18 @@ function derivative(state: readonly number[]): number[] {
 
 function rk4(state: readonly number[], step: number): number[] {
   const k1 = derivative(state);
-  const k2 = derivative(state.map((value, index) => value + step * k1[index] / 2));
-  const k3 = derivative(state.map((value, index) => value + step * k2[index] / 2));
+  const k2 = derivative(
+    state.map((value, index) => value + (step * k1[index]) / 2),
+  );
+  const k3 = derivative(
+    state.map((value, index) => value + (step * k2[index]) / 2),
+  );
   const k4 = derivative(state.map((value, index) => value + step * k3[index]));
-  return state.map((value, index) => value + step * (k1[index] + 2 * k2[index] + 2 * k3[index] + k4[index]) / 6);
+  return state.map(
+    (value, index) =>
+      value +
+      (step * (k1[index] + 2 * k2[index] + 2 * k3[index] + k4[index])) / 6,
+  );
 }
 
 function invariants(state: readonly number[]) {
@@ -61,9 +69,14 @@ function invariants(state: readonly number[]) {
     cx += x / 3;
     cy += y / 3;
     for (let other = body + 1; other < 3; other++) {
-      const distance = Math.hypot(x - state[other * 4], y - state[other * 4 + 1]);
+      const distance = Math.hypot(
+        x - state[other * 4],
+        y - state[other * 4 + 1],
+      );
       if (!Number.isFinite(distance) || distance <= 1e-12) {
-        throw new RangeError("The orbit contains a collision or an unrepresentable separation.");
+        throw new RangeError(
+          "The orbit contains a collision or an unrepresentable separation.",
+        );
       }
       energy -= 1 / distance;
       minSeparation = Math.min(minSeparation, distance);
@@ -88,14 +101,32 @@ function positions(state: readonly number[]): number[] {
  * is absolute. Other extrema are observed at accepted steps, not guaranteed
  * continuous-time extrema. Closure values are RMS differences from the seed.
  */
-export function integrateOrbit(orbit: OrbitDefinition, sampleCount = 1200): OrbitData {
+export function integrateOrbit(
+  orbit: OrbitDefinition,
+  sampleCount = 1200,
+): OrbitData {
   if (!Number.isFinite(orbit.period) || orbit.period <= 0) {
     throw new RangeError("The period must be a positive finite number.");
   }
-  if (!Number.isInteger(sampleCount) || sampleCount < 2 || sampleCount > MAX_SAMPLES) {
-    throw new RangeError(`The sample count must be an integer between 2 and ${MAX_SAMPLES}.`);
+  if (
+    !Number.isInteger(sampleCount) ||
+    sampleCount < 2 ||
+    sampleCount > MAX_SAMPLES
+  ) {
+    throw new RangeError(
+      `The sample count must be an integer between 2 and ${MAX_SAMPLES}.`,
+    );
   }
-  if (!Array.isArray(orbit.initial) || orbit.initial.length !== 3 || orbit.initial.some((body) => !Array.isArray(body) || body.length !== 4 || !body.every(Number.isFinite))) {
+  if (
+    !Array.isArray(orbit.initial) ||
+    orbit.initial.length !== 3 ||
+    orbit.initial.some(
+      (body) =>
+        !Array.isArray(body) ||
+        body.length !== 4 ||
+        !body.every(Number.isFinite),
+    )
+  ) {
     throw new RangeError("An orbit needs three finite [x, y, vx, vy] states.");
   }
   const initial = orbit.initial.flat();
@@ -114,11 +145,27 @@ export function integrateOrbit(orbit: OrbitDefinition, sampleCount = 1200): Orbi
   };
   const observe = (accepted: readonly number[]) => {
     const current = invariants(accepted);
-    diagnostics.maxEnergyDrift = Math.max(diagnostics.maxEnergyDrift, Math.abs(current.energy - reference.energy) / Math.max(Math.abs(reference.energy), Number.EPSILON));
-    diagnostics.maxMomentum = Math.max(diagnostics.maxMomentum, Math.hypot(current.px, current.py));
-    diagnostics.maxAngularDrift = Math.max(diagnostics.maxAngularDrift, Math.abs(current.angularMomentum - reference.angularMomentum));
-    diagnostics.maxCenterOfMass = Math.max(diagnostics.maxCenterOfMass, Math.hypot(current.cx, current.cy));
-    diagnostics.minSeparation = Math.min(diagnostics.minSeparation, current.minSeparation);
+    diagnostics.maxEnergyDrift = Math.max(
+      diagnostics.maxEnergyDrift,
+      Math.abs(current.energy - reference.energy) /
+        Math.max(Math.abs(reference.energy), Number.EPSILON),
+    );
+    diagnostics.maxMomentum = Math.max(
+      diagnostics.maxMomentum,
+      Math.hypot(current.px, current.py),
+    );
+    diagnostics.maxAngularDrift = Math.max(
+      diagnostics.maxAngularDrift,
+      Math.abs(current.angularMomentum - reference.angularMomentum),
+    );
+    diagnostics.maxCenterOfMass = Math.max(
+      diagnostics.maxCenterOfMass,
+      Math.hypot(current.cx, current.cy),
+    );
+    diagnostics.minSeparation = Math.min(
+      diagnostics.minSeparation,
+      current.minSeparation,
+    );
   };
   const samples = [positions(initial)];
   const interval = orbit.period / (sampleCount - 1);
@@ -129,14 +176,20 @@ export function integrateOrbit(orbit: OrbitDefinition, sampleCount = 1200): Orbi
   let attempts = 0;
 
   for (let sample = 1; sample < sampleCount; sample++) {
-    const target = sample === sampleCount - 1 ? orbit.period : sample * interval;
+    const target =
+      sample === sampleCount - 1 ? orbit.period : sample * interval;
     while (time < target) {
       if (++attempts > MAX_ATTEMPTS) {
         throw new RangeError("The orbit exceeded the integration step limit.");
       }
       const h = Math.min(step, target - time, maximumStep);
-      if (time + h === time || (h < minimumStep && target - time > minimumStep)) {
-        throw new RangeError("The orbit needs a step below the supported numerical resolution.");
+      if (
+        time + h === time ||
+        (h < minimumStep && target - time > minimumStep)
+      ) {
+        throw new RangeError(
+          "The orbit needs a step below the supported numerical resolution.",
+        );
       }
       const full = rk4(state, h);
       const firstHalf = rk4(state, h / 2);
@@ -144,7 +197,10 @@ export function integrateOrbit(orbit: OrbitDefinition, sampleCount = 1200): Orbi
       let error = 0;
       const corrected = twoHalves.map((value, index) => {
         const difference = (value - full[index]) / 15;
-        const scale = ABSOLUTE_TOLERANCE + RELATIVE_TOLERANCE * Math.max(Math.abs(state[index]), Math.abs(value));
+        const scale =
+          ABSOLUTE_TOLERANCE +
+          RELATIVE_TOLERANCE *
+            Math.max(Math.abs(state[index]), Math.abs(value));
         error = Math.max(error, Math.abs(difference) / scale);
         return value + difference;
       });
@@ -160,14 +216,25 @@ export function integrateOrbit(orbit: OrbitDefinition, sampleCount = 1200): Orbi
       } else {
         diagnostics.rejectedSteps++;
       }
-      step = h * Math.max(0.2, Math.min(4, error === 0 ? 4 : 0.9 * error ** -0.2));
+      step =
+        h * Math.max(0.2, Math.min(4, error === 0 ? 4 : 0.9 * error ** -0.2));
     }
     samples.push(positions(state));
   }
 
-  diagnostics.closure = Math.sqrt(state.reduce((total, value, index) => total + (value - initial[index]) ** 2, 0) / DIMENSIONS);
+  diagnostics.closure = Math.sqrt(
+    state.reduce(
+      (total, value, index) => total + (value - initial[index]) ** 2,
+      0,
+    ) / DIMENSIONS,
+  );
   const firstPositions = samples[0];
-  diagnostics.positionClosure = Math.sqrt(samples[samples.length - 1].reduce((total, value, index) => total + (value - firstPositions[index]) ** 2, 0) / 6);
+  diagnostics.positionClosure = Math.sqrt(
+    samples[samples.length - 1].reduce(
+      (total, value, index) => total + (value - firstPositions[index]) ** 2,
+      0,
+    ) / 6,
+  );
   let minX = Infinity;
   let maxX = -Infinity;
   let minY = Infinity;
@@ -185,8 +252,17 @@ export function integrateOrbit(orbit: OrbitDefinition, sampleCount = 1200): Orbi
   let radius = 0;
   for (const sample of samples) {
     for (let body = 0; body < 3; body++) {
-      radius = Math.max(radius, Math.hypot(sample[body * 2] - cx, sample[body * 2 + 1] - cy));
+      radius = Math.max(
+        radius,
+        Math.hypot(sample[body * 2] - cx, sample[body * 2 + 1] - cy),
+      );
     }
   }
-  return { slug: orbit.slug, period: orbit.period, samples, bounds: { cx, cy, radius }, diagnostics };
+  return {
+    slug: orbit.slug,
+    period: orbit.period,
+    samples,
+    bounds: { cx, cy, radius },
+    diagnostics,
+  };
 }
