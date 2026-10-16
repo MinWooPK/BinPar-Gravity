@@ -48,6 +48,7 @@ const RootLayout = async ({ children, params }: RootLayoutProps) => {
   return (
     <html
       lang={locale}
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-dvh min-w-0 flex-col">

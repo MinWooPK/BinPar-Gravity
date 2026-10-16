@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gravity Lab
 
-## Getting Started
+Aplicación educativa con Next.js 16, React, TypeScript y next-intl (español, inglés y francés).
 
-First, run the development server:
+## Ejecutar
 
 ```bash
+npm ci
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abre http://localhost:3000. El inicio redirige al idioma correspondiente.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Para el tutor, configura en `.env.local` `OPENAI_API_KEY` y `OPENAI_MODEL` con un modelo disponible en tu proyecto que admita Responses API. Reinicia el servidor después. No uses prefijos `NEXT_PUBLIC_` ni subas claves al repositorio. Las peticiones al proveedor pueden generar cargos. Sin estas variables, el laboratorio y los retos funcionan; el tutor informa de que no está disponible.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Gravitación
 
-## Learn More
+`/[locale]/gravity` incluye controles de las dos masas (10–100 × 10¹² kg), distancia entre centros (5–20 km), fuerza calculada en newtons y tres retos con predicción previa. Cada reto usa una referencia fija de 40 × 10¹² kg, 40 × 10¹² kg y 8 km. El modelo usa G = 6,67430 × 10⁻¹¹ N·m²/kg². La representación es ilustrativa, sin escala ni integración de trayectorias.
 
-To learn more about Next.js, take a look at the following resources:
+El panel de la fórmula permite introducir tres valores positivos entre F, m₁, m₂ y r para calcular el cuarto automáticamente. La incógnita se mantiene fija hasta restablecer. En la calculadora, las masas se introducen en kg, la distancia en m y F en N; el dominio resuelve en SI. Solo los resultados dentro del intervalo visual se trasladan al laboratorio. Los demás se muestran con un aviso y conservan el experimento anterior.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+El tutor recibe los valores actuales, la última predicción y el idioma. Puede explicar el experimento, simplificarlo o dar un ejemplo. Las llamadas son explícitas: mover los controles no consume IA. La UI marca respuestas que pertenecen a valores anteriores y permite reintentar errores. El cálculo físico no depende del modelo.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Arquitectura
 
-## Deploy on Vercel
+- `app/`: rutas y adaptador HTTP; valida entradas del tutor y gestiona errores.
+- `features/gravity/domain/`: física y retos sin dependencias del framework.
+- `features/gravity/application/`: contrato del tutor.
+- `features/gravity/infrastructure/`: adaptador OpenAI protegido con `server-only`; usa fetch y Responses API, sin SDK adicional.
+- `features/gravity/components/`: laboratorio, retos, fórmula y tutor.
+- `components/` e `i18n/`: interfaz compartida e internacionalización.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Consulta también `ARCHITECTURE.md`. Se ha utilizado IA para ayudar con implementación, estructura y textos.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Comprobar
+
+```bash
+npm test
+npm run lint
+npx tsc --noEmit --incremental false
+npm run build
+npm start
+```
+
+Las pruebas verifican unidades SI, simetría, proporcionalidad con las masas, ley del inverso del cuadrado, retos y valores inválidos. La conexión real al proveedor necesita credenciales y debe verificarse antes de entregar. El endpoint limita contexto y salida, valida los rangos y tiene timeout. Antes de un despliegue público, añade un límite de peticiones persistente apropiado al hosting y configura un presupuesto del proveedor.
+
+## Pendiente de la prueba técnica
+
+La galería de seis órbitas, sus detalles y controles todavía no están implementados. Tampoco está configurada una entrega desplegada ni Docker. La integración real de IA requiere las variables anteriores; no se simula con respuestas prefijadas.

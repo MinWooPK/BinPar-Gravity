@@ -4,6 +4,11 @@ import { hasLocale } from "next-intl";
 import { getRequestConfig } from "next-intl/server";
 
 import { routing } from "./routing";
+import es from "../../messages/es.json";
+import en from "../../messages/en.json";
+import fr from "../../messages/fr.json";
+
+const messages = { es, en, fr };
 
 export default getRequestConfig(async () => {
   const locale = await rootParams.locale();
@@ -14,6 +19,6 @@ export default getRequestConfig(async () => {
 
   return {
     locale,
-    messages: (await import(`../../messages/${locale}.json`)).default,
+    messages: messages[locale],
   };
 });
