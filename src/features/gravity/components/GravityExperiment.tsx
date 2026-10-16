@@ -226,7 +226,9 @@ export const GravityExperiment = ({
             <circle cx={x2} cy="100" r={radius2} fill={`url(#${id}-gold)`} />
             <text
               x={x1}
-              y="105"
+            y="100"
+            dominantBaseline="middle"
+            className={styles.sphereLabel}
               textAnchor="middle"
               fill="#fff"
               fontSize="13"
@@ -236,7 +238,9 @@ export const GravityExperiment = ({
             </text>
             <text
               x={x2}
-              y="105"
+            y="100"
+            dominantBaseline="middle"
+            className={styles.sphereLabel}
               textAnchor="middle"
               fill="#fff"
               fontSize="13"
@@ -271,6 +275,7 @@ export const GravityExperiment = ({
             <text
               x="260"
               y="202"
+              className={styles.distanceLabel}
               textAnchor="middle"
               fill="#e2e8f0"
               fontSize="15"

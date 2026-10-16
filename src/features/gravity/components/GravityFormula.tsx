@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { solveGravity } from "../domain/gravitation";
 import type { GravityValues, GravityVariable } from "../domain/gravitation";
@@ -27,15 +27,29 @@ const inLabRange = (values: GravityValues) => values.mass1 >= 1e13 && values.mas
 const definitionKey = (key: GravityVariable): Term => key === "mass1" || key === "mass2" ? "masses" : key;
 
 export const GravityFormula = () => {
-  const { resetVersion } = useGravityParameters();
-  return <GravityFormulaContent key={resetVersion} />;
+  const { resetVersion, resetParameters } = useGravityParameters();
+  const resetButtonRef = useRef<HTMLButtonElement>(null);
+  const restoreResetFocus = useRef(false);
+  useEffect(() => {
+    if (restoreResetFocus.current) {
+      resetButtonRef.current?.focus();
+      restoreResetFocus.current = false;
+    }
+  }, [resetVersion]);
+  return <GravityFormulaContent key={resetVersion} resetButtonRef={resetButtonRef} onReset={() => {
+    restoreResetFocus.current = true;
+    resetParameters();
+  }} />;
 };
 
-const GravityFormulaContent = () => {
+const GravityFormulaContent = ({ resetButtonRef, onReset }: {
+  resetButtonRef: RefObject<HTMLButtonElement | null>;
+  onReset: () => void;
+}) => {
   const t = useTranslations("Gravity");
   const format = useFormatter();
   const id = useId();
-  const { setParameters, resetParameters } = useGravityParameters();
+  const { setParameters } = useGravityParameters();
   const [hovered, setHovered] = useState<Term | null>(null);
   const [focused, setFocused] = useState<Term | null>(null);
   const [selected, setSelected] = useState<Term | null>(null);
@@ -92,7 +106,7 @@ const GravityFormulaContent = () => {
         <span className={styles.formulaInputGroup}>
           <span className={styles.inputWithUnit} data-calculated={calculated} data-invalid={invalid}>
         <input ref={inputRef} id={`${id}-input-${field.key}`} name={field.key} type="text" inputMode="decimal" autoComplete="off" spellCheck={false} placeholder="-" value={calculated ? computed : text} readOnly={calculated} aria-invalid={invalid || undefined} aria-describedby={`${id}-hint-${field.key} ${id}-instructions${squared ? ` ${id}-distance-hint` : ""}`} onFocus={() => setFocused(definitionKey(field.key))} onBlur={() => closeEditor()} onKeyDown={(event) => {
-          if (event.key === "Tab") {
+          if (event.key === "Tab" && !event.ctrlKey && !event.metaKey && !event.altKey) {
             const controls = Array.from(panelRef.current?.querySelectorAll<HTMLElement>("button, input") ?? []);
             const next = controls[controls.indexOf(event.currentTarget) + (event.shiftKey ? -1 : 1)];
             if (next) { event.preventDefault(); closeEditor(); next.focus(); }
@@ -111,13 +125,18 @@ const GravityFormulaContent = () => {
     const definition = definitions.find((item) => item.key === key)!;
     return <button type="button" aria-label={t(definition.label)} aria-describedby={`${id}-${key}`} aria-pressed={selected === key} data-active={active === key} className={styles.term} onPointerEnter={(event) => { if (event.pointerType === "mouse") setHovered(key); }} onPointerLeave={() => setHovered(null)} onFocus={() => setFocused(key)} onBlur={() => setFocused(null)} onClick={() => setSelected(selected === key ? null : key)}>{symbol}</button>;
   };
+  const currentValue = (key: GravityVariable) => {
+    const field = fields.find((item) => item.key === key)!;
+    return unknown === key ? (result ? result[key] / field.scale : null) : parseFormulaValue(values[key]);
+  };
+  const formatValue = (value: number) => format.number(value, { maximumSignificantDigits: 4, notation: value >= 1e6 || value < 0.001 ? "scientific" : "standard" });
   const displayedValue = (key: GravityVariable, squared = false) => {
     const field = fields.find((item) => item.key === key)!;
-    const value = unknown === key ? (result ? result[key] / field.scale : null) : parseFormulaValue(values[key]);
+    const value = currentValue(key);
     if (value === null || !Number.isFinite(value) || value <= 0) return `${field.symbol}${squared ? "²" : ""}`;
     return (
       <span className={styles.substitutedValue}>
-        <span>{format.number(value, { maximumSignificantDigits: 4, notation: value >= 1e6 || value < 0.001 ? "scientific" : "standard" })}{squared && <sup>2</sup>}</span>
+        <span>{formatValue(value)}{squared && <sup>2</sup>}</span>
         <small>{squared ? "m²" : field.unit}</small>
       </span>
     );
@@ -134,7 +153,10 @@ const GravityFormulaContent = () => {
     const field = fields.find((item) => item.key === key)!;
     const calculated = unknown === key;
     const invalid = !calculated && values[key].trim() !== "" && parseFormulaValue(values[key]) === null;
-    return <button ref={(element) => { variableRefs.current[key] = element; }} type="button" data-formula-variable={key} className={`${styles.term} ${styles.formulaVariable}`} data-active={active === definition} data-calculated={calculated} data-invalid={invalid} aria-label={t(calculated ? "calculatedFormulaVariable" : "editFormulaVariable", { symbol: field.symbol, unit: field.unit })} aria-describedby={`${id}-${definition} ${id}-instructions${squared ? ` ${id}-distance-hint` : ""}${invalid || calculated ? ` ${id}-status` : ""}`} onPointerEnter={(event) => { if (event.pointerType === "mouse") setHovered(definition); }} onPointerLeave={() => setHovered(null)} onFocus={() => setFocused(definition)} onBlur={() => setFocused(null)} onClick={() => openEditor(key)}>{displayedValue(key, squared)}{calculated && <span className={styles.calculatedLabel}>{t("automaticField")}</span>}</button>;
+    const value = currentValue(key);
+    const label = t(calculated ? "calculatedFormulaVariable" : "editFormulaVariable", { symbol: field.symbol, unit: field.unit });
+    const accessibleLabel = value === null ? label : `${label}. ${t("formulaCurrentValue", { value: formatValue(value), unit: field.unit })}`;
+    return <button ref={(element) => { variableRefs.current[key] = element; }} type="button" data-formula-variable={key} className={`${styles.term} ${styles.formulaVariable}`} data-active={active === definition} data-calculated={calculated} data-invalid={invalid} aria-label={accessibleLabel} aria-describedby={`${id}-${definition} ${id}-instructions${squared ? ` ${id}-distance-hint` : ""}${invalid ? ` ${id}-status` : ""}`} onPointerEnter={(event) => { if (event.pointerType === "mouse") setHovered(definition); }} onPointerLeave={() => setHovered(null)} onFocus={() => setFocused(definition)} onBlur={() => setFocused(null)} onClick={() => openEditor(key)}>{displayedValue(key, squared)}{calculated && <span className={styles.calculatedLabel}>{t("automaticField")}</span>}</button>;
   };
 
   const equation = (
@@ -154,7 +176,7 @@ const GravityFormulaContent = () => {
 
   return (
     <section ref={panelRef} aria-labelledby={`${id}-heading`} className={styles.panel} onKeyDown={(event) => { if (event.key === "Escape") { setSelected(null); setHovered(null); setFocused(null); } }}>
-      <div className={styles.calculatorHeader}><h3 id={`${id}-heading`} className={styles.eyebrow}>{t("introFormulaTitle")}</h3><button type="button" onClick={resetParameters} className={styles.resetButton}>{t("reset")}</button></div>
+      <div className={styles.calculatorHeader}><h3 id={`${id}-heading`} className={styles.eyebrow}>{t("introFormulaTitle")}</h3><button ref={resetButtonRef} type="button" onClick={onReset} className={styles.resetButton}>{t("reset")}</button></div>
       <p id={`${id}-instructions`} className={styles.formulaInstructions}>{t("clickToEditFormulaHint")}</p>
       <p id={`${id}-distance-hint`} className={styles.distanceHint}>{t("formulaDistanceHint")}</p>
       <p className="sr-only">{t("formulaSpoken")}</p>

@@ -215,7 +215,7 @@
 
 .formulaInstructions { margin: 14px 0 0; color: #e4dfff; font-size: 15px; line-height: 1.6; }
 .distanceHint { margin: 6px 0 0; color: #b6bdd0; font-size: 14px; line-height: 1.6; }
-.autoEquation .formulaVariable { min-width: 44px; min-height: 48px; flex-direction: column; gap: 4px; border: 1px dashed #aa97ff70; background: #aa97ff0a; touch-action: manipulation; }
+.autoEquation .formulaVariable { min-width: 44px; min-height: 48px; flex-direction: column; gap: 4px; border: 1px dashed #aa97ffa0; background: #aa97ff0a; touch-action: manipulation; }
 .formulaVariable:hover { background: #aa97ff20; border-color: #c0b3ff; }
 .autoEquation .formulaVariable[data-calculated="true"] { border: 1px solid #5ee7d580; background: #5ee7d510; color: #95efde; }
 .calculatedLabel { font-family: var(--font-geist-sans), Arial, sans-serif; font-size: 11px; line-height: 1.5; letter-spacing: 0; }

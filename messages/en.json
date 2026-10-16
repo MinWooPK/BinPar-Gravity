@@ -202,7 +202,8 @@
     "learningUnderstand": "Understand gravity",
     "learningExperiment": "Experiment",
     "learningCheck": "Check your understanding",
-    "learningContinue": "Continue: check your understanding"
+    "learningContinue": "Continue: check your understanding",
+    "formulaCurrentValue": "Current value: {value} {unit}"
   },
   "ThreeBody": {
     "title": "The Three-Body Problem",

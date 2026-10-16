@@ -202,7 +202,8 @@
     "learningUnderstand": "Comprende la gravedad",
     "learningExperiment": "Experimenta",
     "learningCheck": "Comprueba lo aprendido",
-    "learningContinue": "Continúa: comprueba lo aprendido"
+    "learningContinue": "Continúa: comprueba lo aprendido",
+    "formulaCurrentValue": "Valor actual: {value} {unit}"
   },
   "ThreeBody": {
     "title": "El problema de los tres cuerpos",

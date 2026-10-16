@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import {
@@ -31,6 +31,14 @@ export const GravityLab = () => {
   const [revealed, setRevealed] = useState(false);
   const [completed, setCompleted] = useState(false);
   const challenge = challenges[step];
+  const challengeHeadingRef = useRef<HTMLHeadingElement>(null);
+  const feedbackRef = useRef<HTMLParagraphElement>(null);
+  const pendingFocus = useRef<"challenge" | "feedback" | null>(null);
+  useEffect(() => {
+    const target = pendingFocus.current === "challenge" ? challengeHeadingRef.current : pendingFocus.current === "feedback" ? feedbackRef.current : null;
+    target?.focus();
+    pendingFocus.current = null;
+  }, [step, revealed]);
 
   const reset = () => {
     resetParameters();
@@ -40,6 +48,7 @@ export const GravityLab = () => {
     setCompleted(false);
   };
   const chooseStep = (index: number) => {
+    if (index !== step || revealed) pendingFocus.current = "challenge";
     setStep(index);
     reset();
   };
@@ -81,7 +90,7 @@ export const GravityLab = () => {
           aria-labelledby={`${id}-challenge`}
           className="rounded-2xl border border-slate-700 bg-[#111827] p-5 sm:p-6"
         >
-          <div className="flex gap-2" aria-label={t("challenges")}>
+          <div className="flex gap-2" role="group" aria-label={t("challenges")}>
             {challenges.map((item, index) => (
               <button
                 key={item.id}
@@ -96,8 +105,10 @@ export const GravityLab = () => {
             ))}
           </div>
           <h3
+            ref={challengeHeadingRef}
+            tabIndex={-1}
             id={`${id}-challenge`}
-            className="mt-5 text-2xl font-bold text-white"
+            className="mt-5 scroll-mt-48 rounded text-2xl font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300 lg:scroll-mt-28"
           >
             {t(`challenge_${challenge.id}`)}
           </h3>
@@ -133,6 +144,7 @@ export const GravityLab = () => {
                 if (prediction) {
                   setParameters(challenge.parameters);
                   setAttempt({ challenge: challenge.id, prediction });
+                  pendingFocus.current = "feedback";
                   setRevealed(true);
                 }
               }}
@@ -141,13 +153,13 @@ export const GravityLab = () => {
               {t("check")}
             </button>
           ) : (
-            <div className="mt-5" aria-live="polite">
-              <p className="font-semibold text-sky-200">
+            <div className="mt-5">
+              <p ref={feedbackRef} tabIndex={-1} aria-describedby={`${id}-feedback-description`} className="scroll-mt-48 rounded font-semibold text-sky-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300 lg:scroll-mt-28">
                 {t(
                   prediction === challenge.answer ? "correct" : "keepLearning",
                 )}
               </p>
-              <p className="mt-2 text-base text-slate-200">
+              <p id={`${id}-feedback-description`} className="mt-2 text-base text-slate-200">
                 {t(`feedback_${challenge.id}`)}
               </p>
               <div className="mt-4 rounded-xl border border-sky-800 bg-sky-950/40 p-4">
@@ -171,11 +183,9 @@ export const GravityLab = () => {
               </button>
             </div>
           )}
-          {completed && (
-            <p role="status" className="mt-4 text-base text-emerald-200">
-              {t("summary")}
-            </p>
-          )}
+          <p role="status" aria-atomic="true" className={completed ? "mt-4 text-base text-emerald-200" : "sr-only"}>
+            {completed ? t("summary") : ""}
+          </p>
         </section>
       </section>
 

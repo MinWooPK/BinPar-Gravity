@@ -282,7 +282,8 @@
 .directionNote { display: block; margin-top: 6px; color: #c3c9da; font-size: 14px; line-height: 1.6; }
 .forceComparison { flex: 1 1 100%; min-width: 0; margin: 0; padding-top: 14px; border-top: 1px solid #ffffff10; }
 .forceComparison h4 { margin: 0 0 8px; color: #d0d4e3; font-size: 15px; font-weight: 500; line-height: 1.5; }
-.comparisonSvg { display: block; width: 100%; height: auto; max-width: 440px; }
+.labComparisonRows { max-width: 440px; }
+.labComparisonRows .comparisonRow:first-child { margin-top: 0; }
 .forceComparison figcaption { margin-top: 2px; max-width: 52ch; color: #a0a7be; font-size: 13px; line-height: 1.5; }
 .challengeComparison { min-width: 0; margin: 0; color: #e2e8f0; }
 .challengeComparison h4 { margin: 0 0 18px; font-size: 18px; font-weight: 600; line-height: 1.5; }
@@ -336,4 +337,14 @@
   .lab-takeaway { margin-inline: 14px; }
   .lab-takeaway p { font-size: 16px; }
   .gravity-stage svg { min-height: 180px; }
+}
+
+/* Keep the entire slider comfortable to tap on tablets as well as phones. */
+@media (pointer: coarse) {
+  .slider-field input[type="range"] { height: 44px; }
+  .slider-field input[type="range"]::-webkit-slider-thumb { width: 24px; height: 24px; margin-top: -9px; }
+  .slider-field input[type="range"]::-moz-range-thumb { width: 24px; height: 24px; }
+}
+@media (max-width: 600px) {
+  .sphereLabel, .distanceLabel { font-size: 22px; }
 }
