@@ -1,0 +1,27 @@
+{
+  "Footer": {
+    "tagline": "Explore gravity"
+  },
+  "Navigation": {
+    "home": "Home",
+    "gravity": "Gravity",
+    "threeBody": "Three Bodies",
+    "language": "Select language"
+  },
+  "Home": {
+    "title": "Welcome to Gravity Lab",
+    "description": "Discover gravity through interactive simulations.",
+    "button": "Start exploring"
+  },
+  "Gravity": {
+    "title": "Universal Law of Gravitation",
+    "description": "Discover how two bodies attract each other.",
+    "mass": "Mass",
+    "distance": "Distance",
+    "force": "Gravitational force"
+  },
+  "ThreeBody": {
+    "title": "The Three-Body Problem",
+    "description": "Explore the motion of three bodies under gravity."
+  }
+}

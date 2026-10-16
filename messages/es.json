@@ -1,0 +1,27 @@
+{
+  "Footer": {
+    "tagline": "Explora la gravedad"
+  },
+  "Navigation": {
+    "home": "Inicio",
+    "gravity": "Gravitación",
+    "threeBody": "Tres cuerpos",
+    "language": "Seleccionar idioma"
+  },
+  "Home": {
+    "title": "Bienvenido a Gravity Lab",
+    "description": "Descubre la gravedad mediante simulaciones interactivas.",
+    "button": "Comenzar a explorar"
+  },
+  "Gravity": {
+    "title": "Ley de gravitación universal",
+    "description": "Descubre cómo se atraen dos cuerpos.",
+    "mass": "Masa",
+    "distance": "Distancia",
+    "force": "Fuerza gravitatoria"
+  },
+  "ThreeBody": {
+    "title": "El problema de los tres cuerpos",
+    "description": "Explora el movimiento de tres cuerpos bajo la gravedad."
+  }
+}
