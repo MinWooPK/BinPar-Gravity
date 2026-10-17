@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { gravityStages } from "./gravityJourney";
+import { gravityStageById, gravityStages } from "./gravityJourney";
 import type { GravityStageId } from "./gravityJourney";
 import styles from "./GravityJourney.module.css";
 import { GravityStageHeading } from "./GravityStageHeading";
@@ -21,18 +21,18 @@ export const GravityJourneyNavigation = ({
   const t = useTranslations("Gravity");
 
   if (activeStage !== null) {
-    const activeIndex = gravityStages.findIndex(({ id }) => id === activeStage);
-    const stage = gravityStages[activeIndex];
+    const stage = gravityStageById[activeStage];
+    const isDiscovery = activeStage === "gravity-discovery";
 
     return (
-      <nav aria-label={t("learningNavigationTitle")} className="mb-3 grid shrink-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-2 border-b border-slate-700 pb-3 lg:grid-cols-[auto_minmax(0,1fr)_minmax(15rem,22rem)]">
+      <nav aria-label={t("learningNavigationTitle")} className={`mb-3 grid shrink-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-2 border-b border-slate-700 pb-3 ${isDiscovery ? "" : "lg:grid-cols-[auto_minmax(0,1fr)_minmax(15rem,22rem)]"}`}>
         <button type="button" onClick={onReturnToJourney} aria-label={t("backToJourney")} title={t("backToJourney")} className={compactButton}>
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-6">
             <path d="M19 12H5m7-7-7 7 7 7" />
           </svg>
         </button>
-        <GravityStageHeading stage={stage} />
-        <div className="col-span-2 min-w-0 lg:col-span-1">
+        <GravityStageHeading stage={stage} visuallyHidden={isDiscovery} />
+        <div className={isDiscovery ? "ml-auto w-full min-w-0 max-w-[22rem]" : "col-span-2 min-w-0 lg:col-span-1"}>
           <GravityStageSelector activeStage={activeStage} onSelectStage={onSelectStage} />
         </div>
       </nav>

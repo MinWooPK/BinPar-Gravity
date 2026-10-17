@@ -19,9 +19,12 @@ test("all locales contain the same translation keys", () => {
 });
 
 test("the gravity experiment has all its directly referenced messages", () => {
-  const source = ["GravityExperiment", "GravitySlider", "GravityFormula", "GravityFormulaLegend", "GravityLab", "GravityScreen"].map((component) => readFileSync(new URL(`../src/features/gravity/components/${component}.tsx`, import.meta.url), "utf8")).join("\n");
+  const source = ["GravityExperiment", "GravitySlider", "GravityFormula", "GravityFormulaLegend", "GravityLab", "GravityScreen", "GravityEducationalCard", "GravityScienceCard"].map((component) => readFileSync(new URL(`../src/features/gravity/components/${component}.tsx`, import.meta.url), "utf8")).join("\n");
   const usedKeys = [...source.matchAll(/\bt\("([^"]+)"\)/g)].map((match) => match[1]);
-  usedKeys.push("firstMass", "secondMass", "centreDistance");
+  usedKeys.push("firstMass", "secondMass", "centreDistance", "learningDiscover", "educationWhat", "educationHistory", "educationPrinciples", "educationExamples");
+  for (const scientist of ["Galileo", "Kepler", "Newton"]) {
+    usedKeys.push(`discoveryHistory${scientist}`, `discoveryHistory${scientist}Title`);
+  }
   for (const { locale, messages } of dictionaries) {
     for (const key of usedKeys) {
       assert.equal(typeof messages.Gravity[key], "string", `${locale}: Gravity.${key}`);

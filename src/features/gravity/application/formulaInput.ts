@@ -18,15 +18,12 @@ export const initialFormulaInput: FormulaInputState = {
   numericalError: false,
 };
 
-/** Keep the first inferred unknown until reset, including during incomplete edits. */
-export const changeFormulaInput = (
-  state: FormulaInputState,
-  key: GravityVariable,
-  text: string,
-): FormulaInputState => {
-  const values = { ...state.values, [key]: text };
-  const next = { ...state, values, result: null, numericalError: false };
-  const missing = variables.filter((variable) => parseFormulaValue(values[variable]) === null);
+const calculateFormulaInput = (state: FormulaInputState): FormulaInputState => {
+  const { values } = state;
+  const next = { ...state, result: null, numericalError: false };
+  const missing = variables.filter(
+    (variable) => parseFormulaValue(values[variable]) === null,
+  );
   const target = state.unknown ?? (missing.length === 1 ? missing[0] : null);
   if (!target) return next;
 
@@ -45,8 +42,37 @@ export const changeFormulaInput = (
   }
 };
 
+/** Edits affect the calculator draft only; the selected unknown is read-only. */
+export const changeFormulaInput = (
+  state: FormulaInputState,
+  key: GravityVariable,
+  text: string,
+): FormulaInputState => {
+  if (key === state.unknown) return state;
+  return calculateFormulaInput({
+    ...state,
+    values: { ...state.values, [key]: text },
+  });
+};
+
+/** Reuse the previous exact result as a known value when changing the unknown. */
+export const selectFormulaUnknown = (
+  state: FormulaInputState,
+  unknown: GravityVariable,
+): FormulaInputState => {
+  if (unknown === state.unknown) return state;
+  const values = { ...state.values, [unknown]: "" };
+  if (state.unknown && state.result) {
+    values[state.unknown] = String(state.result[state.unknown]);
+  }
+  return calculateFormulaInput({ ...state, values, unknown });
+};
+
 /** Only values supported by the laboratory sliders are applied to the experiment. */
 export const isInLaboratoryRange = (values: GravityValues) =>
-  values.mass1 >= 1e13 && values.mass1 <= 1e14 &&
-  values.mass2 >= 1e13 && values.mass2 <= 1e14 &&
-  values.distance >= 5000 && values.distance <= 20000;
+  values.mass1 >= 1e13 &&
+  values.mass1 <= 1e14 &&
+  values.mass2 >= 1e13 &&
+  values.mass2 <= 1e14 &&
+  values.distance >= 5000 &&
+  values.distance <= 20000;

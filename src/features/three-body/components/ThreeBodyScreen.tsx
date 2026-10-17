@@ -5,9 +5,15 @@ import { orbits } from "../data/orbits";
 import { getOrbitPlayback } from "../server/orbit-data";
 
 export const ThreeBodyScreen = () => {
-  const animationData = Object.fromEntries(orbits.map(({ slug }) => [slug, getOrbitPlayback(slug)]));
+  const animationData = Object.fromEntries(
+    orbits.map(({ slug }) => [slug, getOrbitPlayback(slug)]),
+  );
   return (
-    <section lang="es" aria-labelledby="gallery-title" className={`${styles.page} page-enter`}>
+    <section
+      lang="es"
+      aria-labelledby="gallery-title"
+      className={`${styles.page} page-enter`}
+    >
       <TutorContextBridge context={{ kind: "three-body" }} />
       <div className="page-intro">
         <p className="eyebrow">
@@ -43,4 +49,3 @@ export const ThreeBodyScreen = () => {
     </section>
   );
 };
-

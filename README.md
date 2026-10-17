@@ -18,21 +18,45 @@ Para el tutor, configura en `.env.local` `OPENAI_API_KEY` y `OPENAI_MODEL` con u
 
 `/[locale]/gravity` incluye controles de las dos masas (10–100 × 10¹² kg), distancia entre centros (5–20 km), fuerza calculada en newtons y tres retos con predicción previa. Cada reto usa una referencia fija de 40 × 10¹² kg, 40 × 10¹² kg y 8 km. El modelo usa G = 6,67430 × 10⁻¹¹ N·m²/kg². La representación es ilustrativa, sin escala ni integración de trayectorias.
 
-La portada presenta las tres etapas sin seleccionar ninguna: comprender,
-experimentar y comprobar. Al entrar en una, una cabecera compacta reúne la flecha
+La portada presenta cuatro etapas sin seleccionar ninguna: descubrir, comprender,
+experimentar y comprobar. Al entrar en una, la navegación compacta reúne la flecha
 para volver al recorrido, su título y `GravityStageSelector`, el selector
 personalizado de etapas. Las etapas conservan su estado y posición de scroll;
 los enlaces con hash y Atrás/Adelante del navegador siguen funcionando.
 
+Descubrir presenta dos columnas en escritorio: un panel educativo con las
+subpestañas ¿Qué es?, Tres ideas, Ejemplos e Historia, y una referencia científica
+permanente con la ley, G y las unidades SI. El esquema Tierra–Luna es conceptual,
+sin escala ni simulación orbital. Los principios y ejemplos conservan sus
+componentes y su selector. En móvil y tablet, las columnas se apilan con scroll
+natural. La historia distingue la síntesis de Newton de las aportaciones previas
+de Galileo y Kepler y del experimento de Cavendish de 1798.
+
 Comprender conserva dos columnas en escritorio: simulación, fuerza y valores
-actuales a la izquierda; fórmula editable y leyenda a la derecha. Debajo de la
-simulación, «Descubre cómo funciona la gravedad» permite alternar entre La ley,
-Tres ideas y Ejemplos. Mantiene las explicaciones completas y el selector de
-ejemplos cotidianos sin desmontar la simulación. En móvil se apilan las columnas;
-cuando la altura disponible no basta, el contenido permite scroll interno. Los
+actuales a la izquierda; fórmula editable y constante G a la derecha. El contenido
+educativo se concentra en Descubrir. Los hashes anteriores de Comprender,
+Experimentar y Comprobar siguen siendo válidos tras renumerarlos como 02, 03 y 04.
+El recorrido permite scroll interno; en móvil y tablet con poca altura utiliza
+scroll natural del documento para mantener los controles accesibles. Los
 selectores se manejan con teclado y las transiciones respetan movimiento reducido.
 
-El panel de la fórmula permite introducir tres valores positivos entre F, m₁, m₂ y r para calcular el cuarto automáticamente. La incógnita se mantiene fija hasta restablecer. En la calculadora, las masas se introducen en kg, la distancia en m y F en N; el dominio resuelve en SI. Los cambios permanecen en la calculadora hasta pulsar «Aplicar al laboratorio» con un resultado válido dentro del intervalo visual. Un aviso indica los valores pendientes de aplicar. Los resultados fuera del intervalo se muestran, pero conservan el experimento anterior. Restablecer la calculadora no altera los sliders.
+Referencias históricas: [NASA sobre el movimiento planetario y Newton](https://science.nasa.gov/earth/earth-observatory/planetary-motion/),
+[ESA sobre Galileo y la caída libre](https://www.esa.int/Science_Exploration/Space_Science/Space_Microscope_to_test_universality_of_freefall)
+y [revisión de NIST sobre las determinaciones de G](https://tsapps.nist.gov/publication/get_pdf.cfm?pub_id=923829).
+
+El panel de la fórmula muestra cuatro campos en SI y permite seleccionar explícitamente F, m₁, m₂ o r como incógnita. Los otros tres campos son editables y el resultado se calcula automáticamente en el campo de solo lectura. El resaltado vincula cada símbolo con su campo y con la representación visual; m₁ y m₂ se identifican por separado. En la calculadora, las masas se introducen en kg, la distancia en m y F en N; el dominio resuelve en SI. Los cambios permanecen en la calculadora hasta pulsar «Aplicar valores al simulador» con un resultado válido dentro del intervalo visual. Un aviso indica los valores pendientes de aplicar. Los resultados fuera del intervalo se muestran, pero conservan el experimento anterior. Restablecer la calculadora no altera los sliders.
+
+Experimentar y Comprobar utilizan la misma simulación en una columna izquierda
+compacta, con controles o retos a la derecha. Todas las vistas leen los parámetros
+de `GravityParametersProvider`. El botón «Fórmula» abre un drawer con la misma
+calculadora y el mismo borrador de Comprender: cerrar el panel o cambiar de etapa
+conserva sus entradas y su incógnita. Escape cierra el drawer y devuelve el foco.
+
+Los retos muestran el escenario base antes de comprobar; al comprobar se aplican
+sus parámetros y aparecen feedback, comparación y explicación. Avanzar restaura
+la referencia sin borrar el borrador de la fórmula. Cambiar de etapa conserva el
+reto, la predicción y el resultado; al regresar se recupera el escenario de ese
+reto. El tutor recibe el reto y el intento únicamente en Comprobar.
 
 El cálculo físico y las validaciones de los retos siguen siendo deterministas;
 el modelo de lenguaje no calcula ni modifica el experimento.

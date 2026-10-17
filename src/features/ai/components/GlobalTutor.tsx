@@ -5,7 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { TUTOR_MAX_MESSAGE_LENGTH, TUTOR_TIMEOUT_MS } from "../application/tutor";
 import type { TutorMessage, TutorRequest } from "../application/tutor";
-import { gravityStages } from "@/features/gravity/components/gravityJourney";
+import { gravityStageById } from "@/features/gravity/components/gravityJourney";
 import { useTutorEnvironment } from "./TutorProvider";
 import { requestHistory } from "./conversation";
 import styles from "./GlobalTutor.module.css";
@@ -140,7 +140,7 @@ export const GlobalTutor = () => {
   const page = current();
   const stage = page?.context.kind === "gravity" ? page.context.stage : null;
   const label = page?.context.kind === "gravity"
-    ? (stage ? gravity(gravityStages.find(({ id }) => id === stage)?.title ?? "learningNavigationTitle") : t("gravityContext"))
+    ? (stage ? gravity(gravityStageById[stage].title) : t("gravityContext"))
     : page?.label ?? (page?.context.kind === "three-body" && page.context.slug ? t("orbitContext", { name: page.context.slug }) : t("galleryContext"));
   const contextChanged = !!session.snapshot && !!page && session.snapshot !== JSON.stringify(page.context);
 

@@ -1,6 +1,5 @@
 import { useTranslations } from "next-intl";
 import { GravityStageLink } from "./GravityJourneyTabs";
-import { gravityStages } from "./gravityJourney";
 import styles from "./GravityPrinciples.module.css";
 
 export const GravityPrinciples = () => {
@@ -35,7 +34,7 @@ export const GravityPrinciplesChallenge = () => {
           <h4>{t("tryChallengeTitle")}</h4>
           <p>{t("tryChallengeDescription")}</p>
         </div>
-        <GravityStageLink stageId={gravityStages[1].id} className={styles.button}>
+        <GravityStageLink stageId="gravity-laboratory" className={styles.button}>
           {t("checkInLab")}
           <svg
             aria-hidden="true"

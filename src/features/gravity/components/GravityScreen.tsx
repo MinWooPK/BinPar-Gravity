@@ -1,9 +1,11 @@
 import { useTranslations } from "next-intl";
 import { GravityIntroduction } from "./GravityIntroduction";
+import { GravityDiscovery } from "./GravityDiscovery";
 import { GravityLab } from "./GravityLab";
 import { GravityParametersProvider } from "./GravityParametersProvider";
+import { GravityFormulaAccess } from "./GravityFormulaAccess";
 import { GravityJourney, GravityJourneyPanel } from "./GravityJourneyTabs";
-import { gravityStages } from "./gravityJourney";
+import { gravityStageById } from "./gravityJourney";
 import styles from "./GravityJourney.module.css";
 import GravityStarfield from "@/features/gravity/components/GravityStarfield";
 
@@ -16,23 +18,29 @@ export const GravityScreen = () => {
 
       <div className={`page-enter relative z-10 ${styles.screen}`}>
         <GravityParametersProvider>
-          <GravityJourney
-            introduction={
-              <header className={styles.hero}>
-                <p className={styles.heroEyebrow}>{t("heroEyebrow")}</p>
-                <h1 className={styles.heroTitle}>
-                  <span>{t("heroLead")}</span> <span>{t("heroSubject")}</span>
-                </h1>
-                <p className={styles.heroDescription}>{t("heroDescription")}</p>
-              </header>
-            }
-          >
-            <GravityJourneyPanel stage={gravityStages[0]}>
-              <GravityIntroduction />
-            </GravityJourneyPanel>
+          <GravityFormulaAccess>
+            <GravityJourney
+              introduction={
+                <header className={styles.hero}>
+                  <p className={styles.heroEyebrow}>{t("heroEyebrow")}</p>
+                  <h1 className={styles.heroTitle}>
+                    <span>{t("heroLead")}</span> <span>{t("heroSubject")}</span>
+                  </h1>
+                  <p className={styles.heroDescription}>{t("heroDescription")}</p>
+                </header>
+              }
+            >
+              <GravityJourneyPanel stage={gravityStageById["gravity-discovery"]} className={styles.stage}>
+                <GravityDiscovery />
+              </GravityJourneyPanel>
 
-            <GravityLab />
-          </GravityJourney>
+              <GravityJourneyPanel stage={gravityStageById["gravity-understanding"]}>
+                <GravityIntroduction />
+              </GravityJourneyPanel>
+
+              <GravityLab />
+            </GravityJourney>
+          </GravityFormulaAccess>
         </GravityParametersProvider>
       </div>
     </div>

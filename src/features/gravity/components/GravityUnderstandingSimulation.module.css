@@ -109,3 +109,33 @@
   .values dt { min-width: 0; margin: 0; }
   .values dd { flex-shrink: 0; text-align: right; }
 }
+
+/* Visual correspondence only: no parameter or physics changes on interaction. */
+.compact .heading, .compact .force, .compact .values { padding-inline: 14px; }
+.compact .heading h3 { font-size: .9375rem; }
+.compact .live { font-size: .6875rem; }
+.compact .force > span { font-size: .875rem; }
+.compact .force output { font-size: 1.5rem; }
+.compact .diagram { padding-inline: 14px; }
+.compact .diagram figcaption { font-size: .875rem; line-height: 1.45; }
+.compact .values { gap: 8px; padding-block: 10px; }
+.compact .values dt, .compact .values dd { font-size: .875rem; }
+@media (max-width: 600px) {
+  .compact .force { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 8px; }
+  .compact .force output { font-size: 1.375rem; }
+  .compact .diagram svg { min-height: 90px; max-height: 100px; }
+  .compact .values { gap: 4px; }
+  .compact .values > div { padding: 0; }
+}
+
+.sphere { stroke: transparent; stroke-width: 2.5; transition: stroke 140ms; }
+.sphere[data-active="true"] { stroke: #c4b5fd; }
+.sphere[data-simulation-variable="mass2"][data-active="true"] { stroke: #5ee7d5; }
+.separation { transition: stroke 140ms, stroke-width 140ms; }
+.separation[data-active="true"] { stroke: #d8b4fe; stroke-width: 2.5; }
+.force { border: 1px solid transparent; border-radius: 8px; transition: background 140ms, border-color 140ms; }
+.force[data-active="true"] { border-color: #aa97ff70; background: #aa97ff10; }
+.values > div { padding: 4px; border: 1px solid transparent; border-radius: 7px; transition: background 140ms, border-color 140ms; }
+.values > div[data-active="true"] { border-color: #aa97ff70; background: #aa97ff12; }
+.values > div:nth-child(2)[data-active="true"] { border-color: #5ee7d570; background: #5ee7d510; }
+@media (prefers-reduced-motion: reduce) { .sphere, .separation, .force, .values > div { transition: none; } }

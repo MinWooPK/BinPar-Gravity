@@ -23,6 +23,7 @@ const load = (path) => require(join(directory, `features/${path}.js`));
 const { isTutorRequest, parseTutorRequest } = load("ai/application/tutorRequest");
 const { buildTutorContext } = load("ai/application/tutorContext");
 const { buildTutorPrompt } = load("ai/application/tutorPrompt");
+const { gravityStages, gravityStageById } = load("gravity/components/gravityJourney");
 const limits = load("ai/application/tutor");
 const guards = load("ai/infrastructure/requestGuard");
 const { initialParameters, gravitationalForce, challenges } = load("gravity/domain/gravitation");
@@ -37,7 +38,7 @@ const validRequest = () => ({
 test("shared tutor validates every locale, mode and gravity stage without coercion", () => {
   for (const locale of ["es", "en", "fr"]) {
     for (const mode of ["explain", "simplify", "example"]) {
-      for (const stage of [null, "gravity-understanding", "gravity-laboratory", "gravity-challenges"]) {
+      for (const stage of [null, ...gravityStages.map(({ id }) => id)]) {
         const request = validRequest();
         assert.equal(isTutorRequest({ ...request, locale, mode, context: { ...request.context, stage } }), true);
       }
@@ -45,6 +46,39 @@ test("shared tutor validates every locale, mode and gravity stage without coerci
   }
   for (const locale of ["de", ["es"], "ES"]) assert.equal(isTutorRequest({ ...validRequest(), locale }), false);
   for (const mode of [["explain"], {}, "EXPLAIN"]) assert.equal(isTutorRequest({ ...validRequest(), mode }), false);
+});
+
+test("the four-stage journey adds discovery while preserving existing bookmarked stage IDs", () => {
+  assert.deepEqual(gravityStages.map(({ id, number }) => [id, number]), [
+    ["gravity-discovery", "01"],
+    ["gravity-understanding", "02"],
+    ["gravity-laboratory", "03"],
+    ["gravity-challenges", "04"],
+  ]);
+  for (const stage of gravityStages) assert.equal(gravityStageById[stage.id], stage);
+});
+
+test("discovery tutor receives verified introductory facts, SI units and unchanged numerical context", () => {
+  const request = { ...validRequest(), context: { ...validRequest().context, stage: "gravity-discovery" } };
+  assert.equal(isTutorRequest(request), true);
+  const context = buildTutorContext(request.context);
+  assert.equal(context.gravitationalConstant, 6.6743e-11);
+  assert.equal(context.current.forceNewtons, gravitationalForce(initialParameters));
+  assert.match(context.discovery.definition, /equal magnitude and opposite directions/);
+  assert.match(context.discovery.illustration, /not to scale/);
+  assert.deepEqual(context.discovery.history.map(({ name }) => name), ["Galileo Galilei", "Johannes Kepler", "Isaac Newton", "Henry Cavendish"]);
+  assert.equal(context.discovery.history.find(({ name }) => name === "Isaac Newton").year, 1687);
+  const cavendish = context.discovery.history.find(({ name }) => name === "Henry Cavendish");
+  assert.equal(cavendish.year, 1798);
+  assert.match(cavendish.contribution, /mean density/);
+  assert.match(cavendish.contribution, /did not originally report the result as a value of G/);
+  assert.match(context.discovery.siUnits.N, /1 N = 1 kg·m\/s²/);
+  assert.equal(context.challenge, undefined);
+  assert.equal(context.attempt, undefined);
+  assert.match(buildTutorPrompt(request).instructions, /introductory discovery stage/);
+  assert.match(buildTutorPrompt(request).instructions, /Do not invent calculator actions or a checked challenge/);
+  assert.equal(buildTutorContext(validRequest().context).discovery, undefined);
+  assert.equal(buildTutorContext({ ...request.context, stage: "gravity-understanding" }).discovery, undefined);
 });
 
 test("shared tutor rejects foreign context data, invalid numbers and incompatible attempts", () => {

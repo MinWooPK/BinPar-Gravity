@@ -1,120 +1,50 @@
-import { useTranslations } from "next-intl";
-import type { GravityVariable } from "../domain/gravitation";
-import styles from "./GravityIntroduction.module.css";
+import { useFormatter, useTranslations } from "next-intl";
+import { GRAVITATIONAL_CONSTANT } from "../domain/gravitation";
+import { useGravityFormulaInteraction } from "./GravityFormulaInteraction";
+import styles from "./GravityFormula.module.css";
 
-const definitions = [
-  {
-    key: "force",
-    symbol: "F",
-    label: "legendForce",
-    detail: "legendForceUnit",
-  },
-  {
-    key: "constant",
-    symbol: "G",
-    label: "legendConstant",
-    detail: "legendConstantValue",
-  },
-  {
-    key: "masses",
-    symbol: "m₁, m₂",
-    label: "legendMasses",
-    detail: "legendMassUnit",
-  },
-  {
-    key: "distance",
-    symbol: "r",
-    label: "legendDistance",
-    detail: "legendDistanceUnit",
-  },
-] as const;
-export type FormulaTerm = (typeof definitions)[number]["key"];
-
-type FormulaLegendProps = {
-  id: string;
-  active: FormulaTerm | null;
-  onHover: (term: FormulaTerm | null) => void;
-  onFocus: (term: FormulaTerm | null) => void;
-  onSelect: (term: FormulaTerm) => void;
-  onEdit: (variable: GravityVariable) => void;
-};
-
-export const GravityFormulaLegend = ({ id, active, onHover, onFocus, onSelect, onEdit }: FormulaLegendProps) => {
+export const GravityFormulaLegend = ({ id }: { id: string }) => {
   const t = useTranslations("Gravity");
+  const format = useFormatter();
+  const { active, selected, hover, focus, select } = useGravityFormulaInteraction();
+  const [coefficient, exponent] = GRAVITATIONAL_CONSTANT.toExponential(5).split("e");
+
   return (
-    <dl className={styles.legend}>
-      {definitions.map(({ key, symbol, label, detail }) => (
-        <div
-          key={key}
-          data-active={active === key}
-          className={styles.interactiveDefinition}
-          onPointerEnter={(event) => {
-            if (event.pointerType === "mouse") onHover(key);
-          }}
-          onPointerLeave={() => onHover(null)}
-        >
-          <dt className={styles.definitionHeading}>
-            <button
-              type="button"
-              className={styles.definitionAction}
-              aria-label={
-                key === "constant"
-                  ? `${t(label)}. ${t("formulaConstantFixed")}`
-                  : `${t("formulaEditHint")}: ${t(label)}`
-              }
-              aria-describedby={`${id}-${key}`}
-              onClick={() =>
-                key === "constant"
-                  ? onSelect(key)
-                  : onEdit(key === "masses" ? "mass1" : key)
-              }
-              onFocus={() => onFocus(key)}
-              onBlur={() => onFocus(null)}
-            />
-            {key === "masses" ? (
-              <span className={styles.massEditActions}>
-                {(["mass1", "mass2"] as const).map((mass) => (
-                  <button
-                    key={mass}
-                    type="button"
-                    aria-label={t("editFormulaVariable", {
-                      symbol: mass === "mass1" ? "m₁" : "m₂",
-                      unit: "kg",
-                    })}
-                    onClick={() => onEdit(mass)}
-                    onFocus={() => onFocus("masses")}
-                    onBlur={() => onFocus(null)}
-                  >
-                    {mass === "mass1" ? "m₁" : "m₂"}
-                  </button>
-                ))}
-              </span>
-            ) : (
-              <span className={styles.definitionSymbol}>{symbol}</span>
-            )}
-          </dt>
-          <dd id={`${id}-${key}`}>
-            {key === "constant"
-              ? t.rich("legendConstantHighlighted", {
-                  highlight: (chunks) => (
-                    <strong className={styles.definitionHighlight}>
-                      {chunks}
-                    </strong>
-                  ),
-                })
-              : t(label)}
-            <span>
-              {t.rich(`${detail}Highlighted`, {
-                highlight: (chunks) => (
-                  <strong className={styles.definitionHighlight}>
-                    {chunks}
-                  </strong>
-                ),
-              })}
-            </span>
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <div
+      className={styles.constant}
+      data-formula-definition="constant"
+      data-active={active === "constant"}
+      onPointerEnter={(event) => { if (event.pointerType === "mouse") hover("constant"); }}
+      onPointerLeave={() => hover(null)}
+      onFocus={() => focus("constant")}
+      onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) focus(null); }}
+    >
+      <button
+        type="button"
+        className={styles.constantSymbol}
+        aria-label={`${t("formulaConstantTitle")}. ${t("formulaConstantFixed")}`}
+        aria-describedby={`${id}-constant-value ${id}-constant-description`}
+        aria-pressed={selected === "constant"}
+        onClick={() => select(selected === "constant" ? null : "constant")}
+      >G</button>
+      <div className={styles.constantContent}>
+        <h4>{t("formulaConstantTitle")}</h4>
+        <p id={`${id}-constant-value`} className={styles.constantValue}>
+          {t.rich("formulaConstantValue", {
+            value: format.number(Number(coefficient), {
+              minimumFractionDigits: 5,
+              maximumFractionDigits: 5,
+              useGrouping: false,
+            }),
+            exponent: Number(exponent),
+            power: (chunks) => <sup>{chunks}</sup>,
+            unit: (chunks) => <span>{chunks}</span>,
+          })}
+        </p>
+        <p id={`${id}-constant-description`} className={styles.constantDescription}>
+          {t("formulaConstantDescription")}
+        </p>
+      </div>
+    </div>
   );
 };

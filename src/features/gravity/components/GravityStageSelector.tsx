@@ -3,7 +3,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
-import { gravityStages } from "./gravityJourney";
+import { gravityStageById, gravityStages } from "./gravityJourney";
 import type { GravityStageId } from "./gravityJourney";
 
 export const GravityStageSelector = ({ activeStage, onSelectStage }: {
@@ -18,7 +18,7 @@ export const GravityStageSelector = ({ activeStage, onSelectStage }: {
   const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const openingIndex = useRef(0);
   const activeIndex = gravityStages.findIndex(({ id }) => id === activeStage);
-  const active = gravityStages[activeIndex];
+  const active = gravityStageById[activeStage];
 
   const closeMenu = () => {
     setOpen(false);
@@ -26,7 +26,10 @@ export const GravityStageSelector = ({ activeStage, onSelectStage }: {
   };
 
   useLayoutEffect(() => {
-    if (open) optionRefs.current[openingIndex.current]?.focus({ preventScroll: true });
+    if (!open) return;
+    const option = optionRefs.current[openingIndex.current];
+    option?.focus({ preventScroll: true });
+    option?.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "instant" });
   }, [open]);
 
   useEffect(() => {
@@ -78,7 +81,7 @@ export const GravityStageSelector = ({ activeStage, onSelectStage }: {
         aria-label={`${t("chooseStage")}: ${active.number} — ${t(active.title)}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-controls={menuId}
+        aria-controls={open ? menuId : undefined}
         onClick={() => {
           openingIndex.current = activeIndex;
           setOpen(!open);

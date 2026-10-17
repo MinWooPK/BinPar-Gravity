@@ -9,30 +9,30 @@
 .heading {
   margin: 0 0 14px;
   color: #f2f2fa;
-  font-size: 1.125rem;
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
   font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: -.02em;
+  line-height: 1.25;
+  letter-spacing: -.025em;
   overflow-wrap: anywhere;
 }
 
 .tabs {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .tab {
   min-width: 0;
   min-height: 44px;
-  padding: 8px;
+  padding: 8px 5px;
   border: 1px solid #30364b;
   border-radius: 8px;
   background: #111624;
   color: #bac2d6;
   font: inherit;
-  font-size: 1rem;
+  font-size: .875rem;
   font-weight: 500;
   line-height: 1.4;
   overflow-wrap: anywhere;
@@ -70,26 +70,78 @@
   animation: education-enter 180ms ease-out both;
 }
 
-.law h4 {
-  margin: 0 0 12px;
+.overview h3,
+.history h3 {
+  margin: 0 0 10px;
   color: #e4dcff;
-  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  font-size: 1.125rem;
   font-weight: 600;
-  line-height: 1.3;
-  letter-spacing: -.025em;
+  line-height: 1.4;
+  letter-spacing: -.015em;
   text-wrap: balance;
-  overflow-wrap: anywhere;
 }
 
-.law p {
-  margin: 0 0 12px;
+.overview > p,
+.timeline p {
+  margin: 0;
   color: #b2bad0;
-  font-size: 1rem;
-  line-height: 1.6;
+  font-size: .9375rem;
+  line-height: 1.5;
 }
 
-.law p:last-child {
-  margin-bottom: 0;
+.diagram {
+  margin: 12px 0;
+  padding: 6px 0 8px;
+  border: 1px solid #29344b;
+  border-radius: 10px;
+  background: #0b1120;
+}
+
+.diagram svg {
+  display: block;
+  width: 100%;
+  height: clamp(104px, 15vh, 132px);
+}
+
+.diagram figcaption {
+  margin: 0;
+  padding: 0 10px;
+  color: #a4b0c7;
+  font-size: .875rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.timeline {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.timeline li {
+  padding-left: 12px;
+  border-left: 2px solid #746392;
+}
+
+.timeline h4 {
+  margin: 0 0 3px;
+  color: #e4e8f2;
+  font-size: .9375rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.historyNote {
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: 1px solid #294543;
+  border-radius: 8px;
+  background: #5ee7d508;
+  color: #b8d3d2;
+  font-size: .875rem;
+  line-height: 1.5;
 }
 
 @keyframes education-enter {
@@ -100,7 +152,10 @@
 @media (max-width: 600px) {
   .card { padding: 16px 12px; }
   .tabs { gap: 5px; }
-  .tab { padding-inline: 5px; }
+}
+
+@media (max-width: 360px) {
+  .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (prefers-reduced-motion: reduce) {

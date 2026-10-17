@@ -85,7 +85,7 @@ test("parsed inputs recover each of the four unknowns using the existing solver"
   }
 });
 
-const { changeFormulaInput, initialFormulaInput, isInLaboratoryRange } = require(
+const { changeFormulaInput, initialFormulaInput, isInLaboratoryRange, selectFormulaUnknown } = require(
   join(directory, "application/formulaInput.js"),
 );
 const enterValues = (entries, initial = initialFormulaInput) =>
@@ -130,7 +130,7 @@ test("numerical overflow preserves the inferred unknown and recovers on correcti
   assert.equal(corrected.result.force, gravitationalForce({ mass1: 1, mass2: 1, distance: 1 }));
 });
 
-test("laboratory synchronization includes slider bounds and rejects only out-of-range solutions", () => {
+test("laboratory application includes slider bounds and rejects out-of-range solutions", () => {
   for (const mass1 of [1e13, 1e14]) for (const mass2 of [1e13, 1e14]) {
     for (const distance of [5000, 20000]) {
       assert.ok(isInLaboratoryRange({ mass1, mass2, distance, force: 1 }));
@@ -141,4 +141,95 @@ test("laboratory synchronization includes slider bounds and rejects only out-of-
     ["mass2", 1e13 - 1], ["mass2", 1e14 + 1], ["distance", 4999], ["distance", 20001]]) {
     assert.equal(isInLaboratoryRange({ ...baseline, [key]: value }), false);
   }
+});
+
+test("an explicitly selected unknown solves from its three known inputs", () => {
+  const parameters = { mass1: 40e12, mass2: 60e12, distance: 12500 };
+  const expected = { ...parameters, force: gravitationalForce(parameters) };
+  for (const unknown of Object.keys(expected)) {
+    const selected = selectFormulaUnknown(initialFormulaInput, unknown);
+    assert.equal(selected.unknown, unknown);
+    assert.equal(selected.result, null);
+    const solved = enterValues(Object.fromEntries(Object.entries(expected)
+      .filter(([key]) => key !== unknown).map(([key, value]) => [key, String(value)])), selected);
+    assert.equal(solved.unknown, unknown);
+    assert.ok(Math.abs(solved.result[unknown] / expected[unknown] - 1) < 1e-12);
+    assert.equal(solved.values[unknown], "");
+    assert.equal(solved.numericalError, false);
+  }
+});
+
+test("changing the unknown reuses the latest result without rounding or altering known drafts", () => {
+  const initial = selectFormulaUnknown(initialFormulaInput, "force");
+  const solved = enterValues({ mass1: "1,2345678901234567e13", mass2: "7.654321098765432e13", distance: "8123.456789012345" }, initial);
+  const latest = changeFormulaInput(solved, "distance", "9234.567890123456");
+  assert.notEqual(latest.result.force, solved.result.force);
+  const mass = selectFormulaUnknown(latest, "mass1");
+  assert.equal(mass.values.force, String(latest.result.force));
+  assert.equal(parse(mass.values.force), latest.result.force);
+  assert.equal(mass.values.mass1, "");
+  assert.equal(mass.values.mass2, latest.values.mass2);
+  assert.equal(mass.values.distance, latest.values.distance);
+  assert.ok(Math.abs(mass.result.mass1 / latest.result.mass1 - 1) < 1e-12);
+  const distance = selectFormulaUnknown(mass, "distance");
+  assert.equal(distance.values.mass1, String(mass.result.mass1));
+  assert.equal(distance.values.force, mass.values.force);
+  assert.equal(distance.values.distance, "");
+  assert.ok(Math.abs(distance.result.distance / latest.result.distance - 1) < 1e-12);
+});
+
+test("the selected unknown cannot be edited or erase its current result", () => {
+  const state = enterValues({ mass1: "40e12", mass2: "40e12", distance: "8000" },
+    selectFormulaUnknown(initialFormulaInput, "force"));
+  for (const text of ["1", "", "Infinity"]) {
+    assert.strictEqual(changeFormulaInput(state, "force", text), state);
+  }
+  assert.strictEqual(selectFormulaUnknown(state, "force"), state);
+});
+
+test("invalid or unfinished known inputs clear results and retain the explicit unknown", () => {
+  const solved = enterValues({ force: "6.6743e-11", mass2: "1", distance: "1" },
+    selectFormulaUnknown(initialFormulaInput, "mass1"));
+  for (const text of ["", "1e-", "-1", "0", "NaN", "Infinity", "1e999", "1e-999"]) {
+    const invalid = changeFormulaInput(solved, "force", text);
+    assert.equal(invalid.unknown, "mass1", text);
+    assert.equal(invalid.result, null, text);
+    assert.equal(invalid.numericalError, false, text);
+    const changed = selectFormulaUnknown(invalid, "distance");
+    assert.equal(changed.values.force, text);
+    assert.equal(changed.values.mass1, "");
+    assert.equal(changed.result, null);
+  }
+  assert.equal(changeFormulaInput(solved, "force", "1.33486e-10").result.mass1, 2);
+});
+
+test("explicit calculations recover from overflow and preserve very small results", () => {
+  const initial = selectFormulaUnknown(initialFormulaInput, "force");
+  const overflow = enterValues({ mass1: "1e308", mass2: "1e308", distance: "1" }, initial);
+  assert.equal(overflow.unknown, "force");
+  assert.equal(overflow.result, null);
+  assert.equal(overflow.numericalError, true);
+  const corrected = enterValues({ mass1: "1e-200", mass2: "1" }, overflow);
+  assert.equal(corrected.numericalError, false);
+  assert.ok(corrected.result.force > 0);
+  const mass = selectFormulaUnknown(corrected, "mass1");
+  assert.equal(parse(mass.values.force), corrected.result.force);
+  assert.ok(Math.abs(mass.result.mass1 / 1e-200 - 1) < 1e-12);
+});
+
+test("selection and edits never mutate inputs, and a fresh calculator starts without stale values", () => {
+  const solved = enterValues({ mass1: "40e12", mass2: "40e12", distance: "8000" },
+    selectFormulaUnknown(initialFormulaInput, "force"));
+  const snapshot = structuredClone(solved);
+  Object.freeze(solved.values);
+  Object.freeze(solved.result);
+  Object.freeze(solved);
+  selectFormulaUnknown(solved, "distance");
+  changeFormulaInput(solved, "mass1", "80e12");
+  assert.deepEqual(solved, snapshot);
+  assert.deepEqual(selectFormulaUnknown(initialFormulaInput, "force"), {
+    values: { force: "", mass1: "", mass2: "", distance: "" },
+    unknown: "force", result: null, numericalError: false,
+  });
+  assert.equal(initialFormulaInput.unknown, null);
 });

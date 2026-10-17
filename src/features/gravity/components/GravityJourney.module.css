@@ -47,7 +47,7 @@
 .sections > a { max-width: 100%; }
 .navigation { flex-shrink: 0; margin: 0 0 .5rem; }
 .navigationTitle { margin: 0 0 10px; color: #b8b0d6; font-size: 14px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
-.tabList { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tabList { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .tab { display: flex; align-items: baseline; gap: 12px; width: 100%; min-width: 0; min-height: 48px; padding: 14px 16px; border: 1px solid #30364b; border-radius: 10px; background: #111624; color: #e4e8f2; font: inherit; font-size: 16px; line-height: 1.5; text-align: left; overflow-wrap: anywhere; cursor: pointer; transition: background 180ms, border-color 180ms, color 180ms; }
 .tab:hover { border-color: #aa97ff80; background: #1b2032; }
 .tab:focus-visible, .continueLink:focus-visible { outline: 3px solid #c0b3ff; outline-offset: 3px; }
@@ -102,6 +102,20 @@
   .pageHeader p { margin-top: .25rem; font-size: .8rem; line-height: 1.4; }
   .navigationTitle, .freedomNote { display: none; }
   .tab { min-height: 44px; padding: 8px; gap: 6px; font-size: 13px; }
+}
+/* Short mobile/tablet viewports need document scroll to keep controls reachable. */
+@media (max-width: 1023px) {
+  :global(body):has(.workspace[data-active-stage="gravity-discovery"]) { height: auto; }
+  :global(html):has(.workspace[data-active-stage="gravity-discovery"]) { scroll-padding-bottom: max(5rem, calc(env(safe-area-inset-bottom) + 4rem)); }
+  .screen:has(.workspace[data-active-stage="gravity-discovery"]),
+  .workspace[data-active-stage="gravity-discovery"] { flex: none; }
+  .workspace[data-active-stage="gravity-discovery"] .viewport { flex: none; overflow: visible; }
+}
+@media (max-width: 1023px) and (max-height: 600px) {
+  :global(html):has(.screen) { scroll-padding-bottom: max(5rem, calc(env(safe-area-inset-bottom) + 4rem)); }
+  :global(body):has(.screen) { height: auto; }
+  .screen, .workspace { flex: none; }
+  .viewport { flex: none; overflow: visible; }
 }
 @media (prefers-reduced-motion: reduce) {
   .tab { transition: none; }

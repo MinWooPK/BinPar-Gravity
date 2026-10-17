@@ -1,46 +1,38 @@
 .stage { min-width: 0; }
-.hint { max-width: 48rem; margin: 0 0 12px; color: #cbd5e1; font-size: 16px; line-height: 1.5; }
-.challengeCard { min-width: 0; padding: clamp(16px, 1.6vw, 20px); border: 1px solid #334155; border-radius: 16px; background: #111827; }
-.cardHeader { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; }
+.challengeCard { min-width: 0; padding: 18px; border: 1px solid #272c40; border-radius: 14px; background: linear-gradient(145deg, #131724, #0e121d); }
+.titleRow, .cardHeader { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+.titleRow h3 { min-width: 0; margin: 0; color: #f2f2fa; font-size: 1.125rem; font-weight: 600; line-height: 1.4; }
+.hint { margin: 10px 0 12px; color: #b2bad0; font-size: .875rem; line-height: 1.5; }
 .cardHeader > p { margin: 0; }
-.challengeLayout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; margin-top: 12px; }
+.progress { display: block; width: 100%; height: 5px; margin-top: 10px; overflow: hidden; border: 0; border-radius: 8px; background: #30364b; accent-color: #aa97ff; }
+.progress::-webkit-progress-bar { border-radius: 8px; background: #30364b; }
+.progress::-webkit-progress-value { border-radius: 8px; background: #aa97ff; }
+.progress::-moz-progress-bar { border-radius: 8px; background: #aa97ff; }
+.challengeLayout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; margin-top: 16px; }
 .prediction, .result, .questionContext, .answerGroup { min-width: 0; }
-.question { margin: 0; font-size: clamp(22px, 2vw, 26px); line-height: 1.3; overflow-wrap: anywhere; }
-.baseline { margin: 10px 0 0; color: #cbd5e1; font-size: 16px; line-height: 1.5; }
-.prompt { margin: 12px 0 0; color: #f1f5f9; font-size: 16px; line-height: 1.5; }
+.question { margin: 0; border-radius: 4px; color: #f2f2fa; font-size: 1.125rem; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; scroll-margin-block: 16px; }
+.baseline { margin: 10px 0 0; padding: 10px 12px; border: 1px solid #aa97ff30; border-radius: 8px; background: #aa97ff08; color: #d6c9f2; font-size: .875rem; line-height: 1.5; }
+.scenario { margin: 8px 0 0; color: #aeb8cb; font-size: .8125rem; line-height: 1.5; }
+.prompt { margin: 12px 0 0; color: #e4e8f2; font-size: .9375rem; line-height: 1.5; }
 .answers { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; min-width: 0; margin: 10px 0 0; padding: 0; border: 0; }
-.answers label { min-width: 0; min-height: 44px; padding: 10px 12px; font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
-.answers label > span > span:last-child { font-size: 16px; }
+.answers label { min-width: 0; min-height: 44px; padding: 10px 12px; font-size: .9375rem; line-height: 1.5; overflow-wrap: anywhere; }
 .checkButton { width: 100%; margin-top: 12px; }
-.result { display: grid; align-content: start; gap: 10px; }
-.feedback { margin: 0; font-size: 16px; line-height: 1.5; }
-.explanation, .feedbackNote { margin: 0; color: #e2e8f0; font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
-.feedbackNote { color: #b6bdd0; }
-.comparison { min-width: 0; padding: 12px; border: 1px solid #075985; border-radius: 12px; background: #082f4966; }
+.result { display: grid; align-content: start; gap: 10px; padding-top: 14px; border-top: 1px solid #30364b; }
+.feedback { margin: 0; font-size: .9375rem; line-height: 1.5; scroll-margin-block: 16px; }
+.question:focus-visible, .feedback:focus-visible { outline: 2px solid #c4b5fd; outline-offset: 4px; }
+.explanation, .feedbackNote { margin: 0; color: #d0d4e3; font-size: .875rem; line-height: 1.5; overflow-wrap: anywhere; }
+.feedbackNote { color: #aeb8cb; }
+.comparison { min-width: 0; padding: 12px; border: 1px solid #aa97ff35; border-radius: 10px; background: #aa97ff08; }
 .comparison figure { min-width: 0; margin: 0; }
-.comparison figure > h4 { margin: 0 0 8px; font-size: 18px; line-height: 1.4; }
+.comparison figure > h4 { margin: 0 0 8px; font-size: 1rem; line-height: 1.4; }
 .comparison figure > div { min-width: 0; margin-top: 10px; }
 .comparison figure > h4 + div { margin-top: 0; }
-.comparison figure > div > div { font-size: 16px; line-height: 1.5; }
+.comparison figure > div > div { font-size: .875rem; line-height: 1.5; }
 .comparison figure > div > svg { margin-top: 4px; }
-.comparison figure > div > p { margin-top: 4px; font-size: 16px; line-height: 1.5; }
-.comparison figure > figcaption { margin-top: 10px; font-size: 16px; line-height: 1.5; }
+.comparison figure > div > p { margin-top: 4px; font-size: .875rem; line-height: 1.5; }
+.comparison figure > figcaption { margin-top: 10px; font-size: .8125rem; line-height: 1.5; }
 .actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.actions > :is(a, button) { flex: 1 1 180px; min-width: 0; min-height: 44px; text-align: center; }
-.summary { margin: 14px 0 0; color: #a7f3d0; font-size: 16px; line-height: 1.5; }
-
-@media (min-width: 640px) {
-  .answers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  /* Both rows reserve the same number-column width, so their bars share a scale. */
-  .comparison figure > div { display: grid; grid-template-columns: minmax(0, 1fr) 11ch; align-items: center; gap: 4px 10px; }
-  .comparison figure > div > div { grid-column: 1 / -1; }
-  .comparison figure > div > svg { grid-column: 1; margin: 0; }
-  .comparison figure > div > p { grid-column: 2; margin: 0; text-align: right; }
-}
-
-@media (min-width: 1024px) {
-  .challengeLayout:not([data-revealed="true"]) .prediction { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-items: start; gap: 24px; }
-  .challengeLayout:not([data-revealed="true"]) .answers { margin-top: 0; }
-  .challengeLayout[data-revealed="true"] { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 24px; }
-  .challengeLayout[data-revealed="true"] .result { padding-left: 20px; border-left: 1px solid #334155; }
-}
+.actions > button { flex: 1; min-width: 0; min-height: 44px; text-align: center; }
+.summary { margin: 14px 0 0; color: #a7f3d0; font-size: .875rem; line-height: 1.5; }
+@media (min-width: 640px) { .answers { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .challengeCard { padding: 14px; } }

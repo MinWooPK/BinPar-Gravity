@@ -1,26 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import {
   changeFormulaInput,
   initialFormulaInput,
-  isInLaboratoryRange,
+  selectFormulaUnknown,
 } from "../application/formulaInput";
 import type { GravityVariable } from "../domain/gravitation";
-import { useGravityControls } from "../components/GravityParametersProvider";
 
 export const useGravityFormula = () => {
-  const [state, setState] = useState(initialFormulaInput);
-  const { setParameters } = useGravityControls();
+  const [state, setState] = useState(() =>
+    selectFormulaUnknown(initialFormulaInput, "force"),
+  );
 
   const changeValue = (key: GravityVariable, text: string) => {
-    const next = changeFormulaInput(state, key, text);
-    setState(next);
-    if (next.result && isInLaboratoryRange(next.result)) {
-      const { mass1, mass2, distance } = next.result;
-      setParameters({ mass1, mass2, distance });
-    }
+    setState((current) => changeFormulaInput(current, key, text));
   };
 
-  return { ...state, changeValue };
+  const selectUnknown = (key: GravityVariable) => {
+    setState((current) => selectFormulaUnknown(current, key));
+  };
+
+  const resetFormula = useCallback(() => {
+    setState(selectFormulaUnknown(initialFormulaInput, "force"));
+  }, []);
+
+  return { ...state, changeValue, selectUnknown, resetFormula };
 };

@@ -13,7 +13,7 @@ import {
 import type { AnchorHTMLAttributes, ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { gravityStages } from "./gravityJourney";
-import type { GravityStageId } from "./gravityJourney";
+import type { GravityStage, GravityStageId } from "./gravityJourney";
 import { GravityJourneyNavigation } from "./GravityJourneyNavigation";
 import styles from "./GravityJourney.module.css";
 
@@ -39,18 +39,22 @@ export const GravityJourney = ({
   children: ReactNode;
   introduction: ReactNode;
 }) => {
+  const t = useTranslations("Gravity");
   const [activeStage, setActiveStage] = useState<GravityStageId | null>(null);
   const activeStageRef = useRef<GravityStageId | null>(null);
-  const lastStage = useRef<GravityStageId>(gravityStages[0].id);
+  const lastStage = useRef<GravityStageId>("gravity-discovery");
   const viewportRef = useRef<HTMLDivElement>(null);
-  const scrollPositions = useRef<Partial<Record<GravityStageId, number>>>({});
+  const scrollPositions = useRef<Partial<Record<GravityStageId, { viewport: number; document: number }>>>({});
   const focusOnChange = useRef(false);
 
   const activateStage = useCallback((stage: GravityStageId | null, moveFocus: boolean) => {
     const previous = activeStageRef.current;
     if (stage === previous) return;
     if (previous) {
-      scrollPositions.current[previous] = viewportRef.current?.scrollTop ?? 0;
+      scrollPositions.current[previous] = {
+        viewport: viewportRef.current?.scrollTop ?? 0,
+        document: window.scrollY,
+      };
       lastStage.current = previous;
     }
     activeStageRef.current = stage;
@@ -96,9 +100,13 @@ export const GravityJourney = ({
   }, [activateStage]);
 
   useLayoutEffect(() => {
-    if (viewportRef.current) {
-      viewportRef.current.scrollTop =
-        (activeStage ? scrollPositions.current[activeStage] : 0) ?? 0;
+    const viewport = viewportRef.current;
+    const position = activeStage ? scrollPositions.current[activeStage] : undefined;
+    if (viewport) {
+      viewport.scrollTop = position?.viewport ?? 0;
+      if (getComputedStyle(viewport).overflowY === "visible") {
+        window.scrollTo({ top: position?.document ?? 0, behavior: "instant" });
+      }
     }
     if (focusOnChange.current) {
       const target = activeStage ?? `${lastStage.current}-entry`;
@@ -116,7 +124,9 @@ export const GravityJourney = ({
       <div
         className={styles.workspace}
         data-introduction={activeStage === null}
+        data-active-stage={activeStage ?? undefined}
       >
+        {activeStage !== null && <h1 className="sr-only">{t("heroLead")} {t("heroSubject")}</h1>}
         {activeStage === null && introduction}
         <GravityJourneyNavigation
           activeStage={activeStage}
@@ -140,7 +150,7 @@ export const GravityJourneyPanel = ({
   className,
   children,
 }: {
-  stage: (typeof gravityStages)[number];
+  stage: GravityStage;
   className?: string;
   children: ReactNode;
 }) => {

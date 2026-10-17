@@ -6,7 +6,6 @@
   min-width: 0;
   color: #f2f2fa;
   line-height: 1.5;
-  box-shadow: 0 20px 70px #00000025;
 }
 
 .panel {
@@ -21,32 +20,20 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px 16px;
-  padding: 8px 18px;
-  border-bottom: 1px solid var(--line);
+  padding: 14px 18px 0;
 }
 
-.eyebrow {
-  display: inline-flex;
-  flex: 1 1 220px;
-  align-items: center;
-  gap: 9px;
+.heading {
+  flex: 1 1 180px;
   min-width: 0;
   margin: 0;
-  color: #b8b0d6;
-  font-size: 14px;
+  color: #f2f2fa;
+  font-size: 1.125rem;
   font-weight: 600;
-  line-height: 1.5;
-  letter-spacing: .12em;
-  overflow-wrap: anywhere;
+  line-height: 1.4;
 }
 
-.status-dot {
-  width: 6px;
-  height: 6px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  background: var(--mint);
-}
+.headerActions { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
 
 .resetButton {
   display: inline-flex;
@@ -56,9 +43,10 @@
   gap: 8px;
   min-height: 44px;
   padding: 8px 12px;
-  border: 1px solid var(--line);
+  border: 1px solid #544776;
   border-radius: 8px;
-  color: #d0d4e3;
+  background: #aa97ff12;
+  color: #d0c1ff;
   font-size: 14px;
   line-height: 1.5;
   cursor: pointer;
@@ -72,8 +60,7 @@
 }
 
 .resetButton:hover {
-  background: #ffffff0a;
-  color: white;
+  background: #aa97ff25;
 }
 
 .gravity-lab :focus-visible {
@@ -81,129 +68,21 @@
   outline-offset: 4px;
 }
 
-.experimentLayout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.simulationPanel,
-.controlPanel {
-  min-width: 0;
-}
-
-.force-result {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 8px 16px;
-  min-width: 0;
-  padding: 12px 18px;
-  border-bottom: 1px solid #a997ff18;
-  background: #a997ff06;
-}
-
-.force-result > div {
-  min-width: 0;
-}
-
-.force-result > div > span {
-  color: #b3abc7;
-  font-size: 15px;
-}
-
-.force-result output {
-  display: block;
-  margin-top: 3px;
-  color: #e0d6ff;
-  font-size: clamp(30px, 3.3vw, 42px);
-  line-height: 1.2;
-  letter-spacing: -.04em;
-  font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
-}
-
-.force-result small {
-  color: #a69abf;
-  font-size: .55em;
-}
-
-.force-result output sup {
-  font-size: .55em;
-  line-height: 0;
-}
-
-.live-pill {
-  padding: 5px 7px;
-  border: 1px solid #5ee7d530;
-  border-radius: 4px;
-  color: #81d9c9;
-  font-size: 11px;
-  letter-spacing: .06em;
-  white-space: nowrap;
-}
-
-.space-grid {
-  background-image:
-    linear-gradient(#7d81ab0a 1px, transparent 1px),
-    linear-gradient(90deg, #7d81ab0a 1px, transparent 1px);
-  background-size: 30px 30px;
-  background-position: center;
-}
-
-.gravity-stage {
-  min-width: 0;
-  margin: 0;
-  padding: 8px 16px 0;
-  text-align: center;
-}
-
-.gravity-stage svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.sphereLabel,
-.distanceLabel {
-  font-size: 18px;
-}
-
-.stage-note {
-  display: block;
-  margin-top: 4px;
-  color: #a7aec3;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.directionNote {
-  display: block;
-  margin-top: 4px;
-  color: #c3c9da;
-  font-size: 14px;
-  line-height: 1.4;
-}
-
-.controlPanel {
-  border-top: 1px solid var(--line);
-}
-
 .lab-sliders {
   min-width: 0;
-  padding: 16px 18px 0;
+  padding: 10px 18px 0;
 }
 
 .controlsHint {
-  margin: 0 0 12px;
-  color: #d0d4e3;
-  font-size: 15px;
+  margin: 0 0 14px;
+  color: #b2bad0;
+  font-size: .875rem;
   line-height: 1.5;
 }
 
 .slider-field {
   min-width: 0;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .slider-field > div:first-child {
@@ -299,7 +178,7 @@
 }
 
 .explanationPanel {
-  padding: 0 18px;
+  padding: 0 18px 8px;
 }
 
 .forceExplanation {
@@ -308,7 +187,7 @@
   padding: 6px 0 6px 12px;
   border-left: 2px solid #5ee7d580;
   color: #d0d4e3;
-  font-size: 15px;
+  font-size: .875rem;
   line-height: 1.5;
   overflow-wrap: anywhere;
 }
@@ -346,7 +225,7 @@
 .forceComparison {
   min-width: 0;
   margin: 0;
-  padding: 12px 18px 16px;
+  padding: 12px 18px;
   border-top: 1px solid #ffffff10;
 }
 
@@ -433,61 +312,15 @@
   overflow-wrap: anywhere;
 }
 
-@media (min-width: 64rem) {
-  .experimentLayout {
-    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
-  }
-
-  .controlPanel {
-    border-top: 0;
-    border-left: 1px solid var(--line);
-  }
-
-  .gravity-stage svg {
-    height: clamp(160px, 21svh, 190px);
-  }
-
-  .lab-sliders {
-    padding-top: 14px;
-  }
-
-  .slider-field {
-    margin-bottom: 8px;
-  }
-}
-
 @media (max-width: 600px) {
   .lab-header {
-    padding: 10px 14px;
+    padding: 14px 14px 0;
   }
 
-  .eyebrow {
-    font-size: 13px;
-    letter-spacing: .08em;
-  }
-
-  .force-result,
   .lab-sliders,
   .explanationPanel,
   .forceComparison {
     padding-inline: 14px;
-  }
-
-  .gravity-stage {
-    padding-inline: 0;
-  }
-
-  .gravity-stage svg {
-    min-height: 180px;
-  }
-
-  .stage-note {
-    padding-inline: 14px;
-  }
-
-  .sphereLabel,
-  .distanceLabel {
-    font-size: 26px;
   }
 
   .labComparisonRows {

@@ -57,36 +57,62 @@ handler parses and validates HTTP input, invokes the operation and maps the resu
 to an HTTP response. Keep framework request/response types out of the domain.
 
 The calculator delegates parsing and unknown selection to pure application
-functions; `useGravityFormula`, `solveGravity` and the physical domain keep their
-existing implementation. `GravityFormulaSession` provides a nested controls
-context that intercepts automatic parameter application and provides a local
-calculator reset. `GravityFormulaApplication` compares a valid result with the
+functions. `GravityParametersProvider` creates one `useGravityFormula` draft,
+shared by the inline calculator and the `GravityFormulaAccess` drawer through
+`useGravityFormulaDraft`. The unknown remains explicitly selected and draft edits
+never update laboratory parameters; `solveGravity` and the physical
+domain remain unchanged. Selecting a new unknown carries the previous exact
+result into the known fields. `GravityFormulaSession` provides a calculator-only
+reset and access to the explicit application action. A separate visual interaction
+context links each equation symbol, its visible input and the read-only simulation;
+hover only changes visual state. `GravityFormulaApplication` compares a valid result with the
 laboratory values, displays the pending notice and commits only after an explicit
 button action. Partial edits never update the simulation. Reset remounts only the
 editor and restores focus to its reset button when appropriate; resetting the
 laboratory also invalidates the formula session through its reset version.
 
 `GravityJourney` in `GravityJourneyTabs.tsx` owns stage selection and per-stage
-scroll positions. `GravityScreen` stays on the server and passes the existing
+scroll positions for both the viewport and document. Short mobile/tablet screens
+use document scrolling so the header and footer cannot collapse the content area;
+the journey restores the appropriate scroll position using the active CSS mode.
+`GravityScreen` stays on the server and passes the existing
 educational components as children. The initial selection is empty: the cover
 shows the title and entry cards. Inside a stage, `GravityJourneyNavigation` shows
 the back arrow, stage heading and existing custom `GravityStageSelector`; it does
 not introduce a second horizontal stage tablist or duplicate the tutor trigger.
 The selector implements a radio menu with keyboard navigation and focus return.
-All three panels stay mounted; `hidden` removes inactive content from layout and
+All four panels stay mounted; `hidden` removes inactive content from layout and
 keyboard navigation without resetting formula inputs or challenge state.
 `GravityStageLink` changes the panel and focuses it without scrolling the
 document. Stage hashes and browser history restore the right panel after
 hydration; initial server/client rendering is deterministic. CSS handles the
 short fade/translation and disables it for reduced motion.
 
-`GravityIntroduction` retains its desktop two-column layout. The left side
-composes `GravityUnderstandingSimulation` and `GravityEducationalCard`; the right
-side retains the interactive formula. The educational card offers three
-accessible tabs (law, principles and examples), reusing `GravityPrinciples` and
-`GravityEveryday` including its own example selector. Tab switches preserve the
-simulation and example selection. Small or short screens may scroll necessary
-content rather than clip it.
+`gravityStages` orders discovery, understanding, experiment and challenges;
+`gravityStageById` resolves references without coupling a stage to its array index.
+The previous stage IDs remain valid URL hashes. `GravityDiscovery` composes the
+four-topic `GravityEducationalCard` and the informational `GravityScienceCard`.
+Only the educational content switches; the science reference remains mounted.
+Principles and everyday examples retain their existing components and selector.
+Discovery uses natural document scrolling on mobile/tablet and a compact desktop
+grid. Its visible title belongs to the educational column; the existing navigation
+retains back and the custom selector without another header.
+
+`GravityIntroduction` now focuses on understanding: the existing simulation on the
+left and shared interactive formula on the right, without duplicated educational
+text. Small or short screens may scroll necessary content rather than clip it.
+The tutor receives server-owned discovery facts about gravity, history and SI
+units only in the discovery stage, using the existing API and provider.
+
+Experiment and challenges use `GravityStageLayout`: the same read-only
+`GravityUnderstandingSimulation` with a compact presentation on the left and the
+stage controls on the right. All simulations read the same parameters context;
+`GravityExperiment` contains only sliders, reset, comparison and explanations,
+with no duplicate two-body SVG. The challenge state stays in the mounted
+`GravityLab`. Entering a pending challenge or advancing restores the reference
+parameters without resetting the formula draft. Checking commits the existing
+challenge parameters; returning to a revealed challenge restores that scenario.
+Only the challenge stage publishes prediction and attempt data to the tutor.
 
 `GalleryProvider` persists filters, scroll and playback across gallery/detail
 navigation in the three-body layout. The server computes trajectories once per

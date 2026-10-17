@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useMemo, useState } from "react
 import type { Dispatch, ReactNode, SetStateAction } from "react";
 import { initialParameters } from "../domain/gravitation";
 import type { GravityParameters } from "../domain/gravitation";
+import { useGravityFormula } from "../hooks/useGravityFormula";
 
 type GravityControls = {
   setParameters: Dispatch<SetStateAction<GravityParameters>>;
@@ -12,6 +13,7 @@ type GravityControls = {
 };
 const ParametersContext = createContext<GravityParameters | null>(null);
 const ControlsContext = createContext<GravityControls | null>(null);
+const FormulaDraftContext = createContext<ReturnType<typeof useGravityFormula> | null>(null);
 const FormulaApplicationContext = createContext<{
   parameters: GravityParameters;
   applyParameters: (parameters: GravityParameters) => void;
@@ -21,10 +23,13 @@ const ignoreFormulaParameters: GravityControls["setParameters"] = () => {};
 export const GravityParametersProvider = ({ children }: { children: ReactNode }) => {
   const [parameters, setParameters] = useState<GravityParameters>(initialParameters);
   const [resetVersion, setResetVersion] = useState(0);
+  const formula = useGravityFormula();
+  const { resetFormula } = formula;
   const resetParameters = useCallback(() => {
     setParameters({ ...initialParameters });
     setResetVersion((version) => version + 1);
-  }, []);
+    resetFormula();
+  }, [resetFormula]);
   // Formula consumers need reset notifications and actions, but no slider values.
   const controls = useMemo(
     () => ({ setParameters, resetParameters, resetVersion }),
@@ -33,7 +38,9 @@ export const GravityParametersProvider = ({ children }: { children: ReactNode })
   return (
     <ControlsContext.Provider value={controls}>
       <ParametersContext.Provider value={parameters}>
-        {children}
+        <FormulaDraftContext.Provider value={formula}>
+          {children}
+        </FormulaDraftContext.Provider>
       </ParametersContext.Provider>
     </ControlsContext.Provider>
   );
@@ -52,13 +59,22 @@ export const useGravityParameters = () => {
   return { parameters, ...controls };
 };
 
+/** One calculator draft is shared by its inline and drawer presentations. */
+export const useGravityFormulaDraft = () => {
+  const context = useContext(FormulaDraftContext);
+  if (!context) throw new Error("Formula drafts require GravityParametersProvider");
+  return context;
+};
+
 /** Draft calculations keep their own reset cycle until explicitly applied. */
 export const GravityFormulaSession = ({ children }: { children: ReactNode }) => {
   const { parameters, setParameters, resetVersion } = useGravityParameters();
+  const { resetFormula: resetDraft } = useGravityFormulaDraft();
   const [localResetVersion, setLocalResetVersion] = useState(0);
   const resetFormula = useCallback(() => {
+    resetDraft();
     setLocalResetVersion((version) => version + 1);
-  }, []);
+  }, [resetDraft]);
   const controls = useMemo(
     () => ({
       setParameters: ignoreFormulaParameters,
