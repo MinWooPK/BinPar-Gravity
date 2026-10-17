@@ -1,3 +1,7 @@
+:global(body):has(.page) {
+  background: #02040a url("/backgrounds/space-stars.svg") center / cover no-repeat fixed;
+}
+
 .page {
   width: min(100% - 2rem, 80rem);
   min-width: 0;

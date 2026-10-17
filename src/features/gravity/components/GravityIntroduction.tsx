@@ -2,7 +2,6 @@ import { useTranslations } from "next-intl";
 import styles from "./GravityIntroduction.module.css";
 import { GravityFormula } from "./GravityFormula";
 import { GravityPrinciples, GravityPrinciplesChallenge } from "./GravityPrinciples";
-import { GravityStageHeading } from "./GravityStageHeading";
 import { gravityStages } from "./gravityJourney";
 import journeyStyles from "./GravityJourney.module.css";
 
@@ -12,7 +11,7 @@ export const GravityIntroduction = () => {
 
   return (
     <section aria-labelledby={`${stage.id}-heading`} className={`${styles.introduction} ${journeyStyles.stage}`}>
-      <GravityStageHeading stage={stage} />
+
       <div className={styles.layout}>
         <div className={styles.copy}>
           <h3 id="gravity-intro-title">{t("introTitle")}</h3>

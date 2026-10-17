@@ -1,51 +1,56 @@
 "use client";
 
-import { useRef } from "react";
-import type { KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import { gravityStages } from "./gravityJourney";
 import type { GravityStageId } from "./gravityJourney";
 import styles from "./GravityJourney.module.css";
+import { GravityStageHeading } from "./GravityStageHeading";
+import { GravityStageSelector } from "./GravityStageSelector";
+
+const compactButton = "inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg px-3 text-sm text-slate-200 transition-colors hover:bg-violet-300/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 motion-reduce:transition-none";
 
 export const GravityJourneyNavigation = ({
   activeStage,
   onSelectStage,
+  onReturnToJourney,
 }: {
   activeStage: GravityStageId | null;
-  onSelectStage: (stage: GravityStageId) => void;
+  onSelectStage: (stage: GravityStageId, focusPanel?: boolean) => void;
+  onReturnToJourney: () => void;
 }) => {
   const t = useTranslations("Gravity");
-  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
-  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
-    let nextIndex: number;
-    switch (event.key) {
-      case "ArrowRight": nextIndex = (index + 1) % gravityStages.length; break;
-      case "ArrowLeft": nextIndex = (index - 1 + gravityStages.length) % gravityStages.length; break;
-      case "Home": nextIndex = 0; break;
-      case "End": nextIndex = gravityStages.length - 1; break;
-      default: return;
-    }
-    event.preventDefault();
-    onSelectStage(gravityStages[nextIndex].id);
-    tabs.current[nextIndex]?.focus({ preventScroll: true });
-  };
+
+  if (activeStage !== null) {
+    const activeIndex = gravityStages.findIndex(({ id }) => id === activeStage);
+    const stage = gravityStages[activeIndex];
+
+    return (
+      <nav aria-label={t("learningNavigationTitle")} className="mb-3 grid shrink-0 grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-2 border-b border-slate-700 pb-3 lg:grid-cols-[auto_minmax(0,1fr)_minmax(15rem,22rem)]">
+        <button type="button" onClick={onReturnToJourney} aria-label={t("backToJourney")} title={t("backToJourney")} className={compactButton}>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="size-6">
+            <path d="M19 12H5m7-7-7 7 7 7" />
+          </svg>
+        </button>
+        <GravityStageHeading stage={stage} />
+        <div className="col-span-2 min-w-0 lg:col-span-1">
+          <GravityStageSelector activeStage={activeStage} onSelectStage={onSelectStage} />
+        </div>
+      </nav>
+    );
+  }
+
   return (
     <nav aria-labelledby="gravity-journey-title" className={styles.navigation}>
       <p id="gravity-journey-title" className={styles.navigationTitle}>{t("learningNavigationTitle")}</p>
-      <div role="tablist" aria-labelledby="gravity-journey-title" aria-orientation="horizontal" className={styles.tabList}>
-        {gravityStages.map((stage, index) => (
+      <div className={styles.tabList}>
+        {gravityStages.map((stage) => (
           <button
             key={stage.id}
-            ref={(element) => { tabs.current[index] = element; }}
-            id={`${stage.id}-tab`}
+            id={`${stage.id}-entry`}
             type="button"
-            role="tab"
-            aria-selected={activeStage === stage.id}
             aria-controls={stage.id}
-            tabIndex={activeStage === stage.id || (activeStage === null && index === 0) ? 0 : -1}
             className={styles.tab}
-            onClick={() => onSelectStage(stage.id)}
-            onKeyDown={(event) => handleKeyDown(event, index)}
+            onClick={() => onSelectStage(stage.id, true)}
           >
             <span aria-hidden="true" className={styles.stageNumber}>{stage.number}</span>
             <span>{t(stage.title)}</span>

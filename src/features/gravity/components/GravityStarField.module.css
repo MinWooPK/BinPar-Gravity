@@ -1,7 +1,7 @@
 /* https://github.com/RaspberryKitty1/Starfield */
 
 .background {
-  position: absolute;
+  position: fixed;
   inset: 0;
   z-index: 0;
   overflow: hidden;

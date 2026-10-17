@@ -23,7 +23,7 @@ export const Header = () => {
 
   return (
     <AutoHideHeader>
-      <header className="border-b border-slate-800 bg-slate-950 text-white">
+      <header className="bg-transparent text-white">
         <nav className="mx-auto grid w-full max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-2 px-4 py-2 sm:px-6 sm:py-2.5 lg:grid-cols-[minmax(max-content,1fr)_minmax(0,auto)_minmax(max-content,1fr)] lg:gap-x-4 lg:px-8">
           <NavLink
             href="/"

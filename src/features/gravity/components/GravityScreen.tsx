@@ -12,10 +12,10 @@ export const GravityScreen = () => {
   const t = useTranslations("Gravity");
 
   return (
-    <div className="page-enter relative isolate w-full overflow-hidden bg-[#020713]">
+    <div className={`relative isolate w-full overflow-hidden bg-[#020713] ${styles.page}`}>
       <GravityStarfield />
 
-      <div className={`relative z-10 ${styles.screen}`}>
+      <div className={`page-enter relative z-10 ${styles.screen}`}>
         <GravityParametersProvider>
           <GravityJourney
             introduction={

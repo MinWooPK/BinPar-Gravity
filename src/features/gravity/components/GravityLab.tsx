@@ -8,7 +8,6 @@ import type { LearningAttempt, Prediction } from "../domain/gravitation";
 import { GravityTutor } from "./GravityTutor";
 import { GravityExperiment } from "./GravityExperiment";
 import { GravityChallengeComparison } from "./GravityChallengeComparison";
-import { GravityStageHeading } from "./GravityStageHeading";
 import { GravityJourneyPanel, GravityStageLink } from "./GravityJourneyTabs";
 import { gravityStages } from "./gravityJourney";
 import journeyStyles from "./GravityJourney.module.css";
@@ -62,7 +61,6 @@ export const GravityLab = () => {
         stage={gravityStages[1]}
         className={journeyStyles.stage}
       >
-        <GravityStageHeading stage={gravityStages[1]} />
         <GravityExperiment
           parameters={parameters}
           onChange={setParameters}
@@ -79,12 +77,9 @@ export const GravityLab = () => {
         stage={gravityStages[2]}
         className={`${journeyStyles.stage} ${challengeStyles.stage}`}
       >
-        <div>
-          <GravityStageHeading stage={gravityStages[2]} />
-          <p className={challengeStyles.hint}>
-            {t("challengesHint")}
-          </p>
-        </div>
+        <p className={challengeStyles.hint}>
+          {t("challengesHint")}
+        </p>
         <section
           aria-labelledby={`${id}-challenge`}
           className={challengeStyles.challengeCard}

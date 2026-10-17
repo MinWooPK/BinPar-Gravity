@@ -1,11 +1,13 @@
+.page { display: flex; flex: 1; min-width: 0; min-height: 0; }
+:global(body):has(.screen) { height: 100svh; height: 100dvh; }
+:global(main):has(.screen) { display: flex; flex-direction: column; min-height: 0; }
 .screen {
   --gravity-stage-offset: 1rem;
   display: flex;
+  flex: 1;
   flex-direction: column;
   width: 100%;
   max-width: 80rem;
-  height: calc(100svh - var(--site-header-height, 11rem));
-  height: calc(100dvh - var(--site-header-height, 11rem));
   min-height: 0;
   margin-inline: auto;
   padding-block: clamp(1rem, 2svh, 1.5rem) max(1rem, env(safe-area-inset-bottom));
@@ -48,11 +50,10 @@
 .tabList { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .tab { display: flex; align-items: baseline; gap: 12px; width: 100%; min-width: 0; min-height: 48px; padding: 14px 16px; border: 1px solid #30364b; border-radius: 10px; background: #111624; color: #e4e8f2; font: inherit; font-size: 16px; line-height: 1.5; text-align: left; overflow-wrap: anywhere; cursor: pointer; transition: background 180ms, border-color 180ms, color 180ms; }
 .tab:hover { border-color: #aa97ff80; background: #1b2032; }
-.tab[aria-selected="true"] { border-color: #b9a8ff; background: #29213e; color: #fff; box-shadow: inset 0 -3px 0 #b9a8ff; }
 .tab:focus-visible, .continueLink:focus-visible { outline: 3px solid #c0b3ff; outline-offset: 3px; }
 .stageNumber { flex-shrink: 0; color: #b9a8ff; font-family: var(--font-geist-mono), monospace; font-size: 15px; font-variant-numeric: tabular-nums; }
 .freedomNote { margin: 10px 0 0; color: #b2bad0; font-size: 15px; line-height: 1.6; }
-.stageHeader { display: flex; align-items: baseline; gap: 1rem; margin: 0 0 .5rem; padding: .25rem 0; border-bottom: 1px solid #30364b; }
+.stageHeader { display: flex; min-width: 0; align-items: baseline; gap: 1rem; margin: 0; padding: .25rem 0; }
 .stageHeader h2 { min-width: 0; margin: 0; color: #f2f2fa; font-size: clamp(1.5rem, 2vw, 1.75rem); font-weight: 600; line-height: 1.25; letter-spacing: -.025em; overflow-wrap: anywhere; }
 .stage { min-width: 0; padding-block: .5rem; scroll-margin-top: var(--gravity-stage-offset); }
 .nextStage { margin-top: .5rem; }

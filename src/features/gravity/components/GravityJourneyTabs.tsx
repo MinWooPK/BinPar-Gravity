@@ -11,6 +11,7 @@ import {
   useState,
 } from "react";
 import type { AnchorHTMLAttributes, ReactNode } from "react";
+import { useTranslations } from "next-intl";
 import { gravityStages } from "./gravityJourney";
 import type { GravityStageId } from "./gravityJourney";
 import { GravityJourneyNavigation } from "./GravityJourneyNavigation";
@@ -37,51 +38,70 @@ export const GravityJourney = ({
   introduction: ReactNode;
 }) => {
   const [activeStage, setActiveStage] = useState<GravityStageId | null>(null);
+  const activeStageRef = useRef<GravityStageId | null>(null);
+  const lastStage = useRef<GravityStageId>(gravityStages[0].id);
   const viewportRef = useRef<HTMLDivElement>(null);
   const scrollPositions = useRef<Partial<Record<GravityStageId, number>>>({});
-  const focusPanelOnChange = useRef(false);
+  const focusOnChange = useRef(false);
+
+  const activateStage = useCallback((stage: GravityStageId | null, moveFocus: boolean) => {
+    const previous = activeStageRef.current;
+    if (stage === previous) return;
+    if (previous) {
+      scrollPositions.current[previous] = viewportRef.current?.scrollTop ?? 0;
+      lastStage.current = previous;
+    }
+    activeStageRef.current = stage;
+    focusOnChange.current = moveFocus;
+    setActiveStage(stage);
+  }, []);
 
   const selectStage = useCallback(
     (stage: GravityStageId, focusPanel = false) => {
-      if (stage === activeStage) {
+      if (stage === activeStageRef.current) {
         if (focusPanel)
           document.getElementById(stage)?.focus({ preventScroll: true });
         return;
       }
-      if (activeStage)
-        scrollPositions.current[activeStage] =
-          viewportRef.current?.scrollTop ?? 0;
-      focusPanelOnChange.current = focusPanel;
-      window.history.replaceState(window.history.state, "", `#${stage}`);
-      setActiveStage(stage);
+      window.history.pushState(null, "", `#${stage}`);
+      activateStage(stage, focusPanel || activeStageRef.current === null);
     },
-    [activeStage],
+    [activateStage],
   );
+
+  const returnToJourney = useCallback(() => {
+    window.history.pushState(null, "", window.location.pathname + window.location.search);
+    activateStage(null, true);
+  }, [activateStage]);
 
   // Existing links/bookmarks to a learning stage still open the right panel.
   useEffect(() => {
-    const syncHash = () => {
+    const syncHash = (moveFocus: boolean) => {
       const stage = gravityStages.find(
         ({ id }) => id === window.location.hash.slice(1),
       );
-      setActiveStage(stage?.id ?? null);
+      activateStage(stage?.id ?? null, moveFocus);
     };
-    const frame = requestAnimationFrame(syncHash);
-    window.addEventListener("hashchange", syncHash);
+    const onHistoryChange = () => syncHash(true);
+    const frame = requestAnimationFrame(() => syncHash(false));
+    window.addEventListener("hashchange", onHistoryChange);
+    window.addEventListener("popstate", onHistoryChange);
     return () => {
       cancelAnimationFrame(frame);
-      window.removeEventListener("hashchange", syncHash);
+      window.removeEventListener("hashchange", onHistoryChange);
+      window.removeEventListener("popstate", onHistoryChange);
     };
-  }, []);
+  }, [activateStage]);
 
   useLayoutEffect(() => {
     if (viewportRef.current) {
       viewportRef.current.scrollTop =
         (activeStage ? scrollPositions.current[activeStage] : 0) ?? 0;
     }
-    if (focusPanelOnChange.current && activeStage) {
-      document.getElementById(activeStage)?.focus({ preventScroll: true });
-      focusPanelOnChange.current = false;
+    if (focusOnChange.current) {
+      const target = activeStage ?? `${lastStage.current}-entry`;
+      document.getElementById(target)?.focus({ preventScroll: true });
+      focusOnChange.current = false;
     }
   }, [activeStage]);
 
@@ -99,6 +119,7 @@ export const GravityJourney = ({
         <GravityJourneyNavigation
           activeStage={activeStage}
           onSelectStage={selectStage}
+          onReturnToJourney={returnToJourney}
         />
         <div
           ref={viewportRef}
@@ -122,12 +143,12 @@ export const GravityJourneyPanel = ({
   children: ReactNode;
 }) => {
   const { activeStage } = useGravityJourney();
+  const t = useTranslations("Gravity");
   return (
     <section
       id={stage.id}
-      role="tabpanel"
-      aria-labelledby={`${stage.id}-tab`}
-      tabIndex={0}
+      aria-label={`${stage.number} — ${t(stage.title)}`}
+      tabIndex={-1}
       hidden={activeStage !== stage.id}
       className={`${styles.panel} ${className ?? ""}`}
     >

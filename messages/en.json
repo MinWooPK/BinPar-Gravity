@@ -49,6 +49,12 @@
     "galleryLabel": "GALLERY"
   },
   "Gravity": {
+    "backToJourney": "Back to the journey",
+    "chooseStage": "Change stage",
+    "previousStage": "Previous",
+    "nextStage": "Next",
+    "previousStageLabel": "Previous: {stage}",
+    "nextStageLabel": "Next: {stage}",
     "heroEyebrow": "01 — INTERACTIVE EXPERIENCE",
     "heroLead": "Discover",
     "heroSubject": "gravity.",
