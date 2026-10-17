@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { TutorContextBridge } from "@/features/ai/components/TutorProvider";
+import type { TutorContext } from "@/features/ai/application/tutor";
 import { challenges } from "../domain/gravitation";
 import type { LearningAttempt, Prediction } from "../domain/gravitation";
-import { GravityTutor } from "./GravityTutor";
-import { GravityTutorPanel } from "./GravityTutorPanel";
 import { GravityExperiment } from "./GravityExperiment";
 import { GravityChallengeComparison } from "./GravityChallengeComparison";
 import { GravityJourneyPanel, GravityStageLink, useActiveGravityStage } from "./GravityJourneyTabs";
@@ -29,6 +29,14 @@ export const GravityLab = () => {
   const [revealed, setRevealed] = useState(false);
   const [completed, setCompleted] = useState(false);
   const challenge = challenges[step];
+  const tutorContext = useMemo<TutorContext>(() => ({
+    kind: "gravity",
+    stage: activeStage,
+    parameters,
+    challenge: challenge.id,
+    ...(prediction ? { prediction } : {}),
+    ...(attempt ? { attempt } : {}),
+  }), [activeStage, parameters, challenge.id, prediction, attempt]);
   const isCorrect = prediction === challenge.answer;
   const hasNextChallenge = step < challenges.length - 1;
   const challengeHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -216,9 +224,7 @@ export const GravityLab = () => {
         </section>
       </GravityJourneyPanel>
 
-      <GravityTutorPanel>
-        <GravityTutor parameters={parameters} attempt={attempt} />
-      </GravityTutorPanel>
+      <TutorContextBridge context={tutorContext} />
       <div className={journeyStyles.sections}>
         {activeStage === gravityStages[1].id && (
           <GravityStageLink stageId={gravityStages[2].id} className={journeyStyles.continueLink}>

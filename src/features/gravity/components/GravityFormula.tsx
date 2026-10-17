@@ -10,6 +10,7 @@ import { isInLaboratoryRange } from "../application/formulaInput";
 import { useGravityFormula } from "../hooks/useGravityFormula";
 import styles from "./GravityIntroduction.module.css";
 import { GravityFormulaLegend, type FormulaTerm } from "./GravityFormulaLegend";
+import { GravityFormulaApplication } from "./GravityFormulaApplication";
 
 const fields = {
   force: { key: "force", symbol: "F", unit: "N" },
@@ -359,6 +360,11 @@ const GravityFormulaContent = ({
       {result && !isInLaboratoryRange(result) && (
         <p className={styles.fieldError}>{t("outsideLabRange")}</p>
       )}
+      <GravityFormulaApplication
+        result={result}
+        valid={!editing && !invalidField && !numericalError}
+        hasInputs={Object.values(values).some((value) => value.trim() !== "")}
+      />
       <GravityFormulaLegend
         id={id}
         active={active}

@@ -1,8 +1,10 @@
 import { useTranslations } from "next-intl";
 import styles from "./GravityIntroduction.module.css";
 import { GravityFormula } from "./GravityFormula";
-import { GravityEveryday } from "./GravityEveryday";
-import { GravityPrinciples, GravityPrinciplesChallenge } from "./GravityPrinciples";
+import { GravityPrinciplesChallenge } from "./GravityPrinciples";
+import { GravityEducationalCard } from "./GravityEducationalCard";
+import { GravityUnderstandingSimulation } from "./GravityUnderstandingSimulation";
+import { GravityFormulaSession } from "./GravityParametersProvider";
 import { gravityStages } from "./gravityJourney";
 import journeyStyles from "./GravityJourney.module.css";
 
@@ -14,16 +16,11 @@ export const GravityIntroduction = () => {
     <section aria-label={t(stage.title)} className={`${styles.introduction} ${journeyStyles.stage}`}>
       <div className={styles.layout}>
         <div className={styles.learningArea}>
-          <div className={styles.copy}>
-            <h3 id="gravity-intro-title">{t("introTitle")}</h3>
-            <p>{t("introParagraph")}</p>
-            <p>{t("introNewton")}</p>
-          </div>
-          <GravityPrinciples />
-          <GravityEveryday />
+          <GravityUnderstandingSimulation />
+          <GravityEducationalCard />
         </div>
         <div className={styles.formulaArea}>
-          <GravityFormula />
+          <GravityFormulaSession><GravityFormula /></GravityFormulaSession>
           <GravityPrinciplesChallenge />
         </div>
       </div>

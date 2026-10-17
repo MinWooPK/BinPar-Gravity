@@ -1,3 +1,4 @@
+import { TutorContextBridge } from "@/features/ai/components/TutorProvider";
 import { Link } from "@/i18n/navigation";
 import styles from "@/features/three-body/components/ThreeBody.module.css";
 import { notFound } from "next/navigation";
@@ -33,6 +34,7 @@ export default async function OrbitPage({
   const original = publishedOrbits.find((o) => o.slug === orbit.slug)!;
   return (
     <section lang="es" className={`${styles.page} page-enter detail-page`}>
+      <TutorContextBridge context={{ kind: "three-body", slug: orbit.slug }} label={orbit.name} />
       <Link href="/three-body" scroll={false} className="back-link">
         <span>←</span> Volver a la galería
       </Link>

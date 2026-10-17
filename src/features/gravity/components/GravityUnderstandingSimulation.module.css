@@ -1,0 +1,111 @@
+.card {
+  min-width: 0;
+  border: 1px solid #272c40;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #131724, #0e121d);
+}
+
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  padding: 10px 18px;
+  border-bottom: 1px solid #272c40;
+}
+
+.heading h3 {
+  min-width: 0;
+  margin: 0;
+  color: #e4e8f2;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.live {
+  color: #81d9c9;
+  font-size: .75rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: .04em;
+}
+
+.force {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 16px;
+  min-width: 0;
+  padding: 12px 18px 0;
+}
+
+.force > span {
+  color: #b2bad0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.force output {
+  color: #e0d6ff;
+  font-size: clamp(1.5rem, 2.3vw, 1.875rem);
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.force sup { font-size: .6em; }
+.force small { color: #b8b0d6; font-size: .65em; }
+
+.diagram {
+  min-width: 0;
+  margin: 0;
+  padding: 0 18px 10px;
+  background-image: linear-gradient(#7d81ab08 1px, transparent 1px), linear-gradient(90deg, #7d81ab08 1px, transparent 1px);
+  background-size: 30px 30px;
+  background-position: center;
+}
+
+.diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 120px;
+}
+
+.bodyLabel,
+.distanceLabel { font-size: 18px; font-weight: 500; }
+
+.diagram figcaption {
+  color: #b2bad0;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 12px 18px 16px;
+  border-top: 1px solid #272c40;
+}
+
+.values > div { min-width: 0; }
+.values dt { margin: 0 0 4px; color: #a7aec3; font-size: 1rem; line-height: 1.4; }
+.values dd { margin: 0; color: #e4e8f2; font-size: 1rem; line-height: 1.5; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.values > div:first-child dd { color: #c7b7ff; }
+.values > div:nth-child(2) dd { color: #95efde; }
+
+@media (max-width: 600px) {
+  .heading, .force, .values { padding-inline: 14px; }
+  .diagram { padding-inline: 14px; }
+  .diagram svg { min-height: 100px; }
+  .bodyLabel, .distanceLabel { font-size: 24px; }
+  .values { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .values > div { display: flex; justify-content: space-between; gap: 12px; }
+  .values dt { min-width: 0; margin: 0; }
+  .values dd { flex-shrink: 0; text-align: right; }
+}

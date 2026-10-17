@@ -1,3 +1,4 @@
+import { TutorContextBridge } from "@/features/ai/components/TutorProvider";
 import { OrbitGallery } from "./OrbitGallery";
 import styles from "./ThreeBody.module.css";
 import { orbits } from "../data/orbits";
@@ -7,6 +8,7 @@ export const ThreeBodyScreen = () => {
   const animationData = Object.fromEntries(orbits.map(({ slug }) => [slug, getOrbitPlayback(slug)]));
   return (
     <section lang="es" aria-labelledby="gallery-title" className={`${styles.page} page-enter`}>
+      <TutorContextBridge context={{ kind: "three-body" }} />
       <div className="page-intro">
         <p className="eyebrow">
           <span className="status-dot" /> EL PROBLEMA DE LOS TRES CUERPOS

@@ -7,6 +7,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { TutorProvider } from "@/features/ai/components/TutorProvider";
 
 import "../globals.css";
 
@@ -53,9 +54,11 @@ const RootLayout = async ({ children, params }: RootLayoutProps) => {
     >
       <body className="flex min-h-dvh min-w-0 flex-col">
         <NextIntlClientProvider>
-          <Header />
-          <main className="min-w-0 flex-1">{children}</main>
-          <Footer />
+          <TutorProvider>
+            <Header />
+            <main className="min-w-0 flex-1">{children}</main>
+            <Footer />
+          </TutorProvider>
         </NextIntlClientProvider>
       </body>
     </html>

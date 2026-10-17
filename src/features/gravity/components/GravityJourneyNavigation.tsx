@@ -13,12 +13,10 @@ export const GravityJourneyNavigation = ({
   activeStage,
   onSelectStage,
   onReturnToJourney,
-  onOpenTutor,
 }: {
   activeStage: GravityStageId | null;
   onSelectStage: (stage: GravityStageId, focusPanel?: boolean) => void;
   onReturnToJourney: () => void;
-  onOpenTutor: () => void;
 }) => {
   const t = useTranslations("Gravity");
 
@@ -34,25 +32,8 @@ export const GravityJourneyNavigation = ({
           </svg>
         </button>
         <GravityStageHeading stage={stage} />
-        <div className="col-span-2 flex min-w-0 items-center gap-2 lg:col-span-1">
-          <div className="min-w-0 flex-1">
-            <GravityStageSelector activeStage={activeStage} onSelectStage={onSelectStage} />
-          </div>
-          <button
-            id="gravity-tutor-trigger"
-            type="button"
-            aria-label={t("optionalHelp")}
-            aria-haspopup="dialog"
-            aria-controls="gravity-tutor-dialog"
-            onClick={onOpenTutor}
-            className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg border border-cyan-300/30 bg-cyan-950/40 px-3 text-sm font-semibold text-cyan-100 transition-colors hover:bg-cyan-900/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 motion-reduce:transition-none"
-          >
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="size-4">
-              <path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6 4V6a2 2 0 0 1 2-2Z" strokeLinejoin="round" />
-              <path d="M7 9h10M7 13h6" strokeLinecap="round" />
-            </svg>
-            {t("tutorShortLabel")}
-          </button>
+        <div className="col-span-2 min-w-0 lg:col-span-1">
+          <GravityStageSelector activeStage={activeStage} onSelectStage={onSelectStage} />
         </div>
       </nav>
     );
