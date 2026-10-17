@@ -60,6 +60,19 @@ formulas stay in the domain. Separate value/action contexts let the calculator
 receive resets without subscribing to slider changes. Reset remounts the editor
 and restores focus to its reset button when appropriate.
 
+`GravityJourney` in `GravityJourneyTabs.tsx` owns tab selection and per-stage
+scroll positions. `GravityScreen` stays on the server and passes the existing
+educational components as children. All three panels stay mounted; `hidden`
+removes inactive content from layout and keyboard navigation without resetting
+formula inputs, challenge state or in-flight tutor requests. A shared scroll
+viewport keeps the tablist visible. The tutor remains a single shared instance.
+
+`GravityJourneyNavigation` uses automatic activation, roving tab stops and
+Left/Right/Home/End keyboard navigation. `GravityStageLink` changes the panel and
+focuses it without scrolling the document. Existing stage hashes open the right
+panel after hydration; the initial server/client selection is deterministic.
+CSS handles the short fade/translation and disables it for reduced motion.
+
 `GalleryProvider` persists filters, scroll and playback across gallery/detail
 navigation in the three-body layout. The server computes trajectories once per
 slug; the browser only projects/interpolates samples and updates SVG refs through

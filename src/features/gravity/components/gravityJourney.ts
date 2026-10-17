@@ -3,3 +3,5 @@ export const gravityStages = [
   { id: "gravity-laboratory", number: "02", title: "learningExperiment" },
   { id: "gravity-challenges", number: "03", title: "learningCheck" },
 ] as const;
+
+export type GravityStageId = (typeof gravityStages)[number]["id"];

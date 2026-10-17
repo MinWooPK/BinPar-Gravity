@@ -18,6 +18,12 @@ Para el tutor, configura en `.env.local` `OPENAI_API_KEY` y `OPENAI_MODEL` con u
 
 `/[locale]/gravity` incluye controles de las dos masas (10–100 × 10¹² kg), distancia entre centros (5–20 km), fuerza calculada en newtons y tres retos con predicción previa. Cada reto usa una referencia fija de 40 × 10¹² kg, 40 × 10¹² kg y 8 km. El modelo usa G = 6,67430 × 10⁻¹¹ N·m²/kg². La representación es ilustrativa, sin escala ni integración de trayectorias.
 
+La navegación de Gravedad usa tres pestañas: comprender, experimentar y comprobar.
+Solo una etapa se muestra a la vez, con scroll interno y pestañas visibles. Los
+valores de la fórmula, los sliders, los retos y la ayuda del tutor se conservan al
+cambiar de pestaña. Se puede navegar con flechas izquierda/derecha, Inicio y Fin;
+las transiciones respetan la preferencia de movimiento reducido.
+
 El panel de la fórmula permite introducir tres valores positivos entre F, m₁, m₂ y r para calcular el cuarto automáticamente. La incógnita se mantiene fija hasta restablecer. En la calculadora, las masas se introducen en kg, la distancia en m y F en N; el dominio resuelve en SI. Solo los resultados dentro del intervalo visual se trasladan al laboratorio. Los demás se muestran con un aviso y conservan el experimento anterior.
 
 El tutor recibe los valores actuales, la última predicción y el idioma. Puede explicar el experimento, simplificarlo o dar un ejemplo. Las llamadas son explícitas: mover los controles no consume IA. La UI marca respuestas que pertenecen a valores anteriores y permite reintentar errores. El cálculo físico no depende del modelo.

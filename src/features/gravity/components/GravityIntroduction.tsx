@@ -11,7 +11,7 @@ export const GravityIntroduction = () => {
   const stage = gravityStages[0];
 
   return (
-    <section id={stage.id} tabIndex={-1} aria-labelledby={`${stage.id}-heading`} className={`${styles.introduction} ${journeyStyles.stage}`}>
+    <section aria-labelledby={`${stage.id}-heading`} className={`${styles.introduction} ${journeyStyles.stage}`}>
       <GravityStageHeading stage={stage} />
       <div className={styles.layout}>
         <div className={styles.copy}>

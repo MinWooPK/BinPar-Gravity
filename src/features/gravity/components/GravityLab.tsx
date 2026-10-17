@@ -9,6 +9,7 @@ import { GravityTutor } from "./GravityTutor";
 import { GravityExperiment } from "./GravityExperiment";
 import { GravityChallengeComparison } from "./GravityChallengeComparison";
 import { GravityStageHeading } from "./GravityStageHeading";
+import { GravityJourneyPanel, GravityStageLink } from "./GravityJourneyTabs";
 import { gravityStages } from "./gravityJourney";
 import journeyStyles from "./GravityJourney.module.css";
 import challengeStyles from "./GravityChallenges.module.css";
@@ -56,11 +57,9 @@ export const GravityLab = () => {
   };
 
   return (
-    <div className={journeyStyles.sections}>
-      <section
-        id={gravityStages[1].id}
-        aria-labelledby={`${gravityStages[1].id}-heading`}
-        tabIndex={-1}
+    <>
+      <GravityJourneyPanel
+        stage={gravityStages[1]}
         className={journeyStyles.stage}
       >
         <GravityStageHeading stage={gravityStages[1]} />
@@ -70,16 +69,14 @@ export const GravityLab = () => {
           onReset={resetParameters}
         />
         <div className={journeyStyles.nextStage}>
-          <a href={`#${gravityStages[2].id}`} className={journeyStyles.continueLink}>
+          <GravityStageLink stageId={gravityStages[2].id} className={journeyStyles.continueLink}>
             {t("learningContinue")}
             <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 12h16m-6-6 6 6-6 6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </a>
+          </GravityStageLink>
         </div>
-      </section>
-      <section
-        id={gravityStages[2].id}
-        aria-labelledby={`${gravityStages[2].id}-heading`}
-        tabIndex={-1}
+      </GravityJourneyPanel>
+      <GravityJourneyPanel
+        stage={gravityStages[2]}
         className={`${journeyStyles.stage} ${challengeStyles.stage}`}
       >
         <div>
@@ -198,13 +195,13 @@ export const GravityLab = () => {
                 </div>
                 <p className={challengeStyles.feedbackNote}>{t("feedbackNote")}</p>
                 <div className={challengeStyles.actions}>
-                  <a
-                    href={`#${gravityStages[1].id}`}
+                  <GravityStageLink
+                    stageId={gravityStages[1].id}
                     onClick={() => setParameters(challenge.parameters)}
                     className={`${buttonClass} inline-flex items-center justify-center`}
                   >
                     {t("seeExperiment")}
-                  </a>
+                  </GravityStageLink>
                   <button
                     type="button"
                     onClick={() =>
@@ -222,22 +219,24 @@ export const GravityLab = () => {
             {completed ? t("summary") : ""}
           </p>
         </section>
-      </section>
+      </GravityJourneyPanel>
 
-      <details className="rounded-2xl border border-slate-700 bg-slate-900/50">
-        <summary className="cursor-pointer rounded-2xl px-5 py-4 text-lg font-semibold text-sky-200 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 sm:px-6">
-          {t("optionalHelp")}
-        </summary>
-        <div className="p-3 sm:p-5">
-          <GravityTutor parameters={parameters} attempt={attempt} />
-        </div>
-      </details>
-      <Link
-        href="/three-body"
-        className="inline-flex min-h-12 items-center gap-3 rounded-xl border border-slate-600 px-5 py-3 text-base font-semibold text-sky-200 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-sky-300"
-      >
-        {t("nextTopic")} <span aria-hidden="true">→</span>
-      </Link>
-    </div>
+      <div className={journeyStyles.sections}>
+        <details className="rounded-2xl border border-slate-700 bg-slate-900/50">
+          <summary className="cursor-pointer rounded-2xl px-5 py-4 text-lg font-semibold text-sky-200 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 sm:px-6">
+            {t("optionalHelp")}
+          </summary>
+          <div className="p-3 sm:p-5">
+            <GravityTutor parameters={parameters} attempt={attempt} />
+          </div>
+        </details>
+        <Link
+          href="/three-body"
+          className="inline-flex min-h-12 items-center gap-3 rounded-xl border border-slate-600 px-5 py-3 text-base font-semibold text-sky-200 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-sky-300"
+        >
+          {t("nextTopic")} <span aria-hidden="true">→</span>
+        </Link>
+      </div>
+    </>
   );
 };
