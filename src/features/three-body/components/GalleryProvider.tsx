@@ -1,6 +1,8 @@
 "use client";
-import { createContext, useContext, useState, type ReactNode } from "react";
-export type Category = "Todas" | "Clásica" | "Coreografía" | "Periódica";
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import type { OrbitDefinition } from "../domain/orbit";
+
+export type Category = "Todas" | OrbitDefinition["category"];
 interface GalleryState {
   query: string;
   category: Category;
@@ -23,16 +25,11 @@ const Context = createContext<{
 } | null>(null);
 export function GalleryProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<GalleryState>(initial);
-  return (
-    <Context.Provider
-      value={{
-        state,
-        update: (patch) => setState((current) => ({ ...current, ...patch })),
-      }}
-    >
-      {children}
-    </Context.Provider>
-  );
+  const update = useCallback((patch: Partial<GalleryState>) => {
+    setState((current) => ({ ...current, ...patch }));
+  }, []);
+  const value = useMemo(() => ({ state, update }), [state, update]);
+  return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 export function useGalleryState() {
   const value = useContext(Context);

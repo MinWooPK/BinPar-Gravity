@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Icon } from "@/components/icons";
-import { useGalleryState } from "@/components/gallery-state";
+import { useGalleryState } from "@/features/three-body/components/GalleryProvider";
 import { OrbitAnimation, bodyColors } from "./OrbitAnimation";
 import type { OrbitPlayback } from "./orbit-visualization";
-import { useReducedMotion } from "./useReducedMotion";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
 import styles from "./OrbitAnimation.module.css";
 
 export function OrbitPlayer({ data, name }: { data: OrbitPlayback; name: string }) {

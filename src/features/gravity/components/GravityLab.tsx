@@ -3,13 +3,8 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import {
-  challenges,
-} from "../domain/gravitation";
-import type {
-  LearningAttempt,
-  Prediction,
-} from "../domain/gravitation";
+import { challenges } from "../domain/gravitation";
+import type { LearningAttempt, Prediction } from "../domain/gravitation";
 import { GravityTutor } from "./GravityTutor";
 import { GravityExperiment } from "./GravityExperiment";
 import { GravityChallengeComparison } from "./GravityChallengeComparison";
@@ -33,11 +28,16 @@ export const GravityLab = () => {
   const [completed, setCompleted] = useState(false);
   const challenge = challenges[step];
   const isCorrect = prediction === challenge.answer;
+  const hasNextChallenge = step < challenges.length - 1;
   const challengeHeadingRef = useRef<HTMLHeadingElement>(null);
   const feedbackRef = useRef<HTMLParagraphElement>(null);
   const pendingFocus = useRef<"challenge" | "feedback" | null>(null);
   useEffect(() => {
-    const target = pendingFocus.current === "challenge" ? challengeHeadingRef.current : pendingFocus.current === "feedback" ? feedbackRef.current : null;
+    const focusTargets = {
+      challenge: challengeHeadingRef.current,
+      feedback: feedbackRef.current,
+    };
+    const target = pendingFocus.current ? focusTargets[pendingFocus.current] : null;
     target?.focus();
     pendingFocus.current = null;
   }, [step, revealed]);
@@ -208,11 +208,11 @@ export const GravityLab = () => {
                   <button
                     type="button"
                     onClick={() =>
-                      step < 2 ? chooseStep(step + 1) : setCompleted(true)
+                      hasNextChallenge ? chooseStep(step + 1) : setCompleted(true)
                     }
                     className={buttonClass}
                   >
-                    {t(step < 2 ? "next" : "finish")}
+                    {t(hasNextChallenge ? "next" : "finish")}
                   </button>
                 </div>
               </div>

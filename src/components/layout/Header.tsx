@@ -9,13 +9,11 @@ const sections = [
   {
     href: "/gravity",
     title: "gravity",
-    subtitle: "gravitySubtitle",
     icon: "atom",
   },
   {
     href: "/three-body",
     title: "threeBody",
-    subtitle: "threeBodySubtitle",
     icon: "orbit",
   },
 ] as const;
@@ -50,7 +48,6 @@ export const Header = () => {
                   <span className="text-sm leading-tight font-semibold sm:text-base">
                     {t(section.title)}
                   </span>
-                  {/* <span className="text-xs leading-snug font-normal text-slate-400 sm:text-[13px]">{t(section.subtitle)}</span> */}
                 </span>
               </NavLink>
             ))}

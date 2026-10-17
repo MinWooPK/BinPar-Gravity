@@ -9,8 +9,14 @@ domain layers or placeholder repositories.
 - `src/app`: Next.js entry points, route composition, metadata, layouts and HTTP
   responses. Pages render feature screens. The locale layout composes the shell.
 - `src/features/home/components`: home screen.
-- `src/features/gravity/components`: gravity screen.
-- `src/features/three-body/components`: three-body screen.
+- `src/features/gravity/components`: gravity screen, formula legend and sliders.
+- `src/features/gravity/application`: pure formula input transitions and tutor validation/contract.
+- `src/features/gravity/hooks`: calculator state and laboratory synchronization.
+- `src/features/three-body/components`: gallery, orbit detail presentation and playback.
+- `src/features/three-body/domain`: physical types, numerical integration and diagnostics.
+- `src/features/three-body/data`: documented orbit seeds and local refinements.
+- `src/features/three-body/server`: server-only integration and playback cache.
+- `src/hooks`: shared browser preferences (reduced motion).
 - `src/components/layout`: shared header and footer.
 - `src/components/ui`: shared UI presentation, including the language menu.
 - `src/i18n`: routing, request configuration, navigation and locale interaction.
@@ -40,16 +46,29 @@ provider SDKs in server modules, protected with `import "server-only"`. A route
 handler parses and validates HTTP input, invokes the operation and maps the result
 to an HTTP response. Keep framework request/response types out of the domain.
 
-`app/api/ai/route.ts` validates tutor input and delegates to the OpenAI adapter.
+`app/api/ai/route.ts` handles HTTP input and delegates validation to
+`application/tutorRequest.ts` and explanations to the OpenAI adapter.
 `features/gravity/application/tutor.ts` defines the framework-independent tutor
 contract. The adapter uses server-only environment variables and the Responses API.
 The client never imports infrastructure. Domain functions compute force; the model
 only explains supplied results. `GravityLab` owns local experiment and challenge
 state, and `GravityTutor` owns its asynchronous request state.
 
+The calculator delegates parsing and unknown selection to pure application
+functions; `useGravityFormula` applies valid results to the laboratory. Physical
+formulas stay in the domain. Separate value/action contexts let the calculator
+receive resets without subscribing to slider changes. Reset remounts the editor
+and restores focus to its reset button when appropriate.
+
+`GalleryProvider` persists filters, scroll and playback across gallery/detail
+navigation in the three-body layout. The server computes trajectories once per
+slug; the browser only projects/interpolates samples and updates SVG refs through
+`requestAnimationFrame`. Keep numerical integration outside the client graph.
+
 ## Verification
 
-- `npx tsc --noEmit --incremental false`
+- `npm test`
+- `npm run typecheck`
 - `npm run lint`
 - `npm run build`
 

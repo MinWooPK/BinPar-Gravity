@@ -1,60 +1,27 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import type { ReactNode, RefObject } from "react";
+import type { RefObject } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { solveGravity } from "../domain/gravitation";
-import type { GravityValues, GravityVariable } from "../domain/gravitation";
-import { useGravityParameters } from "./GravityParametersProvider";
-import { parseFormulaValue } from "./parseFormulaValue";
+import type { GravityVariable } from "../domain/gravitation";
+import { useGravityControls } from "./GravityParametersProvider";
+import { parseFormulaValue } from "../application/parseFormulaValue";
+import { isInLaboratoryRange } from "../application/formulaInput";
+import { useGravityFormula } from "../hooks/useGravityFormula";
 import styles from "./GravityIntroduction.module.css";
+import { GravityFormulaLegend, type FormulaTerm } from "./GravityFormulaLegend";
 
-const definitions = [
-  {
-    key: "force",
-    symbol: "F",
-    label: "legendForce",
-    detail: "legendForceUnit",
-  },
-  {
-    key: "constant",
-    symbol: "G",
-    label: "legendConstant",
-    detail: "legendConstantValue",
-  },
-  {
-    key: "masses",
-    symbol: "m₁, m₂",
-    label: "legendMasses",
-    detail: "legendMassUnit",
-  },
-  {
-    key: "distance",
-    symbol: "r",
-    label: "legendDistance",
-    detail: "legendDistanceUnit",
-  },
-] as const;
-type Term = (typeof definitions)[number]["key"];
-const fields = [
-  { key: "force", symbol: "F", scale: 1, unit: "N" },
-  { key: "mass1", symbol: "m₁", scale: 1, unit: "kg" },
-  { key: "mass2", symbol: "m₂", scale: 1, unit: "kg" },
-  { key: "distance", symbol: "r", scale: 1, unit: "m" },
-] as const;
-const empty = { force: "", mass1: "", mass2: "", distance: "" };
-const inLabRange = (values: GravityValues) =>
-  values.mass1 >= 1e13 &&
-  values.mass1 <= 1e14 &&
-  values.mass2 >= 1e13 &&
-  values.mass2 <= 1e14 &&
-  values.distance >= 5000 &&
-  values.distance <= 20000;
-const definitionKey = (key: GravityVariable): Term =>
+const fields = {
+  force: { key: "force", symbol: "F", unit: "N" },
+  mass1: { key: "mass1", symbol: "m₁", unit: "kg" },
+  mass2: { key: "mass2", symbol: "m₂", unit: "kg" },
+  distance: { key: "distance", symbol: "r", unit: "m" },
+} as const;
+const definitionKey = (key: GravityVariable): FormulaTerm =>
   key === "mass1" || key === "mass2" ? "masses" : key;
 
 export const GravityFormula = () => {
-  const { resetVersion, resetParameters } = useGravityParameters();
+  const { resetVersion, resetParameters } = useGravityControls();
   const resetButtonRef = useRef<HTMLButtonElement>(null);
   const restoreResetFocus = useRef(false);
   useEffect(() => {
@@ -85,10 +52,10 @@ const GravityFormulaContent = ({
   const t = useTranslations("Gravity");
   const format = useFormatter();
   const id = useId();
-  const { setParameters } = useGravityParameters();
-  const [hovered, setHovered] = useState<Term | null>(null);
-  const [focused, setFocused] = useState<Term | null>(null);
-  const [selected, setSelected] = useState<Term | null>(null);
+  const { values, unknown, result, numericalError, changeValue } = useGravityFormula();
+  const [hovered, setHovered] = useState<FormulaTerm | null>(null);
+  const [focused, setFocused] = useState<FormulaTerm | null>(null);
+  const [selected, setSelected] = useState<FormulaTerm | null>(null);
   const active = hovered ?? focused ?? selected;
   const [editing, setEditing] = useState<GravityVariable | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -109,54 +76,12 @@ const GravityFormulaContent = ({
     if (restoreFocus && key)
       requestAnimationFrame(() => variableRefs.current[key]?.focus());
   };
-  const [values, setValues] = useState(empty);
-  const [unknown, setUnknown] = useState<GravityVariable | null>(null);
-  const [result, setResult] = useState<GravityValues | null>(null);
-  const [numericalError, setNumericalError] = useState(false);
-
-  const changeValue = (key: GravityVariable, text: string) => {
-    const next = { ...values, [key]: text };
-    setValues(next);
-    setResult(null);
-    setNumericalError(false);
-    const valid = fields.filter(
-      (field) => parseFormulaValue(next[field.key]) !== null,
-    );
-    const target =
-      unknown ??
-      (valid.length === 3
-        ? fields.find((field) => parseFormulaValue(next[field.key]) === null)!
-            .key
-        : null);
-    if (!target) return;
-    const known: Partial<GravityValues> = {};
-    for (const field of fields) {
-      if (field.key === target) continue;
-      const value = parseFormulaValue(next[field.key]);
-      if (value === null) return;
-      known[field.key] = value * field.scale;
-    }
-    setUnknown(target);
-    try {
-      const solution = solveGravity(target, known);
-      setResult(solution);
-      if (inLabRange(solution))
-        setParameters({
-          mass1: solution.mass1,
-          mass2: solution.mass2,
-          distance: solution.distance,
-        });
-    } catch {
-      setNumericalError(true);
-    }
-  };
-
-  const fieldInput = (field: (typeof fields)[number], squared = false) => {
+  const fieldInput = (field: (typeof fields)[GravityVariable], squared = false) => {
     const calculated = unknown === field.key;
     const text = values[field.key];
     const computed =
       calculated && result
-        ? Number((result[field.key] / field.scale).toPrecision(12)).toString()
+        ? Number(result[field.key].toPrecision(12)).toString()
         : "";
     return (
       <span className={styles.formulaEditor} key={field.key}>
@@ -228,36 +153,30 @@ const GravityFormulaContent = ({
     );
   };
 
-  const term = (key: Term, symbol: ReactNode) => {
-    const definition = definitions.find((item) => item.key === key)!;
-    return (
-      <button
-        type="button"
-        aria-label={`${t(definition.label)}. ${t("formulaConstantFixed")}`}
-        aria-describedby={`${id}-${key}`}
-        aria-pressed={selected === key}
-        data-active={active === key}
-        className={`${styles.term} ${styles.constantTerm}`}
-        onPointerEnter={(event) => {
-          if (event.pointerType === "mouse") setHovered(key);
-        }}
-        onPointerLeave={() => setHovered(null)}
-        onFocus={() => setFocused(key)}
-        onBlur={() => setFocused(null)}
-        onClick={() => setSelected(selected === key ? null : key)}
-      >
-        {symbol}
-        <span className={styles.constantLabel}>
-          {t("formulaConstantFixed")}
-        </span>
-      </button>
-    );
-  };
+  const constantTerm = (
+    <button
+      type="button"
+      aria-label={`${t("legendConstant")}. ${t("formulaConstantFixed")}`}
+      aria-describedby={`${id}-constant`}
+      aria-pressed={selected === "constant"}
+      data-active={active === "constant"}
+      className={`${styles.term} ${styles.constantTerm}`}
+      onPointerEnter={(event) => {
+        if (event.pointerType === "mouse") setHovered("constant");
+      }}
+      onPointerLeave={() => setHovered(null)}
+      onFocus={() => setFocused("constant")}
+      onBlur={() => setFocused(null)}
+      onClick={() => setSelected(selected === "constant" ? null : "constant")}
+    >
+      G
+      <span className={styles.constantLabel}>{t("formulaConstantFixed")}</span>
+    </button>
+  );
   const currentValue = (key: GravityVariable) => {
-    const field = fields.find((item) => item.key === key)!;
     return unknown === key
       ? result
-        ? result[key] / field.scale
+        ? result[key]
         : null
       : parseFormulaValue(values[key]);
   };
@@ -267,7 +186,7 @@ const GravityFormulaContent = ({
       notation: value >= 1e6 || value < 0.001 ? "scientific" : "standard",
     });
   const displayedValue = (key: GravityVariable, squared = false) => {
-    const field = fields.find((item) => item.key === key)!;
+    const field = fields[key];
     const value = currentValue(key);
     if (value === null || !Number.isFinite(value) || value <= 0)
       return `${field.symbol}${squared ? "²" : ""}`;
@@ -289,9 +208,9 @@ const GravityFormulaContent = ({
 
   const editableTerm = (key: GravityVariable, squared = false) => {
     if (editing === key)
-      return fieldInput(fields.find((field) => field.key === key)!, squared);
+      return fieldInput(fields[key], squared);
     const definition = definitionKey(key);
-    const field = fields.find((item) => item.key === key)!;
+    const field = fields[key];
     const calculated = unknown === key;
     const invalid =
       !calculated &&
@@ -344,7 +263,7 @@ const GravityFormulaContent = ({
         </span>
       </span>
       <span className={styles.equationRight}>
-        {term("constant", "G")}
+        {constantTerm}
         <span aria-hidden="true" className={styles.operator}>
           ×
         </span>
@@ -359,12 +278,13 @@ const GravityFormulaContent = ({
       </span>
     </>
   );
-  const invalidField = fields.find(
+  const invalidField = Object.values(fields).find(
     (field) =>
       field.key !== unknown &&
       values[field.key].trim() !== "" &&
       parseFormulaValue(values[field.key]) === null,
   );
+  const calculatedField = unknown ? fields[unknown] : null;
   // Incomplete numbers are expected during typing; publish validation on exit.
   const status = editing
     ? ""
@@ -372,15 +292,14 @@ const GravityFormulaContent = ({
       ? t("invalidFormulaValue", { symbol: invalidField.symbol })
       : numericalError
         ? t("numericalError")
-        : result
+        : result && calculatedField
           ? t("automaticResult", {
-              symbol: fields.find((field) => field.key === unknown)!.symbol,
+              symbol: calculatedField.symbol,
               value: format.number(
-                result[unknown!] /
-                  fields.find((field) => field.key === unknown)!.scale,
+                result[calculatedField.key],
                 { maximumSignificantDigits: 6 },
               ),
-              unit: fields.find((field) => field.key === unknown)!.unit,
+              unit: calculatedField.unit,
             })
           : "";
 
@@ -437,83 +356,17 @@ const GravityFormulaContent = ({
       {unknown && !editing && (
         <p className={styles.formulaHint}>{t("formulaResetHint")}</p>
       )}
-      {result && !inLabRange(result) && (
+      {result && !isInLaboratoryRange(result) && (
         <p className={styles.fieldError}>{t("outsideLabRange")}</p>
       )}
-      <dl className={styles.legend}>
-        {definitions.map(({ key, symbol, label, detail }) => (
-          <div
-            key={key}
-            data-active={active === key}
-            className={styles.interactiveDefinition}
-            onPointerEnter={(event) => {
-              if (event.pointerType === "mouse") setHovered(key);
-            }}
-            onPointerLeave={() => setHovered(null)}
-          >
-            <dt className={styles.definitionHeading}>
-              <button
-                type="button"
-                className={styles.definitionAction}
-                aria-label={
-                  key === "constant"
-                    ? `${t(label)}. ${t("formulaConstantFixed")}`
-                    : `${t("formulaEditHint")}: ${t(label)}`
-                }
-                aria-describedby={`${id}-${key}`}
-                onClick={() =>
-                  key === "constant"
-                    ? setSelected(selected === key ? null : key)
-                    : openEditor(key === "masses" ? "mass1" : key)
-                }
-                onFocus={() => setFocused(key)}
-                onBlur={() => setFocused(null)}
-              />
-              {key === "masses" ? (
-                <span className={styles.massEditActions}>
-                  {(["mass1", "mass2"] as const).map((mass) => (
-                    <button
-                      key={mass}
-                      type="button"
-                      aria-label={t("editFormulaVariable", {
-                        symbol: mass === "mass1" ? "m₁" : "m₂",
-                        unit: "kg",
-                      })}
-                      onClick={() => openEditor(mass)}
-                      onFocus={() => setFocused("masses")}
-                      onBlur={() => setFocused(null)}
-                    >
-                      {mass === "mass1" ? "m₁" : "m₂"}
-                    </button>
-                  ))}
-                </span>
-              ) : (
-                <span className={styles.definitionSymbol}>{symbol}</span>
-              )}
-            </dt>
-            <dd id={`${id}-${key}`}>
-              {key === "constant"
-                ? t.rich("legendConstantHighlighted", {
-                    highlight: (chunks) => (
-                      <strong className={styles.definitionHighlight}>
-                        {chunks}
-                      </strong>
-                    ),
-                  })
-                : t(label)}
-              <span>
-                {t.rich(`${detail}Highlighted`, {
-                  highlight: (chunks) => (
-                    <strong className={styles.definitionHighlight}>
-                      {chunks}
-                    </strong>
-                  ),
-                })}
-              </span>
-            </dd>
-          </div>
-        ))}
-      </dl>
+      <GravityFormulaLegend
+        id={id}
+        active={active}
+        onHover={setHovered}
+        onFocus={setFocused}
+        onSelect={(key) => setSelected(selected === key ? null : key)}
+        onEdit={openEditor}
+      />
     </section>
   );
 };

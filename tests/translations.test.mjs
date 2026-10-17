@@ -19,7 +19,7 @@ test("all locales contain the same translation keys", () => {
 });
 
 test("the gravity experiment has all its directly referenced messages", () => {
-  const source = ["GravityExperiment", "GravityFormula", "GravityLab", "GravityScreen"].map((component) => readFileSync(new URL(`../src/features/gravity/components/${component}.tsx`, import.meta.url), "utf8")).join("\n");
+  const source = ["GravityExperiment", "GravitySlider", "GravityFormula", "GravityFormulaLegend", "GravityLab", "GravityScreen"].map((component) => readFileSync(new URL(`../src/features/gravity/components/${component}.tsx`, import.meta.url), "utf8")).join("\n");
   const usedKeys = [...source.matchAll(/\bt\("([^"]+)"\)/g)].map((match) => match[1]);
   usedKeys.push("firstMass", "secondMass", "centreDistance");
   for (const { locale, messages } of dictionaries) {
@@ -34,7 +34,7 @@ test("orbit animation controls and descriptions are translated in every locale",
   const files = [
     "../src/features/three-body/components/OrbitAnimation.tsx",
     "../src/features/three-body/components/OrbitPlayer.tsx",
-    "../src/components/gallery.tsx",
+    "../src/features/three-body/components/OrbitGallery.tsx",
   ];
   const usedKeys = files.flatMap((file) => [...readFileSync(new URL(file, import.meta.url), "utf8").matchAll(/\bt\("([^"]+)"/g)].map((match) => match[1]));
   usedKeys.push("animationPlay", "animationPause", "animationPlayAll", "animationPauseAll");

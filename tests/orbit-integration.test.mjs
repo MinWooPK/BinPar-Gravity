@@ -10,13 +10,13 @@ const directory = mkdtempSync(join(tmpdir(), 'orbit-integration-'));
 after(() => rmSync(directory, { recursive: true, force: true }));
 execFileSync(process.execPath, [
   'node_modules/typescript/bin/tsc',
-  'src/features/three-body/domain/orbit-integration.ts', 'src/data/orbits.ts',
+  'src/features/three-body/domain/orbit-integration.ts', 'src/features/three-body/data/orbits.ts',
   '--outDir', directory, '--rootDir', 'src', '--module', 'commonjs',
   '--target', 'es2019', '--resolveJsonModule', '--esModuleInterop', '--skipLibCheck',
 ]);
 const require = createRequire(import.meta.url);
 const { integrateOrbit } = require(join(directory, 'features/three-body/domain/orbit-integration.js'));
-const { orbits } = require(join(directory, 'data/orbits.js'));
+const { orbits } = require(join(directory, 'features/three-body/data/orbits.js'));
 const integrated = new Map(orbits.map((orbit) => [orbit.slug, integrateOrbit(orbit)]));
 const near = (actual, expected, tolerance = 1e-8) => assert.ok(Math.abs(actual - expected) <= tolerance, `${actual} != ${expected}`);
 

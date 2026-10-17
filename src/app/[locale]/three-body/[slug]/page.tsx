@@ -1,8 +1,8 @@
 import { Link } from "@/i18n/navigation";
-import styles from "@/components/gallery.module.css";
+import styles from "@/features/three-body/components/ThreeBody.module.css";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getOrbit, orbits, publishedOrbits } from "@/data/orbits";
+import { getOrbit, orbits, publishedOrbits } from "@/features/three-body/data/orbits";
 import { Icon } from "@/components/icons";
 import { OrbitPlayer } from "@/features/three-body/components/OrbitPlayer";
 import { getOrbitPlayback } from "@/features/three-body/server/orbit-data";

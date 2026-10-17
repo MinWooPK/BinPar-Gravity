@@ -1,4 +1,4 @@
-import type { OrbitData, OrbitDefinition } from "../../../lib/physics/types";
+import type { OrbitData, OrbitDefinition } from "./orbit";
 
 // All three masses and G are 1 in the catalogue's dimensionless units.
 const DIMENSIONS = 12;

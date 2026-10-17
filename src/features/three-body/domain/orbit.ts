@@ -14,7 +14,7 @@ export interface OrbitDefinition {
   sourceLabel: string;
   convention: string;
 }
-export interface Diagnostics {
+interface Diagnostics {
   closure: number;
   positionClosure: number;
   maxEnergyDrift: number;

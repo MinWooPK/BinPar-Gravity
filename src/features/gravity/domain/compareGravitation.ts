@@ -1,7 +1,7 @@
 import { gravitationalForce, initialParameters } from "./gravitation";
 import type { GravityParameters } from "./gravitation";
 
-export type GravityExplanation =
+type GravityExplanation =
   | "initial"
   | "massDoubled"
   | "distanceDoubled"

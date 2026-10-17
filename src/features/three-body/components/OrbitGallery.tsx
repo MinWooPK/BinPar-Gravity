@@ -1,16 +1,22 @@
 "use client";
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useState } from "react";
 import { Link } from "@/i18n/navigation";
-import styles from "./gallery.module.css";
+import styles from "./ThreeBody.module.css";
 import { useLocale, useTranslations } from "next-intl";
-import { orbits } from "@/data/orbits";
-import { OrbitAnimation } from "@/features/three-body/components/OrbitAnimation";
-import { useReducedMotion } from "@/features/three-body/components/useReducedMotion";
-import type { OrbitPlayback } from "@/features/three-body/components/orbit-visualization";
-import { useGalleryState, type Category } from "./gallery-state";
-import { Icon } from "./icons";
-const categories: Category[] = ["Todas", "Clásica", "Coreografía", "Periódica"];
-export function Gallery({
+import { orbits } from "../data/orbits";
+import { OrbitAnimation } from "./OrbitAnimation";
+import { useReducedMotion } from "@/hooks/useReducedMotion";
+import type { OrbitPlayback } from "./orbit-visualization";
+import { useGalleryState, type Category } from "./GalleryProvider";
+import { Icon } from "@/components/icons";
+const categoryLabels = {
+  Todas: "Todas",
+  Clásica: "Clásicas",
+  Coreografía: "Coreografías",
+  Periódica: "Periódicas",
+} satisfies Record<Category, string>;
+const categories = Object.keys(categoryLabels) as Category[];
+export function OrbitGallery({
   animationData,
 }: {
   animationData: Readonly<Record<string, OrbitPlayback>>;
@@ -20,19 +26,20 @@ export function Gallery({
   const locale = useLocale();
   const reducedMotion = useReducedMotion();
   const playing = state.playing ?? !reducedMotion;
+  const [initialScroll] = useState(state.scroll);
   useLayoutEffect(() => {
     const id = requestAnimationFrame(() =>
-      window.scrollTo({ top: state.scroll, behavior: "instant" }),
+      window.scrollTo({ top: initialScroll, behavior: "instant" }),
     );
     return () => cancelAnimationFrame(id);
     // Restore once per gallery mount; filtering must not move the page.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [initialScroll]);
+  const query = state.query.trim().toLocaleLowerCase("es");
   const visible = orbits.filter(
     (o) =>
       o.name
         .toLocaleLowerCase("es")
-        .includes(state.query.trim().toLocaleLowerCase("es")) &&
+        .includes(query) &&
       (state.category === "Todas" || state.category === o.category),
   );
   if (state.order === "alphabetic")
@@ -112,13 +119,7 @@ export function Gallery({
               aria-pressed={state.category === category}
               onClick={() => update({ category, scroll: 0 })}
             >
-              {category === "Clásica"
-                ? "Clásicas"
-                : category === "Coreografía"
-                  ? "Coreografías"
-                  : category === "Periódica"
-                    ? "Periódicas"
-                    : category}
+              {categoryLabels[category]}
             </button>
           ))}
         </div>

@@ -293,14 +293,6 @@
   background-size: 28px 28px;
 }
 
-.gallery :global(.orbit-card-art) img {
-  display: block;
-  width: 100%;
-  height: auto;
-  max-width: 100%;
-  border-radius: inherit;
-}
-
 .gallery :global(.orbit-index) {
   position: absolute;
   top: 0.875rem;
@@ -526,36 +518,6 @@
 .page :global(.period-stat) small {
   color: #a0a7be;
   font-size: 1rem;
-}
-
-.preview {
-  min-width: 0;
-  margin: 0;
-  padding: 1.25rem;
-  border: 1px solid #2d344a;
-  border-radius: 1rem;
-  background-color: #0c1120;
-  background-image:
-    linear-gradient(#ffffff04 1px, transparent 1px),
-    linear-gradient(90deg, #ffffff04 1px, transparent 1px);
-  background-size: 28px 28px;
-}
-
-.preview img {
-  display: block;
-  width: 100%;
-  max-width: 52rem;
-  height: auto;
-  margin-inline: auto;
-}
-
-.preview figcaption {
-  max-width: 52rem;
-  margin: 1rem auto 0;
-  color: #b6bfd3;
-  font-size: 0.9375rem;
-  line-height: 1.7;
-  text-align: center;
 }
 
 .page :global(.detail-info) {

@@ -1,4 +1,4 @@
-import type { OrbitData } from "../../../lib/physics/types";
+import type { OrbitData } from "../domain/orbit";
 
 /** Display coordinates only. The original physical samples remain untouched. */
 export type OrbitPlayback = {

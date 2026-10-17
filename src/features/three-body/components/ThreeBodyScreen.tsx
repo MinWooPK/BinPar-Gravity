@@ -1,6 +1,6 @@
-import { Gallery } from "@/components/gallery";
-import styles from "@/components/gallery.module.css";
-import { orbits } from "@/data/orbits";
+import { OrbitGallery } from "./OrbitGallery";
+import styles from "./ThreeBody.module.css";
+import { orbits } from "../data/orbits";
 import { getOrbitPlayback } from "../server/orbit-data";
 
 export const ThreeBodyScreen = () => {
@@ -29,7 +29,7 @@ export const ThreeBodyScreen = () => {
           </span>
         </div>
       </div>
-      <Gallery animationData={animationData} />
+      <OrbitGallery animationData={animationData} />
       <aside className="gallery-science-note">
         <span>i</span>
         <p>

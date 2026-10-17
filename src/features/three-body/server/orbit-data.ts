@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getOrbit } from "@/data/orbits";
+import { getOrbit } from "../data/orbits";
 import { integrateOrbit } from "../domain/orbit-integration";
 import { prepareOrbitPlayback, type OrbitPlayback } from "../components/orbit-visualization";
 

@@ -1,47 +1,53 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import Earth3D from "@/features/home/components/Earth3D";
 
 export const HomeScreen = () => {
   const t = useTranslations("Home");
 
   return (
-    <div className="mx-auto w-full min-w-0 max-w-7xl px-4 sm:px-6 lg:px-8">
-      <div className="page-enter flex min-h-svh items-center border-b border-slate-700 py-10 sm:py-14 lg:py-16">
-        <section aria-labelledby="home-title" className="w-full min-w-0">
-          <p className="mb-5 text-xs leading-relaxed font-bold tracking-wider sm:text-sm text-cyan-200 uppercase">
-            {t("eyebrow")}
-          </p>
-          <h1
-            id="home-title"
-            className="max-w-4xl text-[clamp(2rem,5.5vw,3.75rem)] leading-[1.15] break-words font-bold tracking-tight text-balance text-white"
-          >
-            {t("title")}
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-xl">
-            {t("description")}
-          </p>
-          <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap">
-            <Link
-              href="/gravity"
-              className="inline-flex min-h-12 items-center justify-center gap-3 rounded-xl bg-blue-700 px-4 py-3 text-center text-base sm:px-5 lg:text-lg font-semibold text-white shadow-md shadow-blue-700/20 transition-[background-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-blue-800 hover:shadow-lg active:translate-y-0 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500"
+    <div className="w-full min-w-0">
+      <div className="page-enter relative isolate flex min-h-[calc(100svh-var(--site-header-height,6rem))] flex-col justify-center border-b border-slate-700">
+        <div className="pointer-events-none relative z-10 mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
+          <section aria-labelledby="home-title" className="pointer-events-auto w-full min-w-0 lg:max-w-[52%] lg:[text-shadow:0_2px_16px_#070b14]">
+            <p className="mb-5 text-xs leading-relaxed font-bold tracking-wider sm:text-sm text-cyan-200 uppercase">
+              {t("eyebrow")}
+            </p>
+            <h1
+              id="home-title"
+              className="max-w-4xl text-[clamp(2rem,5.5vw,3.75rem)] leading-[1.15] break-words font-bold tracking-tight text-balance text-white"
             >
-              {t("button")} <span aria-hidden="true">↗</span>
-            </Link>
-            <a
-              href="#explore"
-              className="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-500 bg-[#111827] text-slate-100 px-4 py-3 text-center text-base sm:px-5 lg:text-lg font-semibold transition-[background-color,transform] duration-200 hover:-translate-y-0.5 hover:bg-slate-700 active:translate-y-0 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500"
-            >
-              {t("explore")}
-            </a>
-          </div>
-          <p className="mt-5 text-base text-slate-400">{t("welcomeNote")}</p>
-        </section>
+              {t("title")}
+            </h1>
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-300 sm:text-xl">
+              {t("description")}
+            </p>
+            <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap">
+              <Link
+                href="/gravity"
+                className="inline-flex min-h-12 items-center justify-center gap-3 rounded-xl bg-blue-700 px-4 py-3 text-center text-base sm:px-5 lg:text-lg font-semibold text-white shadow-md shadow-blue-700/20 transition-[background-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-blue-800 hover:shadow-lg active:translate-y-0 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500"
+              >
+                {t("button")} <span aria-hidden="true">↗</span>
+              </Link>
+              <a
+                href="#explore"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-slate-500 bg-[#111827] text-slate-100 px-4 py-3 text-center text-base sm:px-5 lg:text-lg font-semibold transition-[background-color,transform] duration-200 hover:-translate-y-0.5 hover:bg-slate-700 active:translate-y-0 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500"
+              >
+                {t("explore")}
+              </a>
+            </div>
+            <p className="mt-5 text-base text-slate-400">{t("welcomeNote")}</p>
+          </section>
+        </div>
+        <div className="pointer-events-none absolute inset-0 h-full w-full opacity-30 lg:opacity-100">
+          <Earth3D />
+        </div>
       </div>
 
       <section
         id="explore"
         aria-labelledby="explore-title"
-        className="page-enter-delayed flex min-h-svh scroll-mt-48 lg:scroll-mt-28 flex-col justify-center py-10 sm:py-14 lg:py-16"
+        className="page-enter-delayed mx-auto flex min-h-svh w-full max-w-7xl scroll-mt-48 flex-col justify-center px-4 py-10 sm:px-6 sm:py-14 lg:scroll-mt-28 lg:px-8 lg:py-16"
       >
         <p className="text-xs leading-relaxed font-bold tracking-wider sm:text-sm text-cyan-200 uppercase">
           {t("exploreEyebrow")}

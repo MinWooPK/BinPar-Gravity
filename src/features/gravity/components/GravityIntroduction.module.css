@@ -1,6 +1,4 @@
 .introduction { color: #f2f2fa; }
-.chapter { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; color: #9ba3b9; font-size: 12px; line-height: 1.5; }
-.chapter > span:first-child { letter-spacing: .12em; text-transform: uppercase; color: #b6b0c9; }
 .layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); grid-template-areas: "copy formula" "principles formula" "challenge challenge"; align-items: start; gap: clamp(24px, 2.5vw, 36px) clamp(28px, 3vw, 48px); padding: 16px 0 0; }
 .copy { grid-area: copy; }
 .formulaArea { grid-area: formula; min-width: 0; }
@@ -10,40 +8,31 @@
 .copy h3 { margin: 0 0 20px; max-width: 650px; color: #f2f2fa; font-size: clamp(2rem, 3vw, 2.375rem); font-weight: 500; letter-spacing: -.035em; line-height: 1.18; text-wrap: balance; overflow-wrap: break-word; }
 .copy > p:not(.eyebrow) { margin: 0 0 20px; max-width: 570px; color: #b2bad0; font-size: 1rem; line-height: 1.6; }
 .copy > p:last-child { margin-bottom: 0; }
-.link { display: inline-flex; align-items: center; gap: 18px; min-height: 44px; margin-top: 6px; border-radius: 5px; color: #c2b2ff; font-size: 15px; text-decoration: none; transition: color 180ms; }
-.link svg { width: 24px; height: 24px; transition: transform 180ms; }
-.link:hover { color: #e4dbff; }
-.link:hover svg { transform: translateX(4px); }
-.link:focus-visible { outline: 3px solid #c0b3ff; outline-offset: 5px; }
 .panel { min-width: 0; padding: 22px 24px; border: 1px solid #272c40; border-radius: 15px; background: linear-gradient(145deg,#131724,#0e121d); }
 .formula { display: flex; align-items: center; justify-content: center; gap: clamp(12px, 1.7vw, 24px); padding: 20px 0 24px; color: #e4dfff; font-family: Georgia, serif; font-size: clamp(32px,4vw,50px); line-height: 1.2; }
-.force { color: #aa97ff; }
 .operator { color: #8d88a7; font-size: .6em; }
 .fraction { display: inline-flex; flex-direction: column; text-align: center; font-size: .8em; }
 .fraction > span:first-child { border-bottom: 1px solid #c3b9dd; padding: 0 8px 10px; white-space: nowrap; }
 .fraction > span:last-child { padding-top: 8px; }
 .legend { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; padding-top: 16px; border-top: 1px solid #272c40; }
-.legend > div { display: flex; align-items: flex-start; gap: 18px; }
+.legend > div { display: flex; align-items: flex-start; }
 .legend dt { flex-shrink: 0; width: 54px; padding: 6px 2px; border-radius: 6px; background: #a997ff0c; color: #bcacf3; text-align: center; font-size: 15px; line-height: 1.4; }
 .legend dd { min-width: 0; margin: 0; color: #d0d4e3; font-size: 16px; line-height: 1.5; }
 .legend dd > span { display: block; margin-top: 4px; color: #a0a7be; font-size: 14px; }
 @media (max-width: 1100px) {
   .layout { grid-template-columns: minmax(0,1fr); grid-template-areas: "copy" "formula" "principles" "challenge"; gap: 32px; }
   .copy { max-width: 680px; }
-  .panel { width: 100%; max-width: 680px; }
+  .panel { max-width: 680px; }
   .formula { font-size: 48px; gap: 22px; }
 }
 @media (max-width: 520px) {
-  .chapter > span:last-child { display: none; }
   .eyebrow { font-size: 10px; }
   .copy h3 { font-size: 2rem; }
   .copy > p:not(.eyebrow) { font-size: 16px; line-height: 1.8; }
   .panel { padding: 24px 20px; }
   .formula { font-size: 36px; gap: 14px; padding: 18px 0; }
-  .legend > div { gap: 12px; }
   .legend dt { width: 46px; }
 }
-@media (prefers-reduced-motion: reduce) { .link, .link svg { transition: none; } .link:hover svg { transform: none; } }
 
 .formulaHint { margin: 10px 0 0; color: #a0a7be; font-size: 12px; line-height: 1.6; }
 .term { display: inline-flex; align-items: center; justify-content: center; min-width: 36px; min-height: 44px; padding: 2px 4px; border: 1px solid transparent; border-radius: 8px; color: inherit; background: transparent; font: inherit; line-height: inherit; cursor: pointer; transition: color 180ms, background 180ms, border-color 180ms; }
@@ -69,40 +58,22 @@
 @media (prefers-reduced-motion: reduce) { .resetButton { transition: none; } }
 
 .legend dd { width: 100%; }
-.legend dd > .definitionField, .massFields { display: grid; margin-top: 14px; gap: 8px; }
-.definitionField { display: grid; min-width: 0; gap: 5px; }
-.definitionField label { color: #d0c1ff; font-size: 14px; }
-.definitionField small { color: #a0a7be; font-size: 11px; }
-.definitionField input { min-height: 44px; width: 100%; min-width: 0; padding: 8px 10px; border: 1px solid #544776; border-radius: 8px; background: #090c15; color: #f2f2fa; font-size: 16px; }
-.definitionField input::placeholder { color: #939bb3; font-size: 12px; }
-.definitionField input:focus-visible, .calculateButton:focus-visible { outline: 2px solid #c0b3ff; outline-offset: 3px; }
-.definitionField input[aria-invalid="true"] { border-color: #fbbf24; }
 .fieldHint { font-size: 11px; color: #a0a7be; }
 .fieldError { font-size: 12px; line-height: 1.5; color: #fde68a; }
-.cardResult { display: block; margin-top: 14px; color: #d0c1ff; font-size: 16px; overflow-wrap: anywhere; }
-.calculationActions { margin-top: 20px; }
-.calculateButton { width: 100%; min-height: 44px; border-radius: 8px; padding: 10px 16px; background: #aa97ff; color: #131021; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 180ms; }
-.calculateButton:hover { background: #c1b2ff; }
-@media (prefers-reduced-motion: reduce) { .calculateButton { transition: none; } }
 
-.substitutedValue { display: inline-flex; flex-direction: column; align-items: center; gap: 3px; line-height: 1.2; }
+.substitutedValue { display: inline-flex; line-height: 1.2; }
 .substitutedValue sup { font-size: .55em; }
-.substitutedValue small { color: #a0a7be; font-family: var(--font-geist-sans), Arial, sans-serif; font-size: 9px; white-space: nowrap; letter-spacing: 0; }
-
-.definitionField input[readonly] { background: #aa97ff14; border-color: #aa97ff70; color: #d0c1ff; }
+.substitutedValue small { color: #a0a7be; font-family: var(--font-geist-sans), Arial, sans-serif; white-space: nowrap; letter-spacing: 0; }
 .autoEquation { flex-wrap: wrap; gap: 8px; font-size: clamp(30px, 3.8vw, 48px); }
 .autoEquation .fraction > span:first-child { white-space: normal; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px; }
 .autoEquation .fraction > span:last-child { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px; }
 @media (max-width: 520px) { .autoEquation { font-size: 32px; gap: 4px; } }
 
-.legend .definitionHeading { display: flex; align-items: flex-start; gap: 10px; width: 100%; padding: 0; background: transparent; text-align: left; }
-.definitionSymbol { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; min-height: 40px; width: 44px; padding: 6px 2px; border-radius: 6px; background: #a997ff0c; text-align: center; }
-.definitionHeading > .definitionField, .headingFields { flex: 0 1 120px; max-width: 120px; min-width: 0; margin-left: auto; }
-.headingFields { display: grid; gap: 10px; }
+.legend .definitionHeading { display: flex; gap: 10px; width: 100%; padding: 0; background: transparent; text-align: left; }
+.definitionSymbol { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 6px 2px; background: #a997ff0c; text-align: center; }
 .legend > div[data-active="true"] .definitionHeading { background: transparent; }
 .legend > div[data-active="true"] .definitionSymbol { background: #aa97ff25; color: #e0d6ff; }
-.definitionHeading .fieldHint, .definitionHeading .fieldError { font-size: 10px; font-family: var(--font-geist-sans), Arial, sans-serif; line-height: 1.5; }
-@media (max-width: 520px) { .legend .definitionHeading { gap: 6px; } .definitionSymbol { width: 36px; font-size: 13px; } .definitionHeading small { font-size: 9px; } .definitionHeading input { padding-inline: 5px; } }
+@media (max-width: 520px) { .legend .definitionHeading { gap: 6px; } .definitionSymbol { font-size: 13px; } }
 
 .inputWithUnit {
   display: flex;
@@ -143,18 +114,13 @@
 .inputWithUnit[data-calculated="true"] input[readonly] { border: 0; background: transparent; color: #95efde; }
 .inputWithUnit[data-calculated="true"] small { color: #95d5ca; }
 .inputWithUnit[data-invalid="true"] { border-color: #fbbf24; }
-.legend .definitionHeading { align-items: flex-start; }
 .definitionSymbol { min-height: 44px; width: auto; min-width: 44px; padding-inline: 8px; white-space: nowrap; border: 1px solid #aa97ff18; border-radius: 10px; }
-.definitionHeading > .definitionField, .headingFields { flex-basis: 180px; max-width: 180px; }
 @media (max-width: 520px) { .inputWithUnit input { padding-inline: 6px; } .inputWithUnit small { padding-inline: 5px; font-size: 9px; } }
 @media (prefers-reduced-motion: reduce) { .inputWithUnit { transition: none; } }
-
-.legend dd > .stackedMassFields { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-top: 14px; width: 100%; }
 
 .formulaEditor { display: inline-flex; flex-direction: column; width: 112px; min-width: 0; gap: 5px; font-family: var(--font-geist-sans), Arial, sans-serif; line-height: 1.4; }
 .formulaEditor .inputWithUnit { min-width: 0; }
 .formulaEditor input { width: 100%; min-width: 0; max-width: 120px; }
-.formulaEditor .fieldHint, .formulaEditor .fieldError { font-size: 10px; }
 .editorSquare { align-self: flex-start; padding-top: 5px; color: #d0c1ff; font-size: 15px; }
 .term[data-calculated="true"] { color: #95efde; }
 @media (max-width: 520px) { .formulaEditor { width: 88px; } }
@@ -174,12 +140,12 @@
 .definitionAction:focus-visible { outline: 2px solid #c0b3ff; outline-offset: 3px; }
 .interactiveDefinition:hover { border-color: #aa97ff50; }
 .massEditActions { position: relative; z-index: 1; display: inline-flex; gap: 6px; }
-.massEditActions button { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border: 1px solid #aa97ff20; border-radius: 8px; background: #a997ff0c; color: #bcacf3; font-size: 15px; cursor: pointer; }
+.massEditActions button { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border: 1px solid #aa97ff20; border-radius: 8px; background: #a997ff0c; color: #bcacf3; cursor: pointer; }
 .massEditActions button { font-size: 18px; }
 .massEditActions button:hover { background: #aa97ff25; }
 .massEditActions button:focus-visible { outline: 2px solid #c0b3ff; outline-offset: 3px; }
 
-.formulaEditor .inputWithUnit small { font-size: 16px; font-weight: 500; color: #e4dcf5; padding-inline: 8px; }
+.formulaEditor .inputWithUnit small { font-size: 16px; font-weight: 500; color: #e4dcf5; }
 
 .definitionHighlight { color: #d9caff; font-weight: 600; }
 .legend > div[data-active="true"] .definitionHighlight { color: #f0eaff; }
@@ -209,7 +175,6 @@
   .calculatorHeader { align-items: flex-start; gap: 8px; }
   .calculatorHeader .eyebrow { flex: 1 1 120px; }
   .resetButton { flex-shrink: 0; }
-  .link svg { flex-shrink: 0; }
 }
 @media (max-width: 420px) { .legend { grid-template-columns: minmax(0,1fr); } }
 @media (max-width: 600px) {
@@ -239,8 +204,6 @@
 .equationRight { flex: 0 1 auto; }
 @media (max-width: 600px) { .equationLeft, .equationRight { gap: 4px; } }
 .legend .definitionHeading { flex-wrap: wrap; align-items: center; }
-.definitionHint { position: relative; z-index: 1; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin-left: auto; color: #b6bdd0; font-family: var(--font-geist-sans), Arial, sans-serif; font-size: 12px; line-height: 1.5; pointer-events: none; }
-.definitionHint svg { width: 18px; height: 18px; }
 
 /* Keep desktop definitions readable beside their editable symbols. */
 @media (min-width: 1101px) {
@@ -252,7 +215,6 @@
   .formulaArea .legend > div { display: grid; grid-template-columns: 44px minmax(0,1fr); align-items: start; gap: 12px; padding: 12px; }
   .formulaArea .legend .definitionHeading { flex-direction: column; align-items: flex-start; width: 44px; gap: 6px; }
   .formulaArea .massEditActions { flex-direction: column; gap: 4px; }
-  .formulaArea .definitionHint { margin-left: 0; }
   .formulaArea .legend dd { font-size: 1rem; line-height: 1.4; }
   .formulaArea .legend dd > span { margin-top: 3px; font-size: 1rem; line-height: 1.4; }
 }

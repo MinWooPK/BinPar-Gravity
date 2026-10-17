@@ -8,7 +8,7 @@ import { createRequire } from 'node:module';
 
 const directory = mkdtempSync(join(tmpdir(), 'orbit-visualization-'));
 after(() => rmSync(directory, { recursive: true, force: true }));
-execFileSync(process.execPath, ['node_modules/typescript/bin/tsc', 'src/features/three-body/components/orbit-visualization.ts', '--outDir', directory, '--module', 'commonjs', '--target', 'es2017', '--skipLibCheck']);
+execFileSync(process.execPath, ['node_modules/typescript/bin/tsc', 'src/features/three-body/components/orbit-visualization.ts', '--outDir', directory, '--rootDir', 'src', '--module', 'commonjs', '--target', 'es2017', '--skipLibCheck']);
 const require = createRequire(import.meta.url);
 const { prepareOrbitPlayback, getOrbitFrame, getOrbitTrails } = require(join(directory, 'features/three-body/components/orbit-visualization.js'));
 
