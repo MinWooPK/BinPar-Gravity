@@ -17,16 +17,17 @@ export const GravityScreen = () => {
 
       <div className={`relative z-10 ${styles.screen}`}>
         <GravityParametersProvider>
-          <GravityJourney introduction={
-            <header className={styles.hero}>
-              <p className={styles.heroEyebrow}>{t("heroEyebrow")}</p>
-              <h1 className={styles.heroTitle}>
-                <span>{t("heroLead")}</span>{" "}
-                <span>{t("heroSubject")}</span>
-              </h1>
-              <p className={styles.heroDescription}>{t("heroDescription")}</p>
-            </header>
-          }>
+          <GravityJourney
+            introduction={
+              <header className={styles.hero}>
+                <p className={styles.heroEyebrow}>{t("heroEyebrow")}</p>
+                <h1 className={styles.heroTitle}>
+                  <span>{t("heroLead")}</span> <span>{t("heroSubject")}</span>
+                </h1>
+                <p className={styles.heroDescription}>{t("heroDescription")}</p>
+              </header>
+            }
+          >
             <GravityJourneyPanel stage={gravityStages[0]}>
               <GravityEveryday />
               <GravityIntroduction />

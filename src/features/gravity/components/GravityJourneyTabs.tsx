@@ -29,7 +29,13 @@ const useGravityJourney = () => {
   return context;
 };
 
-export const GravityJourney = ({ children, introduction }: { children: ReactNode; introduction: ReactNode }) => {
+export const GravityJourney = ({
+  children,
+  introduction,
+}: {
+  children: ReactNode;
+  introduction: ReactNode;
+}) => {
   const [activeStage, setActiveStage] = useState<GravityStageId | null>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const scrollPositions = useRef<Partial<Record<GravityStageId, number>>>({});
@@ -42,8 +48,9 @@ export const GravityJourney = ({ children, introduction }: { children: ReactNode
           document.getElementById(stage)?.focus({ preventScroll: true });
         return;
       }
-      if (activeStage) scrollPositions.current[activeStage] =
-        viewportRef.current?.scrollTop ?? 0;
+      if (activeStage)
+        scrollPositions.current[activeStage] =
+          viewportRef.current?.scrollTop ?? 0;
       focusPanelOnChange.current = focusPanel;
       window.history.replaceState(window.history.state, "", `#${stage}`);
       setActiveStage(stage);
@@ -69,7 +76,8 @@ export const GravityJourney = ({ children, introduction }: { children: ReactNode
 
   useLayoutEffect(() => {
     if (viewportRef.current) {
-      viewportRef.current.scrollTop = (activeStage ? scrollPositions.current[activeStage] : 0) ?? 0;
+      viewportRef.current.scrollTop =
+        (activeStage ? scrollPositions.current[activeStage] : 0) ?? 0;
     }
     if (focusPanelOnChange.current && activeStage) {
       document.getElementById(activeStage)?.focus({ preventScroll: true });
@@ -83,13 +91,20 @@ export const GravityJourney = ({ children, introduction }: { children: ReactNode
   );
   return (
     <JourneyContext.Provider value={value}>
-      <div className={styles.workspace} data-introduction={activeStage === null}>
+      <div
+        className={styles.workspace}
+        data-introduction={activeStage === null}
+      >
         {activeStage === null && introduction}
         <GravityJourneyNavigation
           activeStage={activeStage}
           onSelectStage={selectStage}
         />
-        <div ref={viewportRef} className={styles.viewport} hidden={activeStage === null}>
+        <div
+          ref={viewportRef}
+          className={styles.viewport}
+          hidden={activeStage === null}
+        >
           {children}
         </div>
       </div>

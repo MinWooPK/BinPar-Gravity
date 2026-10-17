@@ -66,6 +66,22 @@
 @media (min-width: 40rem) {
   .screen { padding-left: max(1.5rem, env(safe-area-inset-left)); padding-right: max(1.5rem, env(safe-area-inset-right)); }
 }
+@media (min-width: 64rem) {
+  .workspace[data-introduction="true"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+  }
+  .workspace[data-introduction="true"] .hero { min-width: 0; margin-block: 0; }
+  .workspace[data-introduction="true"] .heroTitle { font-size: clamp(3.5rem, 6.5vw, 6rem); }
+  .workspace[data-introduction="true"] .heroEyebrow { font-size: clamp(.75rem, 1.1vw, .95rem); }
+  .workspace[data-introduction="true"] .heroDescription { font-size: clamp(1rem, 1.5vw, 1.25rem); }
+  .workspace[data-introduction="true"] .navigation { min-width: 0; margin: 0; }
+  .workspace[data-introduction="true"] .tabList { grid-template-columns: minmax(0, 1fr); }
+  .workspace[data-introduction="true"] .navigationTitle { margin-bottom: 1.25rem; }
+  .workspace[data-introduction="true"] .freedomNote { margin-top: 1.25rem; }
+}
 @media (min-width: 68.75rem) {
   .screen { padding-left: max(2rem, env(safe-area-inset-left)); padding-right: max(2rem, env(safe-area-inset-right)); }
 }
