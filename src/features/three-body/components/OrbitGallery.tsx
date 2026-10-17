@@ -2,7 +2,7 @@
 import { useLayoutEffect, useRef } from "react";
 import { Link } from "@/i18n/navigation";
 import styles from "./ThreeBody.module.css";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { orbits } from "../data/orbits";
 import { OrbitAnimation } from "./OrbitAnimation";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -30,7 +30,6 @@ export function OrbitGallery({
 }) {
   const { state, update } = useGalleryState();
   const t = useTranslations("ThreeBody");
-  const locale = useLocale();
   const reducedMotion = useReducedMotion();
   const playing = state.playing ?? !reducedMotion;
   const savedScroll = useRef(state.scroll);
@@ -58,17 +57,17 @@ export function OrbitGallery({
     visible.sort((a, b) => a.name.localeCompare(b.name, "es"));
   return (
     <div className={styles.gallery}>
-      <div className={styles.motionControls} lang={locale}>
-        <p>{t("animationGalleryNote")}</p>
-        <button
-          type="button"
-          className="button"
-          onClick={() => update({ playing: !playing })}
-        >
-          <Icon name={playing ? "pause" : "play"} />
-          {t(playing ? "animationPauseAll" : "animationPlayAll")}
-        </button>
-      </div>
+      <aside className={styles.scienceNote} aria-labelledby="orbit-gallery-science-title" data-gallery-science>
+        <h3 id="orbit-gallery-science-title">{t("galleryScience.title")}</h3>
+        <p className={styles.scienceDescription}>{t("galleryScience.description")}</p>
+        <ul className={styles.scientificConcepts}>
+          {(["equalMasses", "constant", "normalizedUnits"] as const).map((concept) => (
+            <li key={concept}><strong>{t(`galleryScience.${concept}`)}</strong></li>
+          ))}
+        </ul>
+        <p className={styles.scienceFootnote}>{t("galleryScience.note")}</p>
+      </aside>
+      <p id="orbit-gallery-animation-note" className="sr-only">{t("animationGalleryNote")}</p>
       <div className="gallery-toolbar">
         <div className="search-field">
           <Icon name="search" />
@@ -83,6 +82,17 @@ export function OrbitGallery({
             onChange={(e) => update({ query: e.target.value, scroll: 0 })}
           />
         </div>
+        <button
+          type="button"
+          className={`button ${styles.playbackButton}`}
+          aria-label={t(playing ? "animationPauseAll" : "animationPlayAll")}
+          aria-describedby="orbit-gallery-animation-note"
+          title={t(playing ? "animationPauseAll" : "animationPlayAll")}
+          onClick={() => update({ playing: !playing })}
+        >
+          <Icon name={playing ? "pause" : "play"} />
+          <span className={styles.playbackLabel}>{t(playing ? "animationPauseAll" : "animationPlayAll")}</span>
+        </button>
         <div className="gallery-options">
           <label htmlFor="orbit-order" className="sr-only">
             {t("galleryOrderLabel")}

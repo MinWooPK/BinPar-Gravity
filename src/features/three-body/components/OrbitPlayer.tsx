@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Icon } from "@/components/icons";
 import { useGalleryState } from "@/features/three-body/components/GalleryProvider";
@@ -17,10 +17,14 @@ export function OrbitPlayer({ data, name }: { data: OrbitPlayback; name: string 
   const playing = state.playing ?? !reducedMotion;
   const [speed, setSpeed] = useState(1);
   const [resetKey, setResetKey] = useState(0);
+  const titleId = useId();
 
   return (
-    <figure className={styles.player} lang={locale}>
-      <OrbitAnimation data={data} name={name} playing={playing} speed={speed} resetKey={resetKey} />
+    <figure className={styles.player} lang={locale} aria-labelledby={titleId}>
+      <h2 id={titleId} className={styles.title}>{t("detail.simulationTitle")}</h2>
+      <div className={styles.viewport}>
+        <OrbitAnimation data={data} name={name} playing={playing} speed={speed} resetKey={resetKey} fitToTrajectory />
+      </div>
       <div className={styles.controls} role="group" aria-label={t("animationControls")}>
         <button type="button" onClick={() => update({ playing: !playing })}>
           <Icon name={playing ? "pause" : "play"} />
@@ -32,7 +36,7 @@ export function OrbitPlayer({ data, name }: { data: OrbitPlayback; name: string 
         <label>
           {t("animationSpeed")}
           <select value={speed} onChange={(event) => setSpeed(Number(event.target.value))}>
-            <option value="0.5">0.5×</option>
+            <option value="0.5">{new Intl.NumberFormat(locale).format(0.5)}×</option>
             <option value="1">1×</option>
             <option value="2">2×</option>
           </select>

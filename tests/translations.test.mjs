@@ -40,11 +40,55 @@ test("orbit animation controls and descriptions are translated in every locale",
     "../src/features/three-body/components/OrbitGallery.tsx",
   ];
   const usedKeys = files.flatMap((file) => [...readFileSync(new URL(file, import.meta.url), "utf8").matchAll(/\bt\("([^"]+)"/g)].map((match) => match[1]));
-  usedKeys.push("animationPlay", "animationPause", "animationPlayAll", "animationPauseAll");
+  usedKeys.push(
+    "animationPlay",
+    "animationPause",
+    "animationPlayAll",
+    "animationPauseAll",
+    "galleryScience.equalMasses",
+    "galleryScience.constant",
+    "galleryScience.normalizedUnits",
+  );
   for (const { locale, messages } of dictionaries) {
     for (const key of usedKeys) {
-      assert.equal(typeof messages.ThreeBody[key], "string", `${locale}: ThreeBody.${key}`);
-      assert.ok(messages.ThreeBody[key].trim(), `${locale}: ThreeBody.${key}`);
+      const message = key.split(".").reduce((value, part) => value?.[part], messages.ThreeBody);
+      assert.equal(typeof message, "string", `${locale}: ThreeBody.${key}`);
+      assert.ok(message.trim(), `${locale}: ThreeBody.${key}`);
+    }
+  }
+});
+
+test("orbit detail information and accessible labels are translated with consistent parameters", () => {
+  const files = [
+    { path: "../src/app/[locale]/three-body/[slug]/page.tsx", prefix: "" },
+    { path: "../src/features/three-body/components/OrbitDetailTabs.tsx", prefix: "detail." },
+    { path: "../src/features/three-body/components/OrbitPlayer.tsx", prefix: "" },
+  ];
+  const usedKeys = new Set(files.flatMap(({ path, prefix }) => (
+    [...readFileSync(new URL(path, import.meta.url), "utf8").matchAll(/\bt\("([^"]+)"/g)]
+      .map((match) => `${prefix}${match[1]}`)
+  )));
+  for (const key of [
+    "detail.explanationTab", "detail.conditionsTab", "detail.navigationLabel",
+    "galleryScience.equalMasses", "galleryScience.constant", "galleryScience.normalizedUnits",
+    "categoryClassical", "categoryChoreography", "categoryPeriodic",
+    "animationPlay", "animationPause",
+  ]) usedKeys.add(key);
+  const parameters = { orbitIndex: ["number", "total"], refinedConditions: ["publishedPeriod"] };
+
+  for (const { locale, messages } of dictionaries) {
+    for (const key of usedKeys) {
+      const message = key.split(".").reduce((value, part) => value?.[part], messages.ThreeBody);
+      assert.equal(typeof message, "string", `${locale}: ThreeBody.${key}`);
+      assert.ok(message.trim(), `${locale}: ThreeBody.${key}`);
+    }
+    for (const [key, expected] of Object.entries(parameters)) {
+      const message = messages.ThreeBody.detail[key];
+      assert.deepEqual(
+        [...message.matchAll(/\{(\w+)\}/g)].map((match) => match[1]).sort(),
+        expected,
+        `${locale}: ThreeBody.detail.${key} interpolation parameters`,
+      );
     }
   }
 });

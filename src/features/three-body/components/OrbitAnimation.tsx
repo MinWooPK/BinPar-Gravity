@@ -13,9 +13,10 @@ type OrbitAnimationProps = {
   playing: boolean;
   speed?: number;
   resetKey?: number;
+  fitToTrajectory?: boolean;
 };
 
-export function OrbitAnimation({ data, name, playing, speed = 1, resetKey = 0 }: OrbitAnimationProps) {
+export function OrbitAnimation({ data, name, playing, speed = 1, resetKey = 0, fitToTrajectory = false }: OrbitAnimationProps) {
   const t = useTranslations("ThreeBody");
   const locale = useLocale();
   const id = useId();
@@ -24,6 +25,23 @@ export function OrbitAnimation({ data, name, playing, speed = 1, resetKey = 0 }:
   const elapsed = useRef(0);
   const previousReset = useRef(resetKey);
   const trails = useMemo(() => getOrbitTrails(data), [data]);
+  const viewBox = useMemo(() => {
+    if (!fitToTrajectory) return "0 0 320 200";
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const sample of data.samples) {
+      for (let body = 0; body < 3; body++) {
+        const x = sample[body * 2];
+        const y = sample[body * 2 + 1];
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
+      }
+    }
+    // Frame the existing drawing, leaving room for each body's 6-unit halo.
+    const padding = 12;
+    return `${minX - padding} ${minY - padding} ${maxX - minX + padding * 2} ${maxY - minY + padding * 2}`;
+  }, [data, fitToTrajectory]);
 
   useEffect(() => {
     const element = stage.current;
@@ -71,7 +89,7 @@ export function OrbitAnimation({ data, name, playing, speed = 1, resetKey = 0 }:
   }, [data, playing, speed, resetKey]);
 
   return (
-    <svg ref={stage} className={styles.stage} viewBox="0 0 320 200" width="320" height="200" role="img" lang={locale} aria-labelledby={`${id}-title`} aria-describedby={`${id}-description`} data-orbit={data.slug}>
+    <svg ref={stage} className={styles.stage} viewBox={viewBox} width="320" height="200" role="img" lang={locale} aria-labelledby={`${id}-title`} aria-describedby={`${id}-description`} data-orbit={data.slug}>
       <title id={`${id}-title`}>{t("animationTitle", { name })}</title>
       <desc id={`${id}-description`}>{t("animationDescription")}</desc>
       {trails.map((points, index) => (

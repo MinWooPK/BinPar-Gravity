@@ -10,33 +10,27 @@
 
 .gallery {
   min-width: 0;
-  margin-top: 2rem;
+  margin-top: 0;
 }
 
-.motionControls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
+.scienceNote {
+  min-width: 0;
+  margin: 0 0 .875rem;
+  padding: 12px 16px;
+  border: 1px solid #39535b;
+  border-left: 3px solid #5ee7d5;
+  border-radius: 12px;
+  background: linear-gradient(115deg, #11232b, #19172d);
+  color: #d4e0ed;
 }
-
-.motionControls p {
-  flex: 1 1 18rem;
-  margin: 0;
-  color: #b6bfd3;
-  font-size: 1rem;
-  line-height: 1.7;
-}
-
-.motionControls button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
+.scienceNote h3 { margin: 0; color: #a7f3e5; font-size: 1rem; font-weight: 600; line-height: 1.35; }
+.scienceDescription { margin: 4px 0 0; font-size: .9375rem; line-height: 1.5; }
+.scientificConcepts { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; padding: 0; list-style: none; }
+.scientificConcepts li { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 32px; padding: 5px 10px; border: 1px solid #8572c6; border-radius: 7px; background: #aa97ff18; color: #e4dcff; text-align: center; }
+.scientificConcepts strong { font-size: .875rem; font-weight: 700; line-height: 1.4; letter-spacing: .035em; }
+.scientificConcepts li:nth-child(2) { border-color: #48998e; background: #5ee7d515; color: #a7f3e5; }
+.scienceFootnote { margin: 0; color: #b8c9d6; font-size: .875rem; line-height: 1.5; }
+.gallery .playbackButton { display: inline-flex; flex-shrink: 0; align-items: center; justify-content: center; gap: .5rem; font-size: .875rem; }
 .page :is(h1, h2, p),
 .gallery :is(h2, p) {
   overflow-wrap: anywhere;
@@ -122,8 +116,8 @@
 .gallery :global(.gallery-toolbar) {
   flex-wrap: wrap;
   justify-content: space-between;
-  padding-block: 1.25rem;
-  border-block: 1px solid #272c40;
+  gap: .625rem;
+  padding-block: 0;
 }
 
 .gallery :global(.search-field) {
@@ -132,7 +126,7 @@
   align-items: center;
   gap: 0.75rem;
   min-width: 0;
-  max-width: 30rem;
+  max-width: none;
   min-height: 46px;
   padding-inline: 0.875rem;
   border: 1px solid #48516b;
@@ -172,6 +166,7 @@
 .gallery :global(.gallery-options) {
   flex-wrap: wrap;
   flex: 0 1 auto;
+  gap: .625rem;
 }
 
 .gallery :global(.gallery-options) select {
@@ -189,7 +184,7 @@
 
 .gallery :global(.view-switch) {
   gap: 0.2rem;
-  padding: 0.15rem;
+  padding: 0;
   border: 1px solid #48516b;
   border-radius: 0.65rem;
   background: #111624;
@@ -214,8 +209,8 @@
 .gallery :global(.gallery-filter-row) {
   flex-wrap: wrap;
   justify-content: space-between;
-  gap: 1rem;
-  margin-block: 1.5rem;
+  gap: .5rem 1rem;
+  margin-block: .625rem .75rem;
 }
 
 .gallery :global(.filter-pills) {
@@ -323,9 +318,9 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 0.875rem;
+  gap: .625rem;
   min-width: 0;
-  padding: 1.25rem;
+  padding: 1rem;
 }
 
 .gallery :global(.card-topline),
@@ -359,7 +354,7 @@
 .gallery :global(.orbit-card-content) h2 {
   margin: 0;
   color: #f2f2fa;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 500;
   line-height: 1.25;
   letter-spacing: -0.03em;
@@ -368,13 +363,13 @@
 .gallery :global(.orbit-card-content) p {
   margin: 0;
   color: #b6bfd3;
-  font-size: 1rem;
-  line-height: 1.7;
+  font-size: .9375rem;
+  line-height: 1.5;
 }
 
 .gallery :global(.orbit-card-footer) {
   margin-top: auto;
-  padding-top: 1rem;
+  padding-top: .75rem;
   border-top: 1px solid #272c40;
   font-size: 0.8125rem;
 }
@@ -419,37 +414,6 @@
   font-size: 1rem;
   line-height: 1.5;
   cursor: pointer;
-}
-
-.page :global(.gallery-science-note) {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.875rem;
-  margin-top: 2rem;
-  padding: 1.25rem;
-  border: 1px solid #244644;
-  border-radius: 0.75rem;
-  background: #0e1b23;
-}
-
-.page :global(.gallery-science-note) > span {
-  display: grid;
-  flex-shrink: 0;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border: 1px solid #428d87;
-  border-radius: 50%;
-  color: #5ee7d5;
-  font-size: 0.875rem;
-  line-height: 1;
-}
-
-.page :global(.gallery-science-note) p {
-  margin: 0;
-  color: #b6bfd3;
-  font-size: 0.9375rem;
-  line-height: 1.8;
 }
 
 .page :global(.back-link),
@@ -691,11 +655,6 @@
     width: 100%;
   }
 
-  .gallery :global(.gallery-options) select {
-    flex: 1 1 100%;
-    width: 100%;
-  }
-
   .gallery :global(.orbit-card-content),
   .page :global(.conditions) {
     padding: 1rem;
@@ -715,3 +674,14 @@
 /* Stage navigation provides the gallery's outer spacing; detail pages keep theirs. */
 .stagePage { width: 100%; margin: 0; padding: 0; }
 .page:global(.page-enter) { animation-duration: 240ms; }
+
+@media (max-width: 767px) {
+  .gallery :global(.search-field) { flex: 1; }
+  .gallery :global(.gallery-options) { flex: 1 1 100%; }
+  .gallery :global(.gallery-options) select { flex: 1; min-width: 0; }
+  .gallery .playbackButton { flex: 0 0 46px; width: 46px; padding: 0; }
+  .playbackLabel { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+}
+@media (max-width: 374px) {
+  .scienceNote { padding: 12px; }
+}

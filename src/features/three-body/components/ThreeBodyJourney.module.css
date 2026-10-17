@@ -40,7 +40,6 @@
 .panel:not([hidden]) { display: flex; flex: 1; flex-direction: column; animation: panel-enter 200ms ease-out both; }
 .panel:focus-visible { outline: 2px solid #c0b3ff; outline-offset: 4px; border-radius: 8px; }
 .entry:focus-visible, .backButton:focus-visible { outline: 3px solid #c0b3ff; outline-offset: 3px; }
-.galleryIntroduction { margin: 0; color: #b6bfd3; font-size: 1rem; line-height: 1.7; }
 @keyframes journey-enter { from { opacity: 0; } to { opacity: 1; } }
 @keyframes journey-exit { from { opacity: 1; } to { opacity: 0; } }
 @keyframes panel-enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }

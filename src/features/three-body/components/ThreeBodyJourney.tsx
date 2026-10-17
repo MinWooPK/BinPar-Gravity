@@ -103,11 +103,7 @@ export const ThreeBodyJourney = ({ discovery, animationData }: {
             className={`${styles.panel} ${stage.id === "gallery" ? `${galleryStyles.page} ${galleryStyles.stagePage}` : ""}`}
           >
             {stage.id === "discover" ? discovery : (
-              <>
-                <p className={styles.galleryIntroduction}>{t("galleryIntroduction")}</p>
-                <OrbitGallery animationData={animationData} active={activeStage === "gallery"} />
-                <aside className="gallery-science-note"><span aria-hidden="true">i</span><p>{t("galleryScienceNote")}</p></aside>
-              </>
+              <OrbitGallery animationData={animationData} active={activeStage === "gallery"} />
             )}
           </section>
         ))}
