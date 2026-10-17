@@ -120,7 +120,7 @@ export const GravityForceComparison = ({
         ))}
       </div>
       <figcaption id={`${idPrefix}-note`}>
-        {t("forceComparisonScale")}
+        {t("forceComparisonScaleShort")}
       </figcaption>
     </figure>
   );

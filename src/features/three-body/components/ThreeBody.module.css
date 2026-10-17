@@ -1,8 +1,6 @@
-:global(body):has(.page) {
-  background: #02040a url("/backgrounds/space-stars.svg") center / cover no-repeat fixed;
-}
-
 .page {
+  position: relative;
+  z-index: 1;
   width: min(100% - 2rem, 80rem);
   min-width: 0;
   margin-inline: auto;
@@ -713,3 +711,7 @@
     transform: none;
   }
 }
+
+/* Stage navigation provides the gallery's outer spacing; detail pages keep theirs. */
+.stagePage { width: 100%; margin: 0; padding: 0; }
+.page:global(.page-enter) { animation-duration: 240ms; }

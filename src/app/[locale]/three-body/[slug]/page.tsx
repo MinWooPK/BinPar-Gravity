@@ -7,6 +7,7 @@ import { getOrbit, orbits, publishedOrbits } from "@/features/three-body/data/or
 import { Icon } from "@/components/icons";
 import { OrbitPlayer } from "@/features/three-body/components/OrbitPlayer";
 import { getOrbitPlayback } from "@/features/three-body/server/orbit-data";
+import { getLocale, getTranslations } from "next-intl/server";
 export const dynamicParams = false;
 export function generateStaticParams() {
   return orbits.map(({ slug }) => ({ slug }));
@@ -29,14 +30,15 @@ export default async function OrbitPage({
 }) {
   const orbit = getOrbit((await params).slug);
   if (!orbit) notFound();
+  const [locale, t] = await Promise.all([getLocale(), getTranslations("ThreeBody")]);
   const index = orbits.indexOf(orbit);
   const next = orbits[(index + 1) % orbits.length]!;
   const original = publishedOrbits.find((o) => o.slug === orbit.slug)!;
   return (
     <section lang="es" className={`${styles.page} page-enter detail-page`}>
       <TutorContextBridge context={{ kind: "three-body", slug: orbit.slug }} label={orbit.name} />
-      <Link href="/three-body" scroll={false} className="back-link">
-        <span>←</span> Volver a la galería
+      <Link href="/three-body#gallery" scroll={false} className="back-link" lang={locale}>
+        <span aria-hidden="true">←</span> {t("backToSolutions")}
       </Link>
       <div className="detail-title">
         <div>

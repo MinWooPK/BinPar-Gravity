@@ -20,8 +20,7 @@ export const GravityIntroduction = () => {
             <GravityUnderstandingSimulation />
           </div>
           <div className={styles.formulaArea}>
-            <GravityFormulaSession><GravityFormula /></GravityFormulaSession>
-            <GravityPrinciplesChallenge />
+            <GravityFormulaSession><GravityFormula action={<GravityPrinciplesChallenge />} /></GravityFormulaSession>
           </div>
         </div>
       </GravityFormulaInteractionProvider>

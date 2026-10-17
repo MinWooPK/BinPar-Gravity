@@ -1,4 +1,6 @@
 .card {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
   border: 1px solid #272c40;
   border-radius: 14px;
@@ -60,6 +62,9 @@
 .force small { color: #b8b0d6; font-size: .65em; }
 
 .diagram {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
   min-width: 0;
   margin: 0;
   padding: 0 18px 10px;
@@ -71,8 +76,9 @@
 .diagram svg {
   display: block;
   width: 100%;
+  flex: 1;
   height: auto;
-  max-height: 120px;
+  min-height: 160px;
 }
 
 .bodyLabel,
@@ -102,7 +108,7 @@
 @media (max-width: 600px) {
   .heading, .force, .values { padding-inline: 14px; }
   .diagram { padding-inline: 14px; }
-  .diagram svg { min-height: 100px; }
+  .diagram svg { min-height: 100px; max-height: 160px; }
   .bodyLabel, .distanceLabel { font-size: 24px; }
   .values { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .values > div { display: flex; justify-content: space-between; gap: 12px; }

@@ -1,5 +1,4 @@
-.introduction { min-width: 0; color: #f2f2fa; }
-.layout { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: clamp(20px, 2.5vw, 32px); padding-top: 4px; }
-.learningArea, .formulaArea { display: grid; align-content: start; min-width: 0; gap: 16px; }
-@media (min-width: 1024px) { .learningArea { position: sticky; top: 4px; } }
-@media (max-width: 1023px) { .layout { grid-template-columns: minmax(0, 1fr); gap: 20px; } }
+.introduction { display: flex; flex: 1; flex-direction: column; min-width: 0; min-height: min-content; color: #f2f2fa; }
+.layout { composes: layout from "./GravityStageLayout.module.css"; }
+.learningArea { composes: simulation from "./GravityStageLayout.module.css"; }
+.formulaArea { composes: content from "./GravityStageLayout.module.css"; }

@@ -1,5 +1,5 @@
 "use client";
-import { useLayoutEffect, useState } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { Link } from "@/i18n/navigation";
 import styles from "./ThreeBody.module.css";
 import { useLocale, useTranslations } from "next-intl";
@@ -10,30 +10,42 @@ import type { OrbitPlayback } from "./orbit-visualization";
 import { useGalleryState, type Category } from "./GalleryProvider";
 import { Icon } from "@/components/icons";
 const categoryLabels = {
-  Todas: "Todas",
-  Clásica: "Clásicas",
-  Coreografía: "Coreografías",
-  Periódica: "Periódicas",
-} satisfies Record<Category, string>;
+  Todas: "categoryAll",
+  Clásica: "categoryClassicalPlural",
+  Coreografía: "categoryChoreographyPlural",
+  Periódica: "categoryPeriodicPlural",
+} as const satisfies Record<Category, string>;
+const categoryNames = {
+  Clásica: "categoryClassical",
+  Coreografía: "categoryChoreography",
+  Periódica: "categoryPeriodic",
+} as const satisfies Record<Exclude<Category, "Todas">, string>;
 const categories = Object.keys(categoryLabels) as Category[];
 export function OrbitGallery({
   animationData,
+  active = true,
 }: {
   animationData: Readonly<Record<string, OrbitPlayback>>;
+  active?: boolean;
 }) {
   const { state, update } = useGalleryState();
   const t = useTranslations("ThreeBody");
   const locale = useLocale();
   const reducedMotion = useReducedMotion();
   const playing = state.playing ?? !reducedMotion;
-  const [initialScroll] = useState(state.scroll);
+  const savedScroll = useRef(state.scroll);
   useLayoutEffect(() => {
+    savedScroll.current = state.scroll;
+  }, [state.scroll]);
+  useLayoutEffect(() => {
+    if (!active) return;
     const id = requestAnimationFrame(() =>
-      window.scrollTo({ top: initialScroll, behavior: "instant" }),
+      window.scrollTo({ top: savedScroll.current, behavior: "instant" }),
     );
     return () => cancelAnimationFrame(id);
-    // Restore once per gallery mount; filtering must not move the page.
-  }, [initialScroll]);
+    // Restore on activation, including a return from an orbit detail.
+    // Updating filters must not move the page or overwrite the saved position.
+  }, [active]);
   const query = state.query.trim().toLocaleLowerCase("es");
   const visible = orbits.filter(
     (o) =>
@@ -61,19 +73,19 @@ export function OrbitGallery({
         <div className="search-field">
           <Icon name="search" />
           <label className="sr-only" htmlFor="orbit-search">
-            Buscar órbita por nombre
+            {t("gallerySearchLabel")}
           </label>
           <input
             id="orbit-search"
             type="search"
-            placeholder="Busca una órbita…"
+            placeholder={t("gallerySearchPlaceholder")}
             value={state.query}
             onChange={(e) => update({ query: e.target.value, scroll: 0 })}
           />
         </div>
         <div className="gallery-options">
           <label htmlFor="orbit-order" className="sr-only">
-            Orden de las órbitas
+            {t("galleryOrderLabel")}
           </label>
           <select
             id="orbit-order"
@@ -82,23 +94,23 @@ export function OrbitGallery({
               update({ order: e.target.value as "curated" | "alphabetic" })
             }
           >
-            <option value="curated">Orden de exploración</option>
-            <option value="alphabetic">Nombre: A–Z</option>
+            <option value="curated">{t("galleryOrderCurated")}</option>
+            <option value="alphabetic">{t("galleryOrderAlphabetic")}</option>
           </select>
           <div
             className="view-switch"
             role="group"
-            aria-label="Vista de galería"
+            aria-label={t("galleryViewLabel")}
           >
             <button
-              aria-label="Vista de tarjetas"
+              aria-label={t("galleryViewGrid")}
               aria-pressed={state.view === "grid"}
               onClick={() => update({ view: "grid" })}
             >
               <Icon name="grid" />
             </button>
             <button
-              aria-label="Vista de lista"
+              aria-label={t("galleryViewList")}
               aria-pressed={state.view === "list"}
               onClick={() => update({ view: "list" })}
             >
@@ -111,7 +123,7 @@ export function OrbitGallery({
         <div
           className="filter-pills"
           role="group"
-          aria-label="Filtrar por tipo"
+          aria-label={t("galleryFilterLabel")}
         >
           {categories.map((category) => (
             <button
@@ -119,12 +131,12 @@ export function OrbitGallery({
               aria-pressed={state.category === category}
               onClick={() => update({ category, scroll: 0 })}
             >
-              {categoryLabels[category]}
+              {t(categoryLabels[category])}
             </button>
           ))}
         </div>
         <span className="muted" role="status">
-          {visible.length} de {orbits.length} órbitas
+          {t("galleryResults", { count: visible.length, total: orbits.length })}
         </span>
       </div>
       <div className={`orbit-grid ${state.view === "list" ? "list-view" : ""}`}>
@@ -133,7 +145,7 @@ export function OrbitGallery({
             className="orbit-card panel"
             key={orbit.slug}
             href={`/three-body/${orbit.slug}`}
-            onClick={() => update({ scroll: window.scrollY })}
+            onNavigate={() => update({ scroll: window.scrollY })}
           >
             <div className="orbit-card-art space-grid">
               <span className="orbit-index">
@@ -142,7 +154,7 @@ export function OrbitGallery({
               <OrbitAnimation
                 data={animationData[orbit.slug]}
                 name={orbit.name}
-                playing={playing}
+                playing={active && playing}
               />
               <span className="orbit-open">
                 <Icon name="arrow" />
@@ -150,17 +162,17 @@ export function OrbitGallery({
             </div>
             <div className="orbit-card-content">
               <div className="card-topline">
-                <span className="badge">{orbit.category}</span>
+                <span className="badge">{t(categoryNames[orbit.category])}</span>
                 <span>{orbit.year}</span>
               </div>
               <h2>{orbit.name}</h2>
-              <p>{orbit.description}</p>
+              <p lang="es">{orbit.description}</p>
               <div className="orbit-card-footer">
                 <span>
-                  Período <strong>{orbit.period.toFixed(3)} u.t.</strong>
+                  {t("galleryPeriod")} <strong>{orbit.period.toFixed(3)} u.t.</strong>
                 </span>
                 <span>
-                  Explorar <Icon name="arrow" />
+                  {t("galleryExplore")} <Icon name="arrow" />
                 </span>
               </div>
             </div>
@@ -169,13 +181,13 @@ export function OrbitGallery({
       </div>
       {visible.length === 0 && (
         <div className="empty-state panel">
-          <h2>No hay órbitas con ese filtro</h2>
-          <p>Prueba otro nombre o vuelve a ver las seis soluciones.</p>
+          <h2>{t("galleryEmptyTitle")}</h2>
+          <p>{t("galleryEmptyDescription")}</p>
           <button
             className="button secondary"
             onClick={() => update({ query: "", category: "Todas" })}
           >
-            Ver todas las órbitas
+            {t("galleryShowAll")}
           </button>
         </div>
       )}

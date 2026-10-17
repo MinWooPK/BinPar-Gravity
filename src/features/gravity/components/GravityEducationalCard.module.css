@@ -149,6 +149,17 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Give spare desktop height to the illustration and reading rhythm. */
+@media (min-width: 1024px) {
+  .card { display: flex; flex-direction: column; }
+  .heading, .tabs { flex-shrink: 0; }
+  .content:not([hidden]) { display: flex; flex: 1; flex-direction: column; }
+  .overview, .history { display: flex; flex: 1; flex-direction: column; }
+  .diagram { display: flex; flex: 1; flex-direction: column; }
+  .diagram svg { flex: 1; height: auto; min-height: 104px; }
+  .timeline { flex: 1; align-content: space-between; }
+}
+
 @media (max-width: 600px) {
   .card { padding: 16px 12px; }
   .tabs { gap: 5px; }

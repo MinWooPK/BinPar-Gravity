@@ -43,7 +43,7 @@ export const GravityExperiment = ({
         </h3>
         <div className={styles.headerActions}>
           <GravityFormulaButton />
-          <button type="button" onClick={onReset} className={styles.resetButton}>
+          <button type="button" onClick={onReset} aria-label={t("reset")} className={styles.resetButton}>
             <svg
               aria-hidden="true"
               viewBox="0 0 24 24"
@@ -57,7 +57,7 @@ export const GravityExperiment = ({
                 strokeLinejoin="round"
               />
             </svg>
-            <span>{t("reset")}</span>
+            <span>{t("resetShort")}</span>
           </button>
         </div>
       </div>
@@ -90,12 +90,10 @@ export const GravityExperiment = ({
           {forceExplanation}
         </p>
         <details className={styles.helperDetails}>
-          <summary>{t("laboratoryModelDetails")}</summary>
+          <summary>{t("laboratoryDetails")}</summary>
+          <p>{t("forceComparisonScale")}</p>
           <p>{t("stageNote")}</p>
           <p>{t("modelNote")}</p>
-        </details>
-        <details className={styles.helperDetails}>
-          <summary>{t("laboratoryUnitsDetails")}</summary>
           <p>{t("tinyForce")}</p>
         </details>
       </div>

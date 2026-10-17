@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
-import type { RefObject } from "react";
+import type { ReactNode, RefObject } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import type { GravityVariable } from "../domain/gravitation";
 import { parseFormulaValue } from "../application/parseFormulaValue";
@@ -20,7 +20,7 @@ const fields = [
   { key: "distance", symbol: "r", unit: "m", label: "formulaDistanceLabel", description: "formulaDistanceDescription" },
 ] as const;
 
-export const GravityFormula = () => {
+export const GravityFormula = ({ action }: { action?: ReactNode }) => {
   const { resetVersion, resetParameters } = useGravityControls();
   const interaction = useGravityFormulaInteraction();
   const resetButtonRef = useRef<HTMLButtonElement>(null);
@@ -34,6 +34,7 @@ export const GravityFormula = () => {
   return (
     <GravityFormulaContent
       key={resetVersion}
+      action={action}
       resetButtonRef={resetButtonRef}
       onReset={() => {
         interaction.select(null);
@@ -45,7 +46,8 @@ export const GravityFormula = () => {
   );
 };
 
-const GravityFormulaContent = ({ resetButtonRef, onReset }: {
+const GravityFormulaContent = ({ action, resetButtonRef, onReset }: {
+  action?: ReactNode;
   resetButtonRef: RefObject<HTMLButtonElement | null>;
   onReset: () => void;
 }) => {
@@ -101,50 +103,52 @@ const GravityFormulaContent = ({ resetButtonRef, onReset }: {
     >
       <div className={styles.header}>
         <h3 id={`${id}-heading`}>{t("introFormulaTitle")}</h3>
-        <button ref={resetButtonRef} type="button" onClick={onReset} className={styles.reset}>{t("reset")}</button>
+        <div className={styles.headerActions}>{action}<button ref={resetButtonRef} type="button" onClick={onReset} aria-label={t("reset")} className={styles.reset}>{t("resetShort")}</button></div>
       </div>
-      <p id={`${id}-instructions`} className={styles.instructions}>{t("formulaFieldsInstruction")}</p>
+      <p id={`${id}-instructions`} className="sr-only">{t("formulaFieldsInstruction")}</p>
       <p className="sr-only">{t("formulaSpoken")}</p>
-      <div className={styles.equation}>
-        <span className={styles.equationLeft}>{term("force")}<span aria-hidden="true" className={styles.operator}>=</span></span>
-        <span className={styles.equationRight}>
-        <button
-          type="button"
-          data-formula-variable="constant"
-          data-active={active === "constant"}
-          className={styles.term}
-          aria-label={`${t("formulaConstantTitle")}. ${t("formulaConstantFixed")}`}
-          aria-describedby={`${id}-constant-value ${id}-constant-description`}
-          aria-pressed={selected === "constant"}
-          onPointerEnter={(event) => { if (event.pointerType === "mouse") hover("constant"); }}
-          onPointerLeave={() => hover(null)}
-          onFocus={() => focus("constant")}
-          onBlur={() => focus(null)}
-          onClick={() => select(selected === "constant" ? null : "constant")}
-        >G</button>
-        <span aria-hidden="true" className={styles.operator}>×</span>
-        <span className={styles.fraction}>
-          <span>{term("mass1")}<span aria-hidden="true">×</span>{term("mass2")}</span>
-          <span>{term("distance")}</span>
-        </span>
-        </span>
-      </div>
-      <fieldset className={styles.unknowns} aria-label={t("calculateUnknown")}>
-        <legend>{t("calculateUnknown")}</legend>
-        <div>
-          {fields.map(({ key, symbol }) => (
+      <div className={styles.formulaControls}>
+        <div className={styles.equation}>
+          <span className={styles.equationLeft}>{term("force")}<span aria-hidden="true" className={styles.operator}>=</span></span>
+          <span className={styles.equationRight}>
             <button
-              key={key}
               type="button"
-              data-unknown-variable={key}
-              aria-pressed={unknown === key}
-              onClick={() => { selectUnknown(key); select(key); }}
-              onFocus={() => focus(key)}
+              data-formula-variable="constant"
+              data-active={active === "constant"}
+              className={styles.term}
+              aria-label={`${t("formulaConstantTitle")}. ${t("formulaConstantFixed")}`}
+              aria-describedby={`${id}-constant-value ${id}-constant-description`}
+              aria-pressed={selected === "constant"}
+              onPointerEnter={(event) => { if (event.pointerType === "mouse") hover("constant"); }}
+              onPointerLeave={() => hover(null)}
+              onFocus={() => focus("constant")}
               onBlur={() => focus(null)}
-            >{symbol}</button>
-          ))}
+              onClick={() => select(selected === "constant" ? null : "constant")}
+            >G</button>
+            <span aria-hidden="true" className={styles.operator}>×</span>
+            <span className={styles.fraction}>
+              <span>{term("mass1")}<span aria-hidden="true">×</span>{term("mass2")}</span>
+              <span>{term("distance")}</span>
+            </span>
+          </span>
         </div>
-      </fieldset>
+        <fieldset className={styles.unknowns} aria-label={t("calculateUnknown")}>
+          <legend>{t("calculateUnknown")}</legend>
+          <div>
+            {fields.map(({ key, symbol }) => (
+              <button
+                key={key}
+                type="button"
+                data-unknown-variable={key}
+                aria-pressed={unknown === key}
+                onClick={() => { selectUnknown(key); select(key); }}
+                onFocus={() => focus(key)}
+                onBlur={() => focus(null)}
+              >{symbol}</button>
+            ))}
+          </div>
+        </fieldset>
+      </div>
       <div className={styles.fields}>
         {fields.map((field) => {
           const calculated = unknown === field.key;
@@ -181,7 +185,7 @@ const GravityFormulaContent = ({ resetButtonRef, onReset }: {
                 />
                 <span aria-hidden="true" className={styles.unit}>{field.unit}</span>
               </div>
-              <p id={`${id}-description-${field.key}`} className={styles.description}>
+              <p id={`${id}-description-${field.key}`} className="sr-only">
                 {t.rich(field.description, { highlight: (chunks) => <strong>{chunks}</strong> })}
               </p>
               {calculated && <span id={`${id}-calculated`} className={styles.calculated}>{t("automaticallyCalculated")}</span>}
@@ -189,8 +193,12 @@ const GravityFormulaContent = ({ resetButtonRef, onReset }: {
           );
         })}
       </div>
+      <p className={styles.help} aria-hidden="true">
+        {fields.some(({ key }) => key === active)
+          ? t.rich(fields.find(({ key }) => key === active)!.description, { highlight: (chunks) => <strong>{chunks}</strong> })
+          : t("formulaThreeKnownHint")}
+      </p>
       <GravityFormulaLegend id={id} />
-      <p className={styles.status}>{t("formulaThreeKnownHint")}</p>
       <p id={`${id}-status`} role="status" aria-atomic="true" className={invalidFields.length > 0 || numericalError ? styles.error : "sr-only"}>{status}</p>
       {result && !isInLaboratoryRange(result) && <p className={styles.error}>{t("outsideLabRange")}</p>}
       <GravityFormulaApplication result={result} valid={invalidFields.length === 0 && !numericalError} hasInputs={Object.values(values).some((value) => value.trim() !== "")} />

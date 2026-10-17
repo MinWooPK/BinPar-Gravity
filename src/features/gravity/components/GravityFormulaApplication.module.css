@@ -4,7 +4,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px 16px;
-  margin-block: 16px;
+  margin-block: 8px 0;
 }
 
 .notice {
