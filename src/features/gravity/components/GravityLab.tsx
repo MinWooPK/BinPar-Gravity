@@ -6,9 +6,10 @@ import { Link } from "@/i18n/navigation";
 import { challenges } from "../domain/gravitation";
 import type { LearningAttempt, Prediction } from "../domain/gravitation";
 import { GravityTutor } from "./GravityTutor";
+import { GravityTutorPanel } from "./GravityTutorPanel";
 import { GravityExperiment } from "./GravityExperiment";
 import { GravityChallengeComparison } from "./GravityChallengeComparison";
-import { GravityJourneyPanel, GravityStageLink } from "./GravityJourneyTabs";
+import { GravityJourneyPanel, GravityStageLink, useActiveGravityStage } from "./GravityJourneyTabs";
 import { gravityStages } from "./gravityJourney";
 import journeyStyles from "./GravityJourney.module.css";
 import challengeStyles from "./GravityChallenges.module.css";
@@ -20,6 +21,7 @@ const buttonClass =
 export const GravityLab = () => {
   const t = useTranslations("Gravity");
   const id = useId();
+  const activeStage = useActiveGravityStage();
   const { parameters, setParameters, resetParameters } = useGravityParameters();
   const [step, setStep] = useState(0);
   const [prediction, setPrediction] = useState<Prediction | "">("");
@@ -66,12 +68,6 @@ export const GravityLab = () => {
           onChange={setParameters}
           onReset={resetParameters}
         />
-        <div className={journeyStyles.nextStage}>
-          <GravityStageLink stageId={gravityStages[2].id} className={journeyStyles.continueLink}>
-            {t("learningContinue")}
-            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 12h16m-6-6 6 6-6 6" strokeLinecap="round" strokeLinejoin="round" /></svg>
-          </GravityStageLink>
-        </div>
       </GravityJourneyPanel>
       <GravityJourneyPanel
         stage={gravityStages[2]}
@@ -105,74 +101,78 @@ export const GravityLab = () => {
           </div>
           <div className={challengeStyles.challengeLayout} data-revealed={revealed}>
             <div className={challengeStyles.prediction}>
-              <h3
-                ref={challengeHeadingRef}
-                tabIndex={-1}
-                id={`${id}-challenge`}
-                className={`${challengeStyles.question} scroll-mt-48 rounded text-2xl font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300 lg:scroll-mt-28`}
-              >
-                {t(`challenge_${challenge.id}`)}
-              </h3>
-              <p className={challengeStyles.baseline}>{t("baseline")}</p>
-              <p className={challengeStyles.prompt}>{t("predict")}</p>
-              <fieldset
-                disabled={revealed}
-                className={challengeStyles.answers}
-              >
-                <legend className="sr-only">{t("predict")}</legend>
-                {(["same", "double", "four", "quarter"] as const).map((answer) => {
-                  const selected = prediction === answer;
-                  const correctAnswer = revealed && answer === challenge.answer;
-                  const answerClass = correctAnswer
-                    ? "border-emerald-400 bg-emerald-950/50 text-emerald-100"
-                    : revealed && selected
-                      ? "border-amber-400 bg-amber-950/40 text-amber-100"
-                      : selected
-                        ? "border-sky-400 bg-sky-900/30 text-sky-100"
-                        : "border-slate-600 text-slate-200";
-                  return (
-                    <label
-                      key={answer}
-                      className={`flex min-h-11 items-center gap-3 rounded-xl border p-3 text-base focus-within:outline-2 focus-within:outline-offset-4 focus-within:outline-sky-300 ${revealed ? "cursor-default" : "cursor-pointer"} ${answerClass}`}
-                    >
-                      <input
-                        type="radio"
-                        name={`${id}-prediction`}
-                        value={answer}
-                        checked={selected}
-                        onChange={() => setPrediction(answer)}
-                        className="size-4 shrink-0 accent-sky-300"
-                      />
-                      <span className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2">
-                        <span>{t(answer)}</span>
-                        {revealed && (selected || correctAnswer) && (
-                          <span className="flex flex-wrap gap-2 text-sm font-semibold">
-                            {correctAnswer && <span>{t("answerCorrect")}</span>}
-                            {selected && <span>{t("answerYourPrediction")}</span>}
-                          </span>
-                        )}
-                      </span>
-                    </label>
-                  );
-                })}
-              </fieldset>
-              {!revealed && (
-                <button
-                  type="button"
-                  disabled={!prediction}
-                  onClick={() => {
-                    if (prediction) {
-                      setParameters(challenge.parameters);
-                      setAttempt({ challenge: challenge.id, prediction });
-                      pendingFocus.current = "feedback";
-                      setRevealed(true);
-                    }
-                  }}
-                  className={`${buttonClass} ${challengeStyles.checkButton} bg-blue-700 hover:bg-blue-600`}
+              <div className={challengeStyles.questionContext}>
+                <h3
+                  ref={challengeHeadingRef}
+                  tabIndex={-1}
+                  id={`${id}-challenge`}
+                  className={`${challengeStyles.question} scroll-mt-48 rounded text-2xl font-bold text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sky-300 lg:scroll-mt-28`}
                 >
-                  {t("check")}
-                </button>
-              )}
+                  {t(`challenge_${challenge.id}`)}
+                </h3>
+                <p className={challengeStyles.baseline}>{t("baseline")}</p>
+                <p className={challengeStyles.prompt}>{t("predict")}</p>
+              </div>
+              <div className={challengeStyles.answerGroup}>
+                <fieldset
+                  disabled={revealed}
+                  className={challengeStyles.answers}
+                >
+                  <legend className="sr-only">{t("predict")}</legend>
+                  {(["same", "double", "four", "quarter"] as const).map((answer) => {
+                    const selected = prediction === answer;
+                    const correctAnswer = revealed && answer === challenge.answer;
+                    const answerClass = correctAnswer
+                      ? "border-emerald-400 bg-emerald-950/50 text-emerald-100"
+                      : revealed && selected
+                        ? "border-amber-400 bg-amber-950/40 text-amber-100"
+                        : selected
+                          ? "border-sky-400 bg-sky-900/30 text-sky-100"
+                          : "border-slate-600 text-slate-200";
+                    return (
+                      <label
+                        key={answer}
+                        className={`flex min-h-11 items-center gap-3 rounded-xl border p-3 text-base focus-within:outline-2 focus-within:outline-offset-4 focus-within:outline-sky-300 ${revealed ? "cursor-default" : "cursor-pointer"} ${answerClass}`}
+                      >
+                        <input
+                          type="radio"
+                          name={`${id}-prediction`}
+                          value={answer}
+                          checked={selected}
+                          onChange={() => setPrediction(answer)}
+                          className="size-4 shrink-0 accent-sky-300"
+                        />
+                        <span className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2">
+                          <span>{t(answer)}</span>
+                          {revealed && (selected || correctAnswer) && (
+                            <span className="flex flex-wrap gap-2 text-sm font-semibold">
+                              {correctAnswer && <span>{t("answerCorrect")}</span>}
+                              {selected && <span>{t("answerYourPrediction")}</span>}
+                            </span>
+                          )}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </fieldset>
+                {!revealed && (
+                  <button
+                    type="button"
+                    disabled={!prediction}
+                    onClick={() => {
+                      if (prediction) {
+                        setParameters(challenge.parameters);
+                        setAttempt({ challenge: challenge.id, prediction });
+                        pendingFocus.current = "feedback";
+                        setRevealed(true);
+                      }
+                    }}
+                    className={`${buttonClass} ${challengeStyles.checkButton} bg-blue-700 hover:bg-blue-600`}
+                  >
+                    {t("check")}
+                  </button>
+                )}
+              </div>
             </div>
             {revealed && (
               <div className={challengeStyles.result}>
@@ -216,18 +216,19 @@ export const GravityLab = () => {
         </section>
       </GravityJourneyPanel>
 
+      <GravityTutorPanel>
+        <GravityTutor parameters={parameters} attempt={attempt} />
+      </GravityTutorPanel>
       <div className={journeyStyles.sections}>
-        <details className="rounded-2xl border border-slate-700 bg-slate-900/50">
-          <summary className="cursor-pointer rounded-2xl px-5 py-4 text-lg font-semibold text-sky-200 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 sm:px-6">
-            {t("optionalHelp")}
-          </summary>
-          <div className="p-3 sm:p-5">
-            <GravityTutor parameters={parameters} attempt={attempt} />
-          </div>
-        </details>
+        {activeStage === gravityStages[1].id && (
+          <GravityStageLink stageId={gravityStages[2].id} className={journeyStyles.continueLink}>
+            {t("learningContinue")}
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M4 12h16m-6-6 6 6-6 6" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          </GravityStageLink>
+        )}
         <Link
           href="/three-body"
-          className="inline-flex min-h-12 items-center gap-3 rounded-xl border border-slate-600 px-5 py-3 text-base font-semibold text-sky-200 transition-colors hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-sky-300"
+          className="inline-flex min-h-11 items-center gap-3 rounded-lg px-1 py-2 text-sm font-semibold text-sky-200 transition-colors hover:text-sky-100 focus-visible:outline-2 focus-visible:outline-sky-300 motion-reduce:transition-none"
         >
           {t("nextTopic")} <span aria-hidden="true">→</span>
         </Link>

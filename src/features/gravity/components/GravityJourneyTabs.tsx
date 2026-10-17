@@ -20,6 +20,8 @@ import styles from "./GravityJourney.module.css";
 type JourneyContextValue = {
   activeStage: GravityStageId | null;
   selectStage: (stage: GravityStageId, focusPanel?: boolean) => void;
+  tutorOpen: boolean;
+  closeTutor: () => void;
 };
 const JourneyContext = createContext<JourneyContextValue | null>(null);
 
@@ -30,6 +32,13 @@ const useGravityJourney = () => {
   return context;
 };
 
+export const useGravityJourneyTutor = () => {
+  const { tutorOpen, closeTutor } = useGravityJourney();
+  return { tutorOpen, closeTutor };
+};
+
+export const useActiveGravityStage = () => useGravityJourney().activeStage;
+
 export const GravityJourney = ({
   children,
   introduction,
@@ -38,6 +47,8 @@ export const GravityJourney = ({
   introduction: ReactNode;
 }) => {
   const [activeStage, setActiveStage] = useState<GravityStageId | null>(null);
+  const [tutorOpen, setTutorOpen] = useState(false);
+  const closeTutor = useCallback(() => setTutorOpen(false), []);
   const activeStageRef = useRef<GravityStageId | null>(null);
   const lastStage = useRef<GravityStageId>(gravityStages[0].id);
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -52,6 +63,7 @@ export const GravityJourney = ({
       lastStage.current = previous;
     }
     activeStageRef.current = stage;
+    if (stage === null) setTutorOpen(false);
     focusOnChange.current = moveFocus;
     setActiveStage(stage);
   }, []);
@@ -106,8 +118,8 @@ export const GravityJourney = ({
   }, [activeStage]);
 
   const value = useMemo(
-    () => ({ activeStage, selectStage }),
-    [activeStage, selectStage],
+    () => ({ activeStage, selectStage, tutorOpen, closeTutor }),
+    [activeStage, selectStage, tutorOpen, closeTutor],
   );
   return (
     <JourneyContext.Provider value={value}>
@@ -120,6 +132,7 @@ export const GravityJourney = ({
           activeStage={activeStage}
           onSelectStage={selectStage}
           onReturnToJourney={returnToJourney}
+          onOpenTutor={() => setTutorOpen(true)}
         />
         <div
           ref={viewportRef}

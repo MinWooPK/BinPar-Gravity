@@ -4,7 +4,6 @@ import { GravityLab } from "./GravityLab";
 import { GravityParametersProvider } from "./GravityParametersProvider";
 import { GravityJourney, GravityJourneyPanel } from "./GravityJourneyTabs";
 import { gravityStages } from "./gravityJourney";
-import { GravityEveryday } from "./GravityEveryday";
 import styles from "./GravityJourney.module.css";
 import GravityStarfield from "@/features/gravity/components/GravityStarfield";
 
@@ -29,7 +28,6 @@ export const GravityScreen = () => {
             }
           >
             <GravityJourneyPanel stage={gravityStages[0]}>
-              <GravityEveryday />
               <GravityIntroduction />
             </GravityJourneyPanel>
 

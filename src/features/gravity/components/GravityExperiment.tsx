@@ -72,160 +72,161 @@ export const GravityExperiment = ({
         </button>
       </div>
       <div className={styles.experimentLayout}>
-        <div className={styles["force-result"]}>
-          <div>
-            <span>{t("force")}</span>
-            <output
-              aria-live="off"
-              aria-label={`${format.number(force, { maximumSignificantDigits: 3 })} N`}
-              aria-describedby={`${id}-force-explanation ${id}-intensity-description`}
-            >
-              {mantissa} × 10<sup>{exponent}</sup> <small>N</small>
-            </output>
-          </div>
-          <span className={styles["live-pill"]}>{t("liveResult")}</span>
-          <p
-            id={`${id}-force-explanation`}
-            className={styles.forceExplanation}
-          >
-            {forceExplanation}
-          </p>
-        </div>
-        <figure
-          className={`${styles["gravity-stage"]} ${styles["space-grid"]}`}
-        >
-          <svg
-            viewBox="0 40 520 180"
-            role="img"
-            aria-labelledby={`${id}-title ${id}-desc`}
-          >
-            <title id={`${id}-title`}>{t("visualTitle")}</title>
-            <desc id={`${id}-desc`}>{t("visualDescription")}</desc>
-            <defs>
-              <radialGradient id={`${id}-blue`} cx="30%" cy="25%">
-                <stop stopColor="#d6cfff" />
-                <stop offset=".5" stopColor="#9677ed" />
-                <stop offset="1" stopColor="#392662" />
-              </radialGradient>
-              <radialGradient id={`${id}-gold`} cx="30%" cy="25%">
-                <stop stopColor="#c9fff3" />
-                <stop offset=".5" stopColor="#65d9c5" />
-                <stop offset="1" stopColor="#184b4e" />
-              </radialGradient>
-              <marker
-                id={`${id}-arrow`}
-                viewBox="0 0 10 10"
-                refX="10"
-                refY="5"
-                markerUnits="userSpaceOnUse"
-                markerWidth="8"
-                markerHeight="8"
-                orient="auto"
+        <div className={styles.simulationPanel}>
+          <div className={styles["force-result"]}>
+            <div>
+              <span>{t("force")}</span>
+              <output
+                aria-live="off"
+                aria-label={`${format.number(force, { maximumSignificantDigits: 3 })} N`}
+                aria-describedby={`${id}-force-explanation ${id}-intensity-description`}
               >
-                <path d="M0 0 10 5 0 10Z" fill="#e2e8f0" />
-              </marker>
-            </defs>
-            <path
-              d="M40 100H480 M260 25V205"
-              stroke="#94a3b8"
-              strokeOpacity=".08"
-              strokeDasharray="3 8"
-            />
-            <line
-              x1={x1}
-              y1="100"
-              x2={x2}
-              y2="100"
-              stroke="#94a3b8"
-              strokeOpacity=".4"
-              strokeDasharray="3 6"
-            />
-            <circle
-              cx={x1}
-              cy="100"
-              r={radius1 + 9}
-              fill="#a997ff"
-              opacity=".05"
-            />
-            <circle
-              cx={x2}
-              cy="100"
-              r={radius2 + 9}
-              fill="#5ee7d5"
-              opacity=".05"
-            />
-            <circle cx={x1} cy="100" r={radius1} fill={`url(#${id}-blue)`} />
-            <circle cx={x2} cy="100" r={radius2} fill={`url(#${id}-gold)`} />
-            <text
-              x={x1}
-              y="100"
-              dominantBaseline="middle"
-              className={styles.sphereLabel}
-              textAnchor="middle"
-              fill="#fff"
-              fontSize="13"
-              fontWeight="500"
+                {mantissa} × 10<sup>{exponent}</sup> <small>N</small>
+              </output>
+            </div>
+            <span className={styles["live-pill"]}>{t("liveResult")}</span>
+          </div>
+          <figure
+            className={`${styles["gravity-stage"]} ${styles["space-grid"]}`}
+          >
+            <svg
+              viewBox="0 40 520 180"
+              role="img"
+              aria-labelledby={`${id}-title ${id}-desc`}
             >
-              m₁
-            </text>
-            <text
-              x={x2}
-              y="100"
-              dominantBaseline="middle"
-              className={styles.sphereLabel}
-              textAnchor="middle"
-              fill="#fff"
-              fontSize="13"
-              fontWeight="500"
-            >
-              m₂
-            </text>
-            <line
-              data-force-arrow="left"
-              x1={leftArrow.start}
-              y1="100"
-              x2={leftArrow.end}
-              y2="100"
-              stroke="#e2e8f0"
-              strokeWidth="1.8"
-              markerEnd={`url(#${id}-arrow)`}
-            />
-            <line
-              data-force-arrow="right"
-              x1={rightArrow.start}
-              y1="100"
-              x2={rightArrow.end}
-              y2="100"
-              stroke="#e2e8f0"
-              strokeWidth="1.8"
-              markerEnd={`url(#${id}-arrow)`}
-            />
-            <path
-              d={`M${x1} 164v12m0-6h${separation}m0-6v12`}
-              stroke="#94a3b8"
-            />
-            <text
-              x="260"
-              y="202"
-              className={styles.distanceLabel}
-              textAnchor="middle"
-              fill="#e2e8f0"
-              fontSize="15"
-            >
-              r = {format.number(distanceKm)} km · {t("betweenCentres")}
-            </text>
-          </svg>
-          <figcaption className={styles["stage-note"]}>
-            {t("stageNote")}
-            <span className={styles.directionNote}>
-              {t("directionOnlyNote")}
-            </span>
-            <details className={styles.helperDetails}>
-              <summary>{t("laboratoryModelDetails")}</summary>
-              <p>{t("modelNote")}</p>
-            </details>
-          </figcaption>
-        </figure>
+              <title id={`${id}-title`}>{t("visualTitle")}</title>
+              <desc id={`${id}-desc`}>{t("visualDescription")}</desc>
+              <defs>
+                <radialGradient id={`${id}-blue`} cx="30%" cy="25%">
+                  <stop stopColor="#d6cfff" />
+                  <stop offset=".5" stopColor="#9677ed" />
+                  <stop offset="1" stopColor="#392662" />
+                </radialGradient>
+                <radialGradient id={`${id}-gold`} cx="30%" cy="25%">
+                  <stop stopColor="#c9fff3" />
+                  <stop offset=".5" stopColor="#65d9c5" />
+                  <stop offset="1" stopColor="#184b4e" />
+                </radialGradient>
+                <marker
+                  id={`${id}-arrow`}
+                  viewBox="0 0 10 10"
+                  refX="10"
+                  refY="5"
+                  markerUnits="userSpaceOnUse"
+                  markerWidth="8"
+                  markerHeight="8"
+                  orient="auto"
+                >
+                  <path d="M0 0 10 5 0 10Z" fill="#e2e8f0" />
+                </marker>
+              </defs>
+              <path
+                d="M40 100H480 M260 25V205"
+                stroke="#94a3b8"
+                strokeOpacity=".08"
+                strokeDasharray="3 8"
+              />
+              <line
+                x1={x1}
+                y1="100"
+                x2={x2}
+                y2="100"
+                stroke="#94a3b8"
+                strokeOpacity=".4"
+                strokeDasharray="3 6"
+              />
+              <circle
+                cx={x1}
+                cy="100"
+                r={radius1 + 9}
+                fill="#a997ff"
+                opacity=".05"
+              />
+              <circle
+                cx={x2}
+                cy="100"
+                r={radius2 + 9}
+                fill="#5ee7d5"
+                opacity=".05"
+              />
+              <circle cx={x1} cy="100" r={radius1} fill={`url(#${id}-blue)`} />
+              <circle cx={x2} cy="100" r={radius2} fill={`url(#${id}-gold)`} />
+              <text
+                x={x1}
+                y="100"
+                dominantBaseline="middle"
+                className={styles.sphereLabel}
+                textAnchor="middle"
+                fill="#fff"
+                fontSize="13"
+                fontWeight="500"
+              >
+                m₁
+              </text>
+              <text
+                x={x2}
+                y="100"
+                dominantBaseline="middle"
+                className={styles.sphereLabel}
+                textAnchor="middle"
+                fill="#fff"
+                fontSize="13"
+                fontWeight="500"
+              >
+                m₂
+              </text>
+              <line
+                data-force-arrow="left"
+                x1={leftArrow.start}
+                y1="100"
+                x2={leftArrow.end}
+                y2="100"
+                stroke="#e2e8f0"
+                strokeWidth="1.8"
+                markerEnd={`url(#${id}-arrow)`}
+              />
+              <line
+                data-force-arrow="right"
+                x1={rightArrow.start}
+                y1="100"
+                x2={rightArrow.end}
+                y2="100"
+                stroke="#e2e8f0"
+                strokeWidth="1.8"
+                markerEnd={`url(#${id}-arrow)`}
+              />
+              <path
+                d={`M${x1} 164v12m0-6h${separation}m0-6v12`}
+                stroke="#94a3b8"
+              />
+              <text
+                x="260"
+                y="202"
+                className={styles.distanceLabel}
+                textAnchor="middle"
+                fill="#e2e8f0"
+                fontSize="15"
+              >
+                r = {format.number(distanceKm)} km · {t("betweenCentres")}
+              </text>
+            </svg>
+            <figcaption className={styles["stage-note"]}>
+              {t("stageNote")}
+              <span className={styles.directionNote}>
+                {t("directionOnlyNote")}
+              </span>
+              <details className={styles.helperDetails}>
+                <summary>{t("laboratoryModelDetails")}</summary>
+                <p>{t("modelNote")}</p>
+              </details>
+            </figcaption>
+          </figure>
+          <GravityForceComparison
+            currentForce={force}
+            initialForce={comparison.referenceForce}
+            idPrefix={`${id}-intensity`}
+          />
+        </div>
         <div className={styles.controlPanel}>
           <div className={styles["lab-sliders"]}>
             <p id={`${id}-controls-hint`} className={styles.controlsHint}>
@@ -245,11 +246,14 @@ export const GravityExperiment = ({
                 }
               />
             ))}
-            <GravityForceComparison
-              currentForce={force}
-              initialForce={comparison.referenceForce}
-              idPrefix={`${id}-intensity`}
-            />
+          </div>
+          <div className={styles.explanationPanel}>
+            <p
+              id={`${id}-force-explanation`}
+              className={styles.forceExplanation}
+            >
+              {forceExplanation}
+            </p>
             <details className={styles.helperDetails}>
               <summary>{t("laboratoryUnitsDetails")}</summary>
               <p>{t("tinyForce")}</p>

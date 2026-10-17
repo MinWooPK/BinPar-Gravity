@@ -49,6 +49,8 @@
     "galleryLabel": "GALERÍA"
   },
   "Gravity": {
+    "tutorShortLabel": "IA",
+    "closeTutor": "Cerrar tutor",
     "backToJourney": "Volver al recorrido",
     "chooseStage": "Cambiar de etapa",
     "previousStage": "Anterior",

@@ -1,12 +1,9 @@
 .introduction { color: #f2f2fa; }
-.layout { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); grid-template-areas: "copy formula" "principles formula" "challenge challenge"; align-items: start; gap: clamp(24px, 2.5vw, 36px) clamp(28px, 3vw, 48px); padding: 16px 0 0; }
-.copy { grid-area: copy; }
-.formulaArea { grid-area: formula; min-width: 0; }
-.principlesArea { grid-area: principles; min-width: 0; }
-.challengeArea { grid-area: challenge; min-width: 0; }
+.layout { display: grid; grid-template-columns: minmax(0,1.05fr) minmax(0,1fr); align-items: start; gap: clamp(20px, 2.5vw, 32px); padding-top: 4px; }
+.learningArea, .formulaArea { display: grid; align-content: start; min-width: 0; gap: 18px; }
 .eyebrow { margin: 0; color: #b8b0d6; font-size: 12px; font-weight: 600; letter-spacing: .16em; line-height: 1.6; text-transform: uppercase; }
-.copy h3 { margin: 0 0 20px; max-width: 650px; color: #f2f2fa; font-size: clamp(2rem, 3vw, 2.375rem); font-weight: 500; letter-spacing: -.035em; line-height: 1.18; text-wrap: balance; overflow-wrap: break-word; }
-.copy > p:not(.eyebrow) { margin: 0 0 20px; max-width: 570px; color: #b2bad0; font-size: 1rem; line-height: 1.6; }
+.copy h3 { margin: 0 0 10px; max-width: 650px; color: #f2f2fa; font-size: clamp(1.5rem, 2.4vw, 1.875rem); font-weight: 600; letter-spacing: -.035em; line-height: 1.2; text-wrap: balance; overflow-wrap: break-word; }
+.copy > p:not(.eyebrow) { margin: 0 0 8px; max-width: 65ch; color: #b2bad0; font-size: 1rem; line-height: 1.5; }
 .copy > p:last-child { margin-bottom: 0; }
 .panel { min-width: 0; padding: 22px 24px; border: 1px solid #272c40; border-radius: 15px; background: linear-gradient(145deg,#131724,#0e121d); }
 .formula { display: flex; align-items: center; justify-content: center; gap: clamp(12px, 1.7vw, 24px); padding: 20px 0 24px; color: #e4dfff; font-family: Georgia, serif; font-size: clamp(32px,4vw,50px); line-height: 1.2; }
@@ -19,16 +16,16 @@
 .legend dt { flex-shrink: 0; width: 54px; padding: 6px 2px; border-radius: 6px; background: #a997ff0c; color: #bcacf3; text-align: center; font-size: 15px; line-height: 1.4; }
 .legend dd { min-width: 0; margin: 0; color: #d0d4e3; font-size: 16px; line-height: 1.5; }
 .legend dd > span { display: block; margin-top: 4px; color: #a0a7be; font-size: 14px; }
-@media (max-width: 1100px) {
-  .layout { grid-template-columns: minmax(0,1fr); grid-template-areas: "copy" "formula" "principles" "challenge"; gap: 32px; }
+@media (max-width: 1023px) {
+  .layout { grid-template-columns: minmax(0,1fr); gap: 20px; }
   .copy { max-width: 680px; }
   .panel { max-width: 680px; }
   .formula { font-size: 48px; gap: 22px; }
 }
 @media (max-width: 520px) {
   .eyebrow { font-size: 10px; }
-  .copy h3 { font-size: 2rem; }
-  .copy > p:not(.eyebrow) { font-size: 16px; line-height: 1.8; }
+  .copy h3 { font-size: 1.5rem; }
+  .copy > p:not(.eyebrow) { font-size: 1rem; line-height: 1.6; }
   .panel { padding: 24px 20px; }
   .formula { font-size: 36px; gap: 14px; padding: 18px 0; }
   .legend dt { width: 46px; }
@@ -205,16 +202,17 @@
 @media (max-width: 600px) { .equationLeft, .equationRight { gap: 4px; } }
 .legend .definitionHeading { flex-wrap: wrap; align-items: center; }
 
-/* Keep desktop definitions readable beside their editable symbols. */
-@media (min-width: 1101px) {
-  .formulaArea .panel { padding: 24px; }
-  .formulaArea .formula { padding: 20px 0; font-size: clamp(2rem, 2.8vw, 2.5rem); }
-  .formulaArea .formulaInstructions { margin-top: 16px; font-size: 1rem; line-height: 1.6; }
-  .formulaArea .distanceHint { margin-top: 8px; font-size: 1rem; line-height: 1.6; }
-  .formulaArea .legend { gap: 12px; padding-top: 16px; }
-  .formulaArea .legend > div { display: grid; grid-template-columns: 44px minmax(0,1fr); align-items: start; gap: 12px; padding: 12px; }
-  .formulaArea .legend .definitionHeading { flex-direction: column; align-items: flex-start; width: 44px; gap: 6px; }
-  .formulaArea .massEditActions { flex-direction: column; gap: 4px; }
-  .formulaArea .legend dd { font-size: 1rem; line-height: 1.4; }
-  .formulaArea .legend dd > span { margin-top: 3px; font-size: 1rem; line-height: 1.4; }
+/* The formula keeps its existing controls and validation in a compact card. */
+.formulaArea .panel { padding: 18px; }
+.formulaArea .formula { padding: 16px 0; font-size: clamp(1.75rem, 2.6vw, 2.25rem); }
+.formulaArea .formulaInstructions { margin-top: 10px; font-size: 1rem; line-height: 1.5; }
+.formulaArea .distanceHint { margin-top: 6px; font-size: 1rem; line-height: 1.5; }
+.formulaArea .legend { gap: 8px; padding-top: 12px; }
+.formulaArea .legend > div { padding: 10px; gap: 6px; }
+.formulaArea .legend .definitionHeading { align-items: center; gap: 6px; }
+.formulaArea .massEditActions { flex-direction: row; gap: 4px; }
+.formulaArea .legend dd { font-size: 1rem; line-height: 1.5; }
+.formulaArea .legend dd > span { margin-top: 3px; font-size: .875rem; line-height: 1.5; }
+@media (max-width: 600px) {
+  .formulaArea .panel { padding: 16px 12px; }
 }
