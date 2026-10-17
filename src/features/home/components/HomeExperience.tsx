@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import Earth3D from "./Earth3D";
+import { SpaceBackground } from "@/components/ui/SpaceBackground";
 import styles from "./HomeExperience.module.css";
 
 type HomeView = "introduction" | "topics";
@@ -62,9 +63,12 @@ export const HomeExperience = ({ introduction, topics }: {
           }
         }}
       >
-        {/* This layer stays mounted across views, preserving the scene and rotation. */}
-        <div className={styles.earth}>
-          <Earth3D />
+        <div className={styles.scenery}>
+          <SpaceBackground />
+          {/* This layer stays mounted across views, preserving the scene and rotation. */}
+          <div className={styles.earth}>
+            <Earth3D />
+          </div>
         </div>
         <div ref={viewportRef} className={styles.viewport}>
           <div hidden={view !== "introduction"} className={`${styles.panel} ${styles.introduction}`}>

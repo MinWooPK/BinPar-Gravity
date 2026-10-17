@@ -41,7 +41,7 @@ export const LanguageSwitcher = () => {
         disabled={pending}
         onClick={toggleMenu}
         onKeyDown={handleTriggerKeyDown}
-        className={`flex h-11 cursor-pointer items-center gap-2.5 rounded-full border px-3.5 text-base font-semibold tracking-wide shadow-sm transition-colors hover:border-sky-400/50 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 disabled:cursor-wait disabled:opacity-60 motion-reduce:transition-none ${open ? "border-sky-400 bg-slate-900 text-sky-200" : "border-slate-600 bg-slate-900 text-slate-100"}`}
+        className={`flex h-11 cursor-pointer items-center gap-2 rounded-full border px-3 text-sm font-semibold tracking-wide shadow-sm transition-colors hover:border-sky-400/50 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 disabled:cursor-wait disabled:opacity-60 motion-reduce:transition-none ${open ? "border-sky-400 bg-slate-900 text-sky-200" : "border-slate-600 bg-slate-900 text-slate-100"}`}
       >
         <svg
           aria-hidden="true"
