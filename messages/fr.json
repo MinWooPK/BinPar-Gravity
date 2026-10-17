@@ -49,6 +49,10 @@
     "galleryLabel": "GALERIE"
   },
   "Gravity": {
+    "heroEyebrow": "01 — EXPÉRIENCE INTERACTIVE",
+    "heroLead": "Découvre la",
+    "heroSubject": "gravité.",
+    "heroDescription": "Comprends comment deux corps s’attirent. Expérimente avec la masse et la distance pour observer leur effet sur la force gravitationnelle.",
     "experimentControlsHint": "Déplacez un curseur de masse ou de distance et observez la force.",
     "laboratoryModelDetails": "Ce que représente le schéma",
     "laboratoryUnitsDetails": "Que signifient N, kg et km ?",

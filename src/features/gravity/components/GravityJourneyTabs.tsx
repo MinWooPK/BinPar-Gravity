@@ -17,40 +17,47 @@ import { GravityJourneyNavigation } from "./GravityJourneyNavigation";
 import styles from "./GravityJourney.module.css";
 
 type JourneyContextValue = {
-  activeStage: GravityStageId;
+  activeStage: GravityStageId | null;
   selectStage: (stage: GravityStageId, focusPanel?: boolean) => void;
 };
 const JourneyContext = createContext<JourneyContextValue | null>(null);
 
 const useGravityJourney = () => {
   const context = useContext(JourneyContext);
-  if (!context) throw new Error("Gravity journey components require GravityJourney");
+  if (!context)
+    throw new Error("Gravity journey components require GravityJourney");
   return context;
 };
 
-export const GravityJourney = ({ children }: { children: ReactNode }) => {
-  // A deterministic first panel keeps server markup and hydration in agreement.
-  const [activeStage, setActiveStage] = useState<GravityStageId>(gravityStages[0].id);
+export const GravityJourney = ({ children, introduction }: { children: ReactNode; introduction: ReactNode }) => {
+  const [activeStage, setActiveStage] = useState<GravityStageId | null>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const scrollPositions = useRef<Partial<Record<GravityStageId, number>>>({});
   const focusPanelOnChange = useRef(false);
 
-  const selectStage = useCallback((stage: GravityStageId, focusPanel = false) => {
-    if (stage === activeStage) {
-      if (focusPanel) document.getElementById(stage)?.focus({ preventScroll: true });
-      return;
-    }
-    scrollPositions.current[activeStage] = viewportRef.current?.scrollTop ?? 0;
-    focusPanelOnChange.current = focusPanel;
-    window.history.replaceState(window.history.state, "", `#${stage}`);
-    setActiveStage(stage);
-  }, [activeStage]);
+  const selectStage = useCallback(
+    (stage: GravityStageId, focusPanel = false) => {
+      if (stage === activeStage) {
+        if (focusPanel)
+          document.getElementById(stage)?.focus({ preventScroll: true });
+        return;
+      }
+      if (activeStage) scrollPositions.current[activeStage] =
+        viewportRef.current?.scrollTop ?? 0;
+      focusPanelOnChange.current = focusPanel;
+      window.history.replaceState(window.history.state, "", `#${stage}`);
+      setActiveStage(stage);
+    },
+    [activeStage],
+  );
 
   // Existing links/bookmarks to a learning stage still open the right panel.
   useEffect(() => {
     const syncHash = () => {
-      const stage = gravityStages.find(({ id }) => id === window.location.hash.slice(1));
-      if (stage) setActiveStage(stage.id);
+      const stage = gravityStages.find(
+        ({ id }) => id === window.location.hash.slice(1),
+      );
+      setActiveStage(stage?.id ?? null);
     };
     const frame = requestAnimationFrame(syncHash);
     window.addEventListener("hashchange", syncHash);
@@ -62,20 +69,27 @@ export const GravityJourney = ({ children }: { children: ReactNode }) => {
 
   useLayoutEffect(() => {
     if (viewportRef.current) {
-      viewportRef.current.scrollTop = scrollPositions.current[activeStage] ?? 0;
+      viewportRef.current.scrollTop = (activeStage ? scrollPositions.current[activeStage] : 0) ?? 0;
     }
-    if (focusPanelOnChange.current) {
+    if (focusPanelOnChange.current && activeStage) {
       document.getElementById(activeStage)?.focus({ preventScroll: true });
       focusPanelOnChange.current = false;
     }
   }, [activeStage]);
 
-  const value = useMemo(() => ({ activeStage, selectStage }), [activeStage, selectStage]);
+  const value = useMemo(
+    () => ({ activeStage, selectStage }),
+    [activeStage, selectStage],
+  );
   return (
     <JourneyContext.Provider value={value}>
-      <div className={styles.workspace}>
-        <GravityJourneyNavigation activeStage={activeStage} onSelectStage={selectStage} />
-        <div ref={viewportRef} className={styles.viewport}>
+      <div className={styles.workspace} data-introduction={activeStage === null}>
+        {activeStage === null && introduction}
+        <GravityJourneyNavigation
+          activeStage={activeStage}
+          onSelectStage={selectStage}
+        />
+        <div ref={viewportRef} className={styles.viewport} hidden={activeStage === null}>
           {children}
         </div>
       </div>
@@ -111,7 +125,11 @@ type StageLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   stageId: GravityStageId;
 };
 
-export const GravityStageLink = ({ stageId, onClick, ...props }: StageLinkProps) => {
+export const GravityStageLink = ({
+  stageId,
+  onClick,
+  ...props
+}: StageLinkProps) => {
   const { selectStage } = useGravityJourney();
   return (
     <a
@@ -119,7 +137,15 @@ export const GravityStageLink = ({ stageId, onClick, ...props }: StageLinkProps)
       href={`#${stageId}`}
       onClick={(event) => {
         onClick?.(event);
-        if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+        if (
+          event.defaultPrevented ||
+          event.button !== 0 ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.shiftKey ||
+          event.altKey
+        )
+          return;
         event.preventDefault();
         selectStage(stageId, true);
       }}

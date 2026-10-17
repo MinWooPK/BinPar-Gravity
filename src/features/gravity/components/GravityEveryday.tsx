@@ -24,7 +24,10 @@ export const GravityEveryday = () => {
   const t = useTranslations("Gravity");
 
   return (
-    <section aria-labelledby="gravity-everyday-title" className={styles.section}>
+    <section
+      aria-labelledby="gravity-everyday-title"
+      className={styles.section}
+    >
       <div className={styles.heading}>
         <p className={styles.eyebrow}>{t("everydayEyebrow")}</p>
         <h2 id="gravity-everyday-title">{t("everydayTitle")}</h2>
@@ -37,7 +40,15 @@ export const GravityEveryday = () => {
               {example === "moon" ? (
                 <Icon name="orbit" />
               ) : (
-                <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" focusable="false">
+                <svg
+                  viewBox="0 0 48 48"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  focusable="false"
+                >
                   {illustrations[example]}
                 </svg>
               )}

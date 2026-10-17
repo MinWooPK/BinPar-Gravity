@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import Earth3D from "./Earth3D";
@@ -14,7 +21,10 @@ type HomeContextValue = {
 };
 const HomeContext = createContext<HomeContextValue | null>(null);
 
-export const HomeExperience = ({ introduction, topics }: {
+export const HomeExperience = ({
+  introduction,
+  topics,
+}: {
   introduction: ReactNode;
   topics: ReactNode;
 }) => {
@@ -26,13 +36,17 @@ export const HomeExperience = ({ introduction, topics }: {
 
   const changeView = (next: HomeView) => {
     restoreFocus.current = true;
-    const url = next === "topics" ? "#explore" : window.location.pathname + window.location.search;
+    const url =
+      next === "topics"
+        ? "#explore"
+        : window.location.pathname + window.location.search;
     window.history.replaceState(window.history.state, "", url);
     setView(next);
   };
 
   useEffect(() => {
-    const syncHash = () => setView(window.location.hash === "#explore" ? "topics" : "introduction");
+    const syncHash = () =>
+      setView(window.location.hash === "#explore" ? "topics" : "introduction");
     const frame = requestAnimationFrame(syncHash);
     window.addEventListener("hashchange", syncHash);
     return () => {
@@ -44,20 +58,32 @@ export const HomeExperience = ({ introduction, topics }: {
   useLayoutEffect(() => {
     if (viewportRef.current) viewportRef.current.scrollTop = 0;
     if (restoreFocus.current) {
-      const target = view === "topics"
-        ? topicsRef.current
-        : viewportRef.current?.querySelector<HTMLButtonElement>("[data-home-explore]");
+      const target =
+        view === "topics"
+          ? topicsRef.current
+          : viewportRef.current?.querySelector<HTMLButtonElement>(
+              "[data-home-explore]",
+            );
       target?.focus({ preventScroll: true });
       restoreFocus.current = false;
     }
   }, [view]);
 
   return (
-    <HomeContext.Provider value={{ topicsVisible: view === "topics", showTopics: () => changeView("topics") }}>
+    <HomeContext.Provider
+      value={{
+        topicsVisible: view === "topics",
+        showTopics: () => changeView("topics"),
+      }}
+    >
       <div
         className={styles.screen}
         onKeyDown={(event) => {
-          if (event.key === "Escape" && !event.defaultPrevented && view === "topics") {
+          if (
+            event.key === "Escape" &&
+            !event.defaultPrevented &&
+            view === "topics"
+          ) {
             event.preventDefault();
             changeView("introduction");
           }
@@ -71,7 +97,10 @@ export const HomeExperience = ({ introduction, topics }: {
           </div>
         </div>
         <div ref={viewportRef} className={styles.viewport}>
-          <div hidden={view !== "introduction"} className={`${styles.panel} ${styles.introduction}`}>
+          <div
+            hidden={view !== "introduction"}
+            className={`${styles.panel} ${styles.introduction}`}
+          >
             {introduction}
           </div>
           <section
@@ -83,8 +112,22 @@ export const HomeExperience = ({ introduction, topics }: {
             className={`${styles.panel} ${styles.topics}`}
           >
             <div className={styles.topicsHeader}>
-              <button type="button" aria-label={t("backToHome")} onClick={() => changeView("introduction")} className={styles.backButton}>
-                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={styles.backIcon}>
+              <button
+                type="button"
+                aria-label={t("backToHome")}
+                onClick={() => changeView("introduction")}
+                className={styles.backButton}
+              >
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={styles.backIcon}
+                >
                   <path d="M19 12H5m7-7-7 7 7 7" />
                 </svg>
               </button>

@@ -49,6 +49,10 @@
     "galleryLabel": "GALLERY"
   },
   "Gravity": {
+    "heroEyebrow": "01 — INTERACTIVE EXPERIENCE",
+    "heroLead": "Discover",
+    "heroSubject": "gravity.",
+    "heroDescription": "Understand how two bodies attract each other. Experiment with mass and distance to observe their effect on gravitational force.",
     "experimentControlsHint": "Drag a mass or the distance slider and observe how the force changes.",
     "laboratoryModelDetails": "What the diagram represents",
     "laboratoryUnitsDetails": "What N, kg and km mean",

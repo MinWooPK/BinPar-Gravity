@@ -11,7 +11,7 @@ export const GravityJourneyNavigation = ({
   activeStage,
   onSelectStage,
 }: {
-  activeStage: GravityStageId;
+  activeStage: GravityStageId | null;
   onSelectStage: (stage: GravityStageId) => void;
 }) => {
   const t = useTranslations("Gravity");
@@ -42,7 +42,7 @@ export const GravityJourneyNavigation = ({
             role="tab"
             aria-selected={activeStage === stage.id}
             aria-controls={stage.id}
-            tabIndex={activeStage === stage.id ? 0 : -1}
+            tabIndex={activeStage === stage.id || (activeStage === null && index === 0) ? 0 : -1}
             className={styles.tab}
             onClick={() => onSelectStage(stage.id)}
             onKeyDown={(event) => handleKeyDown(event, index)}
