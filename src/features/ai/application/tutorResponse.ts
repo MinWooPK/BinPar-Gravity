@@ -7,6 +7,8 @@ export const parseTutorReply = (value: unknown, context: TutorContext): TutorRep
   const reply = value as Record<string, unknown>;
   if (Object.keys(reply).some(key => key !== "text" && key !== "proposal") || typeof reply.text !== "string" || !reply.text.trim()) throw new Error("Invalid tutor response");
   if (reply.proposal === null || reply.proposal === undefined) return { text: reply.text.trim() };
-  if (context.kind !== "gravity" || !isGravityParameterProposal(reply.proposal) || !resolveGravityProposal(context.parameters, reply.proposal)) throw new Error("Invalid gravity proposal");
+  // Invalid actions never reach confirmation. The presentation supplies a localized
+  // explanation instead of repeating potentially misleading model text.
+  if (context.kind !== "gravity" || !isGravityParameterProposal(reply.proposal) || !resolveGravityProposal(context.parameters, reply.proposal)) return { text: "", proposalRejected: true };
   return { text: reply.text.trim(), proposal: reply.proposal };
 };

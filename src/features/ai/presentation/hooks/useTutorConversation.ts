@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useLocale } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { TUTOR_MAX_MESSAGE_LENGTH, TUTOR_TIMEOUT_MS } from "../../application/tutor";
 import { requestHistory } from "../../application/conversation";
 import { parseTutorReply } from "../../application/tutorResponse";
@@ -14,6 +14,7 @@ const emptySession = (): TutorSession => ({ messages: [], draft: "", pending: fa
 
 export const useTutorConversation = () => {
   const locale = useLocale() as TutorRequest["locale"];
+  const t = useTranslations("Tutor");
   const { sessionKey, current } = useTutorEnvironment();
   const [sessions, setSessions] = useState<Record<string, TutorSession>>({});
   const sessionsRef = useRef(sessions);
@@ -55,15 +56,16 @@ export const useTutorConversation = () => {
         body: JSON.stringify(request),
         signal: controller.signal,
       });
-      const data = await response.json();
+      const data: unknown = await response.json();
       if (!mounted.current) return;
       if (!response.ok) {
-        update(target, { error: data?.error === "not_configured" ? "notConfigured" : response.status === 429 ? "rateLimited" : "error" });
+        const notConfigured = typeof data === "object" && data !== null && "error" in data && data.error === "not_configured";
+        update(target, { error: notConfigured ? "notConfigured" : response.status === 429 ? "rateLimited" : "error" });
       } else {
         const reply = parseTutorReply(data, request.context);
         const previous = sessionsRef.current[target] ?? emptySession();
         const message: ChatMessage = {
-          id: ++sequence.current, role: "assistant", content: reply.text,
+          id: ++sequence.current, role: "assistant", content: reply.proposalRejected ? t("proposalRejected") : reply.text,
           ...(reply.proposal && source && request.context.kind === "gravity" && {
             proposal: { action: reply.proposal, source, baseline: { ...request.context.parameters }, contextSnapshot: JSON.stringify(request.context), status: "pending" },
           }),

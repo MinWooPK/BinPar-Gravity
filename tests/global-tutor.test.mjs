@@ -1,7 +1,7 @@
 import { after, test } from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync } from "node:fs";
+import { mkdtempSync, rmSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createRequire } from "node:module";
@@ -483,19 +483,99 @@ test("single OpenAI adapter passes configured model and bounded history with sto
       assert.equal(url, "https://api.openai.com/v1/responses");
       assert.equal(options.signal.aborted, false);
       outgoing = JSON.parse(options.body);
-      return Response.json({ status: "completed", output: [{ type: "message", content: [{ type: "output_text", text: "A short educational reply." }] }] });
+      return Response.json({ status: "completed", output: [{ type: "message", content: [{ type: "output_text", text: JSON.stringify({ text: "A short educational reply.", proposal: null }) }] }] });
     };
-    assert.equal(await openaiTutor.explain(validRequest()), "A short educational reply.");
+    assert.deepEqual(await openaiTutor.explain(validRequest()), { text: "A short educational reply." });
+    assert.equal(outgoing.text.format.type, "json_schema");
+    assert.equal(outgoing.text.format.strict, true);
     assert.equal(outgoing.model, process.env.OPENAI_MODEL);
     assert.equal(outgoing.store, false);
     assert.equal(outgoing.max_output_tokens, 1200);
     assert.deepEqual(outgoing.input, validRequest().messages);
+    const proposal = { action: "set_gravity_parameters", parameters: { mass1: 80, mass2: null, distance: null } };
+    const modelReply = (text) => Response.json({ status: "completed", output: [{ type: "message", content: [{ type: "output_text", text }] }] });
+    globalThis.fetch = async () => modelReply(JSON.stringify({ text: "If you confirm, doubling mass 1 doubles the force.", proposal }));
+    assert.deepEqual(await openaiTutor.explain(validRequest()), { text: "If you confirm, doubling mass 1 doubles the force.", proposal });
+    globalThis.fetch = async () => modelReply(JSON.stringify({ text: "Invalid claim.", proposal: { ...proposal, parameters: { ...proposal.parameters, mass1: 200 } } }));
+    assert.deepEqual(await openaiTutor.explain(validRequest()), { text: "", proposalRejected: true });
+    globalThis.fetch = async () => modelReply("not valid JSON");
+    await assert.rejects(openaiTutor.explain(validRequest()), SyntaxError);
+    globalThis.fetch = async () => Response.json({ status: "completed", output: [{ type: "message", content: [{ type: "refusal", refusal: "Unable to answer." }] }] });
+    await assert.rejects(openaiTutor.explain(validRequest()), /Incomplete/);
+    globalThis.fetch = async (_url, options) => {
+      assert.equal(JSON.parse(options.body).text, undefined, "Part B keeps its original plain-text response format");
+      return modelReply("An explanation of this orbit.");
+    };
+    assert.deepEqual(await openaiTutor.explain({ ...validRequest(), context: { kind: "three-body", slug: publishedOrbits[0].slug } }), { text: "An explanation of this orbit." });
     globalThis.fetch = async () => Response.json({ error: "provider failure" }, { status: 503 });
     await assert.rejects(openaiTutor.explain(validRequest()), /unavailable/);
     globalThis.fetch = async () => Response.json({ status: "incomplete", output: [] });
     await assert.rejects(openaiTutor.explain(validRequest()), /Incomplete/);
   } finally {
     globalThis.fetch = originalFetch;
+    if (previousModel === undefined) delete process.env.OPENAI_MODEL;
+    else process.env.OPENAI_MODEL = previousModel;
+  }
+});
+
+
+test("API keeps valid proposals and translates rejected actions into educational text only", async () => {
+  const ts = require("typescript");
+  const routeFile = join(directory, "route.js");
+  writeFileSync(routeFile, ts.transpileModule(readFileSync("src/app/api/ai/route.ts", "utf8"), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  }).outputText);
+  const Module = require("node:module");
+  const originalLoad = Module._load;
+  let POST;
+  try {
+    Module._load = function (id, ...args) {
+      if (id === "server-only") return {};
+      if (id.startsWith("@/")) return require(join(directory, id.slice(2) + ".js"));
+      if (id === "next-intl/server") return { getTranslations: async ({ locale, namespace }) => {
+        const messages = JSON.parse(readFileSync(`messages/${locale}.json`, "utf8"));
+        return key => messages[namespace][key];
+      } };
+      return originalLoad.call(this, id, ...args);
+    };
+    ({ POST } = require(routeFile));
+  } finally { Module._load = originalLoad; }
+  const originalFetch = globalThis.fetch;
+  const previousKey = process.env.OPENAI_API_KEY;
+  const previousModel = process.env.OPENAI_MODEL;
+  try {
+    process.env.OPENAI_API_KEY = "test-key-never-sent-to-network";
+    process.env.OPENAI_MODEL = "test-model";
+    const proposal = { action: "set_gravity_parameters", parameters: { mass1: 80, mass2: null, distance: null } };
+    let reply;
+    let calls = 0;
+    globalThis.fetch = async () => {
+      calls++;
+      return Response.json({ status: "completed", output: [{ type: "message", content: [{ type: "output_text", text: JSON.stringify(reply) }] }] });
+    };
+    const post = (locale) => POST(new Request("http://localhost/api/ai", {
+      method: "POST", headers: { "content-type": "application/json", "x-forwarded-for": `test-${locale}` },
+      body: JSON.stringify({ ...validRequest(), locale }),
+    }));
+    for (const locale of ["es", "en", "fr"]) {
+      reply = { text: "Confirm to double the first mass.", proposal };
+      const valid = await post(locale);
+      assert.equal(valid.status, 200);
+      assert.equal(valid.headers.get("cache-control"), "no-store");
+      assert.deepEqual(await valid.json(), reply);
+      reply = { text: "Unsafe numerical claim.", proposal: { ...proposal, parameters: { ...proposal.parameters, mass1: 200 } } };
+      const rejected = await post(locale);
+      assert.equal(rejected.status, 200);
+      const messages = JSON.parse(readFileSync(`messages/${locale}.json`, "utf8"));
+      assert.deepEqual(await rejected.json(), { text: messages.Tutor.proposalRejected });
+      reply = { text: "G is the gravitational constant.", proposal: null };
+      assert.deepEqual(await (await post(locale)).json(), { text: reply.text });
+    }
+    assert.equal(calls, 9);
+  } finally {
+    globalThis.fetch = originalFetch;
+    if (previousKey === undefined) delete process.env.OPENAI_API_KEY;
+    else process.env.OPENAI_API_KEY = previousKey;
     if (previousModel === undefined) delete process.env.OPENAI_MODEL;
     else process.env.OPENAI_MODEL = previousModel;
   }

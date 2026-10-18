@@ -4,9 +4,9 @@
   },
   "Navigation": {
     "home": "Inicio",
-    "gravity": "Explora la gravedad",
+    "gravity": "Gravitación universal",
     "gravitySubtitle": "Aprende y experimenta",
-    "threeBody": "Órbitas de tres cuerpos",
+    "threeBody": "Problema de los tres cuerpos",
     "threeBodySubtitle": "Explora seis soluciones",
     "language": "Seleccionar idioma"
   },
@@ -306,6 +306,7 @@
     "resetLaboratoryHint": "Restablecer devuelve ambas masas a 40 kg y la distancia a 8 m, con F como incógnita, en todas las vistas."
   },
   "Tutor": {
+    "proposalRejected": "No puedo ofrecer un cambio aplicable con esos valores. El laboratorio admite masas de 10 a 100 kg en pasos de 1 kg y distancias de 5 a 20 m en pasos de 0,1 m. Nada ha cambiado. Indica qué masa o distancia quieres ajustar dentro de esos límites; podemos explicar otros casos sin modificar el simulador.",
     "proposalTitle": "Cambios propuestos",
     "proposalTo": "a",
     "proposalForce": "Fuerza prevista: {before} N → {after} N.",

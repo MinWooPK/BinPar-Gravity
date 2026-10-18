@@ -24,19 +24,26 @@ export const HomeGravityPreview = () => {
     let inView = false;
 
     const draw = () => {
-      const phase = elapsed.current / periodSeconds * Math.PI * 2;
+      const phase = (elapsed.current / periodSeconds) * Math.PI * 2;
       const halfDistance = 70 + 15 * Math.cos(phase);
       const arrowLength = 12 * (85 / halfDistance) ** 2;
       bodyRefs.current.forEach((body, index) => {
         const direction = index === 0 ? 1 : -1;
-        body?.setAttribute("transform", `translate(${160 - direction * halfDistance} 90)`);
+        body?.setAttribute(
+          "transform",
+          `translate(${160 - direction * halfDistance} 90)`,
+        );
         const tip = 12 + arrowLength;
-        forceRefs.current[index]?.setAttribute("d", `M12 0H${tip}m-4-3 4 3-4 3`);
+        forceRefs.current[index]?.setAttribute(
+          "d",
+          `M12 0H${tip}m-4-3 4 3-4 3`,
+        );
       });
     };
     const tick = (now: number) => {
       if (lastTime !== null) {
-        elapsed.current = (elapsed.current + (now - lastTime) / 1000) % periodSeconds;
+        elapsed.current =
+          (elapsed.current + (now - lastTime) / 1000) % periodSeconds;
       }
       lastTime = now;
       draw();
@@ -45,7 +52,8 @@ export const HomeGravityPreview = () => {
     const sync = () => {
       cancelAnimationFrame(frame);
       lastTime = null;
-      if (inView && !document.hidden && !reducedMotion) frame = requestAnimationFrame(tick);
+      if (inView && !document.hidden && !reducedMotion)
+        frame = requestAnimationFrame(tick);
     };
 
     draw();
@@ -64,13 +72,43 @@ export const HomeGravityPreview = () => {
 
   return (
     <div ref={previewRef} className={styles.orbitPreview}>
-      <svg viewBox="0 0 320 200" width="320" height="200" aria-hidden="true" data-gravity-preview>
-        <path d="M75 90H245" fill="none" stroke="#9aaec8" strokeWidth="0.7" strokeDasharray="2 4" opacity="0.3" />
-        <text x="160" y="123" fill="#9aaec8" fontSize="10" textAnchor="middle" opacity="0.8">F = G m₁m₂ / r²</text>
+      <svg
+        viewBox="0 0 320 200"
+        width="320"
+        height="200"
+        aria-hidden="true"
+        data-gravity-preview
+      >
+        <path
+          d="M75 90H245"
+          fill="none"
+          stroke="#9aaec8"
+          strokeWidth="0.7"
+          strokeDasharray="2 4"
+          opacity="0.3"
+        />
+        <text
+          x="160"
+          y="123"
+          fill="#9aaec8"
+          fontSize="10"
+          textAnchor="middle"
+          opacity="0.8"
+        >
+          F = G m₁m₂ / r²
+        </text>
         {bodyColors.map((color, index) => (
-          <g key={color} ref={(element) => { bodyRefs.current[index] = element; }} transform={`translate(${index === 0 ? 75 : 245} 90)`}>
+          <g
+            key={color}
+            ref={(element) => {
+              bodyRefs.current[index] = element;
+            }}
+            transform={`translate(${index === 0 ? 75 : 245} 90)`}
+          >
             <path
-              ref={(element) => { forceRefs.current[index] = element; }}
+              ref={(element) => {
+                forceRefs.current[index] = element;
+              }}
               d="M12 0H24m-4-3 4 3-4 3"
               transform={index === 0 ? undefined : "scale(-1 1)"}
               fill="none"

@@ -4,9 +4,9 @@
   },
   "Navigation": {
     "home": "Home",
-    "gravity": "Explore gravity",
+    "gravity": "Universal gravitation",
     "gravitySubtitle": "Learn and experiment",
-    "threeBody": "Three-body orbits",
+    "threeBody": "Three-body problem",
     "threeBodySubtitle": "Explore six solutions",
     "language": "Select language"
   },
@@ -306,6 +306,7 @@
     "resetLaboratoryHint": "Reset returns both masses to 40 kg and the distance to 8 m, with F as the unknown, in every view."
   },
   "Tutor": {
+    "proposalRejected": "I cannot offer an applicable change with those values. The laboratory accepts masses from 10 to 100 kg in 1 kg steps and distances from 5 to 20 m in 0.1 m steps. Nothing has changed. Specify a mass or distance within those limits; we can discuss other cases without changing the simulator.",
     "proposalTitle": "Proposed changes",
     "proposalTo": "to",
     "proposalForce": "Expected force: {before} N → {after} N.",

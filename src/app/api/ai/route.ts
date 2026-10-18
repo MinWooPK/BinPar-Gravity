@@ -1,5 +1,6 @@
 import { parseTutorRequest } from "@/features/ai/application/tutorRequest";
 import { openaiTutor } from "@/features/ai/infrastructure/openaiTutor";
+import { getTranslations } from "next-intl/server";
 import {
   createTutorLimiter,
   readTutorBody,
@@ -39,8 +40,10 @@ export const POST = async (request: Request) => {
   }
 
   try {
+    const reply = await openaiTutor.explain(tutorRequest, request.signal);
+    const t = reply.proposalRejected ? await getTranslations({ locale: tutorRequest.locale, namespace: "Tutor" }) : null;
     return Response.json(
-      await openaiTutor.explain(tutorRequest, request.signal),
+      t ? { text: t("proposalRejected") } : reply,
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch {

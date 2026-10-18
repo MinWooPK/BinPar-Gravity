@@ -128,7 +128,7 @@ test('reset clears pending text, restores physical defaults and F as unknown tog
   state = edit(select(state, 'distance'), 'force', '1e-');
   const snapshot = structuredClone(state);
   const reset = reduce(state, { type: 'reset' });
-  assert.deepEqual(reset, { ...createGravityState(), resetVersion: 1 });
+  assert.deepEqual(reset, { ...createGravityState(), resetVersion: 1, revision: state.revision + 1 });
   assert.deepEqual(state, snapshot);
 });
 

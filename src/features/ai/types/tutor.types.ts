@@ -24,4 +24,4 @@ export type TutorRequest = {
 export type Tutor = {
   explain(request: TutorRequest, signal?: AbortSignal): Promise<TutorReply>;
 };
-export type TutorReply = { text: string; proposal?: GravityParameterProposal };
+export type TutorReply = { text: string; proposal?: GravityParameterProposal; proposalRejected?: true };

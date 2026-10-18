@@ -4,9 +4,9 @@
   },
   "Navigation": {
     "home": "Accueil",
-    "gravity": "Explorez la gravité",
+    "gravity": "Gravitation universelle",
     "gravitySubtitle": "Apprenez et expérimentez",
-    "threeBody": "Orbites à trois corps",
+    "threeBody": "Problème des trois corps",
     "threeBodySubtitle": "Explorez six solutions",
     "language": "Choisir la langue"
   },
@@ -306,6 +306,7 @@
     "resetLaboratoryHint": "Réinitialiser remet les deux masses à 40 kg et la distance à 8 m, avec F comme inconnue, dans toutes les vues."
   },
   "Tutor": {
+    "proposalRejected": "Je ne peux pas proposer de modification applicable avec ces valeurs. Le laboratoire accepte des masses de 10 à 100 kg par pas de 1 kg et des distances de 5 à 20 m par pas de 0,1 m. Rien n’a changé. Précisez une masse ou une distance dans ces limites ; nous pouvons expliquer d’autres cas sans modifier le simulateur.",
     "proposalTitle": "Modifications proposées",
     "proposalTo": "à",
     "proposalForce": "Force prévue : {before} N → {after} N.",
