@@ -49,6 +49,12 @@
     "galleryLabel": "GALERIE"
   },
   "Gravity": {
+    "stageTags": {
+      "discover": "Découvrir",
+      "understand": "Comprendre",
+      "experiment": "Expérimenter",
+      "check": "Vérifier"
+    },
     "panels": {
       "choose": "Panneau visible",
       "show": "Afficher {panel}",
@@ -99,9 +105,9 @@
     "challengeHeading": "Testez vos connaissances",
     "formulaAccess": "Formule",
     "closeFormula": "Fermer la formule",
-    "challengeScenarioBase": "La simulation montre la situation de référence. Le changement du défi sera appliqué lors de la vérification de votre réponse.",
-    "challengeScenarioApplied": "La simulation montre le changement de ce défi.",
-    "challengeScenarioCustom": "La simulation montre les valeurs actuelles. Comparez votre prédiction avec la référence indiquée.",
+    "challengeScenarioBase": "Le laboratoire utilise la situation de référence. Le changement du défi sera appliqué lors de la vérification de votre réponse.",
+    "challengeScenarioApplied": "Les paramètres du laboratoire correspondent au changement de ce défi.",
+    "challengeScenarioCustom": "Le laboratoire utilise les valeurs actuelles. Comparez votre prédiction avec la référence indiquée.",
     "formulaConstantValue": "G = {value} × 10<power>{exponent}</power> <unit>N·m²/kg²</unit>",
     "formulaConstantDescription": "Valeur fixe utilisée pour calculer la force gravitationnelle.",
     "formulaConstantTitle": "Constante de gravitation universelle",
@@ -318,6 +324,10 @@
     "resetLaboratoryHint": "Réinitialiser remet les deux masses à 40 kg et la distance à 8 m, avec F comme inconnue, dans toutes les vues."
   },
   "Tutor": {
+    "configureExperiment": "Configurer avec l’IA",
+    "configureInvitation": "Décris le changement souhaité, par exemple : « Double la première masse et augmente la distance à 12 mètres. » Tu examineras une proposition avant d’appliquer les changements.",
+    "explainFormula": "Explique-moi cette formule",
+    "formulaQuestion": "Explique cette formule avec les valeurs actuelles de mon laboratoire. Que signifient F, G, m₁, m₂ et r, pourquoi la distance est-elle au carré et comment lire la notation scientifique ? Utilise un exemple simple sans modifier les paramètres.",
     "proposalRejected": "Je ne peux pas proposer de modification applicable avec ces valeurs. Le laboratoire accepte des masses de 10 à 100 kg par pas de 1 kg et des distances de 5 à 20 m par pas de 0,1 m. Rien n’a changé. Précisez une masse ou une distance dans ces limites ; nous pouvons expliquer d’autres cas sans modifier le simulateur.",
     "proposalTitle": "Modifications proposées",
     "proposalTo": "à",

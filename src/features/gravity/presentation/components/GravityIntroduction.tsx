@@ -1,5 +1,6 @@
 import { useTranslations } from "next-intl";
 
+import { GravityFormulaTutorButton } from "./understanding/GravityFormulaTutorButton";
 import { GravityFormula } from "./understanding/GravityFormula";
 import { GravityPrinciplesChallenge } from "./discovery/GravityPrinciples";
 import { gravityStageById } from "../../application/gravityJourney";
@@ -17,7 +18,7 @@ export const GravityIntroduction = () => {
   return (
     <section aria-label={t(stage.title)} className={`${styles.introduction} ${journeyStyles.stage}`}>
       <GravityStageLayout contentLabel="formula" compact={false}>
-        <GravityFormula action={<GravityPrinciplesChallenge />} />
+        <GravityFormula explanation={<GravityFormulaTutorButton />} action={<GravityPrinciplesChallenge />} />
       </GravityStageLayout>
     </section>
   );

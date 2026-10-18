@@ -49,6 +49,12 @@
     "galleryLabel": "GALLERY"
   },
   "Gravity": {
+    "stageTags": {
+      "discover": "Discover",
+      "understand": "Understand",
+      "experiment": "Experiment",
+      "check": "Check"
+    },
     "panels": {
       "choose": "Visible panel",
       "show": "Show {panel}",
@@ -99,9 +105,9 @@
     "challengeHeading": "Test what you have learned",
     "formulaAccess": "Formula",
     "closeFormula": "Close formula",
-    "challengeScenarioBase": "The simulation shows the baseline scenario. The challenge change will be applied when you check your answer.",
-    "challengeScenarioApplied": "The simulation shows the change for this challenge.",
-    "challengeScenarioCustom": "The simulation shows the current values. Compare your prediction with the reference shown.",
+    "challengeScenarioBase": "The laboratory uses the baseline scenario. The challenge change will be applied when you check your answer.",
+    "challengeScenarioApplied": "The laboratory parameters match the change for this challenge.",
+    "challengeScenarioCustom": "The laboratory uses the current values. Compare your prediction with the reference shown.",
     "formulaConstantValue": "G = {value} × 10<power>{exponent}</power> <unit>N·m²/kg²</unit>",
     "formulaConstantDescription": "Fixed value used to calculate gravitational force.",
     "formulaConstantTitle": "Universal gravitational constant",
@@ -318,6 +324,10 @@
     "resetLaboratoryHint": "Reset returns both masses to 40 kg and the distance to 8 m, with F as the unknown, in every view."
   },
   "Tutor": {
+    "configureExperiment": "Configure with AI",
+    "configureInvitation": "Describe the change you want, for example: “Double the first mass and increase the distance to 12 metres.” You will review a proposal before applying changes.",
+    "explainFormula": "Explain this formula",
+    "formulaQuestion": "Explain this formula using my current laboratory values. What do F, G, m₁, m₂ and r mean, why is distance squared, and how do I read scientific notation? Use a simple example without changing parameters.",
     "proposalRejected": "I cannot offer an applicable change with those values. The laboratory accepts masses from 10 to 100 kg in 1 kg steps and distances from 5 to 20 m in 0.1 m steps. Nothing has changed. Specify a mass or distance within those limits; we can discuss other cases without changing the simulator.",
     "proposalTitle": "Proposed changes",
     "proposalTo": "to",

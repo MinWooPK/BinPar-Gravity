@@ -4,11 +4,17 @@ import { useCallback, useLayoutEffect, useMemo, useRef } from "react";
 import type { ReactNode } from "react";
 import { usePathname } from "@/i18n/navigation";
 import type { TutorContext } from "../../types/tutor.types";
-import { EnvironmentContext, useTutorEnvironment, type PublishedContext } from "./tutorEnvironment";
+import { EnvironmentContext, useTutorEnvironment, type PublishedContext, type TutorLauncher } from "./tutorEnvironment";
 import { GlobalTutor } from "../components/GlobalTutor";
 
 /** One persistent assistant for the localized app; page data is published explicitly. */
 export const TutorProvider = ({ children }: { children: ReactNode }) => {
+  const launcherRef = useRef<TutorLauncher | null>(null);
+  const openTutor = useCallback<TutorLauncher>((intent, trigger) => launcherRef.current?.(intent, trigger), []);
+  const registerLauncher = useCallback((launcher: TutorLauncher) => {
+    launcherRef.current = launcher;
+    return () => { if (launcherRef.current === launcher) launcherRef.current = null; };
+  }, []);
   const pathname = usePathname();
   const publishedRef = useRef<PublishedContext | null>(null);
   const sessionKey = pathname === "/gravity" ? "gravity"
@@ -24,7 +30,7 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
     const value = publishedRef.current;
     return value?.pathname === pathname ? value : null;
   }, [pathname]);
-  const environment = useMemo(() => ({ sessionKey, publish, current }), [sessionKey, publish, current]);
+  const environment = useMemo(() => ({ sessionKey, publish, current, openTutor, registerLauncher }), [sessionKey, publish, current, openTutor, registerLauncher]);
   return (
     <EnvironmentContext.Provider value={environment}>
       {children}

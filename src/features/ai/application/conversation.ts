@@ -1,11 +1,21 @@
-import { TUTOR_MAX_MESSAGES, TUTOR_MAX_MESSAGE_LENGTH, TUTOR_MAX_TOTAL_MESSAGE_LENGTH } from "./tutor";
+import {
+  TUTOR_MAX_MESSAGES,
+  TUTOR_MAX_MESSAGE_LENGTH,
+  TUTOR_MAX_TOTAL_MESSAGE_LENGTH,
+} from "./tutor";
 import type { TutorMessage } from "../types/tutor.types";
 
 /** Retain recent turns without exceeding the server's bounded conversation budget. */
-export const requestHistory = (messages: readonly TutorMessage[]): TutorMessage[] => {
+export const requestHistory = (
+  messages: readonly TutorMessage[],
+): TutorMessage[] => {
   const selected: TutorMessage[] = [];
   let characters = 0;
-  for (let index = messages.length - 1; index >= 0 && selected.length < TUTOR_MAX_MESSAGES; index--) {
+  for (
+    let index = messages.length - 1;
+    index >= 0 && selected.length < TUTOR_MAX_MESSAGES;
+    index--
+  ) {
     const message = messages[index];
     const content = message.content.slice(0, TUTOR_MAX_MESSAGE_LENGTH);
     if (characters + content.length > TUTOR_MAX_TOTAL_MESSAGE_LENGTH) break;

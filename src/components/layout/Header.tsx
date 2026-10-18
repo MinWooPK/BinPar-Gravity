@@ -26,8 +26,13 @@ export const Header = () => {
             href="/"
             className="flex min-h-11 min-w-0 w-fit flex-col items-start justify-center rounded-xl px-2 py-1 sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
           >
-            <span className="text-xl leading-5 font-bold tracking-tight"><span className="text-[#FFFFFF]">BIN</span><span className="text-[#F8BA00]">PAR</span></span>
-            <span className="mt-0.5 text-[10px] leading-3 font-medium tracking-[0.18em] text-slate-400">GRAVITY LAB</span>
+            <span className="text-xl leading-5 font-bold tracking-tight">
+              <span className="text-[#FFFFFF]">BIN</span>
+              <span className="text-[#F8BA00]">PAR</span>
+            </span>
+            <span className="mt-0.5 text-[10px] leading-3 font-medium tracking-[0.18em] text-slate-400">
+              GRAVITY LAB
+            </span>
           </NavLink>
 
           <div className="col-span-2 row-start-2 grid min-w-0 grid-cols-2 gap-2 border-t border-white/15 pt-2 lg:col-span-1 lg:col-start-2 lg:row-start-1 lg:flex lg:w-full lg:justify-self-center lg:gap-2 lg:border-0 lg:pt-0">

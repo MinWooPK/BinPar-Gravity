@@ -1,5 +1,6 @@
 "use client";
 
+import { useTutorActions } from "@/features/ai/presentation/providers/tutorEnvironment";
 import { useId } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { compareGravitation } from "../../../domain/compareGravitation";
@@ -22,6 +23,8 @@ export const GravityExperiment = ({
   onReset,
 }: ExperimentProps) => {
   const id = useId();
+  const tutor = useTranslations("Tutor");
+  const { openTutor } = useTutorActions();
   const t = useTranslations("Gravity");
   const format = useFormatter();
   const comparison = compareGravitation(parameters);
@@ -96,6 +99,18 @@ export const GravityExperiment = ({
           <p>{t("modelNote")}</p>
           <p>{t("tinyForce")}</p>
         </details>
+      </div>
+      <div className="flex flex-wrap gap-2 px-3.5 pt-1 pb-3">
+        <button type="button" data-experiment-explain aria-haspopup="dialog" aria-controls="global-tutor-dialog"
+          className="min-h-11 min-w-0 flex-1 rounded-xl border border-violet-400/50 bg-violet-400/10 px-3 py-2 text-sm font-semibold text-violet-200 transition-colors hover:bg-violet-400/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 motion-reduce:transition-none"
+          onClick={(event) => openTutor("explain_experiment", event.currentTarget)}>
+          {tutor("explainExperiment")}
+        </button>
+        <button type="button" data-experiment-configure aria-haspopup="dialog" aria-controls="global-tutor-dialog"
+          className="min-h-11 min-w-0 flex-1 rounded-xl border border-cyan-300/40 bg-cyan-300/10 px-3 py-2 text-sm font-semibold text-cyan-100 transition-colors hover:bg-cyan-300/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 motion-reduce:transition-none"
+          onClick={(event) => openTutor("configure_experiment", event.currentTarget)}>
+          {tutor("configureExperiment")}
+        </button>
       </div>
     </section>
   );

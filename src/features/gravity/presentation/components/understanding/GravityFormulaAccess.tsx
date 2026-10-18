@@ -62,7 +62,7 @@ export const GravityFormulaAccess = ({ children }: { children: ReactNode }) => {
           const trigger = triggerRef.current;
           const stageId = trigger?.closest("section[id]")?.id;
           const target = trigger?.getClientRects().length ? trigger
-            : document.getElementById("gravity-stage-selector") ??
+            : document.querySelector<HTMLButtonElement>('[data-stage-tag][aria-current="step"]') ??
               (stageId ? document.getElementById(`${stageId}-entry`) : null);
           target?.focus({ preventScroll: true });
         }}

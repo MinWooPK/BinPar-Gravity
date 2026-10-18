@@ -15,7 +15,9 @@ export type TutorContext =
     }
   | { kind: "three-body"; slug?: string };
 export type TutorMessage = { role: "user" | "assistant"; content: string };
+export type TutorIntent = "explain_formula" | "explain_experiment";
 export type TutorRequest = {
+  intent?: TutorIntent;
   locale: "es" | "en" | "fr";
   mode: "explain" | "simplify" | "example";
   context: TutorContext;

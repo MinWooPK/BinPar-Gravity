@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
 import { TUTOR_MAX_MESSAGE_LENGTH } from "../../application/tutor";
 import { gravityStageById } from "@/features/gravity/application/gravityJourney";
 import { useTutorConversation } from "../hooks/useTutorConversation";
 import { TutorProposalCard } from "./TutorProposalCard";
+import { useTutorEnvironment } from "../providers/tutorEnvironment";
 import css from "./GlobalTutor.module.css";
 
 const styles = {
@@ -29,11 +30,21 @@ export const GlobalTutor = () => {
   const gravity = useTranslations("Gravity");
   const pathname = usePathname();
   const { sessionKey, current, key, session, update, performRequest, ask, decideProposal } = useTutorConversation();
+  const [configure, setConfigure] = useState(false);
   const [openPath, setOpenPath] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const transcriptRef = useRef<HTMLDivElement>(null);
+  const { openTutor, registerLauncher } = useTutorEnvironment();
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+  useLayoutEffect(() => registerLauncher((intent, trigger) => {
+    returnFocusRef.current = trigger ?? triggerRef.current;
+    setOpenPath(pathname);
+    setConfigure(intent === "configure_experiment");
+    if (intent === "explain_experiment") ask("explain", t("experimentQuestion"), intent);
+    if (intent === "explain_formula") ask("explain", t("formulaQuestion"), intent);
+  }), [registerLauncher, pathname, ask, t]);
   const open = sessionKey !== null && openPath === pathname;
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -75,6 +86,10 @@ export const GlobalTutor = () => {
   const label = page?.context.kind === "gravity"
     ? (stage ? gravity(gravityStageById[stage].title) : t("gravityContext"))
     : page?.label ?? (page?.context.kind === "three-body" && page.context.slug ? t("orbitContext", { name: page.context.slug }) : t("galleryContext"));
+  const showConfigure = open && configure && stage === "gravity-laboratory";
+  useEffect(() => {
+    if (showConfigure && !session.pending) inputRef.current?.focus({ preventScroll: true });
+  }, [showConfigure, session.pending]);
   const contextChanged = !!session.snapshot && !!page && session.snapshot !== JSON.stringify(page.context);
 
   return (
@@ -88,7 +103,7 @@ export const GlobalTutor = () => {
           aria-haspopup="dialog"
           aria-expanded={open}
           aria-controls="global-tutor-dialog"
-          onClick={() => setOpenPath(pathname)}
+          onClick={(event) => openTutor(undefined, event.currentTarget)}
           className={styles.trigger}
         >
           <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M5 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9l-6 4V6a2 2 0 0 1 2-2Z" strokeLinejoin="round" /><path d="M7 9h10M7 13h6" strokeLinecap="round" /></svg>
@@ -101,7 +116,7 @@ export const GlobalTutor = () => {
         aria-labelledby="global-tutor-title"
         className={styles.panel}
         onCancel={(event) => { event.preventDefault(); event.stopPropagation(); setOpenPath(null); }}
-        onClose={() => { setOpenPath(null); triggerRef.current?.focus({ preventScroll: true }); }}
+        onClose={() => { setOpenPath(null); const origin = returnFocusRef.current; (origin?.isConnected && !origin.closest("[inert]") && origin.getClientRects().length ? origin : triggerRef.current)?.focus({ preventScroll: true }); }}
         onKeyDown={(event) => {
           if (event.key !== "Tab") return;
           const controls = [...event.currentTarget.querySelectorAll<HTMLElement>("button:not(:disabled), textarea:not(:disabled)")]
@@ -158,9 +173,10 @@ export const GlobalTutor = () => {
             );
           })}
         </div>
-        <form className={styles.composer} onSubmit={(event) => { event.preventDefault(); ask("explain", session.draft); }}>
+        {showConfigure && <p id="tutor-configure-hint" role="status" className="mx-4 my-2 text-sm leading-relaxed text-cyan-100">{t("configureInvitation")}</p>}
+        <form className={styles.composer} onSubmit={(event) => { event.preventDefault(); setConfigure(false); ask("explain", session.draft); }}>
           <label htmlFor="global-tutor-question" className="sr-only">{t("question")}</label>
-          <textarea ref={inputRef} id="global-tutor-question" rows={2} value={session.draft} maxLength={TUTOR_MAX_MESSAGE_LENGTH} placeholder={t("question")} disabled={session.pending} onChange={(event) => update(key, { draft: event.target.value })} />
+          <textarea ref={inputRef} id="global-tutor-question" rows={2} aria-describedby={showConfigure ? "tutor-configure-hint" : undefined} value={session.draft} maxLength={TUTOR_MAX_MESSAGE_LENGTH} placeholder={t("question")} disabled={session.pending} onChange={(event) => update(key, { draft: event.target.value })} />
           <button type="submit" disabled={session.pending || !session.draft.trim()}>{t("send")}</button>
         </form>
         <p className={styles.disclaimer}>{t("disclaimer")}</p>

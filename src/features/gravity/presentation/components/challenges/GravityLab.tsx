@@ -19,13 +19,13 @@ import { useGravityParameters } from "../../providers/GravityParametersProvider"
 
 const challengeStyles = {
   "stage": "min-w-0",
-  "challengeCard": "min-w-0 [padding:14px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [@media(max-width:520px)]:[padding:14px]",
+  "challengeCard": "w-full min-w-0 [padding:14px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [@media(max-width:520px)]:[padding:14px]",
   "titleRow": `${css["titleRow"]} flex flex-wrap items-center justify-between [gap:8px_12px]`,
   "cardHeader": `${css["cardHeader"]} flex flex-wrap items-center justify-between [gap:8px_12px] [margin-top:4px]`,
   "progress": `${css["progress"]} block w-full [height:5px] [margin-top:10px] overflow-hidden [border:0] [border-radius:8px] [background:#30364b] [accent-color:#aa97ff]`,
   "challengeLayout": "grid [grid-template-columns:minmax(0,_1fr)] [gap:8px] [margin-top:0]",
-  "prediction": "min-w-0",
-  "result": `${css["result"]} min-w-0 grid [align-content:start] [gap:10px]`,
+  "prediction": "grid min-w-0 gap-4 lg:grid-cols-2 lg:items-start lg:gap-6",
+  "result": `${css["result"]} min-w-0 grid [align-content:start] [gap:10px] lg:grid-cols-2 lg:gap-x-6`,
   "questionContext": "min-w-0",
   "answerGroup": "min-w-0",
   "question": `${css["question"]} m-0 [border-radius:4px] text-lab-text [font-size:1.125rem] font-semibold [line-height:1.4] [overflow-wrap:anywhere] [scroll-margin-block:16px]`,
@@ -37,7 +37,7 @@ const challengeStyles = {
   "feedback": `${css["feedback"]} m-0 [font-size:.9375rem] [line-height:1.5] [scroll-margin-block:16px]`,
   "explanation": "m-0 [color:#d0d4e3] [font-size:.875rem] [line-height:1.5] [overflow-wrap:anywhere]",
   "feedbackNote": `${css["feedbackNote"]} m-0 [color:#aeb8cb] [font-size:.875rem] [line-height:1.5] [overflow-wrap:anywhere]`,
-  "comparison": `${css["comparison"]} min-w-0 [padding:12px] [border:1px_solid_#aa97ff35] [border-radius:10px] [background:#aa97ff08]`,
+  "comparison": `${css["comparison"]} lg:col-start-2 lg:row-start-1 lg:row-span-3 min-w-0 [padding:12px] [border:1px_solid_#aa97ff35] [border-radius:10px] [background:#aa97ff08]`,
   "actions": `${css["actions"]} flex flex-wrap [gap:8px] [margin-top:10px] items-center`,
   "nextTopic": `${css["nextTopic"]} inline-flex [flex:1] items-center justify-center [gap:8px] [padding:8px] [color:#bae6fd] [font-size:.875rem] font-semibold [line-height:1.5] [border-radius:8px]`,
   "summary": "[margin:14px_0_0] [color:#a7f3d0] [font-size:.875rem] [line-height:1.5]",
@@ -128,161 +128,159 @@ export const GravityLab = () => {
         stage={gravityStageById["gravity-challenges"]}
         className={`${journeyStyles.stage} ${challengeStyles.stage}`}
       >
-        <GravityStageLayout contentLabel="challenges">
-          <section
-            aria-labelledby={`${id}-challenge-title`}
-            className={challengeStyles.challengeCard}
-            data-challenge-step={step + 1}
-            data-revealed={revealed}
-          >
-            <div className={challengeStyles.titleRow}>
-              <h3 id={`${id}-challenge-title`}>{t("challengeHeading")}</h3>
-              <GravityFormulaButton />
-            </div>
-            <p className="sr-only">{t("challengesHint")}</p>
-            <div className={challengeStyles.cardHeader}>
-              <p id={`${id}-challenge-position`} className="text-sm font-semibold text-slate-200">
-                {t("challengePosition", { number: step + 1, total: challenges.length })}
-              </p>
-              <div className="flex gap-2" role="group" aria-label={t("challenges")} aria-describedby={`${id}-challenge-position`}>
-                {challenges.map((item, index) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    aria-label={t("challengeNumber", { number: index + 1 })}
-                    aria-pressed={step === index}
-                    onClick={() => chooseStep(index)}
-                    className={`${buttonClass} ${step === index ? "border-violet-300 bg-violet-300/10" : ""}`}
-                  >
-                    {index + 1}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <progress className={challengeStyles.progress} value={step + 1} max={challenges.length} aria-labelledby={`${id}-challenge-position`} />
-            <div className={challengeStyles.challengeLayout} data-revealed={revealed}>
-              {revealed && (
-                <div className={challengeStyles.result}>
-                  <p ref={feedbackRef} tabIndex={-1} aria-describedby={`${id}-feedback-description`} className={`${challengeStyles.feedback} flex items-start gap-2 rounded font-semibold ${isCorrect ? "text-emerald-200" : "text-amber-200"}`}>
-                    <span aria-hidden="true" className="inline-flex size-6 shrink-0 items-center justify-center rounded-full border border-current text-sm">
-                      {isCorrect ? "✓" : "!"}
-                    </span>
-                    <span>{t(isCorrect ? "correct" : "keepLearning")}</span>
-                  </p>
-                  <p id={`${id}-feedback-description`} className={challengeStyles.explanation}>
-                    {t(`feedback_${challenge.id}`)}
-                  </p>
-                  <div className={challengeStyles.comparison}>
-                    <GravityChallengeComparison parameters={challenge.parameters} />
-                  </div>
-                  <p className={challengeStyles.selection}>
-                    {t("answerYourPrediction")}: {prediction && t(prediction)}
-                    {!isCorrect && <> · {t("answerCorrect")}: {t(challenge.answer)}</>}
-                  </p>
-                </div>
-              )}
-              <details className={challengeStyles.questionDetails} open={!revealed} data-revealed={revealed}>
-                <summary>{t("reviewChallenge")}</summary>
-                <div className={challengeStyles.prediction}>
-                  <div className={challengeStyles.questionContext}>
-                    <h4
-                      ref={challengeHeadingRef}
-                      tabIndex={-1}
-                      id={`${id}-challenge`}
-                      className={challengeStyles.question}
-                    >
-                      {t(`challenge_${challenge.id}`)}
-                    </h4>
-                    <p className={challengeStyles.baseline}>{t("baseline")}</p>
-                    <p className={challengeStyles.scenario}>
-                      {t(scenarioMessage)}
-                    </p>
-                    <p className={challengeStyles.prompt}>{t("predict")}</p>
-                  </div>
-                  <div className={challengeStyles.answerGroup}>
-                    <fieldset
-                      disabled={revealed}
-                      className={challengeStyles.answers}
-                    >
-                      <legend className="sr-only">{t("predict")}</legend>
-                      {(["same", "double", "four", "quarter"] as const).map((answer) => {
-                        const selected = prediction === answer;
-                        const correctAnswer = revealed && answer === challenge.answer;
-                        const answerClass = correctAnswer
-                          ? "border-emerald-400 bg-emerald-950/50 text-emerald-100"
-                          : revealed && selected
-                            ? "border-amber-400 bg-amber-950/40 text-amber-100"
-                            : selected
-                              ? "border-violet-300 bg-violet-300/10 text-violet-100"
-                              : "border-slate-600 text-slate-200";
-                        return (
-                          <label
-                            key={answer}
-                            className={`flex min-h-11 items-center gap-3 rounded-lg border p-3 focus-within:outline-2 focus-within:outline-offset-4 focus-within:outline-violet-300 ${revealed ? "cursor-default" : "cursor-pointer"} ${answerClass}`}
-                          >
-                            <input
-                              type="radio"
-                              name={`${id}-prediction`}
-                              value={answer}
-                              checked={selected}
-                              onChange={() => setPrediction(answer)}
-                              className="size-4 shrink-0 accent-violet-300"
-                            />
-                            <span className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2">
-                              <span>{t(answer)}</span>
-                              {revealed && (selected || correctAnswer) && (
-                                <span className="flex flex-wrap gap-2 text-sm font-semibold">
-                                  {correctAnswer && <span>{t("answerCorrect")}</span>}
-                                  {selected && <span>{t("answerYourPrediction")}</span>}
-                                </span>
-                              )}
-                            </span>
-                          </label>
-                        );
-                      })}
-                    </fieldset>
-                  </div>
-                </div>
-                {revealed && <p className={challengeStyles.feedbackNote}>{t("feedbackNote")}</p>}
-              </details>
-            </div>
-            <div className={challengeStyles.actions}>
-              {!revealed ? (
-                <button
-                  type="button"
-                  disabled={!prediction}
-                  onClick={() => {
-                    if (prediction) {
-                      setParameters(challenge.parameters);
-                      setAttempt({ challenge: challenge.id, prediction });
-                      pendingFocus.current = "feedback";
-                      setRevealed(true);
-                    }
-                  }}
-                  className={`${buttonClass} ${challengeStyles.checkButton} bg-violet-300/10`}
-                >
-                  {t("check")}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() =>
-                    hasNextChallenge ? chooseStep(step + 1) : setCompleted(true)
-                  }
-                  className={buttonClass}
-                >
-                  {t(hasNextChallenge ? "next" : "finish")}
-                </button>
-              )}
-              <Link href="/three-body" className={challengeStyles.nextTopic}>
-                {t("nextTopic")} <span aria-hidden="true">→</span>
-              </Link>
-            </div>
-            <p role="status" aria-atomic="true" className={completed ? challengeStyles.summary : "sr-only"}>
-              {completed ? t("summary") : ""}
+        <section
+          aria-labelledby={`${id}-challenge-title`}
+          className={challengeStyles.challengeCard}
+          data-challenge-step={step + 1}
+          data-revealed={revealed}
+        >
+          <div className={challengeStyles.titleRow}>
+            <h3 id={`${id}-challenge-title`}>{t("challengeHeading")}</h3>
+            <GravityFormulaButton />
+          </div>
+          <p className="sr-only">{t("challengesHint")}</p>
+          <div className={challengeStyles.cardHeader}>
+            <p id={`${id}-challenge-position`} className="text-sm font-semibold text-slate-200">
+              {t("challengePosition", { number: step + 1, total: challenges.length })}
             </p>
-          </section>
-        </GravityStageLayout>
+            <div className="flex gap-2" role="group" aria-label={t("challenges")} aria-describedby={`${id}-challenge-position`}>
+              {challenges.map((item, index) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  aria-label={t("challengeNumber", { number: index + 1 })}
+                  aria-pressed={step === index}
+                  onClick={() => chooseStep(index)}
+                  className={`${buttonClass} ${step === index ? "border-violet-300 bg-violet-300/10" : ""}`}
+                >
+                  {index + 1}
+                </button>
+              ))}
+            </div>
+          </div>
+          <progress className={challengeStyles.progress} value={step + 1} max={challenges.length} aria-labelledby={`${id}-challenge-position`} />
+          <div className={challengeStyles.challengeLayout} data-revealed={revealed}>
+            {revealed && (
+              <div className={challengeStyles.result}>
+                <p ref={feedbackRef} tabIndex={-1} aria-describedby={`${id}-feedback-description`} className={`${challengeStyles.feedback} flex items-start gap-2 rounded font-semibold ${isCorrect ? "text-emerald-200" : "text-amber-200"}`}>
+                  <span aria-hidden="true" className="inline-flex size-6 shrink-0 items-center justify-center rounded-full border border-current text-sm">
+                    {isCorrect ? "✓" : "!"}
+                  </span>
+                  <span>{t(isCorrect ? "correct" : "keepLearning")}</span>
+                </p>
+                <p id={`${id}-feedback-description`} className={challengeStyles.explanation}>
+                  {t(`feedback_${challenge.id}`)}
+                </p>
+                <div className={challengeStyles.comparison}>
+                  <GravityChallengeComparison parameters={challenge.parameters} />
+                </div>
+                <p className={challengeStyles.selection}>
+                  {t("answerYourPrediction")}: {prediction && t(prediction)}
+                  {!isCorrect && <> · {t("answerCorrect")}: {t(challenge.answer)}</>}
+                </p>
+              </div>
+            )}
+            <details className={challengeStyles.questionDetails} open={!revealed} data-revealed={revealed}>
+              <summary>{t("reviewChallenge")}</summary>
+              <div className={challengeStyles.prediction}>
+                <div className={challengeStyles.questionContext}>
+                  <h4
+                    ref={challengeHeadingRef}
+                    tabIndex={-1}
+                    id={`${id}-challenge`}
+                    className={challengeStyles.question}
+                  >
+                    {t(`challenge_${challenge.id}`)}
+                  </h4>
+                  <p className={challengeStyles.baseline}>{t("baseline")}</p>
+                  <p className={challengeStyles.scenario}>
+                    {t(scenarioMessage)}
+                  </p>
+                  <p className={challengeStyles.prompt}>{t("predict")}</p>
+                </div>
+                <div className={challengeStyles.answerGroup}>
+                  <fieldset
+                    disabled={revealed}
+                    className={challengeStyles.answers}
+                  >
+                    <legend className="sr-only">{t("predict")}</legend>
+                    {(["same", "double", "four", "quarter"] as const).map((answer) => {
+                      const selected = prediction === answer;
+                      const correctAnswer = revealed && answer === challenge.answer;
+                      const answerClass = correctAnswer
+                        ? "border-emerald-400 bg-emerald-950/50 text-emerald-100"
+                        : revealed && selected
+                          ? "border-amber-400 bg-amber-950/40 text-amber-100"
+                          : selected
+                            ? "border-violet-300 bg-violet-300/10 text-violet-100"
+                            : "border-slate-600 text-slate-200";
+                      return (
+                        <label
+                          key={answer}
+                          className={`flex min-h-11 items-center gap-3 rounded-lg border p-3 focus-within:outline-2 focus-within:outline-offset-4 focus-within:outline-violet-300 ${revealed ? "cursor-default" : "cursor-pointer"} ${answerClass}`}
+                        >
+                          <input
+                            type="radio"
+                            name={`${id}-prediction`}
+                            value={answer}
+                            checked={selected}
+                            onChange={() => setPrediction(answer)}
+                            className="size-4 shrink-0 accent-violet-300"
+                          />
+                          <span className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-2">
+                            <span>{t(answer)}</span>
+                            {revealed && (selected || correctAnswer) && (
+                              <span className="flex flex-wrap gap-2 text-sm font-semibold">
+                                {correctAnswer && <span>{t("answerCorrect")}</span>}
+                                {selected && <span>{t("answerYourPrediction")}</span>}
+                              </span>
+                            )}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </fieldset>
+                </div>
+              </div>
+              {revealed && <p className={challengeStyles.feedbackNote}>{t("feedbackNote")}</p>}
+            </details>
+          </div>
+          <div className={challengeStyles.actions}>
+            {!revealed ? (
+              <button
+                type="button"
+                disabled={!prediction}
+                onClick={() => {
+                  if (prediction) {
+                    setParameters(challenge.parameters);
+                    setAttempt({ challenge: challenge.id, prediction });
+                    pendingFocus.current = "feedback";
+                    setRevealed(true);
+                  }
+                }}
+                className={`${buttonClass} ${challengeStyles.checkButton} bg-violet-300/10`}
+              >
+                {t("check")}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() =>
+                  hasNextChallenge ? chooseStep(step + 1) : setCompleted(true)
+                }
+                className={buttonClass}
+              >
+                {t(hasNextChallenge ? "next" : "finish")}
+              </button>
+            )}
+            <Link href="/three-body" className={challengeStyles.nextTopic}>
+              {t("nextTopic")} <span aria-hidden="true">→</span>
+            </Link>
+          </div>
+          <p role="status" aria-atomic="true" className={completed ? challengeStyles.summary : "sr-only"}>
+            {completed ? t("summary") : ""}
+          </p>
+        </section>
       </GravityJourneyPanel>
 
       <TutorContextBridge context={tutorContext} gravity={proposalPort} />

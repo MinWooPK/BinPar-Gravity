@@ -16,56 +16,145 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const hasOnlyKeys = (value: Record<string, unknown>, keys: readonly string[]) =>
   Object.keys(value).every((key) => keys.includes(key));
 const inRange = (value: unknown, min: number, max: number) =>
-  typeof value === "number" && Number.isFinite(value) && value >= min && value <= max;
-const isChallenge = (value: unknown) => challenges.some(({ id }) => value === id);
+  typeof value === "number" &&
+  Number.isFinite(value) &&
+  value >= min &&
+  value <= max;
+const isChallenge = (value: unknown) =>
+  challenges.some(({ id }) => value === id);
 const isPrediction = (value: unknown): value is Prediction =>
-  typeof value === "string" && ["same", "double", "four", "quarter"].includes(value);
+  typeof value === "string" &&
+  ["same", "double", "four", "quarter"].includes(value);
 
 export const isTutorContext = (value: unknown): value is TutorContext => {
   if (!isRecord(value)) return false;
   if (value.kind === "three-body") {
-    return hasOnlyKeys(value, ["kind", "slug"]) &&
-      (value.slug === undefined || (typeof value.slug === "string" && Boolean(getOrbit(value.slug))));
+    return (
+      hasOnlyKeys(value, ["kind", "slug"]) &&
+      (value.slug === undefined ||
+        (typeof value.slug === "string" && Boolean(getOrbit(value.slug))))
+    );
   }
-  if (value.kind !== "gravity" || !hasOnlyKeys(value, ["kind", "stage", "parameters", "challenge", "prediction", "attempt"])) return false;
-  if (value.stage !== null && !gravityStages.some(({ id }) => value.stage === id)) return false;
-  if (!isRecord(value.parameters) || !hasOnlyKeys(value.parameters, ["mass1", "mass2", "distance"])) return false;
+  if (
+    value.kind !== "gravity" ||
+    !hasOnlyKeys(value, [
+      "kind",
+      "stage",
+      "parameters",
+      "challenge",
+      "prediction",
+      "attempt",
+    ])
+  )
+    return false;
+  if (
+    value.stage !== null &&
+    !gravityStages.some(({ id }) => value.stage === id)
+  )
+    return false;
+  if (
+    !isRecord(value.parameters) ||
+    !hasOnlyKeys(value.parameters, ["mass1", "mass2", "distance"])
+  )
+    return false;
   const { mass1, mass2, distance } = value.parameters;
-  if (!inRange(mass1, laboratoryLimits.mass1.min, laboratoryLimits.mass1.max) ||
+  if (
+    !inRange(mass1, laboratoryLimits.mass1.min, laboratoryLimits.mass1.max) ||
     !inRange(mass2, laboratoryLimits.mass2.min, laboratoryLimits.mass2.max) ||
-    !inRange(distance, laboratoryLimits.distance.min, laboratoryLimits.distance.max)) return false;
-  if (value.challenge !== undefined && !isChallenge(value.challenge)) return false;
-  if (value.prediction !== undefined && !isPrediction(value.prediction)) return false;
+    !inRange(
+      distance,
+      laboratoryLimits.distance.min,
+      laboratoryLimits.distance.max,
+    )
+  )
+    return false;
+  if (value.challenge !== undefined && !isChallenge(value.challenge))
+    return false;
+  if (value.prediction !== undefined && !isPrediction(value.prediction))
+    return false;
   if (value.attempt !== undefined) {
     const attempt = value.attempt;
-    if (!isRecord(attempt) || !hasOnlyKeys(attempt, ["challenge", "prediction"])) return false;
-    if (!isChallenge(attempt.challenge) || !isPrediction(attempt.prediction)) return false;
-    if (value.challenge !== undefined && attempt.challenge !== value.challenge) return false;
-    if (value.prediction !== undefined && attempt.prediction !== value.prediction) return false;
+    if (
+      !isRecord(attempt) ||
+      !hasOnlyKeys(attempt, ["challenge", "prediction"])
+    )
+      return false;
+    if (!isChallenge(attempt.challenge) || !isPrediction(attempt.prediction))
+      return false;
+    if (value.challenge !== undefined && attempt.challenge !== value.challenge)
+      return false;
+    if (
+      value.prediction !== undefined &&
+      attempt.prediction !== value.prediction
+    )
+      return false;
   }
   return true;
 };
 
 export const isTutorRequest = (value: unknown): value is TutorRequest => {
-  if (!isRecord(value) || !hasOnlyKeys(value, ["locale", "mode", "context", "messages"])) return false;
-  if (!locales.some((locale) => value.locale === locale) || typeof value.mode !== "string" ||
-    !["explain", "simplify", "example"].includes(value.mode)) return false;
-  if (!isTutorContext(value.context) || !Array.isArray(value.messages) ||
-    value.messages.length < 1 || value.messages.length > TUTOR_MAX_MESSAGES) return false;
+  if (
+    !isRecord(value) ||
+    !hasOnlyKeys(value, ["locale", "mode", "context", "messages", "intent"])
+  )
+    return false;
+  if (
+    !locales.some((locale) => value.locale === locale) ||
+    typeof value.mode !== "string" ||
+    !["explain", "simplify", "example"].includes(value.mode)
+  )
+    return false;
+  if (
+    !isTutorContext(value.context) ||
+    !Array.isArray(value.messages) ||
+    value.messages.length < 1 ||
+    value.messages.length > TUTOR_MAX_MESSAGES
+  )
+    return false;
+  if (value.intent !== undefined) {
+    const stage =
+      value.intent === "explain_formula"
+        ? "gravity-understanding"
+        : value.intent === "explain_experiment"
+          ? "gravity-laboratory"
+          : undefined;
+    if (
+      !stage ||
+      value.mode !== "explain" ||
+      value.context.kind !== "gravity" ||
+      value.context.stage !== stage
+    )
+      return false;
+  }
   let totalLength = 0;
   for (const message of value.messages) {
-    if (!isRecord(message) || !hasOnlyKeys(message, ["role", "content"]) ||
-      (message.role !== "user" && message.role !== "assistant") || typeof message.content !== "string" ||
-      !message.content.trim() || message.content.length > TUTOR_MAX_MESSAGE_LENGTH) return false;
+    if (
+      !isRecord(message) ||
+      !hasOnlyKeys(message, ["role", "content"]) ||
+      (message.role !== "user" && message.role !== "assistant") ||
+      typeof message.content !== "string" ||
+      !message.content.trim() ||
+      message.content.length > TUTOR_MAX_MESSAGE_LENGTH
+    )
+      return false;
     totalLength += message.content.length;
   }
-  return totalLength <= TUTOR_MAX_TOTAL_MESSAGE_LENGTH && value.messages.at(-1)?.role === "user";
+  return (
+    totalLength <= TUTOR_MAX_TOTAL_MESSAGE_LENGTH &&
+    value.messages.at(-1)?.role === "user"
+  );
 };
 
 /** Legacy quick actions are normalized before reaching the single shared provider. */
 export const parseTutorRequest = (value: unknown): TutorRequest | null => {
   if (isTutorRequest(value)) return value;
-  if (!isRecord(value) || "context" in value || "messages" in value || !isLegacyTutorRequest(value, locales)) return null;
+  if (
+    !isRecord(value) ||
+    "context" in value ||
+    "messages" in value ||
+    !isLegacyTutorRequest(value, locales)
+  )
+    return null;
   const legacyQuestions = {
     es: "Explica el experimento actual y mi predicción, si existe.",
     en: "Explain the current experiment and my prediction, if any.",
@@ -77,10 +166,17 @@ export const parseTutorRequest = (value: unknown): TutorRequest | null => {
     context: {
       kind: "gravity",
       stage: null,
-      parameters: { mass1: value.parameters.mass1, mass2: value.parameters.mass2, distance: value.parameters.distance },
+      parameters: {
+        mass1: value.parameters.mass1,
+        mass2: value.parameters.mass2,
+        distance: value.parameters.distance,
+      },
       ...(value.attempt && {
         challenge: value.attempt.challenge,
-        attempt: { challenge: value.attempt.challenge, prediction: String(value.attempt.prediction) as Prediction },
+        attempt: {
+          challenge: value.attempt.challenge,
+          prediction: String(value.attempt.prediction) as Prediction,
+        },
       }),
     },
     messages: [{ role: "user", content: legacyQuestions[value.locale] }],

@@ -49,6 +49,12 @@
     "galleryLabel": "GALERÍA"
   },
   "Gravity": {
+    "stageTags": {
+      "discover": "Descubre",
+      "understand": "Comprende",
+      "experiment": "Experimenta",
+      "check": "Comprueba"
+    },
     "panels": {
       "choose": "Panel visible",
       "show": "Mostrar {panel}",
@@ -99,9 +105,9 @@
     "challengeHeading": "Pon a prueba lo aprendido",
     "formulaAccess": "Fórmula",
     "closeFormula": "Cerrar fórmula",
-    "challengeScenarioBase": "La simulación muestra el escenario base. El cambio del reto se aplicará al comprobar tu respuesta.",
-    "challengeScenarioApplied": "La simulación muestra el cambio de este reto.",
-    "challengeScenarioCustom": "La simulación muestra los valores actuales. Compara tu predicción con la referencia indicada.",
+    "challengeScenarioBase": "El laboratorio utiliza el escenario base. El cambio del reto se aplicará al comprobar tu respuesta.",
+    "challengeScenarioApplied": "Los parámetros del laboratorio corresponden al cambio de este reto.",
+    "challengeScenarioCustom": "El laboratorio utiliza los valores actuales. Compara tu predicción con la referencia indicada.",
     "formulaConstantValue": "G = {value} × 10<power>{exponent}</power> <unit>N·m²/kg²</unit>",
     "formulaConstantDescription": "Valor fijo utilizado para calcular la fuerza gravitatoria.",
     "formulaConstantTitle": "Constante de gravitación universal",
@@ -318,6 +324,10 @@
     "resetLaboratoryHint": "Restablecer devuelve ambas masas a 40 kg y la distancia a 8 m, con F como incógnita, en todas las vistas."
   },
   "Tutor": {
+    "configureExperiment": "Configurar con IA",
+    "configureInvitation": "Escribe el cambio que deseas, por ejemplo: «Duplica la primera masa y aumenta la distancia a 12 metros». Revisarás una propuesta antes de aplicar los cambios.",
+    "explainFormula": "Explícame esta fórmula",
+    "formulaQuestion": "Explícame esta fórmula con los valores actuales de mi laboratorio. ¿Qué significan F, G, m₁, m₂ y r, por qué la distancia está al cuadrado y cómo leo la notación científica? Usa un ejemplo sencillo, sin modificar los parámetros.",
     "proposalRejected": "No puedo ofrecer un cambio aplicable con esos valores. El laboratorio admite masas de 10 a 100 kg en pasos de 1 kg y distancias de 5 a 20 m en pasos de 0,1 m. Nada ha cambiado. Indica qué masa o distancia quieres ajustar dentro de esos límites; podemos explicar otros casos sin modificar el simulador.",
     "proposalTitle": "Cambios propuestos",
     "proposalTo": "a",

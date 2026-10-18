@@ -34,6 +34,6 @@ export const openaiTutor: Tutor = {
       .filter((item) => item.type === "output_text")
       .map((item) => item.text ?? "").join("\n").trim();
     if (!text || data.status !== "completed") throw new Error("Incomplete tutor response");
-    return parseTutorReply(request.context.kind === "gravity" ? JSON.parse(text) : { text }, request.context);
+    return parseTutorReply(request.context.kind === "gravity" ? JSON.parse(text) : { text }, request.context, request.intent);
   },
 };

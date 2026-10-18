@@ -580,3 +580,47 @@ test("API keeps valid proposals and translates rejected actions into educational
     else process.env.OPENAI_MODEL = previousModel;
   }
 });
+
+test("formula explanation intent is restricted to the understanding stage", () => {
+  const request = { ...validRequest(), intent: "explain_formula" };
+  request.context.stage = "gravity-understanding";
+  for (const locale of ["es", "en", "fr"]) assert.equal(isTutorRequest({ ...request, locale }), true);
+  assert.equal(isTutorRequest({ ...request, intent: "execute" }), false);
+  assert.equal(isTutorRequest({ ...request, context: { kind: "three-body" } }), false);
+  assert.equal(isTutorRequest({ ...request, context: { ...request.context, stage: "gravity-challenges" } }), false);
+  const prompt = buildTutorPrompt(request);
+  assert.match(prompt.instructions, /explanation-only/);
+  assert.match(prompt.instructions, /Return proposal null regardless/);
+  assert.match(prompt.instructions, /negative power of ten/);
+  assert.match(prompt.instructions, /"mass1":40/);
+});
+
+test("formula explanation discards model actions while normal chat retains proposals", () => {
+  const { parseTutorReply } = load("ai/application/tutorResponse");
+  const context = validRequest().context;
+  const reply = { text: "Explanation", proposal: { action: "set_gravity_parameters", parameters: { mass1: 80, mass2: null, distance: null } } };
+  assert.deepEqual(parseTutorReply(reply, context, "explain_formula"), { text: "Explanation" });
+  assert.deepEqual(parseTutorReply(reply, context).proposal, reply.proposal);
+  assert.deepEqual(parseTutorReply({ ...reply, proposal: { arbitrary: true } }, context, "explain_formula"), { text: "Explanation" });
+});
+
+test("experiment explanation uses trusted domain values and only accepts its own stage", () => {
+  const request = { ...validRequest(), intent: "explain_experiment" };
+  request.context = { kind: "gravity", stage: "gravity-laboratory", parameters: { mass1: 50, mass2: 75, distance: 12 } };
+  for (const locale of ["es", "en", "fr"]) assert.equal(isTutorRequest({ ...request, locale }), true);
+  for (const stage of [null, "gravity-discovery", "gravity-understanding", "gravity-challenges"]) {
+    assert.equal(isTutorRequest({ ...request, context: { ...request.context, stage } }), false);
+  }
+  assert.equal(isTutorRequest({ ...request, intent: "configure_experiment" }), false);
+  assert.equal(isTutorRequest({ ...request, context: { kind: "three-body" } }), false);
+  const context = buildTutorContext(request.context);
+  assert.equal(context.current.forceNewtons, gravitationalForce(request.context.parameters));
+  const prompt = buildTutorPrompt(request);
+  assert.match(prompt.instructions, /experiment explanation is read-only/);
+  assert.match(prompt.instructions, /return proposal null regardless/);
+  assert.ok(prompt.instructions.includes(JSON.stringify(context.current)));
+  const { parseTutorReply } = load("ai/application/tutorResponse");
+  for (const proposal of [null, { action: "set_gravity_parameters", parameters: { mass1: 80, mass2: null, distance: null } }, { action: "execute" }]) {
+    assert.deepEqual(parseTutorReply({ text: "Explanation", proposal }, request.context, request.intent), { text: "Explanation" });
+  }
+});

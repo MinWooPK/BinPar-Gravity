@@ -62,7 +62,7 @@ export const useTutorConversation = () => {
         const notConfigured = typeof data === "object" && data !== null && "error" in data && data.error === "not_configured";
         update(target, { error: notConfigured ? "notConfigured" : response.status === 429 ? "rateLimited" : "error" });
       } else {
-        const reply = parseTutorReply(data, request.context);
+        const reply = parseTutorReply(data, request.context, request.intent);
         const previous = sessionsRef.current[target] ?? emptySession();
         const message: ChatMessage = {
           id: ++sequence.current, role: "assistant", content: reply.proposalRejected ? t("proposalRejected") : reply.text,
@@ -82,15 +82,19 @@ export const useTutorConversation = () => {
     }
   };
 
-  const ask = (mode: TutorRequest["mode"], question: string) => {
+  const ask = (mode: TutorRequest["mode"], question: string, intent?: TutorRequest["intent"]) => {
     const content = question.trim();
     if (!sessionKey || !content || content.length > TUTOR_MAX_MESSAGE_LENGTH || inFlight.current.has(key)) return;
     const page = current();
     if (!page) { update(key, { error: "contextUnavailable" }); return; }
+    if (intent) {
+      const stage = intent === "explain_formula" ? "gravity-understanding" : "gravity-laboratory";
+      if (page.context.kind !== "gravity" || page.context.stage !== stage) return;
+    }
     const previous = sessionsRef.current[key] ?? emptySession();
     const messages: ChatMessage[] = [...previous.messages, { id: ++sequence.current, role: "user" as const, content }].slice(-48);
     update(key, { messages, draft: "" });
-    void performRequest(key, { locale, mode, context: page.context, messages: requestHistory(messages) });
+    void performRequest(key, { locale, mode, ...(intent && { intent }), context: page.context, messages: requestHistory(messages) });
   };
 
   const decideProposal = (messageId: number, decision: "apply" | "cancel") => {

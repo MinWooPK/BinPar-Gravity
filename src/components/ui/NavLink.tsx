@@ -26,7 +26,7 @@ export const NavLink = ({ href, children, className }: NavLinkProps) => {
         transition-colors
         duration-200
         motion-reduce:transition-none
-        ${isActive ? "text-cyan-100" : "text-slate-300 hover:text-white"}
+        ${isActive ? "text-[#F8BA00]" : "text-slate-300 hover:text-white"}
       `}
     >
       {children}

@@ -20,7 +20,7 @@ const fields = [
   { key: "distance", symbol: "r", unit: "m", label: "formulaDistanceLabel", description: "formulaDistanceDescription" },
 ] as const;
 
-export const GravityFormula = ({ action }: { action?: ReactNode }) => {
+export const GravityFormula = ({ action, explanation }: { action?: ReactNode; explanation?: ReactNode }) => {
   const { resetVersion, resetParameters } = useGravityControls();
   const interaction = useGravityFormulaInteraction();
   const resetButtonRef = useRef<HTMLButtonElement>(null);
@@ -35,6 +35,7 @@ export const GravityFormula = ({ action }: { action?: ReactNode }) => {
     <GravityFormulaContent
       key={resetVersion}
       action={action}
+      explanation={explanation}
       resetButtonRef={resetButtonRef}
       onReset={() => {
         interaction.select(null);
@@ -46,7 +47,8 @@ export const GravityFormula = ({ action }: { action?: ReactNode }) => {
   );
 };
 
-const GravityFormulaContent = ({ action, resetButtonRef, onReset }: {
+const GravityFormulaContent = ({ action, explanation, resetButtonRef, onReset }: {
+  explanation?: ReactNode;
   action?: ReactNode;
   resetButtonRef: RefObject<HTMLButtonElement | null>;
   onReset: () => void;
@@ -156,6 +158,7 @@ const GravityFormulaContent = ({ action, resetButtonRef, onReset }: {
           </div>
         </fieldset>
       </div>
+      {explanation}
       <div className={styles.fields}>
         {fields.map((field) => {
           const calculated = unknown === field.key;

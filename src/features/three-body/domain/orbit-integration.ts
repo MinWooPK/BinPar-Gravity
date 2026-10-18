@@ -101,7 +101,10 @@ function positions(state: readonly number[]): number[] {
  * is absolute. Other extrema are observed at accepted steps, not guaranteed
  * continuous-time extrema. Closure values are RMS differences from the seed.
  */
-export const integrateOrbit = (orbit: OrbitDefinition, sampleCount = 1200): OrbitData => {
+export const integrateOrbit = (
+  orbit: OrbitDefinition,
+  sampleCount = 1200,
+): OrbitData => {
   if (!Number.isFinite(orbit.period) || orbit.period <= 0) {
     throw new RangeError("The period must be a positive finite number.");
   }
