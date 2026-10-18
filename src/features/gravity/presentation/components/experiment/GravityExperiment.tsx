@@ -69,12 +69,12 @@ export const GravityExperiment = ({
           <GravitySlider
             key={control.key}
             control={control}
-            value={parameters[control.key] / control.scale}
+            value={parameters[control.key]}
             descriptionId={`${id}-controls-hint ${id}-force-explanation ${id}-intensity-description`}
             onChange={(value) =>
               onChange({
                 ...parameters,
-                [control.key]: value * control.scale,
+                [control.key]: value,
               })
             }
           />

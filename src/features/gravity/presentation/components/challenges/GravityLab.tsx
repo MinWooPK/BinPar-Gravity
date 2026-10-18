@@ -80,7 +80,7 @@ export const GravityLab = () => {
   const challengeHeadingRef = useRef<HTMLHeadingElement>(null);
   const feedbackRef = useRef<HTMLParagraphElement>(null);
   const pendingFocus = useRef<"challenge" | "feedback" | null>(null);
-  // Entering the challenge restores its scenario, without resetting the formula draft.
+  // Entering a challenge restores its scenario and synchronizes the shared formula.
   useLayoutEffect(() => {
     if (activeStage === "gravity-challenges") {
       setParameters(revealed ? challenge.parameters : initialParameters);

@@ -1,7 +1,0 @@
-.applyButton:hover:enabled { background: #aa97ff35; border-color: #c0b3ff; }
-.applyButton:focus-visible { outline: 2px solid #c0b3ff; outline-offset: 3px; }
-.applyButton:disabled { opacity: .45; cursor: not-allowed; }
-
-@media (prefers-reduced-motion: reduce) {
-  .applyButton { transition: none; }
-}

@@ -5,6 +5,20 @@ import type {
 } from "../types/gravity.types";
 export const GRAVITATIONAL_CONSTANT = 6.6743e-11;
 
+/** Interactive laboratory limits in SI; the physical law itself is unrestricted. */
+export const laboratoryLimits = {
+  mass1: { min: 10, max: 100, step: 1 },
+  mass2: { min: 10, max: 100, step: 1 },
+  distance: { min: 5, max: 20, step: 0.1 },
+} as const;
+
+export const isWithinLaboratoryRange = (parameters: GravityParameters) =>
+  (Object.keys(laboratoryLimits) as (keyof GravityParameters)[]).every((key) => {
+    const value = parameters[key];
+    const { min, max } = laboratoryLimits[key];
+    return Number.isFinite(value) && value >= min && value <= max;
+  });
+
 /** SI units: kilograms, metres and newtons. Distance is centre to centre. */
 export const gravitationalForce = ({
   mass1,
@@ -22,24 +36,24 @@ export const gravitationalForce = ({
 };
 
 export const initialParameters: GravityParameters = {
-  mass1: 40e12,
-  mass2: 40e12,
-  distance: 8000,
+  mass1: 40,
+  mass2: 40,
+  distance: 8,
 };
 export const challenges = [
   {
     id: "oneMass",
-    parameters: { mass1: 80e12, mass2: 40e12, distance: 8000 },
+    parameters: { mass1: 80, mass2: 40, distance: 8 },
     answer: "double",
   },
   {
     id: "bothMasses",
-    parameters: { mass1: 80e12, mass2: 80e12, distance: 8000 },
+    parameters: { mass1: 80, mass2: 80, distance: 8 },
     answer: "four",
   },
   {
     id: "distance",
-    parameters: { mass1: 40e12, mass2: 40e12, distance: 16000 },
+    parameters: { mass1: 40, mass2: 40, distance: 16 },
     answer: "quarter",
   },
 ] as const;

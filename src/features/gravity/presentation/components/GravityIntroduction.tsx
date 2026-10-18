@@ -4,7 +4,6 @@ import { GravityFormula } from "./understanding/GravityFormula";
 import { GravityFormulaInteractionProvider } from "./understanding/GravityFormulaInteraction";
 import { GravityPrinciplesChallenge } from "./discovery/GravityPrinciples";
 import { GravityUnderstandingSimulation } from "./understanding/GravityUnderstandingSimulation";
-import { GravityFormulaSession } from "../providers/GravityParametersProvider";
 import { gravityStageById } from "../../application/gravityJourney";
 import { gravityJourneyStyles as journeyStyles } from "./GravityJourney.styles";
 import { gravityStageLayoutStyles as layoutStyles } from "./shared/GravityStageLayout.styles";
@@ -25,7 +24,7 @@ export const GravityIntroduction = () => {
             <GravityUnderstandingSimulation />
           </div>
           <div className={layoutStyles.content}>
-            <GravityFormulaSession><GravityFormula action={<GravityPrinciplesChallenge />} /></GravityFormulaSession>
+            <GravityFormula action={<GravityPrinciplesChallenge />} />
           </div>
         </div>
       </GravityFormulaInteractionProvider>

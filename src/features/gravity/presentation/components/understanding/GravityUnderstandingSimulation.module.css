@@ -73,10 +73,12 @@
   .compact .values > div { padding: 0; }
 }
 .sphere[data-active="true"] { stroke: #c4b5fd; }
+.position { transition: transform 140ms linear; }
+.radius { transition: r 140ms linear, stroke 140ms; }
 .sphere[data-simulation-variable="mass2"][data-active="true"] { stroke: #5ee7d5; }
 .separation[data-active="true"] { stroke: #d8b4fe; stroke-width: 2.5; }
 .force[data-active="true"] { border-color: #aa97ff70; background: #aa97ff10; }
 .values > div { padding: 4px; border: 1px solid transparent; border-radius: 7px; transition: background 140ms, border-color 140ms; }
 .values > div[data-active="true"] { border-color: #aa97ff70; background: #aa97ff12; }
 .values > div:nth-child(2)[data-active="true"] { border-color: #5ee7d570; background: #5ee7d510; }
-@media (prefers-reduced-motion: reduce) { .sphere, .separation, .force, .values > div { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .sphere, .separation, .position, .radius, .force, .values > div { transition: none; } }

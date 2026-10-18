@@ -17,9 +17,9 @@ const compare = (parameters) => bars(force(parameters), force(base));
 
 test('arrows keep identical constant lengths and opposite inward directions across all distances', () => {
   const length = diagram(base).leftArrow.end - diagram(base).leftArrow.start;
-  for (let kmTenths = 50; kmTenths <= 200; kmTenths++) {
-    for (const mass1 of [1e13, 4e13, 1e14]) for (const mass2 of [1e13, 4e13, 1e14]) {
-      const d = diagram({ mass1, mass2, distance: kmTenths * 100 });
+  for (let metreTenths = 50; metreTenths <= 200; metreTenths++) {
+    for (const mass1 of [10, 40, 100]) for (const mass2 of [10, 40, 100]) {
+      const d = diagram({ mass1, mass2, distance: metreTenths / 10 });
       near(d.leftArrow.end - d.leftArrow.start, length);
       near(d.rightArrow.start - d.rightArrow.end, length);
       assert.ok(d.leftArrow.start < d.leftArrow.end);
@@ -29,8 +29,8 @@ test('arrows keep identical constant lengths and opposite inward directions acro
 });
 test('arrow shafts and tips remain outside body halos and never cross at mass and distance extremes', () => {
   for (let mass1 = 10; mass1 <= 100; mass1++) for (let mass2 = 10; mass2 <= 100; mass2++) {
-    for (const distance of [5000, 8000, 20000]) {
-      const d = diagram({ mass1: mass1 * 1e12, mass2: mass2 * 1e12, distance });
+    for (const distance of [5, 8, 20]) {
+      const d = diagram({ mass1, mass2, distance });
       assert.ok(d.leftArrow.start > d.x1 + d.radius1 + 9);
       assert.ok(d.rightArrow.start < d.x2 - d.radius2 - 9);
       assert.ok(d.leftArrow.end < d.rightArrow.end);
@@ -42,7 +42,7 @@ test('arrow shafts and tips remain outside body halos and never cross at mass an
 });
 test('initial bars are equal and the shared linear scale reproduces real Newtonian force ratios', () => {
   assert.deepEqual(compare(base), { currentFraction: 1, initialFraction: 1, ratio: 1 });
-  for (const mass1 of [1e13, 4e13, 8e13, 1e14]) for (const mass2 of [1e13, 4e13, 8e13, 1e14]) for (const distance of [5000, 8000, 16000, 20000]) {
+  for (const mass1 of [10, 40, 80, 100]) for (const mass2 of [10, 40, 80, 100]) for (const distance of [5, 8, 16, 20]) {
     const parameters = { mass1, mass2, distance };
     const b = compare(parameters);
     near(b.ratio, force(parameters) / force(base));
@@ -61,29 +61,29 @@ test('indicator increases with either mass and decreases with distance throughou
   for (const key of ['mass1', 'mass2']) {
     let previous = 0;
     for (let mass = 10; mass <= 100; mass++) {
-      const current = compare({ ...base, [key]: mass * 1e12 });
+      const current = compare({ ...base, [key]: mass });
       assert.ok(current.ratio > previous);
       near(current.currentFraction / current.initialFraction, current.ratio);
       previous = current.ratio;
     }
   }
   let previous = Infinity;
-  for (let distance = 5000; distance <= 20000; distance += 100) {
+  for (let distance = 5; distance <= 20; distance += 0.1) {
     const current = compare({ ...base, distance });
     assert.ok(current.ratio < previous);
     previous = current.ratio;
   }
 });
 test('slider minimum and maximum forces remain distinguishable without saturation or log scaling', () => {
-  const minimum = compare({ mass1: 1e13, mass2: 1e13, distance: 20000 });
-  const maximum = compare({ mass1: 1e14, mass2: 1e14, distance: 5000 });
+  const minimum = compare({ mass1: 10, mass2: 10, distance: 20 });
+  const maximum = compare({ mass1: 100, mass2: 100, distance: 5 });
   near(minimum.ratio, 0.01);
   near(maximum.ratio, 16);
   near(minimum.currentFraction, 0.01);
   near(maximum.initialFraction, 1 / 16);
 });
 test('swapping masses preserves intensity and exchanges body sizes', () => {
-  const a = { mass1: 3e13, mass2: 7e13, distance: 11000 };
+  const a = { mass1: 30, mass2: 70, distance: 11 };
   const b = { ...a, mass1: a.mass2, mass2: a.mass1 };
   near(compare(a).ratio, compare(b).ratio);
   near(diagram(a).radius1, diagram(b).radius2);
@@ -131,4 +131,15 @@ test('comparison and direction descriptions are translated in ES/EN/FR', () => {
     for (const key of ['forceComparisonTitle','forceComparisonDescription','forceComparisonInitial','forceComparisonCurrent','forceComparisonScale','directionOnlyNote','visualDescription']) assert.ok(messages[key]?.trim(), `${locale}.${key}`);
     assert.ok(messages.forceComparisonDescription.includes('{ratio}'));
   }
+});
+
+
+test('SI masses and centre distances change only illustrative radii and separation', () => {
+  const initial = diagram(base);
+  near(initial.separation, 196);
+  assert.ok(diagram({ ...base, mass1: 40.5 }).radius1 > initial.radius1);
+  assert.ok(diagram({ ...base, mass2: 40.5 }).radius2 > initial.radius2);
+  assert.ok(diagram({ ...base, distance: 8.25 }).separation > initial.separation);
+  assert.equal(diagram({ ...base, mass1: 80 }).separation, initial.separation);
+  assert.equal(diagram({ ...base, distance: 16 }).radius1, initial.radius1);
 });

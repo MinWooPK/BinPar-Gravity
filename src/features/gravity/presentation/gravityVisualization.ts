@@ -1,12 +1,13 @@
 import type { GravityParameters } from "../types/gravity.types";
+import { laboratoryLimits } from "../domain/gravitation";
 
 // Presentation units only. Arrow length encodes direction, never force.
 export const getGravityDiagram = ({ mass1, mass2, distance }: GravityParameters) => {
-  const separation = 160 + (distance / 1000 - 5) * 12;
+  const separation = 160 + (distance - laboratoryLimits.distance.min) * 12;
   const x1 = 260 - separation / 2;
   const x2 = 260 + separation / 2;
-  const radius1 = 15 + Math.cbrt(mass1 / 1e12) * 5;
-  const radius2 = 15 + Math.cbrt(mass2 / 1e12) * 5;
+  const radius1 = 15 + Math.cbrt(mass1) * 5;
+  const radius2 = 15 + Math.cbrt(mass2) * 5;
   const arrowLength = 24;
   const arrowOffset = 12;
 

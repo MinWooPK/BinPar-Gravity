@@ -19,12 +19,12 @@ execFileSync(process.execPath, [
 ]);
 const require = createRequire(import.meta.url);
 const { isTutorRequest } = require(join(directory, "features/ai/application/legacyTutorRequest.js"));
-const { challenges } = require(join(directory, "features/gravity/domain/gravitation.js"));
+const { challenges, initialParameters, laboratoryLimits } = require(join(directory, "features/gravity/domain/gravitation.js"));
 const locales = ["es", "en", "fr"];
 const validRequest = () => ({
   locale: "es",
   mode: "explain",
-  parameters: { mass1: 40e12, mass2: 40e12, distance: 8000 },
+  parameters: { ...initialParameters },
 });
 
 test("accepts every configured locale and tutor mode", () => {
@@ -51,14 +51,14 @@ test("rejects malformed requests, unsupported locales and unknown modes", () => 
 
 test("accepts inclusive mass and distance limits without normalizing values", () => {
   for (const key of ["mass1", "mass2"]) {
-    for (const value of [1e13, 1e14]) {
+    for (const value of [laboratoryLimits[key].min, laboratoryLimits[key].max]) {
       const request = validRequest();
       request.parameters[key] = value;
       assert.equal(isTutorRequest(request, locales), true);
       assert.equal(request.parameters[key], value);
     }
   }
-  for (const distance of [5000, 20000]) {
+  for (const distance of [laboratoryLimits.distance.min, laboratoryLimits.distance.max]) {
     const request = validRequest();
     request.parameters.distance = distance;
     assert.equal(isTutorRequest(request, locales), true);
@@ -70,13 +70,19 @@ test("rejects missing, non-finite, coerced and out-of-range physical parameters"
     assert.equal(isTutorRequest({ ...validRequest(), parameters }, locales), false);
   }
   for (const key of ["mass1", "mass2", "distance"]) {
-    const [minimum, maximum] = key === "distance" ? [5000, 20000] : [1e13, 1e14];
+    const { min: minimum, max: maximum } = laboratoryLimits[key];
     for (const value of [undefined, null, false, `${minimum}`, [minimum], NaN, Infinity, -Infinity, minimum - 1, maximum + 1]) {
       const request = validRequest();
       request.parameters[key] = value;
       assert.equal(isTutorRequest(request, locales), false, `${key}: ${String(value)}`);
     }
   }
+});
+
+test("accepts everyday decimal values but rejects the former astronomical laboratory scale", () => {
+  const decimal = { ...validRequest(), parameters: { mass1: 45.5, mass2: 62.25, distance: 9.3 } };
+  assert.equal(isTutorRequest(decimal, locales), true);
+  assert.equal(isTutorRequest({ ...validRequest(), parameters: { mass1: 40e12, mass2: 40e12, distance: 8000 } }, locales), false);
 });
 
 test("accepts optional attempts for every existing challenge and prediction", () => {

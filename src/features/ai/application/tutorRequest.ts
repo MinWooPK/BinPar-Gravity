@@ -1,5 +1,5 @@
 import { gravityStages } from "../../gravity/application/gravityJourney";
-import { challenges } from "../../gravity/domain/gravitation";
+import { challenges, laboratoryLimits } from "../../gravity/domain/gravitation";
 import type { Prediction } from "../../gravity/types/gravity.types";
 import { isTutorRequest as isLegacyTutorRequest } from "./legacyTutorRequest";
 import { getOrbit } from "../../three-body/data/orbits";
@@ -31,7 +31,9 @@ export const isTutorContext = (value: unknown): value is TutorContext => {
   if (value.stage !== null && !gravityStages.some(({ id }) => value.stage === id)) return false;
   if (!isRecord(value.parameters) || !hasOnlyKeys(value.parameters, ["mass1", "mass2", "distance"])) return false;
   const { mass1, mass2, distance } = value.parameters;
-  if (!inRange(mass1, 1e13, 1e14) || !inRange(mass2, 1e13, 1e14) || !inRange(distance, 5000, 20000)) return false;
+  if (!inRange(mass1, laboratoryLimits.mass1.min, laboratoryLimits.mass1.max) ||
+    !inRange(mass2, laboratoryLimits.mass2.min, laboratoryLimits.mass2.max) ||
+    !inRange(distance, laboratoryLimits.distance.min, laboratoryLimits.distance.max)) return false;
   if (value.challenge !== undefined && !isChallenge(value.challenge)) return false;
   if (value.prediction !== undefined && !isPrediction(value.prediction)) return false;
   if (value.attempt !== undefined) {

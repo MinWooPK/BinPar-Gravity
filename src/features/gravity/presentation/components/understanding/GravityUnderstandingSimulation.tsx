@@ -2,7 +2,6 @@
 
 import { useId } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { gravitationalForce } from "../../../domain/gravitation";
 import { useGravityParameters } from "../../providers/GravityParametersProvider";
 import { getGravityDiagram } from "../../gravityVisualization";
 import css from "./GravityUnderstandingSimulation.module.css";
@@ -27,11 +26,10 @@ export const GravityUnderstandingSimulation = ({ compact = false }: { compact?: 
   const t = useTranslations("Gravity");
   const format = useFormatter();
   const id = useId();
-  const { parameters } = useGravityParameters();
+  const { parameters, force } = useGravityParameters();
   const { active } = useGravityFormulaInteraction();
   const firstActive = active === "mass1" || active === "masses";
   const secondActive = active === "mass2" || active === "masses";
-  const force = gravitationalForce(parameters);
   const exponent = Math.floor(Math.log10(force));
   const mantissa = format.number(force / 10 ** exponent, { maximumFractionDigits: 2 });
   const { separation, x1, x2, radius1, radius2, leftArrow, rightArrow } = getGravityDiagram(parameters);
@@ -44,7 +42,7 @@ export const GravityUnderstandingSimulation = ({ compact = false }: { compact?: 
       </div>
       <div className={styles.force} data-simulation-variable="force" data-active={active === "force"}>
         <span>{t("force")}</span>
-        <output aria-live="off" aria-label={`${format.number(force, { maximumSignificantDigits: 3 })} N`}>
+        <output aria-live="off" aria-label={`${format.number(force, { notation: "scientific", maximumSignificantDigits: 3 })} N`}>
           {mantissa} × 10<sup>{exponent}</sup> <small>N</small>
         </output>
       </div>
@@ -69,15 +67,27 @@ export const GravityUnderstandingSimulation = ({ compact = false }: { compact?: 
           </defs>
           <path d="M40 100H480 M260 40V180" stroke="#94a3b8" strokeOpacity=".08" strokeDasharray="3 8" />
           <line x1={x1} y1="100" x2={x2} y2="100" stroke="#94a3b8" strokeOpacity=".4" strokeDasharray="3 6" />
-          <circle cx={x1} cy="100" r={radius1 + 9} fill="#a997ff" opacity=".05" />
-          <circle cx={x2} cy="100" r={radius2 + 9} fill="#5ee7d5" opacity=".05" />
-          <circle className={styles.sphere} data-simulation-variable="mass1" data-active={firstActive} cx={x1} cy="100" r={radius1} fill={`url(#${id}-purple)`} />
-          <circle className={styles.sphere} data-simulation-variable="mass2" data-active={secondActive} cx={x2} cy="100" r={radius2} fill={`url(#${id}-mint)`} />
-          <text x={x1} y="100" dominantBaseline="middle" textAnchor="middle" fill="#fff" className={styles.bodyLabel}>m₁</text>
-          <text x={x2} y="100" dominantBaseline="middle" textAnchor="middle" fill="#fff" className={styles.bodyLabel}>m₂</text>
-          <line x1={leftArrow.start} y1="100" x2={leftArrow.end} y2="100" stroke="#e2e8f0" strokeWidth="1.8" markerEnd={`url(#${id}-arrow)`} />
-          <line x1={rightArrow.start} y1="100" x2={rightArrow.end} y2="100" stroke="#e2e8f0" strokeWidth="1.8" markerEnd={`url(#${id}-arrow)`} />
-          <path className={styles.separation} data-simulation-variable="distance" data-active={active === "distance"} d={`M${x1} 158v12m0-6h${separation}m0-6v12`} stroke="#94a3b8" />
+          <g className={css.position} style={{ transform: `translateX(${x1}px)` }}>
+            <circle className={css.radius} cy="100" r={radius1 + 9} fill="#a997ff" opacity=".05" />
+            <circle className={`${styles.sphere} ${css.radius}`} data-simulation-variable="mass1" data-active={firstActive} cy="100" r={radius1} fill={`url(#${id}-purple)`} />
+            <text y="100" dominantBaseline="middle" textAnchor="middle" fill="#fff" className={styles.bodyLabel}>m₁</text>
+            <g className={css.position} style={{ transform: `translateX(${leftArrow.start - x1}px)` }}>
+              <line x1="0" y1="100" x2={leftArrow.end - leftArrow.start} y2="100" stroke="#e2e8f0" strokeWidth="1.8" markerEnd={`url(#${id}-arrow)`} />
+            </g>
+          </g>
+          <g className={css.position} style={{ transform: `translateX(${x2}px)` }}>
+            <circle className={css.radius} cy="100" r={radius2 + 9} fill="#5ee7d5" opacity=".05" />
+            <circle className={`${styles.sphere} ${css.radius}`} data-simulation-variable="mass2" data-active={secondActive} cy="100" r={radius2} fill={`url(#${id}-mint)`} />
+            <text y="100" dominantBaseline="middle" textAnchor="middle" fill="#fff" className={styles.bodyLabel}>m₂</text>
+            <g className={css.position} style={{ transform: `translateX(${rightArrow.start - x2}px)` }}>
+              <line x1="0" y1="100" x2={rightArrow.end - rightArrow.start} y2="100" stroke="#e2e8f0" strokeWidth="1.8" markerEnd={`url(#${id}-arrow)`} />
+            </g>
+          </g>
+          <g className={`${styles.separation} ${css.position}`} style={{ transform: `translateX(${x1}px)` }} data-simulation-variable="distance" data-active={active === "distance"} stroke="#94a3b8">
+            <path d="M0 158v12" />
+            <path className={css.position} style={{ transform: `scaleX(${separation})` }} d="M0 164h1" vectorEffect="non-scaling-stroke" />
+            <path className={css.position} style={{ transform: `translateX(${separation}px)` }} d="M0 158v12" />
+          </g>
           <text x="260" y="185" textAnchor="middle" fill="#e2e8f0" className={styles.distanceLabel}>r</text>
         </svg>
         <figcaption>{t("directionOnlyNote")}</figcaption>
@@ -85,15 +95,15 @@ export const GravityUnderstandingSimulation = ({ compact = false }: { compact?: 
       <dl className={styles.values}>
         <div data-active={firstActive}>
           <dt>{t("firstMass")}</dt>
-          <dd>{format.number(parameters.mass1 / 1e12)} × 10¹² kg</dd>
+          <dd>{format.number(parameters.mass1)} kg</dd>
         </div>
         <div data-active={secondActive}>
           <dt>{t("secondMass")}</dt>
-          <dd>{format.number(parameters.mass2 / 1e12)} × 10¹² kg</dd>
+          <dd>{format.number(parameters.mass2)} kg</dd>
         </div>
         <div data-active={active === "distance"}>
           <dt>{t("centreDistance")}</dt>
-          <dd>{format.number(parameters.distance / 1000)} km</dd>
+          <dd>{format.number(parameters.distance)} m</dd>
         </div>
       </dl>
     </section>

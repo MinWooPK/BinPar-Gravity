@@ -5,7 +5,6 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { GravityFormula } from "./GravityFormula";
 import { GravityFormulaInteractionProvider } from "./GravityFormulaInteraction";
-import { GravityFormulaSession } from "../../providers/GravityParametersProvider";
 import css from "./GravityFormulaAccess.module.css";
 
 const styles = {
@@ -18,7 +17,7 @@ const styles = {
 
 const FormulaAccessContext = createContext<((trigger: HTMLButtonElement) => void) | null>(null);
 
-/** The drawer reuses the calculator component and the single shared draft. */
+/** The drawer presents the same calculator state as the inline view. */
 export const GravityFormulaAccess = ({ children }: { children: ReactNode }) => {
   const t = useTranslations("Gravity");
   const [open, setOpen] = useState(false);
@@ -79,7 +78,7 @@ export const GravityFormulaAccess = ({ children }: { children: ReactNode }) => {
         </header>
         <div className={styles.content}>
           <GravityFormulaInteractionProvider>
-            <GravityFormulaSession><GravityFormula /></GravityFormulaSession>
+            <GravityFormula />
           </GravityFormulaInteractionProvider>
         </div>
       </dialog>

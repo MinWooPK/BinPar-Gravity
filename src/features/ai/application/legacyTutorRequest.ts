@@ -1,4 +1,4 @@
-import { challenges } from "../../gravity/domain/gravitation";
+import { challenges, laboratoryLimits } from "../../gravity/domain/gravitation";
 import type { TutorRequest } from "../types/legacyTutor.types";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -18,9 +18,9 @@ export const isTutorRequest = (
 
   const { mass1, mass2, distance } = value.parameters;
   if (
-    !isNumberInRange(mass1, 1e13, 1e14) ||
-    !isNumberInRange(mass2, 1e13, 1e14) ||
-    !isNumberInRange(distance, 5000, 20000)
+    !isNumberInRange(mass1, laboratoryLimits.mass1.min, laboratoryLimits.mass1.max) ||
+    !isNumberInRange(mass2, laboratoryLimits.mass2.min, laboratoryLimits.mass2.max) ||
+    !isNumberInRange(distance, laboratoryLimits.distance.min, laboratoryLimits.distance.max)
   ) return false;
 
   const { attempt } = value;

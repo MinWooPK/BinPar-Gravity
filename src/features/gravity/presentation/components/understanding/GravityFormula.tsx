@@ -6,11 +6,11 @@ import { useFormatter, useTranslations } from "next-intl";
 import type { GravityVariable } from "../../../types/gravity.types";
 import { parseFormulaValue } from "../../../application/parseFormulaValue";
 import { isInLaboratoryRange } from "../../../application/formulaInput";
+import { laboratoryLimits } from "../../../domain/gravitation";
 import { useGravityControls, useGravityFormulaDraft } from "../../providers/GravityParametersProvider";
 import { useGravityFormulaInteraction } from "./GravityFormulaInteraction";
 import type { FormulaTerm } from "../../../types/formula.types";
 import { GravityFormulaLegend } from "./GravityFormulaLegend";
-import { GravityFormulaApplication } from "./GravityFormulaApplication";
 import { gravityFormulaStyles as styles } from "./GravityFormula.styles";
 
 const fields = [
@@ -59,7 +59,7 @@ const GravityFormulaContent = ({ action, resetButtonRef, onReset }: {
   const inputRefs = useRef<Partial<Record<GravityVariable, HTMLInputElement | null>>>({});
   const isActive = (term: FormulaTerm) => active === term || (active === "masses" && (term === "mass1" || term === "mass2"));
   const currentValue = (key: GravityVariable) => unknown === key ? result?.[key] ?? null : parseFormulaValue(values[key]);
-  const formatValue = (value: number) => format.number(value, { maximumSignificantDigits: 6 });
+  const formatValue = (value: number) => format.number(value, { maximumSignificantDigits: 6, ...(value < 0.001 ? { notation: "scientific" } : {}) });
   const focusField = (key: GravityVariable) => {
     select(key);
     inputRefs.current[key]?.focus({ preventScroll: true });
@@ -87,9 +87,16 @@ const GravityFormulaContent = ({ action, resetButtonRef, onReset }: {
     );
   };
   const invalidFields = fields.filter(({ key }) => key !== unknown && values[key].trim() !== "" && parseFormulaValue(values[key]) === null);
+  const rangeError = (result !== null && !isInLaboratoryRange(result)) ||
+    fields.some(({ key }) => {
+      if (key === "force" || key === unknown) return false;
+      const value = parseFormulaValue(values[key]);
+      return value !== null && (value < laboratoryLimits[key].min || value > laboratoryLimits[key].max);
+    });
   const status = invalidFields.length > 0
     ? t("invalidFormulaValue", { symbol: invalidFields[0].symbol })
     : numericalError ? t("numericalError")
+      : rangeError ? t("outsideLabRange")
       : result && unknown ? t("automaticResult", { symbol: fields.find(({ key }) => key === unknown)!.symbol, value: formatValue(result[unknown]), unit: fields.find(({ key }) => key === unknown)!.unit })
         : "";
 
@@ -103,7 +110,7 @@ const GravityFormulaContent = ({ action, resetButtonRef, onReset }: {
     >
       <div className={styles.header}>
         <h3 id={`${id}-heading`}>{t("introFormulaTitle")}</h3>
-        <div className={styles.headerActions}>{action}<button ref={resetButtonRef} type="button" onClick={onReset} aria-label={t("reset")} className={styles.reset}>{t("resetShort")}</button></div>
+        <div className={styles.headerActions}>{action}<button ref={resetButtonRef} type="button" onClick={onReset} aria-label={t("reset")} aria-describedby={`${id}-reset-hint`} className={styles.reset}>{t("resetShort")}</button></div>
       </div>
       <p id={`${id}-instructions`} className="sr-only">{t("formulaFieldsInstruction")}</p>
       <p className="sr-only">{t("formulaSpoken")}</p>
@@ -152,7 +159,10 @@ const GravityFormulaContent = ({ action, resetButtonRef, onReset }: {
       <div className={styles.fields}>
         {fields.map((field) => {
           const calculated = unknown === field.key;
-          const invalid = !calculated && values[field.key].trim() !== "" && parseFormulaValue(values[field.key]) === null;
+          const value = calculated ? result?.[field.key] ?? null : parseFormulaValue(values[field.key]);
+          const limits = field.key === "force" ? null : laboratoryLimits[field.key];
+          const invalid = (!calculated && values[field.key].trim() !== "" && value === null) ||
+            (value !== null && limits !== null && (value < limits.min || value > limits.max));
           return (
             <div
               key={field.key}
@@ -176,7 +186,7 @@ const GravityFormulaContent = ({ action, resetButtonRef, onReset }: {
                   inputMode="decimal"
                   autoComplete="off"
                   spellCheck={false}
-                  value={calculated ? (result ? String(result[field.key]) : "") : values[field.key]}
+                  value={calculated ? (result ? String(Number(result[field.key].toPrecision(12))) : "") : values[field.key]}
                   placeholder={calculated ? t("resultPendingShort") : t("enterValue")}
                   readOnly={calculated}
                   aria-invalid={invalid}
@@ -199,9 +209,11 @@ const GravityFormulaContent = ({ action, resetButtonRef, onReset }: {
           : t("formulaThreeKnownHint")}
       </p>
       <GravityFormulaLegend id={id} />
-      <p id={`${id}-status`} role="status" aria-atomic="true" className={invalidFields.length > 0 || numericalError ? styles.error : "sr-only"}>{status}</p>
-      {result && !isInLaboratoryRange(result) && <p className={styles.error}>{t("outsideLabRange")}</p>}
-      <GravityFormulaApplication result={result} valid={invalidFields.length === 0 && !numericalError} hasInputs={Object.values(values).some((value) => value.trim() !== "")} />
+      <p id={`${id}-status`} role="status" aria-atomic="true" className={invalidFields.length > 0 || numericalError || rangeError ? styles.error : "sr-only"}>{status}</p>
+      <p data-formula-sync-status className={styles.help}>
+        {t(result && isInLaboratoryRange(result) ? "formulaAutomaticSync" : "formulaPendingSync")}
+      </p>
+      <p id={`${id}-reset-hint`} className={styles.help}>{t("resetLaboratoryHint")}</p>
     </section>
   );
 };

@@ -70,8 +70,8 @@ test('comparison always uses the supplied baseline and does not mutate inputs', 
 });
 test('floating point noise is tolerated, but small real slider changes are preserved', () => {
   assert.equal(compare({ ...base, mass1: base.mass1 * (1 + Number.EPSILON) }).explanation, 'initial');
-  assert.equal(compare({ ...base, mass1: base.mass1 + 1e12 }).explanation, 'massChanged');
-  assert.equal(compare({ ...base, distance: base.distance + 100 }).explanation, 'distanceChanged');
+  assert.equal(compare({ ...base, mass1: base.mass1 + 1 }).explanation, 'massChanged');
+  assert.equal(compare({ ...base, distance: base.distance + 0.1 }).explanation, 'distanceChanged');
   assert.equal(compare({ ...base, mass1: base.mass1 * (2 + Number.EPSILON) }).explanation, 'massDoubled');
 });
 test('invalid and numerically unrepresentable comparisons are rejected', () => {

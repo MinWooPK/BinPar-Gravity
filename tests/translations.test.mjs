@@ -42,6 +42,21 @@ test("the gravity experiment has all its directly referenced messages", () => {
   }
 });
 
+test("laboratory synchronization and reset instructions are translated using everyday SI units", () => {
+  const required = ["formulaAutomaticSync", "formulaPendingSync", "resetLaboratoryHint", "outsideLabRange"];
+  for (const { locale, messages } of dictionaries) {
+    for (const key of required) {
+      assert.equal(typeof messages.Gravity[key], "string", `${locale}: Gravity.${key}`);
+      assert.ok(messages.Gravity[key].trim(), `${locale}: Gravity.${key}`);
+    }
+    assert.match(messages.Gravity.baseline, /40 kg/);
+    assert.match(messages.Gravity.baseline, /8 m/);
+    assert.match(messages.Gravity.outsideLabRange, /10–100 kg/);
+    assert.match(messages.Gravity.outsideLabRange, /5–20 m/);
+    assert.doesNotMatch(JSON.stringify(messages.Gravity), /10¹²|\bkm\b|kilom(?:et|èt)/);
+  }
+});
+
 test("orbit animation controls and descriptions are translated in every locale", () => {
   const files = [
     "../src/features/three-body/presentation/components/shared/OrbitAnimation.tsx",

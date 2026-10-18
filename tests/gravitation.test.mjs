@@ -24,6 +24,8 @@ const {
   initialParameters: base,
   challenges,
   solveGravity,
+  laboratoryLimits,
+  isWithinLaboratoryRange,
 } = createRequire(import.meta.url)(join(directory, "features/gravity/domain/gravitation.js"));
 const near = (actual, expected) =>
   assert.ok(Math.abs(actual - expected) <= Math.abs(expected) * 1e-12);
@@ -56,7 +58,7 @@ test("invalid physical inputs are rejected", () => {
 });
 
 test("every unknown can be recovered from the other three SI values", () => {
-  const expected = { mass1: 68e12, mass2: 54e12, distance: 10400 };
+  const expected = { mass1: 68, mass2: 54, distance: 10.4 };
   const all = { ...expected, force: force(expected) };
   for (const unknown of ["force", "mass1", "mass2", "distance"]) {
     const known = { ...all };
@@ -84,4 +86,26 @@ test("inverse solver rejects missing, non-positive and non-finite known values",
       solveGravity("distance", { force: 1e-300, mass1: 1e300, mass2: 1e300 }),
     RangeError,
   );
+});
+
+
+test("everyday laboratory defaults use SI and preserve a small, nonzero force", () => {
+  assert.deepEqual(base, { mass1: 40, mass2: 40, distance: 8 });
+  near(force(base), 1.668575e-9);
+  assert.equal(laboratoryLimits.mass1.step, 1);
+  assert.equal(laboratoryLimits.mass2.step, 1);
+  assert.equal(laboratoryLimits.distance.step, 0.1);
+  for (const challenge of challenges) assert.equal(isWithinLaboratoryRange(challenge.parameters), true);
+});
+
+test("laboratory bounds include exact limits and decimals without restricting the physical law", () => {
+  for (const parameters of [base, { mass1: 10, mass2: 100, distance: 5 }, { mass1: 100, mass2: 10, distance: 20 }, { mass1: 40.5, mass2: 54.25, distance: 8.25 }]) {
+    assert.equal(isWithinLaboratoryRange(parameters), true);
+  }
+  for (const [key, limits] of Object.entries(laboratoryLimits)) {
+    for (const value of [limits.min - 0.0001, limits.max + 0.0001, 0, NaN, Infinity]) {
+      assert.equal(isWithinLaboratoryRange({ ...base, [key]: value }), false);
+    }
+  }
+  near(force({ mass1: 1, mass2: 1, distance: 1 }), 6.6743e-11);
 });

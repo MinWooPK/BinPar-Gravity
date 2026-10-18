@@ -26,7 +26,7 @@ const { buildTutorPrompt } = load("ai/application/tutorPrompt");
 const { gravityStages, gravityStageById } = load("gravity/application/gravityJourney");
 const limits = load("ai/application/tutor");
 const guards = load("ai/infrastructure/requestGuard");
-const { initialParameters, gravitationalForce, challenges } = load("gravity/domain/gravitation");
+const { initialParameters, gravitationalForce, challenges, laboratoryLimits } = load("gravity/domain/gravitation");
 const { orbits, publishedOrbits } = load("three-body/data/orbits");
 const validRequest = () => ({
   locale: "es",
@@ -88,7 +88,7 @@ test("shared tutor rejects foreign context data, invalid numbers and incompatibl
     { ...validRequest().context, stage: undefined },
     { ...validRequest().context, forceNewtons: 123 },
     { ...validRequest().context, slug: "lagrange" },
-    { ...validRequest().context, parameters: { ...initialParameters, mass1: "40000000000000" } },
+    { ...validRequest().context, parameters: { ...initialParameters, mass1: "40" } },
     { ...validRequest().context, parameters: { ...initialParameters, mass2: Infinity } },
     { ...validRequest().context, parameters: { ...initialParameters, distance: 0 } },
     { ...validRequest().context, parameters: { ...initialParameters, label: "ignored?" } },
@@ -106,6 +106,38 @@ test("shared tutor rejects foreign context data, invalid numbers and incompatibl
     { kind: "three-body", slug: "lagrange", initial: [[0, 0, 0, 0]] },
   ]) assert.equal(isTutorRequest({ ...validRequest(), context }), false, JSON.stringify(context));
   assert.equal(isTutorRequest({ ...validRequest(), extra: "untrusted" }), false);
+});
+
+test("shared tutor accepts current SI laboratory bounds and rejects the previous scale", () => {
+  for (const key of ["mass1", "mass2", "distance"]) {
+    const { min, max } = laboratoryLimits[key];
+    for (const value of [min, max, (min + max) / 2]) {
+      const context = { ...validRequest().context, parameters: { ...initialParameters, [key]: value } };
+      assert.equal(isTutorRequest({ ...validRequest(), context }), true);
+    }
+    for (const value of [min - 0.01, max + 0.01]) {
+      const context = { ...validRequest().context, parameters: { ...initialParameters, [key]: value } };
+      assert.equal(isTutorRequest({ ...validRequest(), context }), false);
+    }
+  }
+  const context = { ...validRequest().context, parameters: { mass1: 40e12, mass2: 40e12, distance: 8000 } };
+  assert.equal(isTutorRequest({ ...validRequest(), context }), false);
+});
+
+test("tutor context derives tiny nonzero forces from the current SI parameters", () => {
+  const parameters = { mass1: 45.5, mass2: 62.25, distance: 9.3 };
+  const context = { ...validRequest().context, parameters, stage: "gravity-understanding" };
+  const request = { ...validRequest(), context };
+  assert.equal(isTutorRequest(request), true);
+  const trusted = buildTutorContext(context);
+  assert.deepEqual(trusted.current, { ...parameters, forceNewtons: gravitationalForce(parameters) });
+  assert.deepEqual(trusted.baseline, { mass1: 40, mass2: 40, distance: 8, forceNewtons: gravitationalForce(initialParameters) });
+  assert.ok(Math.abs(trusted.baseline.forceNewtons / 1.668575e-9 - 1) < 1e-14);
+  assert.ok(trusted.current.forceNewtons > 0 && trusted.current.forceNewtons < 1e-6);
+  assert.deepEqual(trusted.laboratory.limits, laboratoryLimits);
+  assert.match(trusted.laboratory.scale, /scientific notation/);
+  assert.match(trusted.laboratory.illustration, /not to scale/);
+  assert.match(buildTutorPrompt(request).instructions, /do not turn a small nonzero force into zero/);
 });
 
 test("message limits reject empty, oversized, privileged and incomplete dialogue", () => {
@@ -157,7 +189,7 @@ test("gravity force, challenge ratios and correctness are independently computed
     const context = {
       ...validRequest().context,
       stage: "gravity-challenges",
-      parameters: { ...initialParameters, distance: 12000 },
+      parameters: { ...initialParameters, distance: 12 },
       challenge: challenge.id,
       attempt: { challenge: challenge.id, prediction: challenge.answer },
     };

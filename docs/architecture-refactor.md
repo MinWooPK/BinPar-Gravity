@@ -36,7 +36,6 @@ src/
 │   │   │   │   ├── experiment/
 │   │   │   │   ├── shared/
 │   │   │   │   └── understanding/
-│   │   │   ├── hooks/
 │   │   │   └── providers/
 │   │   └── types/
 │   ├── home/
@@ -78,7 +77,8 @@ Los tipos van en imports `import type`. El grafo de imports de ejecución no pre
 - `StageSelector` ya existía; Gravity ahora lo reutiliza mediante un adaptador pequeño con sus etiquetas y su indicador original. Se conservan menús, Escape, foco y navegación.
 - `useTutorConversation` separa sesiones, solicitudes, errores, reintentos y cancelación del JSX de `GlobalTutor`. El diálogo, el foco y la adaptación al teclado móvil permanecen en la vista.
 - `tutorEnvironment` separa el contexto del provider y del consumidor y elimina el ciclo entre `TutorProvider` y `GlobalTutor`.
-- Se conserva la separación actual de contextos de parámetros y borrador de fórmula, que evita renders del laboratorio al editar el borrador. No se fragmentan innecesariamente `GravityFormula`, `OrbitGallery` ni los coordinadores de navegación: sus responsabilidades ya son cohesivas.
+- `GravityParametersProvider` mantiene una única fuente de parámetros físicos. El reducer puro de `application/gravityState.ts` coordina los cambios de fórmula, sliders, retos y restablecimiento en un solo evento. Los contextos de parámetros, controles y texto de edición permiten consumir cada responsabilidad por separado. El texto incompleto o fuera de rango permanece editable sin modificar los últimos parámetros válidos. La fórmula integrada y el drawer comparten ese estado; se han retirado `GravityFormulaSession`, `GravityFormulaApplication` y el hook independiente `useGravityFormula`, al desaparecer la aplicación manual. El comportamiento y el restablecimiento se describen en [gravity-synchronization.md](./gravity-synchronization.md).
+- No se fragmentan innecesariamente `GravityFormula`, `OrbitGallery` ni los coordinadores de navegación: sus responsabilidades ya son cohesivas.
 
 No se crean Button/Card/Text/Select genéricos sin una duplicidad que justifique el cambio.
 
@@ -115,7 +115,6 @@ Se mantienen keyframes, animaciones, canvas/starfield, dibujo SVG, pseudo-elemen
 - `src/features/gravity/presentation/components/shared/GravityStageLayout.module.css`
 - `src/features/gravity/presentation/components/understanding/GravityFormula.module.css`
 - `src/features/gravity/presentation/components/understanding/GravityFormulaAccess.module.css`
-- `src/features/gravity/presentation/components/understanding/GravityFormulaApplication.module.css`
 - `src/features/gravity/presentation/components/understanding/GravityUnderstandingSimulation.module.css`
 - `src/features/home/presentation/components/HomeExperience.module.css`
 - `src/features/three-body/presentation/components/ThreeBodyJourney.module.css`
@@ -126,15 +125,17 @@ Se mantienen keyframes, animaciones, canvas/starfield, dibujo SVG, pseudo-elemen
 
 ## Exportaciones
 
-Los componentes, funciones y hooks propios usan `export const` cuando es equivalente. Las rutas conservan `export default` y las exportaciones especiales de Next.js. Los cuerpos de las funciones físicas no cambian: la comparación por tokens de 25 funciones e inicializadores confirma su conservación, y los datos de refinamiento son idénticos byte a byte.
+Los componentes, funciones y hooks propios usan `export const` cuando es equivalente. Las rutas conservan `export default` y las exportaciones especiales de Next.js. En la refactorización de arquitectura previa, la comparación por tokens de 25 funciones e inicializadores confirmó su conservación, y los datos de refinamiento quedaron idénticos byte a byte. La actualización de sincronización conserva las ecuaciones y cambia los parámetros del laboratorio a la escala SI cotidiana solicitada.
 
 ## Archivos movidos, creados y eliminados
 
-El inventario completo está en [`refactor-manifest.json`](./refactor-manifest.json), con el mapa de cada ruta anterior a su destino, los tipos extraídos, helpers nuevos y hojas migradas. Se elimina el adaptador de IA de Gravity que no tenía consumidores; la API continúa utilizando el adaptador real compartido de IA. La validación de solicitudes heredadas permanece operativa y pasa a la feature IA.
+El inventario de la refactorización previa está en [`refactor-manifest.json`](./refactor-manifest.json), con el mapa de cada ruta anterior a su destino, los tipos extraídos, helpers nuevos y hojas migradas. Es un registro histórico: incluye módulos posteriormente retirados por la sincronización automática. Se elimina el adaptador de IA de Gravity que no tenía consumidores; la API continúa utilizando el adaptador real compartido de IA. La validación de solicitudes heredadas permanece operativa y pasa a la feature IA.
 
-Se mantienen README, package.json, lockfile, configuración de Next.js, mensajes ES/EN/FR, recursos y datos científicos. El README original no se reescribe; esta documentación describe la estructura actual.
+En aquella refactorización se conservaron README, package.json, lockfile, configuración de Next.js, mensajes ES/EN/FR, recursos y datos científicos. La actualización SI posterior adapta los mensajes y validaciones de Gravity; el modelo y los datos de Tres Cuerpos siguen intactos. El README original no se reescribe; esta documentación describe la estructura actual.
 
-## Verificación ejecutada
+## Verificación de la refactorización previa
+
+Estas comprobaciones corresponden a la refactorización de arquitectura anterior a la sincronización automática y al cambio de escala SI. Describen la versión con aplicación manual de la fórmula; las validaciones actuales se documentan en [gravity-synchronization.md](./gravity-synchronization.md).
 
 - Fase 1: TypeScript, lint, 92 tests y build tras movimientos/imports.
 - Fases 2–4: TypeScript, lint y 92 tests tras contratos, exportaciones y reutilización.

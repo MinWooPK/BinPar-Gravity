@@ -92,7 +92,7 @@ const enterValues = (entries, initial = initialFormulaInput) =>
   Object.entries(entries).reduce((state, [key, text]) => changeFormulaInput(state, key, text), initial);
 
 test("the third valid entry selects each possible unknown and solves in SI", () => {
-  const expected = { mass1: 40e12, mass2: 40e12, distance: 8000 };
+  const expected = { mass1: 40, mass2: 40, distance: 8 };
   const entries = { ...expected, force: gravitationalForce(expected) };
   for (const unknown of Object.keys(entries)) {
     const state = enterValues(Object.fromEntries(Object.entries(entries)
@@ -105,15 +105,15 @@ test("the third valid entry selects each possible unknown and solves in SI", () 
 });
 
 test("unfinished edits clear stale results but preserve the unknown until reset", () => {
-  const solved = enterValues({ mass1: "40e12", mass2: "40e12", distance: "8000" });
+  const solved = enterValues({ mass1: "40", mass2: "40", distance: "8" });
   const incomplete = changeFormulaInput(solved, "distance", "1e-");
   assert.equal(incomplete.unknown, "force");
   assert.equal(incomplete.result, null);
   assert.equal(incomplete.numericalError, false);
-  const next = changeFormulaInput(incomplete, "distance", "16000");
+  const next = changeFormulaInput(incomplete, "distance", "16");
   assert.equal(next.unknown, "force");
   assert.equal(next.result.force, solved.result.force / 4);
-  assert.equal(solved.values.distance, "8000");
+  assert.equal(solved.values.distance, "8");
   assert.deepEqual(initialFormulaInput, {
     values: { force: "", mass1: "", mass2: "", distance: "" },
     unknown: null, result: null, numericalError: false,
@@ -131,20 +131,20 @@ test("numerical overflow preserves the inferred unknown and recovers on correcti
 });
 
 test("laboratory application includes slider bounds and rejects out-of-range solutions", () => {
-  for (const mass1 of [1e13, 1e14]) for (const mass2 of [1e13, 1e14]) {
-    for (const distance of [5000, 20000]) {
+  for (const mass1 of [10, 100]) for (const mass2 of [10, 100]) {
+    for (const distance of [5, 20]) {
       assert.ok(isInLaboratoryRange({ mass1, mass2, distance, force: 1 }));
     }
   }
-  const baseline = { mass1: 40e12, mass2: 40e12, distance: 8000, force: 1 };
-  for (const [key, value] of [["mass1", 1e13 - 1], ["mass1", 1e14 + 1],
-    ["mass2", 1e13 - 1], ["mass2", 1e14 + 1], ["distance", 4999], ["distance", 20001]]) {
+  const baseline = { mass1: 40, mass2: 40, distance: 8, force: 1 };
+  for (const [key, value] of [["mass1", 9], ["mass1", 101],
+    ["mass2", 9], ["mass2", 101], ["distance", 4.9], ["distance", 20.1]]) {
     assert.equal(isInLaboratoryRange({ ...baseline, [key]: value }), false);
   }
 });
 
 test("an explicitly selected unknown solves from its three known inputs", () => {
-  const parameters = { mass1: 40e12, mass2: 60e12, distance: 12500 };
+  const parameters = { mass1: 40, mass2: 60, distance: 12.5 };
   const expected = { ...parameters, force: gravitationalForce(parameters) };
   for (const unknown of Object.keys(expected)) {
     const selected = selectFormulaUnknown(initialFormulaInput, unknown);
@@ -179,7 +179,7 @@ test("changing the unknown reuses the latest result without rounding or altering
 });
 
 test("the selected unknown cannot be edited or erase its current result", () => {
-  const state = enterValues({ mass1: "40e12", mass2: "40e12", distance: "8000" },
+  const state = enterValues({ mass1: "40", mass2: "40", distance: "8" },
     selectFormulaUnknown(initialFormulaInput, "force"));
   for (const text of ["1", "", "Infinity"]) {
     assert.strictEqual(changeFormulaInput(state, "force", text), state);
@@ -218,14 +218,14 @@ test("explicit calculations recover from overflow and preserve very small result
 });
 
 test("selection and edits never mutate inputs, and a fresh calculator starts without stale values", () => {
-  const solved = enterValues({ mass1: "40e12", mass2: "40e12", distance: "8000" },
+  const solved = enterValues({ mass1: "40", mass2: "40", distance: "8" },
     selectFormulaUnknown(initialFormulaInput, "force"));
   const snapshot = structuredClone(solved);
   Object.freeze(solved.values);
   Object.freeze(solved.result);
   Object.freeze(solved);
   selectFormulaUnknown(solved, "distance");
-  changeFormulaInput(solved, "mass1", "80e12");
+  changeFormulaInput(solved, "mass1", "80");
   assert.deepEqual(solved, snapshot);
   assert.deepEqual(selectFormulaUnknown(initialFormulaInput, "force"), {
     values: { force: "", mass1: "", mass2: "", distance: "" },
