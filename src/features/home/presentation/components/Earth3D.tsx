@@ -39,7 +39,7 @@ const Earth3D = () => {
 
     const camera = new THREE.PerspectiveCamera(25, 1, 0.1, 100);
 
-    camera.position.set(4.5, 2, 3);
+    camera.position.set(3, 1.33, 2);
 
     // Luz solar
     const sun = new THREE.DirectionalLight("#ffffff", 2);
@@ -48,8 +48,7 @@ const Earth3D = () => {
 
     // Parámetros visuales de la atmósfera
     const atmosphereDayColor = uniform(color("#4db2ff"));
-    const atmosphereTwilightColor = uniform(color("#bc490b"));
-
+    const atmosphereTwilightColor = uniform(color("#285a85"));
     const roughnessLow = uniform(0.25);
     const roughnessHigh = uniform(0.35);
 
