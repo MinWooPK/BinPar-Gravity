@@ -1,13 +1,23 @@
 import type { ReactNode } from "react";
 import { GravityFormulaInteractionProvider } from "../understanding/GravityFormulaInteraction";
 import { GravityUnderstandingSimulation } from "../understanding/GravityUnderstandingSimulation";
-import { gravityStageLayoutStyles as styles } from "./GravityStageLayout.styles";
+import { useTranslations } from "next-intl";
+import { GravitySplitPanels } from "./GravitySplitPanels";
 
-export const GravityStageLayout = ({ children }: { children: ReactNode }) => (
-  <GravityFormulaInteractionProvider>
-    <div className={styles.layout} data-gravity-stage-layout>
-      <div className={styles.simulation}><GravityUnderstandingSimulation compact /></div>
-      <div className={styles.content}>{children}</div>
-    </div>
-  </GravityFormulaInteractionProvider>
-);
+export const GravityStageLayout = ({ children, contentLabel, compact = true }: {
+  children: ReactNode;
+  contentLabel: "formula" | "controls" | "challenges";
+  compact?: boolean;
+}) => {
+  const t = useTranslations("Gravity.panels");
+  return (
+    <GravityFormulaInteractionProvider>
+      <GravitySplitPanels
+        leftLabel={t("simulation")}
+        rightLabel={t(contentLabel)}
+        left={<GravityUnderstandingSimulation compact={compact} />}
+        right={children}
+      />
+    </GravityFormulaInteractionProvider>
+  );
+};

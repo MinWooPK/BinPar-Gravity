@@ -49,6 +49,18 @@
     "galleryLabel": "GALERÍA"
   },
   "Gravity": {
+    "panels": {
+      "choose": "Panel visible",
+      "show": "Mostrar {panel}",
+      "expand": "Expandir {panel}",
+      "collapse": "Plegar {panel}",
+      "simulation": "Simulación",
+      "formula": "Fórmula",
+      "controls": "Controles",
+      "challenges": "Retos",
+      "education": "Descubre",
+      "science": "Base científica"
+    },
     "learningDiscover": "Descubre la gravedad",
     "discoveryTitle": "Descubre la gravedad",
     "educationWhat": "¿Qué es?",

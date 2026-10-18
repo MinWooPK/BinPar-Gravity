@@ -116,7 +116,7 @@ export const GravityLab = () => {
         stage={gravityStageById["gravity-laboratory"]}
         className={journeyStyles.stage}
       >
-        <GravityStageLayout>
+        <GravityStageLayout contentLabel="controls">
           <GravityExperiment
             parameters={parameters}
             onChange={setParameters}
@@ -128,7 +128,7 @@ export const GravityLab = () => {
         stage={gravityStageById["gravity-challenges"]}
         className={`${journeyStyles.stage} ${challengeStyles.stage}`}
       >
-        <GravityStageLayout>
+        <GravityStageLayout contentLabel="challenges">
           <section
             aria-labelledby={`${id}-challenge-title`}
             className={challengeStyles.challengeCard}

@@ -1,12 +1,10 @@
 import { useTranslations } from "next-intl";
 
 import { GravityFormula } from "./understanding/GravityFormula";
-import { GravityFormulaInteractionProvider } from "./understanding/GravityFormulaInteraction";
 import { GravityPrinciplesChallenge } from "./discovery/GravityPrinciples";
-import { GravityUnderstandingSimulation } from "./understanding/GravityUnderstandingSimulation";
 import { gravityStageById } from "../../application/gravityJourney";
 import { gravityJourneyStyles as journeyStyles } from "./GravityJourney.styles";
-import { gravityStageLayoutStyles as layoutStyles } from "./shared/GravityStageLayout.styles";
+import { GravityStageLayout } from "./shared/GravityStageLayout";
 
 const styles = {
   "introduction": "flex [flex:1] flex-col min-w-0 [min-height:min-content] text-lab-text",
@@ -18,16 +16,9 @@ export const GravityIntroduction = () => {
 
   return (
     <section aria-label={t(stage.title)} className={`${styles.introduction} ${journeyStyles.stage}`}>
-      <GravityFormulaInteractionProvider>
-        <div className={layoutStyles.layout}>
-          <div className={layoutStyles.simulation}>
-            <GravityUnderstandingSimulation />
-          </div>
-          <div className={layoutStyles.content}>
-            <GravityFormula action={<GravityPrinciplesChallenge />} />
-          </div>
-        </div>
-      </GravityFormulaInteractionProvider>
+      <GravityStageLayout contentLabel="formula" compact={false}>
+        <GravityFormula action={<GravityPrinciplesChallenge />} />
+      </GravityStageLayout>
     </section>
   );
 };
