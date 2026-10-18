@@ -2,6 +2,8 @@ import "server-only";
 import { TUTOR_TIMEOUT_MS } from "../application/tutor";
 import type { Tutor } from "../types/tutor.types";
 import { buildTutorPrompt } from "../application/tutorPrompt";
+import { parseTutorReply } from "../application/tutorResponse";
+import { tutorResponseFormat } from "./tutorResponseFormat";
 
 type ModelResponse = {
   status?: string;
@@ -21,6 +23,7 @@ export const openaiTutor: Tutor = {
         model: process.env.OPENAI_MODEL,
         store: false,
         max_output_tokens: 1200,
+        ...(request.context.kind === "gravity" && { text: { format: tutorResponseFormat } }),
         ...buildTutorPrompt(request),
       }),
     });
@@ -31,6 +34,6 @@ export const openaiTutor: Tutor = {
       .filter((item) => item.type === "output_text")
       .map((item) => item.text ?? "").join("\n").trim();
     if (!text || data.status !== "completed") throw new Error("Incomplete tutor response");
-    return text;
+    return parseTutorReply(request.context.kind === "gravity" ? JSON.parse(text) : { text }, request.context);
   },
 };

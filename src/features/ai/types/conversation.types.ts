@@ -1,6 +1,7 @@
 import type { TutorMessage, TutorRequest } from "./tutor.types";
+import type { TutorProposal } from "./proposal.types";
 
-export type ChatMessage = TutorMessage & { id: number };
+export type ChatMessage = TutorMessage & { id: number; proposal?: TutorProposal };
 export type TutorSession = {
   messages: ChatMessage[];
   draft: string;

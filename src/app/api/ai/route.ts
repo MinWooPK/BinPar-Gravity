@@ -40,7 +40,7 @@ export const POST = async (request: Request) => {
 
   try {
     return Response.json(
-      { text: await openaiTutor.explain(tutorRequest, request.signal) },
+      await openaiTutor.explain(tutorRequest, request.signal),
       { headers: { "Cache-Control": "no-store" } },
     );
   } catch {

@@ -52,7 +52,8 @@ export const GravityLab = () => {
   const t = useTranslations("Gravity");
   const id = useId();
   const activeStage = useActiveGravityStage();
-  const { parameters, setParameters, resetParameters } = useGravityParameters();
+  const { parameters, setParameters, resetParameters, revision, applyProposal } = useGravityParameters();
+  const proposalPort = useMemo(() => ({ revision, apply: applyProposal }), [revision, applyProposal]);
   const [step, setStep] = useState(0);
   const [prediction, setPrediction] = useState<Prediction | "">("");
   const [attempt, setAttempt] = useState<LearningAttempt>();
@@ -284,7 +285,7 @@ export const GravityLab = () => {
         </GravityStageLayout>
       </GravityJourneyPanel>
 
-      <TutorContextBridge context={tutorContext} />
+      <TutorContextBridge context={tutorContext} gravity={proposalPort} />
     </>
   );
 };

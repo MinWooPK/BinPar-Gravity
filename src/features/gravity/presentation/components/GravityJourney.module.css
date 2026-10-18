@@ -63,3 +63,21 @@
   .tab { transition: none; }
   .panel:not([hidden]) { animation: none; }
 }
+
+/* Stages 01–03 fill the available height, then grow with their content.
+   Keep the challenge workspace and the introduction on their existing layout. */
+:global(body):has(.workspace:is([data-active-stage="gravity-discovery"], [data-active-stage="gravity-understanding"], [data-active-stage="gravity-laboratory"])) {
+  height: auto;
+}
+:global(main):has(.workspace:is([data-active-stage="gravity-discovery"], [data-active-stage="gravity-understanding"], [data-active-stage="gravity-laboratory"])) {
+  flex: 1 0 auto;
+  min-height: min-content;
+}
+.workspace:is([data-active-stage="gravity-discovery"], [data-active-stage="gravity-understanding"], [data-active-stage="gravity-laboratory"]) > .viewport {
+  flex: 1 0 auto;
+  min-height: min-content;
+  overflow: visible;
+}
+.workspace:is([data-active-stage="gravity-discovery"], [data-active-stage="gravity-understanding"], [data-active-stage="gravity-laboratory"]) .panel:not([hidden]) {
+  min-height: 0;
+}

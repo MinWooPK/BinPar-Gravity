@@ -3,10 +3,11 @@ import {
   gravitationalForce,
   GRAVITATIONAL_CONSTANT,
   initialParameters,
+  isWithinLaboratoryRange,
   laboratoryLimits,
 } from "../../gravity/domain/gravitation";
 import { getOrbit, orbits, publishedOrbits } from "../../three-body/data/orbits";
-import type { TutorContext } from "../types/tutor.types";
+import type { TutorChallengeStatus, TutorContext } from "../types/tutor.types";
 
 // Aligned with the discovery panel; these facts are owned by the server, not dialogue.
 const gravityDiscovery = {
@@ -32,7 +33,19 @@ const gravityDiscovery = {
 export const buildTutorContext = (context: TutorContext) => {
   if (context.kind === "gravity") {
     const challenge = challenges.find(({ id }) => id === (context.challenge ?? context.attempt?.challenge));
+    const attempt = context.attempt?.challenge === challenge?.id ? context.attempt : undefined;
+    const challengeStatus: TutorChallengeStatus = attempt
+      ? attempt.prediction === challenge?.answer ? "correct" : "incorrect"
+      : context.prediction ? "prediction-pending" : "awaiting-prediction";
     const baselineForce = gravitationalForce(initialParameters);
+    const currentForce = gravitationalForce(context.parameters);
+    // Educational what-ifs, relative to the current snapshot, never applied to the lab.
+    const hypotheticalChanges = [
+      { variable: "mass1", factor: 2 },
+      { variable: "mass2", factor: 2 },
+      { variable: "distance", factor: 2 },
+      { variable: "distance", factor: 0.5 },
+    ] as const;
     return {
       kind: context.kind,
       stage: context.stage,
@@ -45,19 +58,32 @@ export const buildTutorContext = (context: TutorContext) => {
         illustration: "Sphere sizes and separation are illustrative, not to scale. The arrows show equal and opposite force directions, not force magnitudes.",
       },
       ...(context.stage === "gravity-discovery" && { discovery: gravityDiscovery }),
-      current: { ...context.parameters, forceNewtons: gravitationalForce(context.parameters) },
+      current: { ...context.parameters, forceNewtons: currentForce },
+      hypotheticalChanges: hypotheticalChanges.map(({ variable, factor }) => {
+        const parameters = { ...context.parameters, [variable]: context.parameters[variable] * factor };
+        const forceNewtons = gravitationalForce(parameters);
+        return {
+          variable,
+          factor,
+          parameters,
+          forceNewtons,
+          forceRatioToCurrent: forceNewtons / currentForce,
+          withinLaboratoryRange: isWithinLaboratoryRange(parameters),
+        };
+      }),
       baseline: { ...initialParameters, forceNewtons: baselineForce },
       challenge: challenge && {
         id: challenge.id,
+        status: challengeStatus,
         parameters: challenge.parameters,
         forceNewtons: gravitationalForce(challenge.parameters),
         forceRatioToBaseline: gravitationalForce(challenge.parameters) / baselineForce,
         expectedPrediction: challenge.answer,
       },
       prediction: context.prediction,
-      attempt: context.attempt && challenge && {
-        prediction: context.attempt.prediction,
-        correct: context.attempt.prediction === challenge.answer,
+      attempt: attempt && challenge && {
+        prediction: attempt.prediction,
+        correct: attempt.prediction === challenge.answer,
       },
     };
   }

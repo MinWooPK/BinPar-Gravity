@@ -34,9 +34,9 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
 };
 
 /** Updates a ref, not UI state: moving sliders never renders the chat or requests AI. */
-export const TutorContextBridge = ({ context, label }: { context: TutorContext; label?: string }) => {
+export const TutorContextBridge = ({ context, label, gravity }: { context: TutorContext; label?: string; gravity?: PublishedContext["gravity"] }) => {
   const pathname = usePathname();
   const { publish } = useTutorEnvironment();
-  useLayoutEffect(() => publish({ pathname, context, label }), [publish, pathname, context, label]);
+  useLayoutEffect(() => publish({ pathname, context, label, gravity }), [publish, pathname, context, label, gravity]);
   return null;
 };

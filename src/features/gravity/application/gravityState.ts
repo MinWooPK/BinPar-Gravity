@@ -2,11 +2,13 @@ import { gravitationalForce, initialParameters, isWithinLaboratoryRange } from "
 import type { FormulaInputState } from "../types/formula.types";
 import type { GravityParameters, GravityVariable } from "../types/gravity.types";
 import { changeFormulaInput, formulaInputFromParameters, selectFormulaUnknown } from "./formulaInput";
+import { resolveGravityProposal, sameGravityParameters } from "./gravityProposal";
 
 export type GravityState = {
   parameters: GravityParameters;
   formula: FormulaInputState;
   resetVersion: number;
+  revision: number;
 };
 
 export type GravityParameterUpdate = GravityParameters | ((current: GravityParameters) => GravityParameters);
@@ -14,12 +16,14 @@ export type GravityAction =
   | { type: "parameters"; update: GravityParameterUpdate }
   | { type: "formula"; key: GravityVariable; text: string }
   | { type: "unknown"; key: GravityVariable }
-  | { type: "reset" };
+  | { type: "reset" }
+  | { type: "proposal"; proposal: unknown; expectedRevision: number };
 
 export const createGravityState = (): GravityState => ({
   parameters: { ...initialParameters },
   formula: formulaInputFromParameters(initialParameters),
   resetVersion: 0,
+  revision: 0,
 });
 
 /** One event updates physics and editable text atomically; no effect-based echo cycle. */
@@ -31,6 +35,7 @@ export const gravityStateReducer = (state: GravityState, action: GravityAction):
       if (!isWithinLaboratoryRange(parameters)) return state;
       return {
         ...state, parameters,
+        revision: state.revision + (sameGravityParameters(state.parameters, parameters) ? 0 : 1),
         formula: formulaInputFromParameters(parameters, state.formula.unknown ?? "force"),
       };
     }
@@ -42,7 +47,7 @@ export const gravityStateReducer = (state: GravityState, action: GravityAction):
       const parameters = result && isWithinLaboratoryRange(result)
         ? { mass1: result.mass1, mass2: result.mass2, distance: result.distance }
         : state.parameters;
-      return { ...state, parameters, formula };
+      return { ...state, parameters, formula, revision: state.revision + (sameGravityParameters(state.parameters, parameters) ? 0 : 1) };
     }
     case "unknown": {
       if (action.key === state.formula.unknown) return state;
@@ -60,6 +65,11 @@ export const gravityStateReducer = (state: GravityState, action: GravityAction):
       };
     }
     case "reset":
-      return { ...createGravityState(), resetVersion: state.resetVersion + 1 };
+      return { ...createGravityState(), resetVersion: state.resetVersion + 1, revision: state.revision + 1 };
+    case "proposal": {
+      if (action.expectedRevision !== state.revision) return state;
+      const parameters = resolveGravityProposal(state.parameters, action.proposal);
+      return parameters ? gravityStateReducer(state, { type: "parameters", update: parameters }) : state;
+    }
   }
 };

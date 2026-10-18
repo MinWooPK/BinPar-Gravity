@@ -2,8 +2,9 @@
 
 import { createContext, useContext } from "react";
 import type { TutorContext } from "../../types/tutor.types";
+import type { GravityProposalPort } from "../../types/proposal.types";
 
-export type PublishedContext = { pathname: string; context: TutorContext; label?: string };
+export type PublishedContext = { pathname: string; context: TutorContext; label?: string; gravity?: GravityProposalPort };
 type TutorEnvironment = {
   sessionKey: string | null;
   publish: (value: PublishedContext) => () => void;

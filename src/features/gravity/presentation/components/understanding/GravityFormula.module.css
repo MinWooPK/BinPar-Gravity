@@ -34,3 +34,7 @@
 @media (prefers-reduced-motion: reduce) {
   .card button, .field, .fieldTitle, .inputGroup, .constant, .constantContent h4 { transition: none; }
 }
+
+/* The inline calculator shares its state with the roomier formula drawer. */
+:global(#gravity-understanding) .fraction > span:first-child { padding-bottom: 1px; }
+:global(#gravity-understanding) .fraction > span:last-child { padding-top: 1px; }

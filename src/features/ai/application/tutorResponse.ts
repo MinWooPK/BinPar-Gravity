@@ -1,0 +1,12 @@
+import { isGravityParameterProposal, resolveGravityProposal } from "../../gravity/application/gravityProposal";
+import type { TutorContext, TutorReply } from "../types/tutor.types";
+
+/** Validate model output on the server and the API response again in the browser. */
+export const parseTutorReply = (value: unknown, context: TutorContext): TutorReply => {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) throw new Error("Invalid tutor response");
+  const reply = value as Record<string, unknown>;
+  if (Object.keys(reply).some(key => key !== "text" && key !== "proposal") || typeof reply.text !== "string" || !reply.text.trim()) throw new Error("Invalid tutor response");
+  if (reply.proposal === null || reply.proposal === undefined) return { text: reply.text.trim() };
+  if (context.kind !== "gravity" || !isGravityParameterProposal(reply.proposal) || !resolveGravityProposal(context.parameters, reply.proposal)) throw new Error("Invalid gravity proposal");
+  return { text: reply.text.trim(), proposal: reply.proposal };
+};

@@ -6,13 +6,13 @@ import { GRAVITATIONAL_CONSTANT } from "../../../domain/gravitation";
 import css from "./GravityScienceCard.module.css";
 
 const styles = {
-  "card": `${css["card"]} grid min-w-0 [align-content:space-between] [gap:10px] [padding:16px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [color:#b2bad0] [font-size:.875rem] [line-height:1.45] [overflow-wrap:anywhere] [@media(max-width:520px)]:[padding:14px]`,
-  "law": "min-w-0",
+  "card": `${css["card"]} grid min-w-0 [align-content:space-between] [gap:8px] [padding:16px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [color:#b2bad0] [font-size:.875rem] [line-height:1.45] [overflow-wrap:anywhere] [@media(max-width:520px)]:[padding:14px]`,
+  "law": "grid min-w-0 items-center gap-2 min-[1024px]:grid-cols-[auto_minmax(0,1fr)]",
   "equation": "flex justify-center [padding-block:1px_7px] [color:#e4dfff] [font-family:Georgia,_serif] [font-size:2rem] [line-height:1.1]",
   "expression": "inline-flex items-center [gap:9px]",
   "operator": "[color:#a99bbf] [font-size:.7em]",
   "fraction": `${css["fraction"]} inline-flex flex-col min-w-0 text-center`,
-  "constant": "min-w-0 [padding-top:10px] [border-top:1px_solid_#30364b]",
+  "constant": "min-w-0 [padding-top:8px] [border-top:1px_solid_#30364b]",
   "constantHeading": "flex items-baseline justify-between flex-wrap [gap:3px_12px] [margin-bottom:5px] [@media(max-width:520px)]:[gap:3px_8px]",
   "constantValue": `${css["constantValue"]} [color:#d8c9ff] [font-size:1rem] font-medium [line-height:1.7]`,
   "unit": `${css["unit"]} whitespace-nowrap [overflow-wrap:normal]`,

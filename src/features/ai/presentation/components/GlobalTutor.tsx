@@ -6,6 +6,7 @@ import { usePathname } from "@/i18n/navigation";
 import { TUTOR_MAX_MESSAGE_LENGTH } from "../../application/tutor";
 import { gravityStageById } from "@/features/gravity/application/gravityJourney";
 import { useTutorConversation } from "../hooks/useTutorConversation";
+import { TutorProposalCard } from "./TutorProposalCard";
 import css from "./GlobalTutor.module.css";
 
 const styles = {
@@ -27,7 +28,7 @@ export const GlobalTutor = () => {
   const t = useTranslations("Tutor");
   const gravity = useTranslations("Gravity");
   const pathname = usePathname();
-  const { sessionKey, current, key, session, update, performRequest, ask } = useTutorConversation();
+  const { sessionKey, current, key, session, update, performRequest, ask, decideProposal } = useTutorConversation();
   const [openPath, setOpenPath] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -126,6 +127,7 @@ export const GlobalTutor = () => {
             <div key={message.id} className={styles.message} data-role={message.role}>
               <span className="sr-only">{t(message.role === "user" ? "userLabel" : "assistantLabel")}: </span>
               <p>{message.content}</p>
+              {message.proposal && <TutorProposalCard proposal={message.proposal} onDecision={decision => decideProposal(message.id, decision)} />}
             </div>
           ))}
           {session.pending && <p role="status">{t("thinking")}</p>}
@@ -141,7 +143,20 @@ export const GlobalTutor = () => {
           {contextChanged && <p className={styles.contextNote}>{t("contextChanged")}</p>}
         </div>
         <div className={styles.quickActions} aria-label={t("quickActions")} role="group">
-          {(["explain", "simplify", "example"] as const).map((mode) => <button key={mode} type="button" disabled={session.pending} onClick={() => ask(mode, t(mode))}>{t(mode)}</button>)}
+          {(["explain", "simplify", "example"] as const).map((mode) => {
+            const helpWithChallenge = mode === "explain" && stage === "gravity-challenges";
+            const explainExperiment = mode === "explain" && sessionKey === "gravity" && !helpWithChallenge;
+            const label = helpWithChallenge ? "helpWithChallenge" : explainExperiment ? "explainExperiment" : mode;
+            const question = helpWithChallenge ? "challengeQuestion" : explainExperiment ? "experimentQuestion" : mode;
+            return (
+              <button key={mode} type="button" disabled={session.pending}
+                data-help-with-challenge={helpWithChallenge || undefined}
+                data-explain-experiment={explainExperiment || undefined}
+                onClick={() => ask(mode, t(question))}>
+                {t(label)}
+              </button>
+            );
+          })}
         </div>
         <form className={styles.composer} onSubmit={(event) => { event.preventDefault(); ask("explain", session.draft); }}>
           <label htmlFor="global-tutor-question" className="sr-only">{t("question")}</label>

@@ -79,7 +79,7 @@
 /* Give spare desktop height to the illustration and reading rhythm. */
 @media (min-width: 1024px) {
   .content:not([hidden]) { display: flex; flex: 1; flex-direction: column; }
-  .diagram svg { flex: 1; height: auto; min-height: 104px; }
+  .diagram svg { flex: 1 1 0; height: clamp(104px, 18dvh, 180px); min-height: 104px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

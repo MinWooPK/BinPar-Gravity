@@ -7,9 +7,9 @@ import { GravityPrinciples } from "./GravityPrinciples";
 import css from "./GravityEducationalCard.module.css";
 
 const styles = {
-  "card": "min-w-0 [padding:18px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] min-[1024px]:flex min-[1024px]:flex-col [@media(max-width:600px)]:[padding:16px_12px]",
-  "heading": "[margin:0_0_14px] text-lab-text [font-size:clamp(1.25rem,_2vw,_1.5rem)] font-semibold [line-height:1.25] [letter-spacing:-.025em] [overflow-wrap:anywhere] min-[1024px]:shrink-0",
-  "tabs": "grid [grid-template-columns:repeat(4,_minmax(0,_1fr))] [gap:6px] [margin-bottom:16px] min-[1024px]:shrink-0 [@media(max-width:600px)]:[gap:5px] [@media(max-width:360px)]:[grid-template-columns:repeat(2,_minmax(0,_1fr))]",
+  "card": "min-w-0 [padding:16px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] min-[1024px]:flex min-[1024px]:flex-col [@media(max-width:600px)]:[padding:16px_12px]",
+  "heading": "[margin:0_0_10px] text-lab-text [font-size:clamp(1.25rem,_2vw,_1.5rem)] font-semibold [line-height:1.25] [letter-spacing:-.025em] [overflow-wrap:anywhere] min-[1024px]:shrink-0",
+  "tabs": "grid [grid-template-columns:repeat(4,_minmax(0,_1fr))] [gap:6px] [margin-bottom:12px] min-[1024px]:shrink-0 [@media(max-width:600px)]:[gap:5px] [@media(max-width:360px)]:[grid-template-columns:repeat(2,_minmax(0,_1fr))]",
   "tab": `${css["tab"]} min-w-0 [min-height:44px] [padding:8px_5px] [border:1px_solid_#30364b] [border-radius:8px] bg-lab-surface [color:#bac2d6] [font-size:.875rem] font-medium [line-height:1.4] [overflow-wrap:anywhere] cursor-pointer [transition:color_160ms,_background_160ms,_border-color_160ms]`,
   "content": `${css["content"]} min-w-0`,
   "overview": `${css["overview"]} min-[1024px]:flex min-[1024px]:[flex:1] min-[1024px]:flex-col`,
