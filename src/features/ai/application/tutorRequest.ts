@@ -1,14 +1,14 @@
-import { gravityStages } from "../../gravity/components/gravityJourney";
+import { gravityStages } from "../../gravity/application/gravityJourney";
 import { challenges } from "../../gravity/domain/gravitation";
-import type { Prediction } from "../../gravity/domain/gravitation";
-import { isTutorRequest as isLegacyTutorRequest } from "../../gravity/application/tutorRequest";
+import type { Prediction } from "../../gravity/types/gravity.types";
+import { isTutorRequest as isLegacyTutorRequest } from "./legacyTutorRequest";
 import { getOrbit } from "../../three-body/data/orbits";
 import {
   TUTOR_MAX_MESSAGES,
   TUTOR_MAX_MESSAGE_LENGTH,
   TUTOR_MAX_TOTAL_MESSAGE_LENGTH,
 } from "./tutor";
-import type { TutorContext, TutorRequest } from "./tutor";
+import type { TutorContext, TutorRequest } from "../types/tutor.types";
 
 const locales = ["es", "en", "fr"] as const;
 const isRecord = (value: unknown): value is Record<string, unknown> =>

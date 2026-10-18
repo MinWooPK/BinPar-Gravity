@@ -10,12 +10,12 @@ const directory = mkdtempSync(join(tmpdir(), "tutor-conversation-tests-"));
 after(() => rmSync(directory, { recursive: true, force: true }));
 execFileSync(process.execPath, [
   "node_modules/typescript/bin/tsc",
-  "src/features/ai/components/conversation.ts",
+  "src/features/ai/application/conversation.ts",
   "--outDir", directory, "--rootDir", "src", "--module", "commonjs",
   "--target", "es2022", "--lib", "es2022,dom", "--strict", "--skipLibCheck",
 ]);
 const require = createRequire(import.meta.url);
-const { requestHistory } = require(join(directory, "features/ai/components/conversation.js"));
+const { requestHistory } = require(join(directory, "features/ai/application/conversation.js"));
 const {
   TUTOR_MAX_MESSAGES,
   TUTOR_MAX_MESSAGE_LENGTH,

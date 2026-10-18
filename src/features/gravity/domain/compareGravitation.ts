@@ -1,5 +1,5 @@
 import { gravitationalForce, initialParameters } from "./gravitation";
-import type { GravityParameters } from "./gravitation";
+import type { GravityParameters } from "../types/gravity.types";
 
 type GravityExplanation =
   | "initial"
@@ -22,14 +22,19 @@ export const compareGravitation = (
   const currentForce = gravitationalForce(current);
   const referenceForce = gravitationalForce(reference);
   const forceRatio = currentForce / referenceForce;
-  if (![currentForce, referenceForce, forceRatio].every((value) => Number.isFinite(value) && value > 0)) {
+  if (
+    ![currentForce, referenceForce, forceRatio].every(
+      (value) => Number.isFinite(value) && value > 0,
+    )
+  ) {
     throw new RangeError("Forces must be finite and positive to compare them.");
   }
 
   const mass1Changed = !nearlyEqual(current.mass1, reference.mass1);
   const mass2Changed = !nearlyEqual(current.mass2, reference.mass2);
   const distanceChanged = !nearlyEqual(current.distance, reference.distance);
-  const changedCount = Number(mass1Changed) + Number(mass2Changed) + Number(distanceChanged);
+  const changedCount =
+    Number(mass1Changed) + Number(mass2Changed) + Number(distanceChanged);
   let explanation: GravityExplanation;
 
   if (changedCount === 0) explanation = "initial";
@@ -37,10 +42,12 @@ export const compareGravitation = (
     explanation = nearlyEqual(forceRatio, 1) ? "combinedUnchanged" : "combined";
   } else if (distanceChanged) {
     explanation = nearlyEqual(current.distance / reference.distance, 2)
-      ? "distanceDoubled" : "distanceChanged";
+      ? "distanceDoubled"
+      : "distanceChanged";
   } else {
     const massRatio = mass1Changed
-      ? current.mass1 / reference.mass1 : current.mass2 / reference.mass2;
+      ? current.mass1 / reference.mass1
+      : current.mass2 / reference.mass2;
     explanation = nearlyEqual(massRatio, 2) ? "massDoubled" : "massChanged";
   }
 

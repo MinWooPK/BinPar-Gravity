@@ -19,7 +19,16 @@ test("all locales contain the same translation keys", () => {
 });
 
 test("the gravity experiment has all its directly referenced messages", () => {
-  const source = ["GravityExperiment", "GravitySlider", "GravityFormula", "GravityFormulaLegend", "GravityLab", "GravityScreen", "GravityEducationalCard", "GravityScienceCard"].map((component) => readFileSync(new URL(`../src/features/gravity/components/${component}.tsx`, import.meta.url), "utf8")).join("\n");
+  const source = [
+    "../src/features/gravity/presentation/components/experiment/GravityExperiment.tsx",
+    "../src/features/gravity/presentation/components/experiment/GravitySlider.tsx",
+    "../src/features/gravity/presentation/components/understanding/GravityFormula.tsx",
+    "../src/features/gravity/presentation/components/understanding/GravityFormulaLegend.tsx",
+    "../src/features/gravity/presentation/components/challenges/GravityLab.tsx",
+    "../src/features/gravity/presentation/components/GravityScreen.tsx",
+    "../src/features/gravity/presentation/components/discovery/GravityEducationalCard.tsx",
+    "../src/features/gravity/presentation/components/discovery/GravityScienceCard.tsx"
+].map((path) => readFileSync(new URL(path, import.meta.url), "utf8")).join("\n");
   const usedKeys = [...source.matchAll(/\bt\("([^"]+)"\)/g)].map((match) => match[1]);
   usedKeys.push("firstMass", "secondMass", "centreDistance", "learningDiscover", "educationWhat", "educationHistory", "educationPrinciples", "educationExamples");
   for (const scientist of ["Galileo", "Kepler", "Newton"]) {
@@ -35,9 +44,9 @@ test("the gravity experiment has all its directly referenced messages", () => {
 
 test("orbit animation controls and descriptions are translated in every locale", () => {
   const files = [
-    "../src/features/three-body/components/OrbitAnimation.tsx",
-    "../src/features/three-body/components/OrbitPlayer.tsx",
-    "../src/features/three-body/components/OrbitGallery.tsx",
+    "../src/features/three-body/presentation/components/shared/OrbitAnimation.tsx",
+    "../src/features/three-body/presentation/components/detail/OrbitPlayer.tsx",
+    "../src/features/three-body/presentation/components/gallery/OrbitGallery.tsx",
   ];
   const usedKeys = files.flatMap((file) => [...readFileSync(new URL(file, import.meta.url), "utf8").matchAll(/\bt\("([^"]+)"/g)].map((match) => match[1]));
   usedKeys.push(
@@ -61,8 +70,9 @@ test("orbit animation controls and descriptions are translated in every locale",
 test("orbit detail information and accessible labels are translated with consistent parameters", () => {
   const files = [
     { path: "../src/app/[locale]/three-body/[slug]/page.tsx", prefix: "" },
-    { path: "../src/features/three-body/components/OrbitDetailTabs.tsx", prefix: "detail." },
-    { path: "../src/features/three-body/components/OrbitPlayer.tsx", prefix: "" },
+    { path: "../src/features/three-body/presentation/components/detail/OrbitDetail.tsx", prefix: "" },
+    { path: "../src/features/three-body/presentation/components/detail/OrbitDetailTabs.tsx", prefix: "detail." },
+    { path: "../src/features/three-body/presentation/components/detail/OrbitPlayer.tsx", prefix: "" },
   ];
   const usedKeys = new Set(files.flatMap(({ path, prefix }) => (
     [...readFileSync(new URL(path, import.meta.url), "utf8").matchAll(/\bt\("([^"]+)"/g)]

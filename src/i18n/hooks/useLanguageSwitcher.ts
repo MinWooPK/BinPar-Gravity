@@ -42,7 +42,6 @@ export const useLanguageSwitcher = () => {
     optionRefs.current[nextIndex]?.focus();
   };
 
-
   const toggleMenu = () => {
     if (open) setOpen(false);
     else openMenu(Math.max(0, routing.locales.findIndex((item) => item === locale)));

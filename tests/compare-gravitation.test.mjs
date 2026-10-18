@@ -8,10 +8,10 @@ import { createRequire } from 'node:module';
 
 const directory = mkdtempSync(join(tmpdir(), 'gravity-comparison-'));
 after(() => rmSync(directory, { recursive: true, force: true }));
-execFileSync(process.execPath, ['node_modules/typescript/bin/tsc', 'src/features/gravity/domain/compareGravitation.ts', '--outDir', directory, '--module', 'commonjs', '--target', 'es2017', '--skipLibCheck']);
+execFileSync(process.execPath, ['node_modules/typescript/bin/tsc', 'src/features/gravity/domain/compareGravitation.ts', '--outDir', directory, "--rootDir", "src", '--module', 'commonjs', '--target', 'es2017', '--skipLibCheck']);
 const require = createRequire(import.meta.url);
-const { compareGravitation: compare } = require(join(directory, 'compareGravitation.js'));
-const { initialParameters: base, gravitationalForce: force } = require(join(directory, 'gravitation.js'));
+const { compareGravitation: compare } = require(join(directory, 'features/gravity/domain/compareGravitation.js'));
+const { initialParameters: base, gravitationalForce: force } = require(join(directory, 'features/gravity/domain/gravitation.js'));
 const near = (actual, expected) => assert.ok(Math.abs(actual - expected) <= Math.abs(expected) * 1e-10, `${actual} != ${expected}`);
 
 test('initial and reset values have no attributed change', () => {

@@ -23,7 +23,7 @@ const load = (path) => require(join(directory, `features/${path}.js`));
 const { isTutorRequest, parseTutorRequest } = load("ai/application/tutorRequest");
 const { buildTutorContext } = load("ai/application/tutorContext");
 const { buildTutorPrompt } = load("ai/application/tutorPrompt");
-const { gravityStages, gravityStageById } = load("gravity/components/gravityJourney");
+const { gravityStages, gravityStageById } = load("gravity/application/gravityJourney");
 const limits = load("ai/application/tutor");
 const guards = load("ai/infrastructure/requestGuard");
 const { initialParameters, gravitationalForce, challenges } = load("gravity/domain/gravitation");

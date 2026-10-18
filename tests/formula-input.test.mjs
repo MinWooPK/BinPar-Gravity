@@ -14,7 +14,7 @@ execFileSync(process.execPath, [
   "src/features/gravity/application/formulaInput.ts",
   "src/features/gravity/domain/gravitation.ts",
   "--outDir",
-  directory,
+  directory, "--rootDir", "src",
   "--module",
   "commonjs",
   "--target",
@@ -23,10 +23,10 @@ execFileSync(process.execPath, [
 ]);
 const require = createRequire(import.meta.url);
 const { parseFormulaValue: parse } = require(
-  join(directory, "application/parseFormulaValue.js"),
+  join(directory, "features/gravity/application/parseFormulaValue.js"),
 );
 const { gravitationalForce, solveGravity } = require(
-  join(directory, "domain/gravitation.js"),
+  join(directory, "features/gravity/domain/gravitation.js"),
 );
 
 test("formula accepts decimal points and commas without changing SI units", () => {
@@ -86,7 +86,7 @@ test("parsed inputs recover each of the four unknowns using the existing solver"
 });
 
 const { changeFormulaInput, initialFormulaInput, isInLaboratoryRange, selectFormulaUnknown } = require(
-  join(directory, "application/formulaInput.js"),
+  join(directory, "features/gravity/application/formulaInput.js"),
 );
 const enterValues = (entries, initial = initialFormulaInput) =>
   Object.entries(entries).reduce((state, [key, text]) => changeFormulaInput(state, key, text), initial);

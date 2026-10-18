@@ -1,0 +1,37 @@
+.trigger svg { width: 22px; height: 22px; }
+.trigger:hover { border-color: #a5f3fc; background: #164052; }
+.trigger:focus-visible, .panel button:focus-visible, .composer textarea:focus-visible { outline: 2px solid #a5f3fc; outline-offset: 3px; }
+/* Reserve a clear area for the floating control at the end of each relevant page. */
+:global(body):has(.trigger) :global(footer) { padding-right: max(8rem, calc(env(safe-area-inset-right) + 7rem)); }
+.panel[open] { display: flex; flex-direction: column; animation: tutor-open 180ms ease-out; }
+.panel::backdrop { background: #02071399; }
+.header > div { min-width: 0; }
+.header h2 { margin: 0; font-size: 1.125rem; font-weight: 700; }
+.header p { margin: .25rem 0 0; color: #b9aedc; font-size: .875rem; overflow-wrap: anywhere; }
+.close:hover { background: #243047; }
+.message[data-role="user"] { margin-left: 1.5rem; border-color: #62517e; background: #282239; }
+.message p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.quickActions button { min-height: 44px; padding: .375rem .625rem; border: 1px solid #62517e; border-radius: .625rem; background: transparent; color: #e3dafa; font: inherit; font-size: .875rem; cursor: pointer; }
+.quickActions button:hover { background: #302748; }
+.composer textarea { flex: 1; min-width: 0; min-height: 64px; max-height: 130px; resize: vertical; padding: .625rem; border: 1px solid #64748b; border-radius: .75rem; background: #070d1a; color: #f8fafc; font: inherit; font-size: 1rem; line-height: 1.5; }
+.composer textarea::placeholder { color: #a8b4c7; opacity: 1; }
+.composer button, .error button { min-height: 44px; padding: .5rem .75rem; border: 1px solid #67e8f960; border-radius: .625rem; background: #164052; color: #cffafe; font: inherit; font-size: .875rem; cursor: pointer; }
+.panel button:disabled, .composer textarea:disabled { opacity: .5; cursor: wait; }
+.error p { margin: 0 0 .5rem; }
+@keyframes tutor-open { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-height: 500px) {
+  .panel { inset: auto 0 var(--tutor-keyboard-offset, 0px) auto; height: var(--tutor-available-height, 100dvh); max-height: var(--tutor-available-height, 100dvh); border-radius: 0; }
+  .header { padding-block: .375rem; }
+  .quickActions { padding-block: .25rem; }
+  .disclaimer { margin-block: .25rem; }
+}
+@container (max-height: 380px) {
+  .header { padding-block: .375rem; }
+  .header h2 { font-size: 1rem; }
+  .quickActions { flex-wrap: nowrap; gap: .25rem; padding: .25rem .75rem; }
+  .quickActions button { padding: .25rem .375rem; font-size: .8125rem; }
+  .composer { padding-block: .25rem; }
+  .composer textarea { height: 44px; min-height: 44px; max-height: 64px; padding-block: .375rem; }
+  .disclaimer { margin-block: .25rem; }
+}
+@media (prefers-reduced-motion: reduce) { .trigger { transition: none; } .panel[open] { animation: none; } }

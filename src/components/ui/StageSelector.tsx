@@ -11,10 +11,11 @@ type StageSelectorProps<Id extends string> = {
   options: readonly StageOption<Id>[];
   value: Id;
   onChange: (value: Id) => void;
+  selectedIndicatorClassName?: string;
 };
 
 /** The same keyboard/menu pattern as Gravity, with feature-independent labels. */
-export function StageSelector<Id extends string>({ id, label, options, value, onChange }: StageSelectorProps<Id>) {
+export const StageSelector = <Id extends string>({ id, label, options, value, onChange, selectedIndicatorClassName }: StageSelectorProps<Id>) => {
   const menuId = useId();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -99,11 +100,11 @@ export function StageSelector<Id extends string>({ id, label, options, value, on
             >
               <span className="shrink-0 font-mono text-violet-300">{option.number}</span>
               <span className="min-w-0 flex-1 break-words">{option.label}</span>
-              {value === option.id && <span aria-hidden="true">✓</span>}
+              {value === option.id && <span aria-hidden="true" className={selectedIndicatorClassName}>✓</span>}
             </button>
           ))}
         </div>
       )}
     </div>
   );
-}
+};

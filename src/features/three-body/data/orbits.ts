@@ -1,5 +1,5 @@
 import refinements from "./refinements.json";
-import type { Body, OrbitDefinition, State } from "../domain/orbit";
+import type { Body, OrbitDefinition, State } from "../types/orbit.types";
 const paper = "https://arxiv.org/pdf/1312.6796";
 const guide = "https://doi.org/10.1119/1.4867608";
 const collinear = (vx: number, vy: number): State => [

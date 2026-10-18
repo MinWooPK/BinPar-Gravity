@@ -2,7 +2,7 @@ import { useTranslations } from "next-intl";
 
 import { NavLink } from "@/components/ui/NavLink";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
-import { Icon } from "@/components/icons";
+import { Icon } from "@/components/icons/index";
 import { AutoHideHeader } from "./AutoHideHeader";
 
 const sections = [

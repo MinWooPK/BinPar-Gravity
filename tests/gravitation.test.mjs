@@ -12,7 +12,7 @@ execFileSync(process.execPath, [
   "node_modules/typescript/bin/tsc",
   "src/features/gravity/domain/gravitation.ts",
   "--outDir",
-  directory,
+  directory, "--rootDir", "src",
   "--module",
   "commonjs",
   "--target",
@@ -24,7 +24,7 @@ const {
   initialParameters: base,
   challenges,
   solveGravity,
-} = createRequire(import.meta.url)(join(directory, "gravitation.js"));
+} = createRequire(import.meta.url)(join(directory, "features/gravity/domain/gravitation.js"));
 const near = (actual, expected) =>
   assert.ok(Math.abs(actual - expected) <= Math.abs(expected) * 1e-12);
 

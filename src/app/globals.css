@@ -4,11 +4,21 @@
   color-scheme: dark;
   --background: #070b14;
   --foreground: #f8fafc;
+  --lab-purple: #aa97ff;
+  --lab-mint: #5ee7d5;
+  --lab-line: #272c40;
+  --lab-surface: #111624;
+  --lab-text: #f2f2fa;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-lab-purple: var(--lab-purple);
+  --color-lab-mint: var(--lab-mint);
+  --color-lab-line: var(--lab-line);
+  --color-lab-surface: var(--lab-surface);
+  --color-lab-text: var(--lab-text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }

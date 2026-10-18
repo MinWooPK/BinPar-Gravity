@@ -1,5 +1,7 @@
-import { HomeScreen } from "@/features/home/components/HomeScreen";
+import { HomeScreen } from "@/features/home/presentation/components/HomeScreen";
 
-export default function Page() {
+const Page = () => {
   return <HomeScreen />;
-}
+};
+
+export default Page;

@@ -8,10 +8,10 @@ import { createRequire } from 'node:module';
 
 const directory = mkdtempSync(join(tmpdir(), 'gravity-visualization-'));
 after(() => rmSync(directory, { recursive: true, force: true }));
-execFileSync(process.execPath, ['node_modules/typescript/bin/tsc', 'src/features/gravity/components/gravityVisualization.ts', '--outDir', directory, '--module', 'commonjs', '--target', 'es2017', '--skipLibCheck']);
+execFileSync(process.execPath, ['node_modules/typescript/bin/tsc', 'src/features/gravity/presentation/gravityVisualization.ts', 'src/features/gravity/domain/gravitation.ts', '--outDir', directory, "--rootDir", "src", '--module', 'commonjs', '--target', 'es2017', '--skipLibCheck']);
 const require = createRequire(import.meta.url);
-const { getGravityDiagram: diagram, getRelativeForceBars: bars } = require(join(directory, 'components/gravityVisualization.js'));
-const { gravitationalForce: force, initialParameters: base, challenges } = require(join(directory, 'domain/gravitation.js'));
+const { getGravityDiagram: diagram, getRelativeForceBars: bars } = require(join(directory, 'features/gravity/presentation/gravityVisualization.js'));
+const { gravitationalForce: force, initialParameters: base, challenges } = require(join(directory, 'features/gravity/domain/gravitation.js'));
 const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < Math.abs(expected) * 1e-12, `${actual} != ${expected}`);
 const compare = (parameters) => bars(force(parameters), force(base));
 

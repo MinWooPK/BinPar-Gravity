@@ -1,15 +1,9 @@
+import type { FormulaInputState } from "../types/formula.types";
 import { solveGravity } from "../domain/gravitation";
-import type { GravityValues, GravityVariable } from "../domain/gravitation";
+import type { GravityValues, GravityVariable } from "../types/gravity.types";
 import { parseFormulaValue } from "./parseFormulaValue";
 
 const variables = ["force", "mass1", "mass2", "distance"] as const;
-
-export type FormulaInputState = {
-  values: Record<GravityVariable, string>;
-  unknown: GravityVariable | null;
-  result: GravityValues | null;
-  numericalError: boolean;
-};
 
 export const initialFormulaInput: FormulaInputState = {
   values: { force: "", mass1: "", mass2: "", distance: "" },

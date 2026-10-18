@@ -1,4 +1,4 @@
-import type { OrbitData, OrbitDefinition } from "./orbit";
+import type { OrbitData, OrbitDefinition } from "../types/orbit.types";
 
 // All three masses and G are 1 in the catalogue's dimensionless units.
 const DIMENSIONS = 12;
@@ -101,10 +101,7 @@ function positions(state: readonly number[]): number[] {
  * is absolute. Other extrema are observed at accepted steps, not guaranteed
  * continuous-time extrema. Closure values are RMS differences from the seed.
  */
-export function integrateOrbit(
-  orbit: OrbitDefinition,
-  sampleCount = 1200,
-): OrbitData {
+export const integrateOrbit = (orbit: OrbitDefinition, sampleCount = 1200): OrbitData => {
   if (!Number.isFinite(orbit.period) || orbit.period <= 0) {
     throw new RangeError("The period must be a positive finite number.");
   }
@@ -265,4 +262,4 @@ export function integrateOrbit(
     bounds: { cx, cy, radius },
     diagnostics,
   };
-}
+};

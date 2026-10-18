@@ -1,0 +1,25 @@
+.titleRow h3 { min-width: 0; margin: 0; color: #f2f2fa; font-size: 1.125rem; font-weight: 600; line-height: 1.4; }
+.cardHeader > p { margin: 0; }
+.progress::-webkit-progress-bar { border-radius: 8px; background: #30364b; }
+.progress::-webkit-progress-value { border-radius: 8px; background: #aa97ff; }
+.progress::-moz-progress-bar { border-radius: 8px; background: #aa97ff; }
+.answers label { min-width: 0; min-height: 44px; padding: 10px 12px; font-size: .9375rem; line-height: 1.5; overflow-wrap: anywhere; }
+.result { animation: result-enter 180ms ease-out; }
+.question:focus-visible, .feedback:focus-visible { outline: 2px solid #c4b5fd; outline-offset: 4px; }
+.comparison figure { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 12px; min-width: 0; margin: 0; }
+.comparison figure > h4 { grid-column: 1 / -1; margin: 0; font-size: 1rem; line-height: 1.4; }
+.comparison figure > div { min-width: 0; margin-top: 0; }
+.comparison figure > h4 + div { margin-top: 0; }
+.comparison figure > div > div { font-size: .875rem; line-height: 1.5; }
+.comparison figure > div > svg { margin-top: 4px; }
+.comparison figure > div > p { margin-top: 4px; font-size: .875rem; line-height: 1.5; }
+.comparison figure > figcaption { grid-column: 1 / -1; margin-top: 0; font-size: .8125rem; line-height: 1.5; }
+.actions > button, .nextTopic { flex: 1; min-width: 0; min-height: 44px; text-align: center; }
+.questionDetails > summary { min-height: 44px; padding-block: 10px; color: #c9bcff; font-size: .875rem; line-height: 1.6; cursor: pointer; border-radius: 4px; }
+.questionDetails[data-revealed="false"] > summary { display: none; }
+.questionDetails[data-revealed="true"] { border-top: 1px solid #30364b; }
+.questionDetails .feedbackNote { margin-top: 10px; }
+.questionDetails > summary:focus-visible, .nextTopic:focus-visible { outline: 2px solid #c4b5fd; outline-offset: 3px; }
+.nextTopic:hover { background: #bae6fd10; color: #e0f2fe; }
+@keyframes result-enter { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .result { animation: none; } }

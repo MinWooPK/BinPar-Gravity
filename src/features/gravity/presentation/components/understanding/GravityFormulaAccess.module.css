@@ -1,0 +1,8 @@
+.trigger:hover, .close:hover { background: #aa97ff25; }
+.trigger:focus-visible, .close:focus-visible { outline: 2px solid #c4b5fd; outline-offset: 3px; }
+.drawer[open] { display: flex; flex-direction: column; animation: formula-enter 160ms ease-out; }
+.drawer::backdrop { background: #020713a8; }
+.header h2 { margin: 0; font-size: 1.125rem; font-weight: 600; }
+.content::-webkit-scrollbar { display: none; }
+@keyframes formula-enter { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .drawer[open] { animation: none; } .trigger, .close { transition: none; } }

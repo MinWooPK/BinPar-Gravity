@@ -1,4 +1,0 @@
-.introduction { display: flex; flex: 1; flex-direction: column; min-width: 0; min-height: min-content; color: #f2f2fa; }
-.layout { composes: layout from "./GravityStageLayout.module.css"; }
-.learningArea { composes: simulation from "./GravityStageLayout.module.css"; }
-.formulaArea { composes: content from "./GravityStageLayout.module.css"; }

@@ -5,7 +5,7 @@ import {
   initialParameters,
 } from "../../gravity/domain/gravitation";
 import { getOrbit, orbits, publishedOrbits } from "../../three-body/data/orbits";
-import type { TutorContext } from "./tutor";
+import type { TutorContext } from "../types/tutor.types";
 
 // Aligned with the discovery panel; these facts are owned by the server, not dialogue.
 const gravityDiscovery = {

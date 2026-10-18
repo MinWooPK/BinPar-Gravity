@@ -1,5 +1,5 @@
 import { buildTutorContext } from "./tutorContext";
-import type { TutorRequest } from "./tutor";
+import type { TutorRequest } from "../types/tutor.types";
 
 export const buildTutorPrompt = (request: TutorRequest) => ({
   instructions: [

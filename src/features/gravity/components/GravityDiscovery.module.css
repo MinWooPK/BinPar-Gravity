@@ -1,2 +1,0 @@
-.layout { composes: layout from "./GravityStageLayout.module.css"; }
-.science { composes: content from "./GravityStageLayout.module.css"; }

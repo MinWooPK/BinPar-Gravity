@@ -1,6 +1,6 @@
 import "server-only";
 import { TUTOR_TIMEOUT_MS } from "../application/tutor";
-import type { Tutor } from "../application/tutor";
+import type { Tutor } from "../types/tutor.types";
 import { buildTutorPrompt } from "../application/tutorPrompt";
 
 type ModelResponse = {

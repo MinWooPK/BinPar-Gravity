@@ -1,5 +1,7 @@
-import { GravityScreen } from "@/features/gravity/components/GravityScreen";
+import { GravityScreen } from "@/features/gravity/presentation/components/GravityScreen";
 
-export default function Page() {
+const Page = () => {
   return <GravityScreen />;
-}
+};
+
+export default Page;

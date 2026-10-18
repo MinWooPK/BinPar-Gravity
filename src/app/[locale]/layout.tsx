@@ -7,7 +7,7 @@ import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { TutorProvider } from "@/features/ai/components/TutorProvider";
+import { TutorProvider } from "@/features/ai/presentation/providers/TutorProvider";
 
 import "../globals.css";
 

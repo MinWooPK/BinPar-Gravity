@@ -10,16 +10,16 @@ const directory = mkdtempSync(join(tmpdir(), "tutor-request-tests-"));
 after(() => rmSync(directory, { recursive: true, force: true }));
 execFileSync(process.execPath, [
   "node_modules/typescript/bin/tsc",
-  "src/features/gravity/application/tutorRequest.ts",
-  "--outDir", directory,
+  "src/features/ai/application/legacyTutorRequest.ts",
+  "--outDir", directory, "--rootDir", "src",
   "--module", "commonjs",
   "--target", "es2017",
   "--strict",
   "--skipLibCheck",
 ]);
 const require = createRequire(import.meta.url);
-const { isTutorRequest } = require(join(directory, "application/tutorRequest.js"));
-const { challenges } = require(join(directory, "domain/gravitation.js"));
+const { isTutorRequest } = require(join(directory, "features/ai/application/legacyTutorRequest.js"));
+const { challenges } = require(join(directory, "features/gravity/domain/gravitation.js"));
 const locales = ["es", "en", "fr"];
 const validRequest = () => ({
   locale: "es",

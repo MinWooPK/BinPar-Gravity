@@ -1,12 +1,14 @@
 import type { ReactNode } from "react";
-import GravityStarfield from "@/features/gravity/components/GravityStarfield";
-import { GalleryProvider } from "@/features/three-body/components/GalleryProvider";
+import { SpaceStarfield } from "@/components/layout/SpaceStarfield";
+import { GalleryProvider } from "@/features/three-body/presentation/providers/GalleryProvider";
 
-export default function ThreeBodyLayout({ children }: { children: ReactNode }) {
+const ThreeBodyLayout = ({ children }: { children: ReactNode }) => {
   return (
     <GalleryProvider>
-      <GravityStarfield />
+      <SpaceStarfield />
       {children}
     </GalleryProvider>
   );
-}
+};
+
+export default ThreeBodyLayout;
