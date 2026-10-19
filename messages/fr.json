@@ -49,6 +49,13 @@
     "galleryLabel": "GALERIE"
   },
   "Gravity": {
+    "siConversionsTitle": "Conversions en unités SI",
+    "siConversionsText": "Avant d’utiliser la formule : 1 km = 1000 m ; 1 cm = 0,01 m ; 1 t = 1000 kg. Convertis d’abord, puis mets au carré la distance en mètres.",
+    "experimentViews": {
+      "label": "Vue du laboratoire",
+      "experiment": "Expérience",
+      "formula": "Formule"
+    },
     "stageTags": {
       "discover": "Découvrir",
       "understand": "Comprendre",
@@ -519,6 +526,118 @@
       "chooseStage": "Choisir une étape",
       "galleryIntroduction": "Six solutions extraordinaires. Trois corps qui s’attirent. Découvrez les motifs que révèle la gravité.",
       "galleryScienceNote": "Ces courbes ne sont pas décoratives. Chaque trajectoire est calculée en intégrant les équations de Newton avec des conditions initiales documentées. Masses égales, G = 1 et unités normalisées."
+    }
+  },
+  "Practice": {
+    "title": "Vérifie tes connaissances",
+    "subtitle": "Pratique à ton rythme",
+    "introduction": "Réponds à 10 questions de théorie, d’unités et de calcul. Les suivantes s’adaptent à tes réponses. Utilise des indices et visite les autres étapes sans perdre ta progression.",
+    "start": "Commencer",
+    "finished": "Ta pratique est terminée",
+    "score": "{score} bonnes réponses sur 10",
+    "hintsUsed": "Indices utilisés : {count}",
+    "strengths": "Ce que tu as démontré",
+    "review": "Ce qu’il faut revoir",
+    "recommendations": "Où poursuivre ton apprentissage",
+    "history": "Résumé des réponses",
+    "restart": "Recommencer",
+    "correct": "Bonne réponse",
+    "incorrect": "Reprenons ensemble",
+    "hintUsed": "Avec un indice",
+    "position": "Question {number} sur 10",
+    "difficulty": "Difficulté {level} sur 3",
+    "reinforcement": "Renforcement",
+    "rounding": "Utilise les unités indiquées. Une tolérance d’arrondi de 0,5 % est admise.",
+    "hideHint": "Masquer l’indice",
+    "hint": "J’ai besoin d’un indice",
+    "check": "Corriger",
+    "expected": "Réponse correcte",
+    "next": "Question suivante",
+    "lastFeedback": "Revoir la dernière réponse",
+    "loading": "Préparation de ta pratique…",
+    "retry": "Réessayer",
+    "choose": "Choisis une réponse",
+    "answer": "Ta réponse",
+    "coefficient": "Coefficient",
+    "number": "Résultat",
+    "exponent": "Exposant",
+    "decrease": "Diminuer l’exposant",
+    "increase": "Augmenter l’exposant",
+    "preview": "Aperçu",
+    "questions": {
+      "attraction": "Deux corps de {a} kg et {b} kg sont séparés de {r} m. Comment décrire leur gravité ?",
+      "mass": "Une masse initiale de {a} kg double. L’autre masse ({b} kg) et la distance ({r} m) restent fixes. Comment la force change-t-elle ?",
+      "distance": "Deux masses de {a} kg et {b} kg sont à {r} m. Si la distance double, comment la force change-t-elle ?",
+      "mutual": "Deux corps de {a} kg et {b} kg séparés de {r} m s’attirent. Comment comparer leurs forces ?",
+      "km": "Convertis {a} km en mètres.",
+      "cm": "Convertis {a} cm en mètres.",
+      "tonnes": "Convertis {a} tonnes en kilogrammes.",
+      "square": "La distance vaut {a} m. Quel est son carré, en m² ?",
+      "power": "Écris {a} en notation scientifique.",
+      "force": "Calcule F pour m₁ = {a} {massUnit}, m₂ = {b} kg et r = {r} {distanceUnit}. Donne le résultat en N.",
+      "reasoning": "On affirme que, pour des masses de {a} kg et {b} kg, doubler la distance initiale de {r} m divise F par deux. Quel est le changement correct ?"
+    },
+    "options": {
+      "attract": "Ils s’attirent mutuellement",
+      "repel": "Ils se repoussent",
+      "contact": "Ils s’attirent uniquement au contact",
+      "earthOnly": "Seule la Terre attire",
+      "equal": "Égales et opposées",
+      "heavier": "Le plus lourd exerce plus de force",
+      "lighter": "Le plus léger exerce plus de force",
+      "stationary": "Le corps immobile n’exerce aucune force",
+      "same": "Inchangée",
+      "double": "Elle double",
+      "four": "Elle quadruple",
+      "half": "Elle est divisée par deux",
+      "quarter": "Elle est divisée par quatre"
+    },
+    "hints": {
+      "units": "Vérifie les unités : 1 km = 1000 m, 1 cm = 0,01 m et 1 t = 1000 kg.",
+      "conversion": "Compare la taille des unités et cherche le facteur de conversion.",
+      "square": "Mettre au carré signifie multiplier une quantité par elle-même.",
+      "denominator": "r² est au dénominateur. Examine d’abord le changement de ce carré.",
+      "formula": "F = G · m₁ · m₂ / r². Convertis en kg et m avant de remplacer.",
+      "exponent": "Un exposant négatif indique une division par une puissance de dix.",
+      "decimal": "Déplace la virgule et compte les positions pour obtenir un coefficient entre 1 et 10.",
+      "mass": "Observe la masse au numérateur et les valeurs qui restent fixes.",
+      "mutual": "Pense à la troisième loi de Newton : action et réaction.",
+      "attraction": "La gravité est une interaction entre les corps ayant une masse."
+    },
+    "concepts": {
+      "attraction": "Attraction",
+      "mass": "Masse",
+      "distance": "Distance",
+      "mutual": "Forces mutuelles",
+      "km": "Kilomètres",
+      "cm": "Centimètres",
+      "tonnes": "Tonnes",
+      "square": "Carrés",
+      "power": "Puissances",
+      "force": "Force gravitationnelle",
+      "reasoning": "Raisonnement"
+    },
+    "kinds": {
+      "choice": "Théorie et raisonnement",
+      "number": "Unités et puissances",
+      "scientific": "Calcul scientifique"
+    },
+    "scenes": {
+      "objects": "Imagine ces objets.",
+      "laboratory": "Dans un laboratoire.",
+      "workshop": "Dans un atelier."
+    },
+    "stages": {
+      "gravity-discovery": "Aller à 01 · Découvre",
+      "gravity-understanding": "Aller à 02 · Comprends",
+      "gravity-laboratory": "Aller à 03 · Expérimente"
+    },
+    "errors": {
+      "not_configured": "La pratique est indisponible : le service n’est pas configuré.",
+      "rate_limited": "Attends une minute. Ta progression est conservée.",
+      "invalid_session": "La session a expiré ou est invalide. Recommence une pratique.",
+      "invalid_answer": "Saisis une réponse numérique complète et finie.",
+      "unavailable": "La réponse n’a pas pu être préparée. Ta progression est conservée ; réessaie."
     }
   }
 }

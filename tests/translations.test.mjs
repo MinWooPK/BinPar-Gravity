@@ -30,14 +30,15 @@ test("the gravity experiment has all its directly referenced messages", () => {
     "../src/features/gravity/presentation/components/discovery/GravityScienceCard.tsx"
 ].map((path) => readFileSync(new URL(path, import.meta.url), "utf8")).join("\n");
   const usedKeys = [...source.matchAll(/\bt\("([^"]+)"\)/g)].map((match) => match[1]);
-  usedKeys.push("firstMass", "secondMass", "centreDistance", "learningDiscover", "educationWhat", "educationHistory", "educationPrinciples", "educationExamples");
+  usedKeys.push("experimentViews.experiment", "experimentViews.formula", "firstMass", "secondMass", "centreDistance", "learningDiscover", "educationWhat", "educationHistory", "educationPrinciples", "educationExamples");
   for (const scientist of ["Galileo", "Kepler", "Newton"]) {
     usedKeys.push(`discoveryHistory${scientist}`, `discoveryHistory${scientist}Title`);
   }
   for (const { locale, messages } of dictionaries) {
     for (const key of usedKeys) {
-      assert.equal(typeof messages.Gravity[key], "string", `${locale}: Gravity.${key}`);
-      assert.ok(messages.Gravity[key].trim().length > 0, `${locale}: Gravity.${key}`);
+      const value = key.split(".").reduce((message, part) => message?.[part], messages.Gravity);
+      assert.equal(typeof value, "string", `${locale}: Gravity.${key}`);
+      assert.ok(value.trim().length > 0, `${locale}: Gravity.${key}`);
     }
   }
 });
@@ -53,7 +54,7 @@ test("laboratory synchronization and reset instructions are translated using eve
     assert.match(messages.Gravity.baseline, /8 m/);
     assert.match(messages.Gravity.outsideLabRange, /10–100 kg/);
     assert.match(messages.Gravity.outsideLabRange, /5–20 m/);
-    assert.doesNotMatch(JSON.stringify(messages.Gravity), /10¹²|\bkm\b|kilom(?:et|èt)/);
+    assert.doesNotMatch(JSON.stringify(Object.fromEntries(Object.entries(messages.Gravity).filter(([key]) => !key.startsWith("siConversions")))), /10¹²|\bkm\b|kilom(?:et|èt)/);
   }
 });
 

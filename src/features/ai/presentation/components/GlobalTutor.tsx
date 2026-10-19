@@ -36,7 +36,7 @@ export const GlobalTutor = () => {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const transcriptRef = useRef<HTMLDivElement>(null);
-  const { openTutor, registerLauncher } = useTutorEnvironment();
+  const { openTutor, registerLauncher, practiceActive } = useTutorEnvironment();
   const returnFocusRef = useRef<HTMLElement | null>(null);
   useLayoutEffect(() => registerLauncher((intent, trigger) => {
     returnFocusRef.current = trigger ?? triggerRef.current;
@@ -45,7 +45,7 @@ export const GlobalTutor = () => {
     if (intent === "explain_experiment") ask("explain", t("experimentQuestion"), intent);
     if (intent === "explain_formula") ask("explain", t("formulaQuestion"), intent);
   }), [registerLauncher, pathname, ask, t]);
-  const open = sessionKey !== null && openPath === pathname;
+  const open = sessionKey !== null && openPath === pathname && !practiceActive;
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
@@ -94,7 +94,7 @@ export const GlobalTutor = () => {
 
   return (
     <>
-      {sessionKey && (
+      {sessionKey && !practiceActive && (
         <button
           ref={triggerRef}
           id="global-tutor-trigger"
@@ -159,13 +159,11 @@ export const GlobalTutor = () => {
         </div>
         <div className={styles.quickActions} aria-label={t("quickActions")} role="group">
           {(["explain", "simplify", "example"] as const).map((mode) => {
-            const helpWithChallenge = mode === "explain" && stage === "gravity-challenges";
-            const explainExperiment = mode === "explain" && sessionKey === "gravity" && !helpWithChallenge;
-            const label = helpWithChallenge ? "helpWithChallenge" : explainExperiment ? "explainExperiment" : mode;
-            const question = helpWithChallenge ? "challengeQuestion" : explainExperiment ? "experimentQuestion" : mode;
+            const explainExperiment = mode === "explain" && sessionKey === "gravity";
+            const label = explainExperiment ? "explainExperiment" : mode;
+            const question = explainExperiment ? "experimentQuestion" : mode;
             return (
               <button key={mode} type="button" disabled={session.pending}
-                data-help-with-challenge={helpWithChallenge || undefined}
                 data-explain-experiment={explainExperiment || undefined}
                 onClick={() => ask(mode, t(question))}>
                 {t(label)}

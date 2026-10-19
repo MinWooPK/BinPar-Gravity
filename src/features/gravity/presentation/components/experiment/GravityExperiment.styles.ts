@@ -4,6 +4,9 @@ import css from "./GravityExperiment.module.css";
 export const gravityExperimentStyles = {
   "gravity-lab": `${css["gravity-lab"]} [--line:#272c40] [--purple:#aa97ff] [--mint:#5ee7d5] w-full min-w-0 text-lab-text [font-size:1rem] [line-height:1.5]`,
   "panel": `${css["panel"]} flex flex-col justify-between [border:1px_solid_var(--line)] [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)]`,
+  "viewTabs": "grid grid-cols-2 gap-1 mx-3.5 mt-3 mb-2 shrink-0 rounded-xl border border-violet-300/25 bg-slate-950/30 p-1",
+  "viewTab": "min-h-11 min-w-0 rounded-lg border border-transparent px-3 py-2 text-sm font-semibold text-slate-300 transition-colors hover:bg-violet-300/10 aria-selected:border-violet-300/60 aria-selected:bg-violet-300/15 aria-selected:text-violet-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 motion-reduce:transition-none",
+  "viewPanel": "flex flex-1 min-w-0 flex-col justify-between [&>*]:shrink-0",
   "lab-header": "flex items-center justify-between flex-wrap [gap:8px_16px] [padding:4px_14px_0] [@media(max-width:600px)]:[padding:14px_14px_0]",
   "heading": "[flex:1_1_180px] min-w-0 m-0 text-lab-text [font-size:1.125rem] font-semibold [line-height:1.4]",
   "headerActions": "flex flex-wrap [gap:8px] min-w-0",

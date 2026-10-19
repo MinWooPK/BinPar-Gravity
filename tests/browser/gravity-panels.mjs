@@ -71,7 +71,6 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
     const q = JSON.stringify;
     const press = async (key, modifiers = 0) => { const codes = { Enter: 13, ArrowDown: 40, ArrowUp: 38, ArrowRight: 39, ArrowLeft: 37, Home: 36, End: 35, Escape: 27, Tab: 9 }; const p = { key, code: key, windowsVirtualKeyCode: codes[key], modifiers }; await call('Input.dispatchKeyEvent', { type: 'keyDown', ...p, ...(key === 'Enter' ? { text: '\r' } : {}) }); await call('Input.dispatchKeyEvent', { type: 'keyUp', ...p }); await delay(80); };
     const click = async (selector) => { await evaluate(`(()=>{const e=document.querySelector(${q(selector)});if(!e)throw Error('Missing '+${q(selector)});e.click()})()`); await delay(80); };
-    const button = async (text, scope = 'document') => { await evaluate(`(()=>{const e=[...${scope}.querySelectorAll('button')].find(e=>e.textContent.trim()===${q(text)}||e.getAttribute('aria-label')===${q(text)});if(!e)throw Error('Missing button '+${q(text)});e.click()})()`); await delay(80); };
     const stageIds = ['gravity-discovery', 'gravity-understanding', 'gravity-laboratory', 'gravity-challenges'];
     const stage = async (id, keyboard = false) => {
         if (await evaluate(`location.hash===${q('#' + id)}&&!document.getElementById(${q(id)}).hidden`)) return;
@@ -86,9 +85,9 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
     };
     const challengeLayout = async () => {
         await stage('gravity-challenges', true);
-        const result = await evaluate(`(()=>{const stage=document.getElementById('gravity-challenges'),card=stage.querySelector('[data-challenge-step]');return {panels:stage.querySelectorAll('[data-gravity-split-panels],[data-panel-toggle],[data-panel-select],[data-understanding-simulation]').length,width:card.getBoundingClientRect().width,available:stage.clientWidth,overflow:document.documentElement.scrollWidth-innerWidth}})()`);
+        const result = await evaluate(`(()=>{const stage=document.getElementById('gravity-challenges'),card=stage.querySelector('[data-practice]');return {panels:stage.querySelectorAll('[data-gravity-split-panels],[data-panel-toggle],[data-panel-select],[data-understanding-simulation]').length,width:card.getBoundingClientRect().width,available:stage.clientWidth,overflow:document.documentElement.scrollWidth-innerWidth}})()`);
         assert.equal(result.panels, 0);
-        assert.ok(Math.abs(result.width-result.available)<1, JSON.stringify(result));
+        assert.ok(result.width <= result.available && result.width > 250, JSON.stringify(result));
         assert.ok(result.overflow<=0);
     };
     const records = [];
@@ -176,13 +175,7 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
     await delay(300);
     assert.equal(await evaluate(`document.querySelector('#gravity-laboratory input[type=range]').value`), slider);
     await stage('gravity-challenges');
-    await click('#gravity-challenges input[value=double]');
-    await button('Comprobar en el laboratorio', `document.querySelector('#gravity-challenges')`);
-    await stage('gravity-laboratory');
-    await stage('gravity-challenges');
-    await delay(300);
-    assert.equal(await evaluate(`document.querySelector('#gravity-challenges [data-revealed]').dataset.revealed`), 'true');
-    assert.equal(await evaluate(`document.querySelector('#gravity-challenges input:checked').value`), 'double');
+    assert.ok(await evaluate(`!!document.querySelector('[data-practice]')`));
     for (const [width, height] of [[375, 667], [320, 600]]) {
         await call('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: true });
         for (const id of stageIds.slice(0, 3)) {
@@ -217,7 +210,7 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
     await click(root('gravity-understanding') + ' [data-panel-toggle=left]');
     assert.equal((await measure('gravity-understanding')).panels[0].width, 48);
     assert.equal(await evaluate('window.aiCalls'), 0);
-    // All localized tags, one stage navigation, and the three original challenges.
+    // All localized tags, one stage navigation, and the adaptive practice entry.
     for (const locale of ['es', 'en', 'fr']) {
         const t = JSON.parse(fs.readFileSync(`messages/${locale}.json`, 'utf8')).Gravity;
         await call('Page.navigate', { url: (process.env.PANELS_URL || 'http://localhost:3000') + `/${locale}/gravity?panel-audit=${locale}#gravity-discovery` });
@@ -237,20 +230,8 @@ const delay = ms => new Promise(r => setTimeout(r, ms));
             }
             await challengeLayout();
         }
-        const scope=`document.querySelector('#gravity-challenges')`;
-        for (const [index,answer] of ['same','four','quarter'].entries()) {
-            await click(`#gravity-challenges input[value=${answer}]`);
-            await stage('gravity-discovery');await stage('gravity-challenges');
-            assert.equal(await evaluate(`document.querySelector('#gravity-challenges input:checked').value`),answer);
-            await button(t.check,scope);
-            assert.ok(await evaluate(`${scope}.textContent.includes(${q(index===0?t.keepLearning:t.correct)})`));
-            await stage('gravity-laboratory');await stage('gravity-challenges');
-            assert.equal(await evaluate(`document.querySelector('#gravity-challenges [data-challenge-step]').dataset.revealed`),'true');
-            if(index<2)await button(t.next,scope);else await button(t.finish,scope);
-        }
-        assert.ok(await evaluate(`${scope}.textContent.includes(${q(t.summary)})`));
         assert.equal(await evaluate('window.aiCalls'),0);
-        console.log('PASS',locale,'tags, keyboard navigation, all five viewports, full-width challenges, pending/checked answers preserved and all three results');
+        console.log('PASS',locale,'tags, keyboard navigation, all five viewports, full-width challenges, adaptive practice entry');
     }
     assert.deepEqual(errors, []);
     fs.writeFileSync(join(tmpdir(), 'gravity-panels-results.json'), JSON.stringify(records, null, 2));

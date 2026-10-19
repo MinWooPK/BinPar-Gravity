@@ -1,4 +1,4 @@
-import { challenges, laboratoryLimits } from "../../gravity/domain/gravitation";
+import { laboratoryLimits } from "../../gravity/domain/gravitation";
 import type { TutorRequest } from "../types/legacyTutor.types";
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -40,12 +40,5 @@ export const isTutorRequest = (
   )
     return false;
 
-  const { attempt } = value;
-  if (attempt === undefined) return true;
-  if (!isRecord(attempt)) return false;
-  if (!challenges.some((challenge) => challenge.id === attempt.challenge))
-    return false;
-  return ["same", "double", "four", "quarter"].includes(
-    String(attempt.prediction),
-  );
+  return value.attempt === undefined;
 };

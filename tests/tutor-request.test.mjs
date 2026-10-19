@@ -19,7 +19,7 @@ execFileSync(process.execPath, [
 ]);
 const require = createRequire(import.meta.url);
 const { isTutorRequest } = require(join(directory, "features/ai/application/legacyTutorRequest.js"));
-const { challenges, initialParameters, laboratoryLimits } = require(join(directory, "features/gravity/domain/gravitation.js"));
+const { initialParameters, laboratoryLimits } = require(join(directory, "features/gravity/domain/gravitation.js"));
 const locales = ["es", "en", "fr"];
 const validRequest = () => ({
   locale: "es",
@@ -85,14 +85,8 @@ test("accepts everyday decimal values but rejects the former astronomical labora
   assert.equal(isTutorRequest({ ...validRequest(), parameters: { mass1: 40e12, mass2: 40e12, distance: 8000 } }, locales), false);
 });
 
-test("accepts optional attempts for every existing challenge and prediction", () => {
-  assert.equal(isTutorRequest({ ...validRequest(), attempt: undefined }, locales), true);
-  for (const { id: challenge } of challenges) {
-    for (const prediction of ["same", "double", "four", "quarter"]) {
-      const attempt = { challenge, prediction };
-      assert.equal(isTutorRequest({ ...validRequest(), attempt }, locales), true);
-    }
-  }
+test("legacy assessment attempts are no longer accepted", () => {
+  assert.equal(isTutorRequest({ ...validRequest(), attempt: { challenge: "oneMass", prediction: "double" } }, locales), false);
 });
 
 test("rejects malformed attempts and requires an exact challenge identifier", () => {
@@ -109,11 +103,10 @@ test("rejects malformed attempts and requires an exact challenge identifier", ()
   }
 });
 
-test("preserves the existing string coercion for modes and predictions", () => {
+test("preserves the existing string coercion for legacy modes", () => {
   const request = {
     ...validRequest(),
     mode: ["simplify"],
-    attempt: { challenge: "oneMass", prediction: ["double"] },
   };
   const before = JSON.stringify(request);
   assert.equal(isTutorRequest(request, locales), true);
@@ -125,7 +118,6 @@ test("allows existing extra fields and validates without mutating the payload", 
   const request = {
     ...validRequest(),
     parameters: Object.freeze({ ...validRequest().parameters, label: "experiment" }),
-    attempt: Object.freeze({ challenge: "distance", prediction: "quarter", label: "prediction" }),
     extra: "retained",
   };
   const before = JSON.stringify(request);

@@ -2,5 +2,3 @@
 .marker[data-tone="mutual"] { background: #f7bd79; }
 .principle h4 { margin: 8px 0 6px; color: #f2f2fa; font-size: 1rem; font-weight: 600; line-height: 1.4; letter-spacing: -.015em; overflow-wrap: break-word; }
 .principle p { margin: 0; color: #b2bad0; font-size: 1rem; line-height: 1.5; overflow-wrap: break-word; }
-.compactLink:hover { background: #aa97ff15; color: #eee7ff; }
-.compactLink:focus-visible { outline: 2px solid #c4b5fd; outline-offset: 3px; }

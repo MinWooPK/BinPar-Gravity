@@ -20,7 +20,7 @@ const fields = [
   { key: "distance", symbol: "r", unit: "m", label: "formulaDistanceLabel", description: "formulaDistanceDescription" },
 ] as const;
 
-export const GravityFormula = ({ action, explanation }: { action?: ReactNode; explanation?: ReactNode }) => {
+export const GravityFormula = ({ variant = "card", explanation }: { variant?: "card" | "embedded"; explanation?: ReactNode }) => {
   const { resetVersion, resetParameters } = useGravityControls();
   const interaction = useGravityFormulaInteraction();
   const resetButtonRef = useRef<HTMLButtonElement>(null);
@@ -34,7 +34,7 @@ export const GravityFormula = ({ action, explanation }: { action?: ReactNode; ex
   return (
     <GravityFormulaContent
       key={resetVersion}
-      action={action}
+      variant={variant}
       explanation={explanation}
       resetButtonRef={resetButtonRef}
       onReset={() => {
@@ -47,9 +47,9 @@ export const GravityFormula = ({ action, explanation }: { action?: ReactNode; ex
   );
 };
 
-const GravityFormulaContent = ({ action, explanation, resetButtonRef, onReset }: {
+const GravityFormulaContent = ({ variant, explanation, resetButtonRef, onReset }: {
   explanation?: ReactNode;
-  action?: ReactNode;
+  variant: "card" | "embedded";
   resetButtonRef: RefObject<HTMLButtonElement | null>;
   onReset: () => void;
 }) => {
@@ -104,7 +104,7 @@ const GravityFormulaContent = ({ action, explanation, resetButtonRef, onReset }:
 
   return (
     <section
-      className={styles.card}
+      className={variant === "embedded" ? styles.embedded : styles.card}
       aria-labelledby={`${id}-heading`}
       onKeyDown={(event) => {
         if (event.key === "Escape") { select(null); hover(null); }
@@ -112,7 +112,7 @@ const GravityFormulaContent = ({ action, explanation, resetButtonRef, onReset }:
     >
       <div className={styles.header}>
         <h3 id={`${id}-heading`}>{t("introFormulaTitle")}</h3>
-        <div className={styles.headerActions}>{action}<button ref={resetButtonRef} type="button" onClick={onReset} aria-label={t("reset")} aria-describedby={`${id}-reset-hint`} className={styles.reset}>{t("resetShort")}</button></div>
+        <div className={styles.headerActions}><button ref={resetButtonRef} type="button" onClick={onReset} aria-label={t("reset")} aria-describedby={`${id}-reset-hint`} className={styles.reset}>{t("resetShort")}</button></div>
       </div>
       <p id={`${id}-instructions`} className="sr-only">{t("formulaFieldsInstruction")}</p>
       <p className="sr-only">{t("formulaSpoken")}</p>

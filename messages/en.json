@@ -49,6 +49,13 @@
     "galleryLabel": "GALLERY"
   },
   "Gravity": {
+    "siConversionsTitle": "Converting to SI units",
+    "siConversionsText": "Before using the formula: 1 km = 1000 m; 1 cm = 0.01 m; 1 t = 1000 kg. Convert first, then square the distance in metres.",
+    "experimentViews": {
+      "label": "Laboratory view",
+      "experiment": "Experiment",
+      "formula": "Formula"
+    },
     "stageTags": {
       "discover": "Discover",
       "understand": "Understand",
@@ -519,6 +526,118 @@
       "chooseStage": "Choose a stage",
       "galleryIntroduction": "Six extraordinary solutions. Three bodies attracting one another. Discover the patterns hidden in gravity.",
       "galleryScienceNote": "These are not decorative curves. Each trajectory is calculated by integrating Newton’s equations with documented initial conditions. Equal masses, G = 1 and normalized units."
+    }
+  },
+  "Practice": {
+    "title": "Check your understanding",
+    "subtitle": "Practise at your own pace",
+    "introduction": "Answer 10 questions about theory, units and calculations. Later questions adapt to your answers. Use hints and visit other stages without losing progress.",
+    "start": "Start practice",
+    "finished": "Your practice is complete",
+    "score": "{score} correct out of 10",
+    "hintsUsed": "Hints used: {count}",
+    "strengths": "What you demonstrated",
+    "review": "What to revisit",
+    "recommendations": "Where to continue learning",
+    "history": "Answer summary",
+    "restart": "Practise again",
+    "correct": "Correct answer",
+    "incorrect": "Let’s review this",
+    "hintUsed": "With a hint",
+    "position": "Question {number} of 10",
+    "difficulty": "Difficulty {level} of 3",
+    "reinforcement": "Reinforcement",
+    "rounding": "Use the indicated units. Numerical answers allow 0.5% rounding tolerance.",
+    "hideHint": "Hide hint",
+    "hint": "I need a hint",
+    "check": "Check answer",
+    "expected": "Correct answer",
+    "next": "Next question",
+    "lastFeedback": "Review the last answer",
+    "loading": "Preparing your practice…",
+    "retry": "Retry",
+    "choose": "Select an answer",
+    "answer": "Your answer",
+    "coefficient": "Coefficient",
+    "number": "Result",
+    "exponent": "Exponent",
+    "decrease": "Decrease exponent",
+    "increase": "Increase exponent",
+    "preview": "Preview",
+    "questions": {
+      "attraction": "Two bodies of {a} kg and {b} kg are {r} m apart. What describes gravity between them?",
+      "mass": "One mass doubles from {a} kg. The other mass ({b} kg) and distance ({r} m) stay fixed. How does force change?",
+      "distance": "Two masses of {a} kg and {b} kg are {r} m apart. If distance doubles, how does force change?",
+      "mutual": "Two bodies of {a} kg and {b} kg, {r} m apart, attract each other. How do their forces compare?",
+      "km": "Convert {a} km to metres.",
+      "cm": "Convert {a} cm to metres.",
+      "tonnes": "Convert {a} tonnes to kilograms.",
+      "square": "Distance is {a} m. What is its square, in m²?",
+      "power": "Write {a} in scientific notation.",
+      "force": "Calculate F for m₁ = {a} {massUnit}, m₂ = {b} kg and r = {r} {distanceUnit}. Give the result in N.",
+      "reasoning": "Someone claims that for masses of {a} kg and {b} kg, doubling the initial distance of {r} m halves F. What is the correct change?"
+    },
+    "options": {
+      "attract": "They attract each other",
+      "repel": "They repel",
+      "contact": "They attract only in contact",
+      "earthOnly": "Only Earth attracts",
+      "equal": "Equal and opposite",
+      "heavier": "The heavier body exerts more force",
+      "lighter": "The lighter body exerts more force",
+      "stationary": "A stationary body exerts no force",
+      "same": "Unchanged",
+      "double": "Doubles",
+      "four": "Quadruples",
+      "half": "Halves",
+      "quarter": "Becomes one quarter"
+    },
+    "hints": {
+      "units": "Check units first: 1 km = 1000 m, 1 cm = 0.01 m and 1 t = 1000 kg.",
+      "conversion": "Consider whether the target unit is larger or smaller and which conversion factor connects them.",
+      "square": "Squaring means multiplying a quantity by itself.",
+      "denominator": "r² is in the denominator. First consider how that square changes.",
+      "formula": "F = G · m₁ · m₂ / r². Convert to kg and m before substituting.",
+      "exponent": "A negative exponent means dividing by a power of ten.",
+      "decimal": "Move the decimal point and count the places to get a coefficient between 1 and 10.",
+      "mass": "Look at the mass in the numerator and what stays constant.",
+      "mutual": "Think of Newton’s third law: action and reaction.",
+      "attraction": "Gravity is an interaction between bodies with mass."
+    },
+    "concepts": {
+      "attraction": "Attraction",
+      "mass": "Mass",
+      "distance": "Distance",
+      "mutual": "Mutual forces",
+      "km": "Kilometres",
+      "cm": "Centimetres",
+      "tonnes": "Tonnes",
+      "square": "Squares",
+      "power": "Powers",
+      "force": "Gravitational force",
+      "reasoning": "Reasoning"
+    },
+    "kinds": {
+      "choice": "Theory and reasoning",
+      "number": "Units and powers",
+      "scientific": "Scientific calculation"
+    },
+    "scenes": {
+      "objects": "Imagine these objects.",
+      "laboratory": "In a laboratory.",
+      "workshop": "In a workshop."
+    },
+    "stages": {
+      "gravity-discovery": "Go to 01 · Discover",
+      "gravity-understanding": "Go to 02 · Understand",
+      "gravity-laboratory": "Go to 03 · Experiment"
+    },
+    "errors": {
+      "not_configured": "Practice is unavailable: the service is not configured.",
+      "rate_limited": "Wait a minute before continuing. Your progress is preserved.",
+      "invalid_session": "The session has expired or is invalid. Start a new practice.",
+      "invalid_answer": "Enter a complete, finite numerical answer.",
+      "unavailable": "Could not prepare the response. Your progress is preserved; please retry."
     }
   }
 }

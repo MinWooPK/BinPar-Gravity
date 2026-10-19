@@ -1,8 +1,11 @@
-import { useTranslations } from "next-intl";
+"use client";
 
+import { useEffect, useId, useRef, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+
+import { Link, usePathname } from "@/i18n/navigation";
 import { NavLink } from "@/components/ui/NavLink";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
-import { AutoHideHeader } from "./AutoHideHeader";
 
 const sections = [
   {
@@ -15,45 +18,160 @@ const sections = [
   },
 ] as const;
 
+const menuLabels = {
+  es: { open: "Abrir menú", close: "Cerrar menú" },
+  en: { open: "Open menu", close: "Close menu" },
+  fr: { open: "Ouvrir le menu", close: "Fermer le menu" },
+};
+
 export const Header = () => {
   const t = useTranslations("Navigation");
+  const locale = useLocale();
+  const pathname = usePathname();
+
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const menuId = useId();
+
+  const labels = menuLabels[locale as keyof typeof menuLabels] ?? menuLabels.es;
+
+  // Cerrar el menú al pulsar fuera o presionar Escape.
+  useEffect(() => {
+    if (!menuOpen) return;
+
+    const handleOutsideClick = (event: PointerEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("pointerdown", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("pointerdown", handleOutsideClick);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [menuOpen]);
 
   return (
-    <AutoHideHeader>
-      <header className="bg-transparent text-white">
-        <nav className="mx-auto grid w-full max-w-7xl grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-2 px-4 py-2 sm:px-6 sm:py-2.5 lg:grid-cols-[minmax(max-content,1fr)_minmax(0,auto)_minmax(max-content,1fr)] lg:gap-x-4 lg:px-8">
-          <NavLink
-            href="/"
-            className="flex min-h-11 min-w-0 w-fit flex-col items-start justify-center rounded-xl px-2 py-1 sm:px-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
-          >
-            <span className="text-xl leading-5 font-bold tracking-tight">
-              <span className="text-[#FFFFFF]">BIN</span>
-              <span className="text-[#F8BA00]">PAR</span>
-            </span>
-            <span className="mt-0.5 text-[10px] leading-3 font-medium tracking-[0.18em] text-slate-400">
-              GRAVITY LAB
-            </span>
-          </NavLink>
+    <header className="relative z-50 shrink-0 bg-transparent text-white">
+      <nav className="mx-auto flex w-full max-w-7xl items-center justify-between gap-3 px-4 py-2 sm:px-6 lg:gap-6 lg:px-8">
+        {/* LOGO */}
+        <NavLink
+          href="/"
+          className="flex min-h-11 shrink-0 flex-col items-start justify-center px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+        >
+          <span className="text-xl leading-5 font-bold tracking-tight">
+            <span className="text-white">BIN</span>
+            <span className="text-[#F8BA00]">PAR</span>
+          </span>
 
-          <div className="col-span-2 row-start-2 grid min-w-0 grid-cols-2 gap-2 border-t border-white/15 pt-2 lg:col-span-1 lg:col-start-2 lg:row-start-1 lg:flex lg:w-full lg:justify-self-center lg:gap-2 lg:border-0 lg:pt-0">
-            {sections.map((section) => (
-              <NavLink
-                key={section.href}
-                href={section.href}
-                className="flex min-h-11 min-w-0 items-center justify-center gap-1.5 rounded-xl px-2 py-1 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 sm:gap-2 sm:px-3 sm:py-1.5"
+          <span className="mt-0.5 text-[10px] leading-3 font-medium tracking-[0.18em] text-slate-400">
+            GRAVITY LAB
+          </span>
+        </NavLink>
+
+        {/* NAVEGACIÓN ESCRITORIO */}
+        <div className="hidden min-w-0 items-center justify-center gap-4 lg:flex">
+          {sections.map((section) => (
+            <NavLink
+              key={section.href}
+              href={section.href}
+              className="flex min-h-11 items-center justify-center px-3 py-1.5 text-center text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            >
+              {t(section.title)}
+            </NavLink>
+          ))}
+        </div>
+
+        {/* IDIOMA + MENÚ MÓVIL */}
+        <div className="flex shrink-0 items-center gap-2">
+          <LanguageSwitcher />
+
+          <div ref={menuRef} className="relative lg:hidden">
+            {/* BOTÓN HAMBURGUESA */}
+            <button
+              ref={menuButtonRef}
+              type="button"
+              aria-label={menuOpen ? labels.close : labels.open}
+              aria-expanded={menuOpen}
+              aria-controls={menuId}
+              onClick={() => setMenuOpen((open) => !open)}
+              className="flex size-11 cursor-pointer items-center justify-center rounded-xl border border-slate-600 bg-slate-900 text-slate-100 transition-colors hover:border-slate-400 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400"
+            >
+              {menuOpen ? (
+                // Icono cerrar
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  className="size-5"
+                >
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              ) : (
+                // Icono menú
+                <svg
+                  aria-hidden="true"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  className="size-5"
+                >
+                  <path d="M4 7h16M4 12h16M4 17h16" />
+                </svg>
+              )}
+            </button>
+
+            {/* MENÚ DESPLEGABLE */}
+            {menuOpen && (
+              <div
+                id={menuId}
+                className="absolute right-0 top-full z-50 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-slate-700 bg-[#0b101e] p-2 shadow-xl shadow-black/40"
               >
-                <span className="min-w-0 text-xs leading-tight font-semibold sm:text-sm">
-                  {t(section.title)}
-                </span>
-              </NavLink>
-            ))}
-          </div>
+                {sections.map((section) => {
+                  const isActive =
+                    pathname === section.href ||
+                    pathname.startsWith(`${section.href}/`);
 
-          <div className="col-start-2 row-start-1 justify-self-end lg:col-start-3">
-            <LanguageSwitcher />
+                  return (
+                    <Link
+                      key={section.href}
+                      href={section.href}
+                      aria-current={
+                        pathname === section.href ? "page" : undefined
+                      }
+                      onClick={() => setMenuOpen(false)}
+                      className={`flex min-h-11 items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 ${
+                        isActive
+                          ? "text-[#F8BA00]"
+                          : "text-slate-200 hover:bg-slate-800 hover:text-white"
+                      }`}
+                    >
+                      {t(section.title)}
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </nav>
-      </header>
-    </AutoHideHeader>
+        </div>
+      </nav>
+    </header>
   );
 };

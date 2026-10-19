@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useLayoutEffect, useMemo, useRef } from "react";
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import { usePathname } from "@/i18n/navigation";
 import type { TutorContext } from "../../types/tutor.types";
@@ -9,6 +9,7 @@ import { GlobalTutor } from "../components/GlobalTutor";
 
 /** One persistent assistant for the localized app; page data is published explicitly. */
 export const TutorProvider = ({ children }: { children: ReactNode }) => {
+  const [practicePath, setPracticePath] = useState<string | null>(null);
   const launcherRef = useRef<TutorLauncher | null>(null);
   const openTutor = useCallback<TutorLauncher>((intent, trigger) => launcherRef.current?.(intent, trigger), []);
   const registerLauncher = useCallback((launcher: TutorLauncher) => {
@@ -22,6 +23,7 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
       : /^\/three-body\/[a-z0-9-]+$/.test(pathname) ? pathname.slice(1) : null;
   const publish = useCallback((value: PublishedContext) => {
     publishedRef.current = value;
+    setPracticePath(value.context.kind === "gravity" && value.context.stage === "gravity-challenges" ? value.pathname : null);
     return () => {
       if (publishedRef.current === value) publishedRef.current = null;
     };
@@ -30,7 +32,7 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
     const value = publishedRef.current;
     return value?.pathname === pathname ? value : null;
   }, [pathname]);
-  const environment = useMemo(() => ({ sessionKey, publish, current, openTutor, registerLauncher }), [sessionKey, publish, current, openTutor, registerLauncher]);
+  const environment = useMemo(() => ({ sessionKey, publish, current, openTutor, registerLauncher, practiceActive: practicePath === pathname }), [sessionKey, publish, current, openTutor, registerLauncher, practicePath, pathname]);
   return (
     <EnvironmentContext.Provider value={environment}>
       {children}

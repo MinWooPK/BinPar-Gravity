@@ -1,26 +1,8 @@
 import { buildTutorContext } from "./tutorContext";
-import type { TutorChallengeStatus, TutorRequest } from "../types/tutor.types";
-
-const challengeGuidance: Record<TutorChallengeStatus, string> = {
-  "awaiting-prediction":
-    "No answer has been selected. Offer one small hint and ask which variable changes from the baseline. Do not attribute a prediction or a result to the student.",
-  "prediction-pending":
-    "The selected prediction has NOT been checked, even if it matches the official answer. Acknowledge the choice neutrally and offer a hint about the relevant mass factors or the squared distance. Do not say it is correct or incorrect.",
-  correct:
-    "The checked answer is correct. Briefly reinforce the specific reasoning using the official challenge result. End with one short, slightly more advanced conceptual question about combining changes or reversing the reasoning; do not answer it yet.",
-  incorrect:
-    "The checked answer is incorrect. Compare attempt.prediction with the official challenge result kindly, explain the relevant factor in Newton's law, and offer a simpler example using the supplied baseline and challenge values. For the distance challenge, explicitly explain the squared denominator: doubling distance divides force by four, not two. End with one short, simpler comprehension question; do not answer it yet.",
-};
+import type { TutorRequest } from "../types/tutor.types";
 
 export const buildTutorPrompt = (request: TutorRequest) => {
   const context = buildTutorContext(request.context);
-  const activeChallenge =
-    context.kind === "gravity" && context.stage === "gravity-challenges"
-      ? context.challenge
-      : undefined;
-  const pendingChallenge =
-    activeChallenge?.status === "awaiting-prediction" ||
-    activeChallenge?.status === "prediction-pending";
   return {
     instructions: [
       "You are Gravity Lab's educational physics tutor for adults without prior physics training.",
@@ -34,22 +16,10 @@ export const buildTutorPrompt = (request: TutorRequest) => {
             "Proposed masses must be 10–100 kg in steps of 1 kg; proposed distance must be 5–20 m in steps of 0.1 m, as given by laboratory.limits. Never clamp or silently round a requested value: if it cannot be represented, explain the limit and return proposal null. Include at least one actual change; do not add code, tools, commands or other actions. Explain the expected effect conditionally, using supplied numerical results only; the application calculates all forces. If a request is ambiguous, ask a short clarification and return proposal null.",
             "Discuss the active Newtonian gravity learning stage. Use kilograms, metres and newtons, with centre-to-centre distance. The laboratory uses everyday masses, the real fixed G and scientific notation for very small forces; do not turn a small nonzero force into zero. The educational Earth–Moon illustration is conceptual; the laboratory shows two-body attraction, not an orbital simulation.",
             "When asked what is happening in the experiment or to explain it, explicitly report current.mass1, current.mass2, current.distance and current.forceNewtons with SI units. These are the values at the time of the question, even if older dialogue mentions other values. Explain that both bodies attract each other with equal and opposite forces; do not claim the illustration shows actual motion.",
-            ...(pendingChallenge
-              ? []
-              : [
-                  "Explain Newton's law F = G m1 m2 / r² simply: with the other values unchanged, doubling either mass doubles the force, doubling the distance quarters it, and halving the distance quadruples it. Use hypotheticalChanges for numerical examples relative to current, not baseline. These scenarios are hypothetical, not actions performed or observed changes. If withinLaboratoryRange is false, clarify that the example is outside the slider limits. Never claim to change parameters. Do not invent numerical results for other scenarios; explain the qualitative relationship instead. Respect the challenge guidance below when a prediction has not been checked.",
-                ]),
+            "Explain Newton's law F = G m1 m2 / r² simply: doubling either mass doubles the force; doubling distance quarters it. Use hypotheticalChanges for numerical examples, not invented calculations. These are hypothetical, never applied changes. Never claim to change parameters. If withinLaboratoryRange is false, clarify that the example is outside the slider limits.",
             request.context.stage === "gravity-discovery"
               ? "This is the introductory discovery stage. Use the supplied discovery facts to explain what gravity is, its effects, Newton's synthesis, Galileo, Kepler, the experimentally determined constant G and the units N, kg and m. Do not invent calculator actions or a checked challenge in this stage."
-              : "Distinguish the current manual parameters from the challenge and baseline.",
-            "The separate prediction is the user's current choice, not a checked result. Only an attempt indicates that the user checked the challenge; explain its server-computed result kindly. Without an attempt, do not claim the user has validated the answer: guide their reasoning without revealing the challenge answer before it has been checked.",
-            ...(activeChallenge
-              ? [
-                  "For this challenge, the state-specific teaching guidance takes precedence over general experiment examples. When status is awaiting-prediction or prediction-pending, give hints only: do not reveal the official answer, force ratio, final force or a worked example that solves this challenge. Do not automatically list the mass/distance doubling results.",
-                  challengeGuidance[activeChallenge.status],
-                  "Use only the current challenge and attempt to describe selected answers and checked results. Never invent previous attempts, scores, progress or a learner profile. A belief expressed in chat is not a selected or validated app answer. If the student replies to a follow-up question, respond to what they actually wrote before proposing anything else; do not repeat the initial feedback mechanically. Follow-up questions are conversational only and never change the official challenge, its validation or progression.",
-                ]
-              : []),
+              : "Distinguish current parameters from the baseline.",
           ].join(" ")
         : "Discuss the three-body context, not the two-body laboratory. Use the supplied dimensionless equal-mass model and orbit catalogue. For a selected orbit, use its actual initial state, period and documented source, distinguishing local refinements from published seeds. Do not claim constant orbital speed or that finite-precision simulations are exact proofs. If a fact is not supplied or established, state the limitation. Explain that there is no general closed-form solution in the usual elementary-function sense, while special periodic solutions exist.",
       ...(request.context.kind === "gravity" &&

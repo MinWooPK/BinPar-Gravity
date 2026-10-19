@@ -49,6 +49,13 @@
     "galleryLabel": "GALERÍA"
   },
   "Gravity": {
+    "siConversionsTitle": "Conversiones a unidades SI",
+    "siConversionsText": "Antes de usar la fórmula: 1 km = 1000 m; 1 cm = 0,01 m; 1 t = 1000 kg. Convierte primero y eleva después la distancia en metros al cuadrado.",
+    "experimentViews": {
+      "label": "Vista del laboratorio",
+      "experiment": "Experimento",
+      "formula": "Fórmula"
+    },
     "stageTags": {
       "discover": "Descubre",
       "understand": "Comprende",
@@ -519,6 +526,118 @@
       "chooseStage": "Elegir etapa",
       "galleryIntroduction": "Seis soluciones extraordinarias. Tres cuerpos que se atraen. Descubre los patrones que esconde la gravedad.",
       "galleryScienceNote": "Estas no son curvas decorativas. Cada trayectoria se calcula integrando las ecuaciones de Newton con condiciones iniciales documentadas. Masas iguales, G = 1 y unidades normalizadas."
+    }
+  },
+  "Practice": {
+    "title": "Comprueba lo aprendido",
+    "subtitle": "Practica a tu ritmo",
+    "introduction": "Resuelve 10 preguntas de teoría, unidades y cálculo. Las siguientes preguntas se adaptarán a tus respuestas. Puedes usar pistas y volver a otras etapas sin perder el progreso.",
+    "start": "Empezar práctica",
+    "finished": "Tu práctica ha terminado",
+    "score": "{score} de 10 aciertos",
+    "hintsUsed": "Pistas utilizadas: {count}",
+    "strengths": "Lo que has demostrado",
+    "review": "Qué conviene reforzar",
+    "recommendations": "Dónde continuar aprendiendo",
+    "history": "Resumen de respuestas",
+    "restart": "Volver a practicar",
+    "correct": "Respuesta correcta",
+    "incorrect": "Vamos a repasarlo",
+    "hintUsed": "Con pista",
+    "position": "Pregunta {number} de 10",
+    "difficulty": "Dificultad {level} de 3",
+    "reinforcement": "Refuerzo",
+    "rounding": "Usa unidades indicadas. Se admite un redondeo del 0,5 % en los resultados numéricos.",
+    "hideHint": "Ocultar pista",
+    "hint": "Necesito una pista",
+    "check": "Corregir",
+    "expected": "Respuesta correcta",
+    "next": "Siguiente pregunta",
+    "lastFeedback": "Revisar la última respuesta",
+    "loading": "Preparando tu práctica…",
+    "retry": "Reintentar",
+    "choose": "Selecciona una respuesta",
+    "answer": "Tu respuesta",
+    "coefficient": "Coeficiente",
+    "number": "Resultado",
+    "exponent": "Exponente",
+    "decrease": "Disminuir exponente",
+    "increase": "Aumentar exponente",
+    "preview": "Vista previa",
+    "questions": {
+      "attraction": "Dos cuerpos de {a} kg y {b} kg están separados {r} m. ¿Qué describe la gravedad entre ellos?",
+      "mass": "La masa de un cuerpo pasa de {a} kg a su doble; la otra masa ({b} kg) y la distancia ({r} m) no cambian. ¿Cómo cambia la fuerza?",
+      "distance": "Dos masas de {a} kg y {b} kg están a {r} m. Si duplicamos la distancia, ¿cómo cambia la fuerza?",
+      "mutual": "Dos cuerpos de {a} kg y {b} kg separados {r} m se atraen. ¿Cómo se comparan las fuerzas que ejercen uno sobre el otro?",
+      "km": "Convierte {a} km a metros.",
+      "cm": "Convierte {a} cm a metros.",
+      "tonnes": "Convierte {a} toneladas a kilogramos.",
+      "square": "La distancia es {a} m. ¿Cuánto vale su cuadrado, en m²?",
+      "power": "Escribe {a} en notación científica.",
+      "force": "Calcula F para m₁ = {a} {massUnit}, m₂ = {b} kg y r = {r} {distanceUnit}. Expresa el resultado en N.",
+      "reasoning": "Se afirma que, para masas de {a} kg y {b} kg, duplicar la distancia inicial de {r} m reduce F a la mitad. ¿Cuál es el cambio correcto?"
+    },
+    "options": {
+      "attract": "Se atraen mutuamente",
+      "repel": "Se repelen",
+      "contact": "Solo se atraen en contacto",
+      "earthOnly": "Solo la Tierra atrae",
+      "equal": "Iguales y opuestas",
+      "heavier": "El más pesado ejerce más fuerza",
+      "lighter": "El más ligero ejerce más fuerza",
+      "stationary": "El inmóvil no ejerce fuerza",
+      "same": "No cambia",
+      "double": "Se duplica",
+      "four": "Se cuadruplica",
+      "half": "Se reduce a la mitad",
+      "quarter": "Se reduce a una cuarta parte"
+    },
+    "hints": {
+      "units": "Vérifica las unidades antes de operar: 1 km = 1000 m, 1 cm = 0,01 m y 1 t = 1000 kg.",
+      "conversion": "Piensa si la unidad de destino es mayor o menor y qué factor convierte entre ambas.",
+      "square": "Elevar al cuadrado significa multiplicar una cantidad por sí misma.",
+      "denominator": "Observa que r² está en el denominador. Primero calcula cómo cambia ese cuadrado.",
+      "formula": "F = G · m₁ · m₂ / r². Convierte a kg y m antes de sustituir.",
+      "exponent": "Un exponente negativo indica dividir por una potencia de diez.",
+      "decimal": "Desplaza la coma y cuenta los lugares necesarios para escribir un coeficiente entre 1 y 10.",
+      "mass": "Observa cómo aparece la masa en el numerador y qué permanece constante.",
+      "mutual": "Piensa en la tercera ley de Newton: acción y reacción.",
+      "attraction": "La gravedad es una interacción entre cuerpos que tienen masa."
+    },
+    "concepts": {
+      "attraction": "Atracción",
+      "mass": "Masa",
+      "distance": "Distancia",
+      "mutual": "Fuerzas mutuas",
+      "km": "Kilómetros",
+      "cm": "Centímetros",
+      "tonnes": "Toneladas",
+      "square": "Cuadrados",
+      "power": "Potencias",
+      "force": "Fuerza gravitatoria",
+      "reasoning": "Razonamiento"
+    },
+    "kinds": {
+      "choice": "Teoría y razonamiento",
+      "number": "Unidades y potencias",
+      "scientific": "Cálculo científico"
+    },
+    "scenes": {
+      "objects": "Imagina estos objetos.",
+      "laboratory": "En un laboratorio.",
+      "workshop": "En un taller."
+    },
+    "stages": {
+      "gravity-discovery": "Ir a 01 · Descubre",
+      "gravity-understanding": "Ir a 02 · Comprende",
+      "gravity-laboratory": "Ir a 03 · Experimenta"
+    },
+    "errors": {
+      "not_configured": "La práctica no está disponible: falta la configuración del servicio.",
+      "rate_limited": "Espera un minuto antes de continuar. Tu progreso se conserva.",
+      "invalid_session": "La sesión ha caducado o no es válida. Inicia otra práctica.",
+      "invalid_answer": "Completa una respuesta numérica válida y finita.",
+      "unavailable": "No se pudo preparar la respuesta. Tu progreso se conserva; vuelve a intentarlo."
     }
   }
 }

@@ -7,6 +7,7 @@ import type { GravityProposalPort } from "../../types/proposal.types";
 export type PublishedContext = { pathname: string; context: TutorContext; label?: string; gravity?: GravityProposalPort };
 export type TutorLauncher = (intent?: TutorIntent | "configure_experiment", trigger?: HTMLElement) => void;
 type TutorEnvironment = {
+  practiceActive: boolean;
   openTutor: TutorLauncher;
   registerLauncher: (launcher: TutorLauncher) => () => void;
   sessionKey: string | null;

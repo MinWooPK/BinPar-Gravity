@@ -1,5 +1,4 @@
 import {
-  challenges,
   gravitationalForce,
   GRAVITATIONAL_CONSTANT,
   initialParameters,
@@ -11,7 +10,7 @@ import {
   orbits,
   publishedOrbits,
 } from "../../three-body/data/orbits";
-import type { TutorChallengeStatus, TutorContext } from "../types/tutor.types";
+import type { TutorContext } from "../types/tutor.types";
 
 // Aligned with the discovery panel; these facts are owned by the server, not dialogue.
 const gravityDiscovery = {
@@ -57,20 +56,6 @@ const gravityDiscovery = {
 /** Numerical facts and orbit metadata come exclusively from the project on the server. */
 export const buildTutorContext = (context: TutorContext) => {
   if (context.kind === "gravity") {
-    const challenge = challenges.find(
-      ({ id }) => id === (context.challenge ?? context.attempt?.challenge),
-    );
-    const attempt =
-      context.attempt?.challenge === challenge?.id
-        ? context.attempt
-        : undefined;
-    const challengeStatus: TutorChallengeStatus = attempt
-      ? attempt.prediction === challenge?.answer
-        ? "correct"
-        : "incorrect"
-      : context.prediction
-        ? "prediction-pending"
-        : "awaiting-prediction";
     const baselineForce = gravitationalForce(initialParameters);
     const currentForce = gravitationalForce(context.parameters);
     // Educational what-ifs, relative to the current snapshot, never applied to the lab.
@@ -118,21 +103,7 @@ export const buildTutorContext = (context: TutorContext) => {
         };
       }),
       baseline: { ...initialParameters, forceNewtons: baselineForce },
-      challenge: challenge && {
-        id: challenge.id,
-        status: challengeStatus,
-        parameters: challenge.parameters,
-        forceNewtons: gravitationalForce(challenge.parameters),
-        forceRatioToBaseline:
-          gravitationalForce(challenge.parameters) / baselineForce,
-        expectedPrediction: challenge.answer,
-      },
-      prediction: context.prediction,
-      attempt: attempt &&
-        challenge && {
-          prediction: attempt.prediction,
-          correct: attempt.prediction === challenge.answer,
-        },
+
     };
   }
 

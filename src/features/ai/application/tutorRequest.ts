@@ -1,6 +1,5 @@
 import { gravityStages } from "../../gravity/application/gravityJourney";
-import { challenges, laboratoryLimits } from "../../gravity/domain/gravitation";
-import type { Prediction } from "../../gravity/types/gravity.types";
+import { laboratoryLimits } from "../../gravity/domain/gravitation";
 import { isTutorRequest as isLegacyTutorRequest } from "./legacyTutorRequest";
 import { getOrbit } from "../../three-body/data/orbits";
 import {
@@ -20,12 +19,6 @@ const inRange = (value: unknown, min: number, max: number) =>
   Number.isFinite(value) &&
   value >= min &&
   value <= max;
-const isChallenge = (value: unknown) =>
-  challenges.some(({ id }) => value === id);
-const isPrediction = (value: unknown): value is Prediction =>
-  typeof value === "string" &&
-  ["same", "double", "four", "quarter"].includes(value);
-
 export const isTutorContext = (value: unknown): value is TutorContext => {
   if (!isRecord(value)) return false;
   if (value.kind === "three-body") {
@@ -41,9 +34,6 @@ export const isTutorContext = (value: unknown): value is TutorContext => {
       "kind",
       "stage",
       "parameters",
-      "challenge",
-      "prediction",
-      "attempt",
     ])
   )
     return false;
@@ -68,27 +58,6 @@ export const isTutorContext = (value: unknown): value is TutorContext => {
     )
   )
     return false;
-  if (value.challenge !== undefined && !isChallenge(value.challenge))
-    return false;
-  if (value.prediction !== undefined && !isPrediction(value.prediction))
-    return false;
-  if (value.attempt !== undefined) {
-    const attempt = value.attempt;
-    if (
-      !isRecord(attempt) ||
-      !hasOnlyKeys(attempt, ["challenge", "prediction"])
-    )
-      return false;
-    if (!isChallenge(attempt.challenge) || !isPrediction(attempt.prediction))
-      return false;
-    if (value.challenge !== undefined && attempt.challenge !== value.challenge)
-      return false;
-    if (
-      value.prediction !== undefined &&
-      attempt.prediction !== value.prediction
-    )
-      return false;
-  }
   return true;
 };
 
@@ -171,13 +140,7 @@ export const parseTutorRequest = (value: unknown): TutorRequest | null => {
         mass2: value.parameters.mass2,
         distance: value.parameters.distance,
       },
-      ...(value.attempt && {
-        challenge: value.attempt.challenge,
-        attempt: {
-          challenge: value.attempt.challenge,
-          prediction: String(value.attempt.prediction) as Prediction,
-        },
-      }),
+
     },
     messages: [{ role: "user", content: legacyQuestions[value.locale] }],
   };

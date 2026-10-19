@@ -3,6 +3,7 @@ import css from "./GravityFormula.module.css";
 /** Static Tailwind classes; CSS retains only specialized selectors and motion. */
 export const gravityFormulaStyles = {
   "card": `${css["card"]} flex flex-col justify-between min-w-0 [padding:12px] [font-size:1rem] [line-height:1.5] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [@media(max-width:520px)]:[padding:14px] in-[#gravity-understanding]:p-2.5`,
+  "embedded": `${css["card"]} flex flex-1 flex-col justify-between min-w-0 gap-2 p-3.5 text-base leading-normal`,
   "header": `${css["header"]} flex items-center justify-between flex-wrap [gap:8px_12px]`,
   "reset": `${css["reset"]} [min-height:44px] [padding:8px_12px] [border:1px_solid_#544776] [border-radius:8px] [background:#aa97ff12] [color:#d0c1ff] [font-size:.875rem] cursor-pointer`,
   "headerActions": "flex flex-wrap items-center [gap:4px] min-w-0",
