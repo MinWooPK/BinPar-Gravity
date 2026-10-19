@@ -93,8 +93,20 @@ export const GravityForceComparison = ({
   }
 
   const rows = [
-    { key: "initial", label: t("forceComparisonInitial"), fraction: bars.initialFraction, value: "1×", color: "#a0a7be" },
-    { key: "current", label: t("forceComparisonCurrent"), fraction: bars.currentFraction, value: `${ratio}×`, color: "#5ee7d5" },
+    {
+      key: "initial",
+      label: t("forceComparisonInitial"),
+      fraction: bars.initialFraction,
+      value: "1×",
+      color: "#a0a7be",
+    },
+    {
+      key: "current",
+      label: t("forceComparisonCurrent"),
+      fraction: bars.currentFraction,
+      value: `${ratio}×`,
+      color: "#5ee7d5",
+    },
   ];
   return (
     <figure
@@ -110,11 +122,23 @@ export const GravityForceComparison = ({
         {rows.map((row) => (
           <div key={row.key} className={styles.comparisonRow}>
             <div className={styles.comparisonLabel}>
-              <span>{row.label}</span><strong>{row.value}</strong>
+              <span>{row.label}</span>
+              <strong>{row.value}</strong>
             </div>
-            <svg viewBox="0 0 360 12" preserveAspectRatio="none" aria-hidden="true" className={styles.challengeBar}>
+            <svg
+              viewBox="0 0 360 12"
+              preserveAspectRatio="none"
+              aria-hidden="true"
+              className={styles.challengeBar}
+            >
               <rect width="360" height="12" rx="3" fill="#ffffff08" />
-              <rect data-force-bar={row.key} width={360 * row.fraction} height="12" rx="3" fill={row.color} />
+              <rect
+                data-force-bar={row.key}
+                width={360 * row.fraction}
+                height="12"
+                rx="3"
+                fill={row.color}
+              />
             </svg>
           </div>
         ))}

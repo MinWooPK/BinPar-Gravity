@@ -35,16 +35,26 @@ export const GravityExperiment = ({
   });
 
   return (
-    <GravityContentTabs primary="experiment"
+    <GravityContentTabs
+      primary="experiment"
       calculator={<GravityFormula variant="embedded" />}
-      tutor={panel => <GravityExperimentTutor {...panel} />}>
-      <section aria-label={t("experimentHeading")} className={`${styles["gravity-lab"]} flex flex-col gap-3 pb-3`}>
+      tutor={(panel) => <GravityExperimentTutor {...panel} />}
+    >
+      <section
+        aria-label={t("experimentHeading")}
+        className={`${styles["gravity-lab"]} flex flex-col gap-3 pb-3`}
+      >
         <div className={styles["lab-header"]}>
           <h3 id={`${id}-heading`} className={styles.heading}>
             {t("experimentHeading")}
           </h3>
           <div className={styles.headerActions}>
-            <button type="button" onClick={onReset} aria-label={t("reset")} className={styles.resetButton}>
+            <button
+              type="button"
+              onClick={onReset}
+              aria-label={t("reset")}
+              className={styles.resetButton}
+            >
               <svg
                 aria-hidden="true"
                 viewBox="0 0 24 24"
@@ -63,9 +73,6 @@ export const GravityExperiment = ({
           </div>
         </div>
         <div className={styles["lab-sliders"]}>
-          <p id={`${id}-controls-hint`} className={styles.controlsHint}>
-            {t("experimentControlsHint")}
-          </p>
           {gravityControls.map((control) => (
             <GravitySlider
               key={control.key}
@@ -90,13 +97,13 @@ export const GravityExperiment = ({
           <p id={`${id}-force-explanation`} className={styles.forceExplanation}>
             {forceExplanation}
           </p>
-          <details className={styles.helperDetails}>
+          {/* <details className={styles.helperDetails}>
             <summary>{t("laboratoryDetails")}</summary>
             <p>{t("forceComparisonScale")}</p>
             <p>{t("stageNote")}</p>
             <p>{t("modelNote")}</p>
             <p>{t("tinyForce")}</p>
-          </details>
+          </details> */}
         </div>
       </section>
     </GravityContentTabs>

@@ -81,7 +81,14 @@ export const GravityFormula = ({
     />
   );
   // Reset remounts only the calculator; the conversation remains mounted.
-  return footer ? <div className={styles.card}>{content}{footer}</div> : content;
+  return footer ? (
+    <div className={styles.card}>
+      {content}
+      {footer}
+    </div>
+  ) : (
+    content
+  );
 };
 
 const GravityFormulaContent = ({
@@ -106,8 +113,7 @@ const GravityFormulaContent = ({
     changeValue,
     selectUnknown,
   } = useGravityFormulaDraft();
-  const { active, hover, focus, select } =
-    useGravityFormulaInteraction();
+  const { active, hover, focus, select } = useGravityFormulaInteraction();
   const inputRefs = useRef<
     Partial<Record<GravityVariable, HTMLInputElement | null>>
   >({});
@@ -187,7 +193,11 @@ const GravityFormulaContent = ({
       </p>
       <p className="sr-only">{t("formulaSpoken")}</p>
       <div className={styles.formulaControls}>
-        <GravityEquation id={id} currentValue={currentValue} onSelect={focusField} />
+        <GravityEquation
+          id={id}
+          currentValue={currentValue}
+          onSelect={focusField}
+        />
         <fieldset
           className={styles.unknowns}
           aria-label={t("calculateUnknown")}
@@ -299,39 +309,46 @@ const GravityFormulaContent = ({
           );
         })}
       </div>
-      <p className={styles.help} aria-hidden="true">
-        {fields.some(({ key }) => key === active)
-          ? t.rich(fields.find(({ key }) => key === active)!.description, {
-              highlight: (chunks) => <strong>{chunks}</strong>,
-            })
-          : t("formulaThreeKnownHint")}
-      </p>
+
       <GravityFormulaLegend id={id} />
-      <p id={`${id}-status`} role="status" aria-atomic="true"
-        className={invalidFields.length > 0 || numericalError || rangeError ? styles.error : styles.help}>{status}</p>
-      <p data-formula-sync-status className={styles.help}>
-        {t(result && isInLaboratoryRange(result) ? "formulaAutomaticSync" : "formulaPendingSync")}
+      <p
+        id={`${id}-status`}
+        role="status"
+        aria-atomic="true"
+        className={
+          invalidFields.length > 0 || numericalError || rangeError
+            ? styles.error
+            : styles.help
+        }
+      >
+        {status}
       </p>
-      <p id={`${id}-reset-hint`} className={styles.help}>{t("resetLaboratoryHint")}</p>
     </section>
   );
 };
 
 /** Shared equation presentation; all calculations remain in the existing provider. */
-const GravityEquation = ({ id, currentValue, onSelect }: {
+const GravityEquation = ({
+  id,
+  currentValue,
+  onSelect,
+}: {
   id: string;
   currentValue?: (key: GravityVariable) => number | null;
   onSelect?: (key: GravityVariable) => void;
 }) => {
   const t = useTranslations("Gravity");
   const format = useFormatter();
-  const { active, selected, hover, focus, select } = useGravityFormulaInteraction();
-  const isActive = (term: FormulaTerm) => active === term ||
+  const { active, selected, hover, focus, select } =
+    useGravityFormulaInteraction();
+  const isActive = (term: FormulaTerm) =>
+    active === term ||
     (active === "masses" && (term === "mass1" || term === "mass2"));
-  const formatValue = (value: number) => format.number(value, {
-    maximumSignificantDigits: 6,
-    ...(value < 0.001 ? { notation: "scientific" } : {}),
-  });
+  const formatValue = (value: number) =>
+    format.number(value, {
+      maximumSignificantDigits: 6,
+      ...(value < 0.001 ? { notation: "scientific" } : {}),
+    });
   const term = (key: GravityVariable) => {
     const field = fields.find((field) => field.key === key)!;
     const value = currentValue?.(key) ?? null;
@@ -350,7 +367,10 @@ const GravityEquation = ({ id, currentValue, onSelect }: {
         onPointerLeave={() => hover(null)}
         onFocus={() => focus(key)}
         onBlur={() => focus(null)}
-        onClick={() => { select(key); onSelect?.(key); }}
+        onClick={() => {
+          select(key);
+          onSelect?.(key);
+        }}
       >
         {field.symbol}
         {key === "distance" && <sup>2</sup>}
@@ -380,9 +400,7 @@ const GravityEquation = ({ id, currentValue, onSelect }: {
           onPointerLeave={() => hover(null)}
           onFocus={() => focus("constant")}
           onBlur={() => focus(null)}
-          onClick={() =>
-            select(selected === "constant" ? null : "constant")
-          }
+          onClick={() => select(selected === "constant" ? null : "constant")}
         >
           G
         </button>
@@ -408,18 +426,39 @@ export const GravityFormulaEducation = () => {
   const id = useId();
   const { active, select, hover } = useGravityFormulaInteraction();
   return (
-    <section className={styles.embedded} aria-labelledby={`${id}-heading`}
-      onKeyDown={event => { if (event.key === "Escape") { select(null); hover(null); } }}>
-      <div className={styles.header}><h3 id={`${id}-heading`}>{t("introFormulaTitle")}</h3></div>
+    <section
+      className={styles.embedded}
+      aria-labelledby={`${id}-heading`}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          select(null);
+          hover(null);
+        }
+      }}
+    >
+      <div className={styles.header}>
+        <h3 id={`${id}-heading`}>{t("introFormulaTitle")}</h3>
+      </div>
       <p className="sr-only">{t("formulaSpoken")}</p>
       <GravityEquation id={id} />
       <div className="grid min-w-0 gap-3">
-        {fields.map(field => (
-          <div key={field.key} className={styles.field}
-            data-active={active === field.key || (active === "masses" && (field.key === "mass1" || field.key === "mass2"))}>
-            <h4 className={styles.fieldTitle}>{t(field.label)} <span>{field.symbol}</span></h4>
+        {fields.map((field) => (
+          <div
+            key={field.key}
+            className={styles.field}
+            data-active={
+              active === field.key ||
+              (active === "masses" &&
+                (field.key === "mass1" || field.key === "mass2"))
+            }
+          >
+            <h4 className={styles.fieldTitle}>
+              {t(field.label)} <span>{field.symbol}</span>
+            </h4>
             <p id={`${id}-description-${field.key}`} className={styles.help}>
-              {t.rich(field.description, { highlight: chunks => <strong>{chunks}</strong> })}
+              {t.rich(field.description, {
+                highlight: (chunks) => <strong>{chunks}</strong>,
+              })}
             </p>
           </div>
         ))}
