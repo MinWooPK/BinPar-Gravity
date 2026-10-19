@@ -12,6 +12,12 @@ export const threeBodyStages = [
     title: "galleryTitle",
     description: "galleryDescription",
   },
+  {
+    id: "experiment",
+    number: "03",
+    title: "experimentTitle",
+    description: "experimentDescription",
+  },
 ] as const;
 
 export const getThreeBodyStage = (hash: string): ThreeBodyStageId | null =>

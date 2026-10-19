@@ -1,4 +1,5 @@
 import type { OrbitData, OrbitDefinition } from "../types/orbit.types";
+import { CATALOGUE_PHYSICS, rk4Step } from "./newtonian-physics";
 
 // All three masses and G are 1 in the catalogue's dimensionless units.
 const DIMENSIONS = 12;
@@ -7,50 +8,50 @@ const ABSOLUTE_TOLERANCE = 2e-13;
 const MAX_ATTEMPTS = 100_000;
 const MAX_SAMPLES = 20_000;
 
-function derivative(state: readonly number[]): number[] {
-  const result = new Array<number>(DIMENSIONS).fill(0);
-  for (let body = 0; body < 3; body++) {
-    const index = body * 4;
-    result[index] = state[index + 2];
-    result[index + 1] = state[index + 3];
-  }
-  for (let first = 0; first < 3; first++) {
-    for (let second = first + 1; second < 3; second++) {
-      const a = first * 4;
-      const b = second * 4;
-      const dx = state[b] - state[a];
-      const dy = state[b + 1] - state[a + 1];
-      const squaredDistance = dx * dx + dy * dy;
-      if (!Number.isFinite(squaredDistance) || squaredDistance <= 1e-24) {
-        throw new RangeError("The Newtonian point-mass state is singular.");
-      }
-      const inverseCube = 1 / (squaredDistance * Math.sqrt(squaredDistance));
-      const ax = dx * inverseCube;
-      const ay = dy * inverseCube;
-      result[a + 2] += ax;
-      result[a + 3] += ay;
-      result[b + 2] -= ax;
-      result[b + 3] -= ay;
-    }
-  }
-  return result;
-}
+// function derivative(state: readonly number[]): number[] {
+//   const result = new Array<number>(DIMENSIONS).fill(0);
+//   for (let body = 0; body < 3; body++) {
+//     const index = body * 4;
+//     result[index] = state[index + 2];
+//     result[index + 1] = state[index + 3];
+//   }
+//   for (let first = 0; first < 3; first++) {
+//     for (let second = first + 1; second < 3; second++) {
+//       const a = first * 4;
+//       const b = second * 4;
+//       const dx = state[b] - state[a];
+//       const dy = state[b + 1] - state[a + 1];
+//       const squaredDistance = dx * dx + dy * dy;
+//       if (!Number.isFinite(squaredDistance) || squaredDistance <= 1e-24) {
+//         throw new RangeError("The Newtonian point-mass state is singular.");
+//       }
+//       const inverseCube = 1 / (squaredDistance * Math.sqrt(squaredDistance));
+//       const ax = dx * inverseCube;
+//       const ay = dy * inverseCube;
+//       result[a + 2] += ax;
+//       result[a + 3] += ay;
+//       result[b + 2] -= ax;
+//       result[b + 3] -= ay;
+//     }
+//   }
+//   return result;
+// }
 
-function rk4(state: readonly number[], step: number): number[] {
-  const k1 = derivative(state);
-  const k2 = derivative(
-    state.map((value, index) => value + (step * k1[index]) / 2),
-  );
-  const k3 = derivative(
-    state.map((value, index) => value + (step * k2[index]) / 2),
-  );
-  const k4 = derivative(state.map((value, index) => value + step * k3[index]));
-  return state.map(
-    (value, index) =>
-      value +
-      (step * (k1[index] + 2 * k2[index] + 2 * k3[index] + k4[index])) / 6,
-  );
-}
+// function rk4(state: readonly number[], step: number): number[] {
+//   const k1 = derivative(state);
+//   const k2 = derivative(
+//     state.map((value, index) => value + (step * k1[index]) / 2),
+//   );
+//   const k3 = derivative(
+//     state.map((value, index) => value + (step * k2[index]) / 2),
+//   );
+//   const k4 = derivative(state.map((value, index) => value + step * k3[index]));
+//   return state.map(
+//     (value, index) =>
+//       value +
+//       (step * (k1[index] + 2 * k2[index] + 2 * k3[index] + k4[index])) / 6,
+//   );
+// }
 
 function invariants(state: readonly number[]) {
   let energy = 0;
@@ -191,9 +192,9 @@ export const integrateOrbit = (
           "The orbit needs a step below the supported numerical resolution.",
         );
       }
-      const full = rk4(state, h);
-      const firstHalf = rk4(state, h / 2);
-      const twoHalves = rk4(firstHalf, h / 2);
+      const full = rk4Step(state, h, CATALOGUE_PHYSICS);
+      const firstHalf = rk4Step(state, h / 2, CATALOGUE_PHYSICS);
+      const twoHalves = rk4Step(firstHalf, h / 2, CATALOGUE_PHYSICS);
       let error = 0;
       const corrected = twoHalves.map((value, index) => {
         const difference = (value - full[index]) / 15;
