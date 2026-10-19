@@ -22,7 +22,7 @@ export const ThreeBodyJourneyNavigation = ({ activeStage, onSelectStage, onRetur
           {threeBodyStages.map((stage) => (
             <button key={stage.id} id={`three-body-${stage.id}-entry`} type="button" aria-controls={`three-body-${stage.id}`} onClick={() => onSelectStage(stage.id, true)} className={styles.entry}>
               <span className={styles.number} aria-hidden="true">{stage.number}</span>
-              <span><strong>{t(stage.title)}</strong><span className={styles.entryDescription}>{t(stage.description)}</span></span>
+              <span className="min-w-0 flex-1"><span className={styles.titleRow}><strong>{t(stage.title)}</strong></span><span className={styles.entryDescription}>{t(stage.description)}</span></span>
             </button>
           ))}
         </div>

@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 
-import { GravityFormulaTutorButton } from "./understanding/GravityFormulaTutorButton";
+import { GravityFormulaTutor } from "./understanding/GravityFormulaTutor";
 import { GravityFormula } from "./understanding/GravityFormula";
 import { gravityStageById } from "../../application/gravityJourney";
 import { gravityJourneyStyles as journeyStyles } from "./GravityJourney.styles";
@@ -17,7 +17,7 @@ export const GravityIntroduction = () => {
   return (
     <section aria-label={t(stage.title)} className={`${styles.introduction} ${journeyStyles.stage}`}>
       <GravityStageLayout contentLabel="formula" compact={false}>
-        <GravityFormula explanation={<div className="space-y-1"><GravityFormulaTutorButton /><details className="text-sm text-slate-300"><summary className="min-h-11 cursor-pointer py-3 focus-visible:outline-2 focus-visible:outline-violet-300">{t("siConversionsTitle")}</summary><p>{t("siConversionsText")}</p></details></div>} />
+        <GravityFormula footer={<GravityFormulaTutor />} explanation={<div className="space-y-1"><details className="text-sm text-slate-300"><summary className="min-h-11 cursor-pointer py-3 focus-visible:outline-2 focus-visible:outline-violet-300">{t("siConversionsTitle")}</summary><p>{t("siConversionsText")}</p></details></div>} />
       </GravityStageLayout>
     </section>
   );

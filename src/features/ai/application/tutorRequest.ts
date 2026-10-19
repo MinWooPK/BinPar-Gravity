@@ -1,7 +1,6 @@
 import { gravityStages } from "../../gravity/application/gravityJourney";
 import { laboratoryLimits } from "../../gravity/domain/gravitation";
 import { isTutorRequest as isLegacyTutorRequest } from "./legacyTutorRequest";
-import { getOrbit } from "../../three-body/data/orbits";
 import {
   TUTOR_MAX_MESSAGES,
   TUTOR_MAX_MESSAGE_LENGTH,
@@ -21,13 +20,6 @@ const inRange = (value: unknown, min: number, max: number) =>
   value <= max;
 export const isTutorContext = (value: unknown): value is TutorContext => {
   if (!isRecord(value)) return false;
-  if (value.kind === "three-body") {
-    return (
-      hasOnlyKeys(value, ["kind", "slug"]) &&
-      (value.slug === undefined ||
-        (typeof value.slug === "string" && Boolean(getOrbit(value.slug))))
-    );
-  }
   if (
     value.kind !== "gravity" ||
     !hasOnlyKeys(value, [

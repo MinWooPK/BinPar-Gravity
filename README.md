@@ -12,7 +12,7 @@ npm run dev
 
 Abre http://localhost:3000. El inicio redirige al idioma correspondiente.
 
-Para el tutor, configura en `.env.local` `OPENAI_API_KEY` y `OPENAI_MODEL` con un modelo disponible en tu proyecto que admita Responses API. Reinicia el servidor después. No uses prefijos `NEXT_PUBLIC_` ni subas claves al repositorio. Las peticiones al proveedor pueden generar cargos. Sin estas variables, el laboratorio y los retos funcionan; el tutor informa de que no está disponible.
+Para las funciones de IA de la parte A (Gravedad), configura en `.env.local` `OPENAI_API_KEY` y `OPENAI_MODEL` con un modelo disponible en tu proyecto que admita Responses API. Reinicia el servidor después. No uses prefijos `NEXT_PUBLIC_` ni subas claves al repositorio. Las peticiones al proveedor pueden generar cargos. Sin estas variables, el laboratorio y los retos funcionan; el tutor informa de que no está disponible.
 
 ## Gravitación
 
@@ -63,6 +63,12 @@ el modelo de lenguaje no calcula ni modifica el experimento.
 
 ## Tres cuerpos
 
+La parte B funciona exclusivamente con algoritmos físicos deterministas y métodos
+numéricos. La galería, sus seis detalles y las etapas Descubrir, Galería y
+Experimentar no ofrecen chatbot ni tutor IA. Las simulaciones, el detector de
+periodicidad y el buscador de órbitas no necesitan una API key de OpenAI ni
+servicios externos de IA.
+
 `/[locale]/three-body` muestra las seis órbitas de Lagrange, figura de ocho,
 Butterfly I, Goggles, Moth I y Yin-Yang I. Las tarjetas animan los tres cuerpos;
 cada detalle permite pausar, reiniciar y cambiar la velocidad. A 1×, un segundo
@@ -83,23 +89,44 @@ Para Lagrange, un radio al baricentro R = 1 da un lado √3 y una aceleración r
 La animación empieza pausada cuando se prefiere movimiento reducido y puede
 activarse explícitamente. Se suspende fuera de pantalla y con la pestaña oculta.
 
-## Tutor IA compartido
+## Tutor IA de Gravedad
 
-Un único asistente flotante está disponible en Gravedad, en la galería de Tres
-Cuerpos y en el detalle de sus seis órbitas. Abre un diálogo de hasta 420 px en
-escritorio y un panel adaptado al móvil, con historial desplazable, pregunta libre,
-acciones Explicar/Simplificar/Dar un ejemplo, cierre con Escape y reintento. El
-foco vuelve al botón al cerrar. Las conversaciones se conservan mientras el
-layout siga montado, separadas entre Gravedad, galería y cada slug de órbita;
-cerrar el panel no las borra. No se guardan en disco ni sobreviven a una recarga.
+La parte A utiliza OpenAI para la experiencia de aprendizaje: tutor, explicaciones
+de la fórmula y del experimento, propuestas de cambios con confirmación, práctica
+adaptativa, corrección e informes de aprendizaje. Conserva `/api/ai`, `/api/practice`
+y las variables `OPENAI_API_KEY` y `OPENAI_MODEL`.
 
-Las solicitudes parten únicamente de acciones explícitas del usuario. En Gravedad
-incluyen la etapa, parámetros y reto/predicción disponibles. El servidor calcula
-la fuerza y el resultado del reto mediante el dominio existente. En Tres Cuerpos
-recibe solo el tipo de vista y el slug: el servidor recupera catálogo, condiciones
-iniciales, período, modelo y fuente desde `orbits.ts`, distinguiendo semillas
-publicadas y refinamientos locales. El contexto se publica mediante un provider,
-sin inspeccionar el DOM ni mezclar los datos de ambas funcionalidades.
+El tutor está disponible únicamente en `/{locale}/gravity`. En 02 · Comprende,
+`InlineTutor` aparece dentro de la tarjeta de la fórmula; no se monta el diálogo
+ni el botón flotante. Sus acciones explican la fórmula, G, las masas y la distancia
+al cuadrado, además de simplificar y dar ejemplos. Los resaltados los decide la
+acción local, nunca la respuesta del modelo. Toda esta etapa es de solo lectura
+para el tutor: servidor y cliente descartan propuestas de cambios.
+
+En 03 · Experimenta, el mismo `InlineTutor` aparece debajo de los controles y de la
+pestaña Fórmula. Explica el contexto actual y los ejemplos hipotéticos calculados
+por el dominio; mover sliders no llama a la IA. Al cambiar los parámetros, una nota
+invita a solicitar otra explicación. La acción de configuración enfoca el campo y
+muestra instrucciones, sin enviar ninguna petición ni modificar valores.
+
+Las instrucciones escritas pueden generar una `TutorProposalCard`. Aplicar utiliza
+`decideTutorProposal` y el `applyProposal` con revisión de `GravityParametersProvider`;
+ese único cambio de estado actualiza sliders, fórmula, fuerza y simulación. Cancelar,
+una revisión obsoleta o una propuesta fuera de rango conservan los valores. No hay
+botón flotante ni diálogo del tutor en las etapas 02 y 03.
+
+`TutorChat` comparte presentación y `useTutorConversation` comparte el almacén del
+provider con el tutor flotante de Descubre y la presentación integrada de ambas etapas. Las sesiones
+`gravity-understanding` y `gravity-laboratory` tienen mensajes, borradores,
+peticiones y reintentos independientes. Ocultar paneles, restablecer la fórmula o
+cambiar de etapa conserva el historial de cada sesión. El diálogo restante admite
+Escape y devuelve el foco a su origen. Salir de Gravedad desmonta el almacén,
+cierra el diálogo y aborta las peticiones pendientes; no se guarda en disco.
+
+Las solicitudes parten únicamente de acciones explícitas del usuario y utilizan
+el contexto de Gravedad publicado por su provider. El servidor obtiene los valores
+físicos verificados del dominio existente. No admite contextos de Tres Cuerpos ni
+importa su catálogo para elaborar instrucciones del modelo.
 
 `POST /api/ai` valida el contexto y el historial y utiliza una sola integración
 servidor con [Responses API y estado de conversación](https://developers.openai.com/api/docs/guides/conversation-state).
@@ -152,12 +179,25 @@ npm start
 
 Las pruebas verifican unidades SI, simetría, proporcionalidad con las masas, ley
 del inverso del cuadrado, calculadora, retos, integrador y conservación física.
-Las del tutor cubren ambos contextos, las seis órbitas, datos inválidos, límites
-del historial y del cuerpo, consumo y concurrencia, y el contrato del adaptador.
+Las del tutor cubren Gravedad, el rechazo de contextos de Tres Cuerpos, datos
+inválidos, límites del historial y del cuerpo, consumo y concurrencia, y el contrato
+del adaptador. Las pruebas físicas cubren las seis órbitas, el simulador personalizado,
+el detector de periodicidad y el buscador determinista.
 Interceptan `fetch` en la prueba del proveedor: no llaman a OpenAI ni consumen
 crédito. Una prueba real de credenciales y calidad de respuesta del modelo es una
 verificación separada; ejecutar estos tests no la sustituye.
 
+`node tests/browser/gravity-only-tutor.mjs` comprueba el provider y el diálogo reales
+en Chrome con un router aislado: visibilidad en los tres idiomas, cierre y aborto
+de peticiones al entrar en Tres Cuerpos, y reapertura al volver a Gravedad.
+No necesita un servidor Next ni credenciales; intercepta las respuestas de IA.
+
 ## Pendiente de la prueba técnica
 
 Todavía no está configurada una entrega desplegada ni Docker. La integración real de IA requiere las variables anteriores; no se simula con respuestas prefijadas.
+
+`node tests/browser/inline-tutor.mjs` comprueba los componentes reales de las etapas
+02, 03 y 04 con respuestas HTTP simuladas: fórmula y restablecimiento, preguntas,
+reintentos, resaltados, aislamiento de historiales, propuestas aplicadas/canceladas/obsoletas,
+límites, contexto actualizado sin peticiones automáticas, paneles y móvil.
+No requiere una clave OpenAI ni realiza llamadas al proveedor.

@@ -2,6 +2,8 @@ import css from "./GravityJourney.module.css";
 
 /** Static Tailwind classes; CSS retains only specialized selectors and motion. */
 export const gravityJourneyStyles = {
+  "titleRow": `${css["titleRow"]} flex w-full min-w-0 items-center gap-3`,
+  "entryDescription": "block [margin-top:6px] [color:#b2bad0] [font-size:.875rem] [line-height:1.5]",
   "page": "flex [flex:1] min-w-0 min-h-0",
   "screen": `${css["screen"]} [--gravity-stage-offset:1rem] flex [flex:1] flex-col w-full [max-width:80rem] min-h-0 [margin-inline:auto] [padding-block:clamp(.5rem,_1svh,_1rem)_max(.5rem,_env(safe-area-inset-bottom))] [padding-left:max(1rem,_env(safe-area-inset-left))] [padding-right:max(1rem,_env(safe-area-inset-right))] [@media(max-width:1023px)]:[flex:none]`,
   "pageHeader": `${css["pageHeader"]} shrink-0 [margin-bottom:clamp(1rem,_2svh,_1.5rem)]`,

@@ -9,7 +9,6 @@ import {
 } from "react";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { TutorContextBridge } from "@/features/ai/presentation/providers/TutorProvider";
 import { OrbitGallery } from "./gallery/OrbitGallery";
 import type { OrbitPlayback } from "../../types/animation.types";
 import { useGalleryState } from "../providers/GalleryProvider";
@@ -131,7 +130,6 @@ export const ThreeBodyJourney = ({
       data-three-body-journey
       data-active-stage={activeStage ?? "welcome"}
     >
-      <TutorContextBridge context={{ kind: "three-body" }} />
       <div
         className={styles.view}
         data-introduction={activeStage === null}

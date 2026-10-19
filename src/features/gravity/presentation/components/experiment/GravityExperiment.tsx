@@ -5,6 +5,7 @@ import { useId, useRef, useState } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { compareGravitation } from "../../../domain/compareGravitation";
 import type { GravityParameters } from "../../../types/gravity.types";
+import { GravityExperimentTutor } from "./GravityExperimentTutor";
 import { GravityForceComparison } from "./GravityForceComparison";
 import { GravitySlider, gravityControls } from "./GravitySlider";
 import { GravityFormula } from "../understanding/GravityFormula";
@@ -130,12 +131,12 @@ export const GravityExperiment = ({
           </details>
         </div>
         <div className="flex flex-wrap gap-2 px-3.5 pt-1 pb-3">
-          <button type="button" data-experiment-explain aria-haspopup="dialog" aria-controls="global-tutor-dialog"
+          <button type="button" data-experiment-explain aria-controls="inline-tutor-gravity-laboratory"
             className="min-h-11 min-w-0 flex-1 rounded-xl border border-violet-400/50 bg-violet-400/10 px-3 py-2 text-sm font-semibold text-violet-200 transition-colors hover:bg-violet-400/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 motion-reduce:transition-none"
             onClick={(event) => openTutor("explain_experiment", event.currentTarget)}>
             {tutor("explainExperiment")}
           </button>
-          <button type="button" data-experiment-configure aria-haspopup="dialog" aria-controls="global-tutor-dialog"
+          <button type="button" data-experiment-configure aria-controls="inline-tutor-gravity-laboratory"
             className="min-h-11 min-w-0 flex-1 rounded-xl border border-cyan-300/40 bg-cyan-300/10 px-3 py-2 text-sm font-semibold text-cyan-100 transition-colors hover:bg-cyan-300/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 motion-reduce:transition-none"
             onClick={(event) => openTutor("configure_experiment", event.currentTarget)}>
             {tutor("configureExperiment")}
@@ -147,6 +148,7 @@ export const GravityExperiment = ({
         className={view === "formula" ? styles.viewPanel : "hidden"}>
         <GravityFormula variant="embedded" />
       </div>
+      <div className="min-w-0 shrink-0 px-3.5 pb-3.5"><GravityExperimentTutor /></div>
     </section>
   );
 };

@@ -3,21 +3,25 @@ export const gravityStageById = {
     id: "gravity-discovery",
     number: "01",
     title: "learningDiscover",
+    description: "learningDiscoverDescription",
   },
   "gravity-understanding": {
     id: "gravity-understanding",
     number: "02",
     title: "learningUnderstand",
+    description: "learningUnderstandDescription",
   },
   "gravity-laboratory": {
     id: "gravity-laboratory",
     number: "03",
     title: "learningExperiment",
+    description: "learningExperimentDescription",
   },
   "gravity-challenges": {
     id: "gravity-challenges",
     number: "04",
     title: "learningCheck",
+    description: "learningCheckDescription",
   },
 } as const;
 

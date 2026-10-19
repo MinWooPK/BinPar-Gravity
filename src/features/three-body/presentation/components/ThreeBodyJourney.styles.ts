@@ -2,6 +2,7 @@ import css from "./ThreeBodyJourney.module.css";
 
 /** Static Tailwind classes; CSS retains only specialized selectors and motion. */
 export const threeBodyJourneyStyles = {
+  "titleRow": `${css["titleRow"]} flex w-full min-w-0 items-center gap-3`,
   "screen": `${css["screen"]} relative [z-index:1] flex [flex:1] flex-col w-full [max-width:80rem] min-w-0 [min-height:calc(100dvh_-_var(--site-header-height,_64px)_-_84px)] [margin-inline:auto] [padding:clamp(.5rem,_1svh,_1rem)_1rem_1rem] min-[640px]:[padding-inline:1.5rem] min-[1100px]:[padding-inline:2rem]`,
   "view": `${css["view"]} flex [flex:1] flex-col min-w-0`,
   "hero": `${css["hero"]} min-w-0 [padding-block:clamp(2rem,_6vh,_5rem)]`,

@@ -9,9 +9,9 @@ export const openaiTutor: Tutor = {
   async explain(request, signal) {
     const text = await requestOpenAI({
       max_output_tokens: 1200,
-      ...(request.context.kind === "gravity" && { text: { format: tutorResponseFormat } }),
+      text: { format: tutorResponseFormat },
       ...buildTutorPrompt(request),
     }, signal);
-    return parseTutorReply(request.context.kind === "gravity" ? JSON.parse(text) : { text }, request.context, request.intent);
+    return parseTutorReply(JSON.parse(text), request.context, request.intent);
   },
 };

@@ -23,6 +23,7 @@ export const decideTutorProposal = (
   if (decision === "cancel") return { ...proposal, status: "cancelled" };
   const fresh =
     target?.context.kind === "gravity" &&
+    target.context.stage !== "gravity-understanding" &&
     target.gravity &&
     target.gravity.apply === proposal.source.apply &&
     target.gravity.revision === proposal.source.revision &&

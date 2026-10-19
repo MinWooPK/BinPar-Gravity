@@ -15,7 +15,7 @@ domain layers or placeholder repositories.
   tutor request compatibility.
 - `src/features/gravity/hooks`: original calculator state transitions.
 - `src/features/ai/components`: persistent tutor provider, explicit context bridge,
-  floating dialog, per-view conversations and bounded request history.
+  Gravity-only floating dialog and bounded request history.
 - `src/features/ai/application`: shared tutor contracts, validation, trusted context
   construction and provider-independent prompt construction.
 - `src/features/ai/infrastructure`: one server-only OpenAI adapter, bounded HTTP
@@ -119,11 +119,14 @@ navigation in the three-body layout. The server computes trajectories once per
 slug; the browser only projects/interpolates samples and updates SVG refs through
 `requestAnimationFrame`. Keep numerical integration outside the client graph.
 
-## Shared tutor flow
+## Gravity tutor flow
 
-The locale layout mounts `TutorProvider` once, with a single `GlobalTutor` sibling
-to its children. A fixed launcher is available only on `/gravity`, `/three-body`
-and orbit-detail paths. No duplicated assistant is mounted in the gravity header.
+The locale layout mounts `TutorProvider` once. It mounts the conversation provider only on `/gravity`, in each supported locale.
+Stages 02 and 03 mount `InlineTutor` in the formula/experiment card and suppress
+`GlobalTutor`; discovery and practice keep their existing presentation. Three Body routes and all orbit details
+have no tutor launcher, dialog or context bridge. Leaving Gravity unmounts the
+chat, closes the dialog and aborts pending requests; returning mounts a fresh chat.
+No duplicated assistant is mounted in the gravity header.
 The dialog uses the browser's modal focus management, closes with Escape and
 returns focus to its launcher. It is anchored at the bottom right (up to 420 px)
 on desktop and adapts to the mobile viewport with safe-area padding and an
@@ -133,38 +136,46 @@ internally scrollable transcript.
 `GravityLab` publishes the active stage, current parameters, available challenge,
 current prediction and any checked attempt. The unchecked choice is distinct from
 an evaluated attempt; tutor instructions guide without spoilers before checking,
-unless the user asks directly for the answer. Gallery and detail Server Components pass a minimal context to
-the client bridge. The provider only exposes a context matching the current
+unless the user asks directly for the answer. The provider only exposes a Gravity
+context matching the current
 pathname, preventing stale page data during navigation. There is no DOM scraping
 or consumption of gravity hooks outside their provider. Slider updates publish
 context without rendering the chat or requesting the model; a request reads the
 latest snapshot only after a user action.
 
-`GlobalTutor` keeps separate in-memory conversations for Gravity, the gallery and
-each orbit slug. They survive dialog close/reopen and navigation while the locale
-layout remains mounted, with up to 48 UI messages per conversation. They are not
-stored in local storage or persisted across reloads. Requests include at most 12
-recent messages, 1,200 characters per message and 6,000 total, ending in a user
-message. Per-view separation avoids supplying two-body history to an orbital
-conversation. The panel supports free questions, explain/simplify/example actions,
+`TutorConversationProvider` owns the single `useTutorConversation` store. The
+`gravity-understanding` and `gravity-laboratory` keys isolate messages, drafts,
+requests and late responses across stages. `TutorChat` is the shared presentation
+for `GlobalTutor` and `InlineTutor`, with up to 48 UI messages per session.
+Formula reset remounts only the calculator, leaving the inline chat mounted.
+Stage 02 quick actions select known formula terms through the interaction context;
+model output cannot control highlights or propose parameter changes.
+Stage 03 keeps its tutor outside the experiment/formula tab panels so switching
+views preserves the same visible conversation. `GravityExperimentTutor` observes
+the shared parameter context for its stale-explanation note; the request still
+reads the current bridge snapshot only on an explicit action. Configuration
+shortcuts focus the composer without invoking the model. Proposed changes use the
+existing validated `TutorProposalCard` and revision-checked `applyProposal` port;
+only confirmation updates the common state consumed by sliders and simulation.
+ It is cleared when leaving Gravity
+and is not stored in local storage or persisted across reloads. Requests include
+at most 12 recent messages, 1,200 characters per message and 6,000 total, ending in
+a user message. The panel supports free questions, explain/simplify/example actions,
 pending state, errors and explicit retry; there is no automatic AI request on a
 parameter change.
 
 `POST /api/ai` delegates to `features/ai/application/tutorRequest.ts`, which strictly
-validates the discriminated context, supported locale/mode and bounded dialogue.
+validates the Gravity context, supported locale/mode and bounded dialogue.
+Three Body contexts are rejected before invoking OpenAI.
 It accepts the previous quick-action payload through a compatibility normalizer;
 the old gravity adapter also delegates to the same shared provider. These are
 compatibility entries, not a second OpenAI integration.
 
 Before invoking the provider, `buildTutorContext` obtains numerical facts from the
-server: two-body force and challenge correctness use the existing gravitational
-domain; three-body slugs resolve against the six real catalogue entries. Orbital
-context includes the equal-mass, planar, dimensionless Newtonian model, catalogue
-information and, on detail pages, the actual initial state, period, convention and
-documented source. Published seeds are identified separately where a local
-shooting refinement is used. Clients cannot supply forces, source URLs or altered
-orbit states as trusted context. The model explains this data; it cannot update
-the application or replace its calculations.
+existing Gravity domain on the server. It has no dependency on the orbit catalogue
+or the Three Body feature. Clients cannot supply calculated forces as trusted
+context. The model explains verified Gravity data; the application owns physical
+calculations and validates proposed changes before explicit confirmation.
 
 `features/ai/infrastructure/openaiTutor.ts` is the sole adapter. It uses `fetch`
 with OpenAI Responses API, exactly the server's `OPENAI_MODEL` and
@@ -195,8 +206,8 @@ rate limiting/shared quotas and a provider budget.
 When changing presentation, also check mobile and desktop rendering, locale
 navigation and keyboard behavior in a browser.
 
-`tests/global-tutor.test.mjs` covers strict input rejection, each of the six orbital
-contexts, server-derived numerical facts, prompt separation, legacy normalization,
+`tests/global-tutor.test.mjs` covers strict input rejection, exclusion of Three Body
+contexts including all six orbit slugs, server-derived Gravity facts, prompt separation, legacy normalization,
 body-byte limits, rate/concurrency controls and the sole provider's request and
 error contract. The provider test intercepts `fetch`; it never sends a paid
 request. A live check of credentials, provider availability and answer quality is

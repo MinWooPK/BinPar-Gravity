@@ -145,7 +145,19 @@ test('normal questions remain text-only; rejected actions request a safe localiz
     assert.deepEqual(parse({ text: 'Unsafe model claim.', proposal }, gravity), { text: '', proposalRejected: true });
   }
   const threeBody = { kind: 'three-body', slug: 'figure-eight' };
-  assert.deepEqual(parse({ text: 'An orbit explanation.' }, threeBody), { text: 'An orbit explanation.' });
   assert.deepEqual(parse({ text: 'Unsafe model claim.', proposal: action() }, threeBody), { text: '', proposalRejected: true });
   for (const reply of [null, [], { text: '' }, { text: 'ok', code: 'run' }, { text: 'ok', proposalRejected: true }]) assert.throws(() => parse(reply, gravity), /Invalid tutor response/);
+});
+
+
+test('the formula lesson drops all model proposals, including free-text follow-ups', () => {
+  const f = fixture();
+  const target = { ...f.target(), context: { ...f.target().context, stage: 'gravity-understanding' } };
+  for (const intent of [undefined, 'explain_formula']) {
+    assert.deepEqual(parse({ text: 'Educational explanation.', proposal: action() }, target.context, intent), { text: 'Educational explanation.' });
+  }
+  const forged = { ...f.proposal, contextSnapshot: JSON.stringify(target.context) };
+  assert.equal(decide(forged, 'apply', target).status, 'stale');
+  assert.equal(f.calls(), 0);
+  assert.deepEqual(f.state().parameters, baseline);
 });

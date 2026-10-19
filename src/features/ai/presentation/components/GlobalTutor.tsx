@@ -3,49 +3,40 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "@/i18n/navigation";
-import { TUTOR_MAX_MESSAGE_LENGTH } from "../../application/tutor";
 import { gravityStageById } from "@/features/gravity/application/gravityJourney";
 import { useTutorConversation } from "../hooks/useTutorConversation";
-import { TutorProposalCard } from "./TutorProposalCard";
+import { TutorChat } from "./TutorChat";
 import { useTutorEnvironment } from "../providers/tutorEnvironment";
 import css from "./GlobalTutor.module.css";
 
 const styles = {
   "trigger": `${css["trigger"]} fixed [right:max(1rem,_env(safe-area-inset-right))] [bottom:max(1rem,_env(safe-area-inset-bottom))] [z-index:60] inline-flex items-center justify-center [gap:.5rem] [min-width:56px] [min-height:56px] [padding:.75rem_1rem] [border:1px_solid_#67e8f970] [border-radius:1.25rem] [background:#102c3b] [color:#cffafe] [box-shadow:0_8px_24px_#0006] [font-size:.875rem] font-semibold cursor-pointer [transition:background_180ms,_border-color_180ms] [@media(max-width:480px)]:[min-width:48px] [@media(max-width:480px)]:[min-height:48px] [@media(max-width:480px)]:[padding:.625rem_.875rem]`,
   "panel": `${css["panel"]} [container-type:size] fixed [inset:auto_max(1rem,_env(safe-area-inset-right))_calc(max(1rem,_env(safe-area-inset-bottom))_+_var(--tutor-keyboard-offset,_0px))_auto] [width:min(420px,_calc(100vw_-_2rem))] [height:min(680px,_calc(var(--tutor-available-height,_100dvh)_-_2rem))] [max-width:calc(100vw_-_2rem)] [max-height:calc(var(--tutor-available-height,_100dvh)_-_2rem)] m-0 p-0 overflow-hidden [border:1px_solid_#6d6591] [border-radius:1.25rem] [background:#101626] [color:#f8fafc] [box-shadow:0_24px_80px_#0008] [@media(max-width:480px)]:[inset:auto_0_var(--tutor-keyboard-offset,_0px)] [@media(max-width:480px)]:w-full [@media(max-width:480px)]:max-w-full [@media(max-width:480px)]:[height:min(680px,_calc(var(--tutor-available-height,_100dvh)_-_1rem))] [@media(max-width:480px)]:[max-height:calc(var(--tutor-available-height,_100dvh)_-_1rem)] [@media(max-width:480px)]:[border-radius:1.25rem_1.25rem_0_0]`,
-  "composer": `${css["composer"]} flex shrink-0 [align-items:flex-end] [gap:.5rem] [padding:.5rem_1rem] [@media(max-width:480px)]:[padding-inline:.875rem]`,
   "header": `${css["header"]} flex shrink-0 [align-items:flex-start] justify-between [gap:.75rem] [padding:1rem] [border-bottom:1px_solid_#334155] [@media(max-width:480px)]:[padding-inline:.875rem]`,
   "close": `${css["close"]} inline-flex [min-width:44px] [min-height:44px] shrink-0 items-center justify-center [border:1px_solid_#475569] [border-radius:.75rem] [background:transparent] [color:#e2e8f0] [font-size:1.5rem] cursor-pointer`,
-  "transcript": "[flex:1] min-h-0 [padding:1rem] overflow-y-auto [overscroll-behavior:contain] [scrollbar-width:thin] [scrollbar-color:#75669f_#101626] [@media(max-width:480px)]:[padding-inline:.875rem]",
-  "introduction": "m-0 [color:#cbd5e1] [font-size:1rem] [line-height:1.6]",
-  "message": `${css["message"]} [margin:0_0_.75rem] [padding:.75rem] [border:1px_solid_#334155] [border-radius:.875rem] [background:#171f32] [font-size:1rem] [line-height:1.6]`,
-  "quickActions": `${css["quickActions"]} flex shrink-0 flex-wrap [gap:.375rem] [padding:.5rem_1rem] [border-top:1px_solid_#334155] [@media(max-width:480px)]:[padding-inline:.875rem]`,
-  "error": `${css["error"]} [margin:.75rem_0] [color:#fde68a] [font-size:.875rem]`,
-  "disclaimer": `${css["disclaimer"]} shrink-0 [margin:.25rem_1rem_.875rem] [color:#a8b4c7] [font-size:.75rem] [line-height:1.5] [@media(max-width:480px)]:[margin-bottom:max(.75rem,_env(safe-area-inset-bottom))]`,
-  "contextNote": "[margin:.75rem_0_0] [color:#a5f3fc] [font-size:.875rem] [line-height:1.5]",
 } as const;
 
 export const GlobalTutor = () => {
   const t = useTranslations("Tutor");
   const gravity = useTranslations("Gravity");
   const pathname = usePathname();
-  const { sessionKey, current, key, session, update, performRequest, ask, decideProposal } = useTutorConversation();
+  const { sessionKey, current, key, session, ask } = useTutorConversation();
   const [configure, setConfigure] = useState(false);
   const [openPath, setOpenPath] = useState<string | null>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const transcriptRef = useRef<HTMLDivElement>(null);
-  const { openTutor, registerLauncher, practiceActive } = useTutorEnvironment();
+  const { openTutor, registerLauncher, practiceActive, inlineActive } = useTutorEnvironment();
   const returnFocusRef = useRef<HTMLElement | null>(null);
   useLayoutEffect(() => registerLauncher((intent, trigger) => {
+    if (sessionKey !== "gravity" || current()?.context.stage === "gravity-understanding") return;
     returnFocusRef.current = trigger ?? triggerRef.current;
-    setOpenPath(pathname);
+    setOpenPath(`${pathname}:${key}`);
     setConfigure(intent === "configure_experiment");
     if (intent === "explain_experiment") ask("explain", t("experimentQuestion"), intent);
     if (intent === "explain_formula") ask("explain", t("formulaQuestion"), intent);
-  }), [registerLauncher, pathname, ask, t]);
-  const open = sessionKey !== null && openPath === pathname && !practiceActive;
+  }), [registerLauncher, pathname, key, current, ask, t, sessionKey]);
+  const open = sessionKey !== null && openPath === `${pathname}:${key}` && !practiceActive && !inlineActive;
   useEffect(() => {
     const dialog = dialogRef.current;
     if (!dialog) return;
@@ -54,12 +45,8 @@ export const GlobalTutor = () => {
       inputRef.current?.focus({ preventScroll: true });
     }
     if (!open && dialog.open) dialog.close();
+    return () => { if (dialog.open) dialog.close(); };
   }, [open]);
-
-  useEffect(() => {
-    const transcript = transcriptRef.current;
-    if (transcript) transcript.scrollTop = transcript.scrollHeight;
-  }, [session.messages.length, session.pending, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -82,15 +69,14 @@ export const GlobalTutor = () => {
   }, [open]);
 
   const page = current();
-  const stage = page?.context.kind === "gravity" ? page.context.stage : null;
-  const label = page?.context.kind === "gravity"
-    ? (stage ? gravity(gravityStageById[stage].title) : t("gravityContext"))
-    : page?.label ?? (page?.context.kind === "three-body" && page.context.slug ? t("orbitContext", { name: page.context.slug }) : t("galleryContext"));
+  const stage = page?.context.stage ?? null;
+  const label = stage ? gravity(gravityStageById[stage].title) : t("gravityContext");
   const showConfigure = open && configure && stage === "gravity-laboratory";
   useEffect(() => {
     if (showConfigure && !session.pending) inputRef.current?.focus({ preventScroll: true });
   }, [showConfigure, session.pending]);
-  const contextChanged = !!session.snapshot && !!page && session.snapshot !== JSON.stringify(page.context);
+
+  if (sessionKey !== "gravity" || inlineActive) return null;
 
   return (
     <>
@@ -136,48 +122,7 @@ export const GlobalTutor = () => {
           <div><h2 id="global-tutor-title">{t("title")}</h2><p>{label}</p></div>
           <button type="button" className={styles.close} aria-label={t("close")} onClick={() => setOpenPath(null)}>×</button>
         </header>
-        <div ref={transcriptRef} className={styles.transcript} role="log" aria-label={t("conversation")} aria-live="polite" aria-busy={session.pending}>
-          {session.messages.length === 0 && <p className={styles.introduction}>{t("description")}</p>}
-          {session.messages.map((message) => (
-            <div key={message.id} className={styles.message} data-role={message.role}>
-              <span className="sr-only">{t(message.role === "user" ? "userLabel" : "assistantLabel")}: </span>
-              <p>{message.content}</p>
-              {message.proposal && <TutorProposalCard proposal={message.proposal} onDecision={decision => decideProposal(message.id, decision)} />}
-            </div>
-          ))}
-          {session.pending && <p role="status">{t("thinking")}</p>}
-          {session.error && (
-            <div className={styles.error}>
-              <p role="alert">{t(session.error)}</p>
-              {session.request && <button type="button" onClick={() => {
-                const page = current();
-                if (session.request && page) void performRequest(key, { ...session.request, context: page.context });
-              }} disabled={session.pending}>{t("retry")}</button>}
-            </div>
-          )}
-          {contextChanged && <p className={styles.contextNote}>{t("contextChanged")}</p>}
-        </div>
-        <div className={styles.quickActions} aria-label={t("quickActions")} role="group">
-          {(["explain", "simplify", "example"] as const).map((mode) => {
-            const explainExperiment = mode === "explain" && sessionKey === "gravity";
-            const label = explainExperiment ? "explainExperiment" : mode;
-            const question = explainExperiment ? "experimentQuestion" : mode;
-            return (
-              <button key={mode} type="button" disabled={session.pending}
-                data-explain-experiment={explainExperiment || undefined}
-                onClick={() => ask(mode, t(question))}>
-                {t(label)}
-              </button>
-            );
-          })}
-        </div>
-        {showConfigure && <p id="tutor-configure-hint" role="status" className="mx-4 my-2 text-sm leading-relaxed text-cyan-100">{t("configureInvitation")}</p>}
-        <form className={styles.composer} onSubmit={(event) => { event.preventDefault(); setConfigure(false); ask("explain", session.draft); }}>
-          <label htmlFor="global-tutor-question" className="sr-only">{t("question")}</label>
-          <textarea ref={inputRef} id="global-tutor-question" rows={2} aria-describedby={showConfigure ? "tutor-configure-hint" : undefined} value={session.draft} maxLength={TUTOR_MAX_MESSAGE_LENGTH} placeholder={t("question")} disabled={session.pending} onChange={(event) => update(key, { draft: event.target.value })} />
-          <button type="submit" disabled={session.pending || !session.draft.trim()}>{t("send")}</button>
-        </form>
-        <p className={styles.disclaimer}>{t("disclaimer")}</p>
+        <TutorChat active={open} id="global-tutor" inputRef={inputRef} configure={showConfigure} onSubmit={() => setConfigure(false)} />
       </dialog>
     </>
   );

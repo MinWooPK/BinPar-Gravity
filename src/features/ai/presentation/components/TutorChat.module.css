@@ -1,0 +1,17 @@
+.message[data-role="user"] { margin-left: 1.5rem; border-color: #62517e; background: #282239; }
+.message p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.quickActions button { min-height: 44px; padding: .375rem .625rem; border: 1px solid #62517e; border-radius: .625rem; background: transparent; color: #e3dafa; font: inherit; font-size: .875rem; cursor: pointer; }
+.quickActions button:hover { background: #302748; }
+.composer textarea { flex: 1; min-width: 0; min-height: 64px; max-height: 130px; resize: vertical; padding: .625rem; border: 1px solid #64748b; border-radius: .75rem; background: #070d1a; color: #f8fafc; font: inherit; font-size: 1rem; line-height: 1.5; }
+.composer textarea::placeholder { color: #a8b4c7; opacity: 1; }
+.composer button, .error button { min-height: 44px; padding: .5rem .75rem; border: 1px solid #67e8f960; border-radius: .625rem; background: #164052; color: #cffafe; font: inherit; font-size: .875rem; cursor: pointer; }
+.error p { margin: 0 0 .5rem; }
+.chat button:focus-visible, .chat textarea:focus-visible { outline: 2px solid #a5f3fc; outline-offset: 3px; }
+.chat button:disabled, .chat textarea:disabled { opacity: .5; cursor: wait; }
+@container (max-height: 380px) {
+  .quickActions { flex-wrap: nowrap; gap: .25rem; padding: .25rem .75rem; }
+  .quickActions button { padding: .25rem .375rem; font-size: .8125rem; }
+  .composer { padding-block: .25rem; }
+  .composer textarea { height: 44px; min-height: 44px; max-height: 64px; padding-block: .375rem; }
+  .disclaimer { margin-block: .25rem; }
+}

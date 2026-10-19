@@ -1,13 +1,11 @@
 import type { GravityStageId } from "../../gravity/types/journey.types";
 import type { GravityParameters, GravityParameterProposal } from "../../gravity/types/gravity.types";
 
-export type TutorContext =
-  | {
-      kind: "gravity";
-      stage: GravityStageId | null;
-      parameters: GravityParameters;
-    }
-  | { kind: "three-body"; slug?: string };
+export type TutorContext = {
+  kind: "gravity";
+  stage: GravityStageId | null;
+  parameters: GravityParameters;
+};
 export type TutorMessage = { role: "user" | "assistant"; content: string };
 export type TutorIntent = "explain_formula" | "explain_experiment";
 export type TutorRequest = {

@@ -2,14 +2,16 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import type {
-  ExperimentConfiguration,
-  ExperimentTrajectory,
-} from "../../../domain/experiment-simulation";
+import type { ExperimentConfiguration } from "../../../domain/experiment-simulation";
+import type { AnalyzedExperimentTrajectory } from "../../../domain/periodicity-detection";
 import { ExperimentAnimation } from "./ExperimentAnimation";
+import { PeriodicityAnalysis } from "./PeriodicityAnalysis";
+import { OrbitSearchPanel } from "./OrbitSearchPanel";
+import { applyOrbitSearchCandidate } from "../../../application/apply-orbit-search";
+import type { OrbitSearchCandidate } from "../../../types/orbit-search.types";
 
 type WorkerResponse =
-  | { id: number; ok: true; result: ExperimentTrajectory }
+  | { id: number; ok: true; result: AnalyzedExperimentTrajectory }
   | { id: number; ok: false; error: "tooClose" | "calculationFailed" };
 
 type BodyField = "mass" | "x" | "y" | "vx" | "vy";
@@ -78,7 +80,7 @@ export const ThreeBodyExperiment = ({
 
   const [draft, setDraft] = useState<ExperimentDraft>(cloneInitial);
   const [selectedBody, setSelectedBody] = useState(0);
-  const [simulation, setSimulation] = useState<ExperimentTrajectory | null>(
+  const [simulation, setSimulation] = useState<AnalyzedExperimentTrajectory | null>(
     null,
   );
   const [calculating, setCalculating] = useState(false);
@@ -86,6 +88,8 @@ export const ThreeBodyExperiment = ({
   const [elapsed, setElapsed] = useState(0);
   const [speed, setSpeed] = useState(1);
   const [showTrails, setShowTrails] = useState(true);
+  const [searchApplied, setSearchApplied] = useState(false);
+  const [searchRevision, setSearchRevision] = useState(0);
   const [runError, setRunError] = useState<
     "tooClose" | "calculationFailed" | null
   >(null);
@@ -105,6 +109,7 @@ export const ThreeBodyExperiment = ({
 
   // Al editar los parámetros, invalidamos la simulación anterior.
   const invalidateSimulation = () => {
+    setSearchApplied(false);
     cancelCalculation();
     setSimulation(null);
     setPlaying(false);
@@ -155,6 +160,22 @@ export const ThreeBodyExperiment = ({
     }),
     [draft],
   );
+  // Editing any seed field remounts the search panel and terminates its Worker.
+  const searchKey = useMemo(() => JSON.stringify(draft), [draft]);
+  const applySearch = (candidate: OrbitSearchCandidate) => {
+    const proposed = applyOrbitSearchCandidate(parsed, candidate);
+    if (!proposed) return;
+    invalidateSimulation();
+    setSearchRevision((revision) => revision + 1);
+    setDraft((current) => ({
+      ...current,
+      duration: String(proposed.duration),
+      bodies: current.bodies.map((body, i) => ({ ...body,
+        vx: String(proposed.bodies[i].vx), vy: String(proposed.bodies[i].vy),
+      })),
+    }));
+    setSearchApplied(true);
+  };
 
   // Validar las condiciones de partida.
   const error = useMemo(() => {
@@ -356,6 +377,7 @@ export const ThreeBodyExperiment = ({
             type="button"
             onClick={() => {
               invalidateSimulation();
+              setSearchRevision((revision) => revision + 1);
               setDraft(cloneInitial());
               setSelectedBody(0);
               setSpeed(1);
@@ -465,6 +487,7 @@ export const ThreeBodyExperiment = ({
           <p className="mt-2 text-center text-xs text-slate-400">
             {t("runHelp")}
           </p>
+          <OrbitSearchPanel key={`${searchRevision}:${searchKey}`} configuration={parsed} disabled={error !== null || calculating} onApply={applySearch} />
         </div>
       </section>
 
@@ -638,6 +661,10 @@ export const ThreeBodyExperiment = ({
           </div>
         )}
 
+        {simulation && (
+          <PeriodicityAnalysis result={simulation.periodicity} duration={simulation.duration} />
+        )}
+
         <p className="text-sm leading-6 text-slate-400">
           {t(simulation ? "simulationNote" : "previewNote")}
         </p>
@@ -666,7 +693,7 @@ export const ThreeBodyExperiment = ({
                           ? "finished"
                           : "paused",
                     )
-                  : t("valid")}
+                  : t(searchApplied ? "orbitSearch.applied" : "valid")}
         </p>
       </section>
     </div>

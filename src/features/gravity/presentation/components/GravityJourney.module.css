@@ -11,6 +11,23 @@
 .panel:not([hidden]) { display: flex; flex: 1 0 auto; flex-direction: column; min-height: 100%; animation: gravity-panel-enter 220ms ease-out both; }
 .panel:focus-visible { outline: 2px solid #c0b3ff; outline-offset: -3px; border-radius: 8px; }
 .tab:hover { border-color: #aa97ff80; background: #1b2032; }
+.titleRow > span { min-width: 0; overflow-wrap: anywhere; }
+.titleRow::after {
+  content: "";
+  flex: 0 0 8px;
+  height: 8px;
+  margin-left: auto;
+  border-radius: 50%;
+  background-color: #33483e;
+  opacity: .4;
+  box-shadow: 0 0 0 0 #4ade8000;
+  transition: background-color 250ms ease, opacity 250ms ease, box-shadow 250ms ease;
+}
+.tab:is(:hover, :focus-visible) .titleRow::after {
+  background-color: #4ade80;
+  opacity: 1;
+  box-shadow: 0 0 6px 2px #4ade8059, 0 0 14px 3px #4ade8026;
+}
 .tab:focus-visible, .continueLink:focus-visible { outline: 3px solid #c0b3ff; outline-offset: 3px; }
 .stageHeader h2 { min-width: 0; margin: 0; color: #f2f2fa; font-size: clamp(1.5rem, 2vw, 1.75rem); font-weight: 600; line-height: 1.25; letter-spacing: -.025em; overflow-wrap: anywhere; }
 .continueLink:hover { color: #eee7ff; }
@@ -60,7 +77,7 @@
   .panel:not([hidden]) { min-height: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tab { transition: none; }
+  .tab, .titleRow::after { transition: none; }
   .panel:not([hidden]) { animation: none; }
 }
 

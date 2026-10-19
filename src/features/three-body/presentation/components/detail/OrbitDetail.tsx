@@ -1,4 +1,3 @@
-import { TutorContextBridge } from "@/features/ai/presentation/providers/TutorProvider";
 import { Link } from "@/i18n/navigation";
 import { orbitDetailStyles as styles } from "./OrbitDetail.styles";
 import { orbits, publishedOrbits } from "@/features/three-body/data/orbits";
@@ -24,10 +23,6 @@ export const OrbitDetail = async ({ orbit }: { orbit: OrbitDefinition }) => {
   const coordinates = ["x", "y", "vₓ", "vᵧ"] as const;
   return (
     <section lang={locale} className={`${styles.page} page-enter detail-page`}>
-      <TutorContextBridge
-        context={{ kind: "three-body", slug: orbit.slug }}
-        label={orbit.name}
-      />
       <h1 className="sr-only">{orbit.name}</h1>
       <nav
         className={styles.pageNavigation}

@@ -5,7 +5,7 @@ import type { ExperimentTrajectory } from "../../../domain/experiment-simulation
 const colors = ["#aa97ff", "#5ee7d5", "#f4c778"] as const;
 
 type Props = {
-  trajectory: ExperimentTrajectory;
+  trajectory: Pick<ExperimentTrajectory, "duration" | "samples" | "bounds">;
   elapsed: number;
   showTrails: boolean;
   label: string;

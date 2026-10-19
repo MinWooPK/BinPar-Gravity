@@ -19,10 +19,24 @@ export type ExperimentConfiguration = Readonly<{
   bodies: readonly ExperimentBody[];
 }>;
 
+/** Estado completo, en el mismo orden [x, y, vx, vy] que el motor Newton/RK4. */
+export type ExperimentState = readonly [
+  number, number, number, number,
+  number, number, number, number,
+  number, number, number, number,
+];
+
+export type ExperimentStateSample = Readonly<{
+  time: number;
+  state: ExperimentState;
+}>;
+
 /** Trayectoria abierta: duration NO implica que el movimiento sea periódico. */
 export type ExperimentTrajectory = {
   duration: number;
   samples: number[][]; // [x1, y1, x2, y2, x3, y3] por instante
+  // Pasos aceptados del integrador: evita aliasing al analizar muestras visuales escasas.
+  stateSamples: ExperimentStateSample[];
   bounds: { cx: number; cy: number; radius: number };
 };
 
@@ -31,11 +45,27 @@ const MIN_DISTANCE = 1e-3; // Corte numérico de seguridad, no radio físico.
 const RELATIVE_TOLERANCE = 1e-8;
 const ABSOLUTE_TOLERANCE = 1e-9;
 
+/** Optional execution budget; default simulation accuracy and limits are unchanged. */
+export type SimulationControl = Readonly<{
+  shouldStop?: () => boolean;
+  maxAttempts?: number;
+}>;
+
+export class SimulationStoppedError extends Error {
+  constructor() {
+    super("Simulation execution was stopped.");
+    this.name = "SimulationStoppedError";
+  }
+}
+
 const positions = (state: readonly number[]): number[] => [
   state[0], state[1], state[4], state[5], state[8], state[9],
 ];
 
-function checkSeparation(state: readonly number[]) {
+export function validateExperimentState(state: readonly number[]): asserts state is ExperimentState {
+  if (state.length !== 12 || !state.every(Number.isFinite)) {
+    throw new RangeError("Las posiciones y velocidades deben ser números finitos.");
+  }
   for (let i = 0; i < 3; i++) {
     for (let j = i + 1; j < 3; j++) {
       const a = 4 * i;
@@ -47,53 +77,32 @@ function checkSeparation(state: readonly number[]) {
   }
 }
 
-/** Integra un intervalo libre con RK4 adaptativo, sin cerrar ni repetir la órbita. */
-export function simulateExperiment(
-  config: ExperimentConfiguration,
-  sampleCount = 601,
-): ExperimentTrajectory {
-  const { bodies, gravity: G, duration } = config;
-
-  if (!Array.isArray(bodies) || bodies.length !== 3) {
-    throw new RangeError("La simulación necesita exactamente tres cuerpos.");
-  }
-  if (!Number.isFinite(duration) || duration <= 0 || duration > 100) {
-    throw new RangeError("La duración debe ser mayor que 0 y no superar 100 unidades de tiempo.");
-  }
-  if (!Number.isInteger(sampleCount) || sampleCount < 2 || sampleCount > 2000) {
-    throw new RangeError("El número de muestras debe estar entre 2 y 2000.");
-  }
-
-  const physics: GravityParameters = {
-    G,
-    masses: [bodies[0].mass, bodies[1].mass, bodies[2].mass],
-  };
-  validateGravityParameters(physics);
-
-  const initial = bodies.flatMap(({ x, y, vx, vy }) => [x, y, vx, vy]);
-  if (!initial.every(Number.isFinite)) {
-    throw new RangeError("Las posiciones y velocidades deben ser números finitos.");
-  }
-  checkSeparation(initial);
-
-  let state = initial;
-  let time = 0;
+/** Comparte el RK4 adaptativo y sus protecciones entre simulación y refinamiento. */
+function createIntegrator(
+  start: ExperimentStateSample,
+  duration: number,
+  physics: GravityParameters,
+  initialStep: number,
+  maxAttempts = MAX_ATTEMPTS,
+  observe?: (sample: ExperimentStateSample) => void,
+  shouldStop?: () => boolean,
+) {
+  let state: ExperimentState = start.state;
+  let time = start.time;
   let attempts = 0;
-  const samples = [positions(state)];
-  const sampleInterval = duration / (sampleCount - 1);
+  let step = initialStep;
   const minimumStep = Math.max(duration * 1e-12, Number.MIN_VALUE);
   const maximumStep = duration / 50;
-  let step = Math.min(sampleInterval, duration / 500);
 
-  for (let index = 1; index < sampleCount; index++) {
-    const target = index === sampleCount - 1 ? duration : index * sampleInterval;
-
+  const advance = (target: number): ExperimentStateSample => {
     while (time < target) {
-      if (++attempts > MAX_ATTEMPTS) {
+      if (shouldStop?.()) throw new SimulationStoppedError();
+      if (++attempts > maxAttempts) {
         throw new RangeError("El cálculo ha superado el límite de pasos; prueba con otros parámetros.");
       }
 
       const h = Math.min(step, target - time, maximumStep);
+      const clippedToTarget = h === target - time;
       if (time + h === time || (h < minimumStep && target - time > minimumStep)) {
         throw new RangeError("Los cuerpos se acercan demasiado para continuar con precisión.");
       }
@@ -116,15 +125,89 @@ export function simulateExperiment(
       }
 
       if (error <= 1) {
-        checkSeparation(candidate);
+        validateExperimentState(candidate);
         state = candidate;
         time = h === target - time ? target : time + h;
+        observe?.({ time, state });
       }
 
-      step = h * Math.max(0.2, Math.min(4, error === 0 ? 4 : 0.9 * error ** -0.2));
+      // A sub-minimum endpoint remainder is only roundoff, not a new adaptive
+      // step proposal. Keeping it would falsely reject the next sample interval.
+      if (!(clippedToTarget && h < minimumStep)) {
+        step = h * Math.max(0.2, Math.min(4, error === 0 ? 4 : 0.9 * error ** -0.2));
+      }
     }
+    return { time, state };
+  };
+  return { advance, attempts: () => attempts };
+}
 
-    samples.push(positions(state));
+/** Reintegra desde un paso real, nunca interpola estados para fabricar un retorno. */
+export function refineExperimentState(
+  start: ExperimentStateSample,
+  target: number,
+  duration: number,
+  physics: GravityParameters,
+  maxAttempts = MAX_ATTEMPTS,
+  control: SimulationControl = {},
+): { sample: ExperimentStateSample; attempts: number } {
+  validateGravityParameters(physics);
+  validateExperimentState(start.state);
+  if (
+    !Number.isFinite(duration) || duration <= 0 || duration > 100 ||
+    !Number.isFinite(start.time) || start.time < 0 ||
+    !Number.isFinite(target) || target < start.time || target > duration ||
+    !Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > MAX_ATTEMPTS
+  ) {
+    throw new RangeError("El intervalo de refinamiento no es válido.");
+  }
+  const integrator = createIntegrator(start, duration, physics, (target - start.time) / 4, maxAttempts, undefined, control.shouldStop);
+  return { sample: integrator.advance(target), attempts: integrator.attempts() };
+}
+
+/** Integra un intervalo libre con RK4 adaptativo, sin cerrar ni repetir la órbita. */
+export function simulateExperiment(
+  config: ExperimentConfiguration,
+  sampleCount = 601,
+  control: SimulationControl = {},
+): ExperimentTrajectory {
+  const { bodies, gravity: G, duration } = config;
+
+  if (!Array.isArray(bodies) || bodies.length !== 3) {
+    throw new RangeError("La simulación necesita exactamente tres cuerpos.");
+  }
+  if (!Number.isFinite(duration) || duration <= 0 || duration > 100) {
+    throw new RangeError("La duración debe ser mayor que 0 y no superar 100 unidades de tiempo.");
+  }
+  if (!Number.isInteger(sampleCount) || sampleCount < 2 || sampleCount > 2000) {
+    throw new RangeError("El número de muestras debe estar entre 2 y 2000.");
+  }
+  const maxAttempts = control.maxAttempts ?? MAX_ATTEMPTS;
+  if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > MAX_ATTEMPTS) {
+    throw new RangeError("El límite de pasos no es válido.");
+  }
+
+  const physics: GravityParameters = {
+    G,
+    masses: [bodies[0].mass, bodies[1].mass, bodies[2].mass],
+  };
+  validateGravityParameters(physics);
+
+  const initial = bodies.flatMap(({ x, y, vx, vy }) => [x, y, vx, vy]);
+  validateExperimentState(initial);
+
+  const samples = [positions(initial)];
+  const stateSamples: ExperimentStateSample[] = [{ time: 0, state: initial }];
+  const sampleInterval = duration / (sampleCount - 1);
+  const integrator = createIntegrator(
+    stateSamples[0], duration, physics, Math.min(sampleInterval, duration / 500),
+    maxAttempts, (sample) => stateSamples.push(sample), control.shouldStop,
+  );
+
+  for (let index = 1; index < sampleCount; index++) {
+    const target = index === sampleCount - 1 ? duration : index * sampleInterval;
+
+    samples.push(positions(integrator.advance(target).state));
   }
 
   // Encaje de la trayectoria en una futura vista SVG.
@@ -151,5 +234,5 @@ export function simulateExperiment(
     Math.hypot(sample[4] - cx, sample[5] - cy),
   ]));
 
-  return { duration, samples, bounds: { cx, cy, radius } };
+  return { duration, samples, stateSamples, bounds: { cx, cy, radius } };
 }

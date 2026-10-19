@@ -67,7 +67,10 @@ export const GravityJourneyNavigation = ({
             onClick={() => onSelectStage(stage.id, true)}
           >
             <span aria-hidden="true" className={styles.stageNumber}>{stage.number}</span>
-            <span>{t(stage.title)}</span>
+            <span className="w-full min-w-0 flex-1">
+              <span className={styles.titleRow}><span>{t(stage.title)}</span></span>
+              <span className={styles.entryDescription}>{t(stage.description)}</span>
+            </span>
           </button>
         ))}
       </div>

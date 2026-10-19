@@ -11,6 +11,8 @@ after(() => rmSync(directory, { recursive: true, force: true }));
 execFileSync(process.execPath, [
   "node_modules/typescript/bin/tsc",
   "src/features/ai/application/tutorRequest.ts",
+  "src/features/ai/application/tutorAvailability.ts",
+  "src/features/three-body/data/orbits.ts",
   "src/features/ai/application/tutorPrompt.ts",
   "src/features/ai/infrastructure/requestGuard.ts",
   "src/features/ai/infrastructure/openaiTutor.ts",
@@ -23,16 +25,33 @@ const load = (path) => require(join(directory, `features/${path}.js`));
 const { isTutorRequest, parseTutorRequest } = load("ai/application/tutorRequest");
 const { buildTutorContext } = load("ai/application/tutorContext");
 const { buildTutorPrompt } = load("ai/application/tutorPrompt");
+const { getTutorSessionKey, getTutorConversationKey } = load("ai/application/tutorAvailability");
 const { gravityStages, gravityStageById } = load("gravity/application/gravityJourney");
 const limits = load("ai/application/tutor");
 const guards = load("ai/infrastructure/requestGuard");
 const { initialParameters, gravitationalForce, laboratoryLimits } = load("gravity/domain/gravitation");
-const { orbits, publishedOrbits } = load("three-body/data/orbits");
+const { orbits } = load("three-body/data/orbits");
 const validRequest = () => ({
   locale: "es",
   mode: "explain",
   context: { kind: "gravity", stage: null, parameters: { ...initialParameters } },
   messages: [{ role: "user", content: "¿Qué representa G?" }],
+});
+
+test("tutor sessions exist only on Gravity routes in every language and stage", () => {
+  for (const locale of ["es", "en", "fr"]) {
+    for (const hash of ["", "#gravity-discovery", "#gravity-understanding", "#gravity-laboratory", "#gravity-challenges"]) {
+      assert.equal(getTutorSessionKey(new URL(`https://gravity.test/${locale}/gravity${hash}`).pathname), "gravity");
+    }
+    for (const path of ["", "/three-body", ...orbits.map(({ slug }) => `/three-body/${slug}`)]) {
+      for (const hash of ["", "#discover", "#gallery", "#experiment"]) {
+        assert.equal(getTutorSessionKey(new URL(`https://gravity.test/${locale}${path}${hash}`).pathname), null);
+      }
+    }
+  }
+  assert.equal(getTutorSessionKey("/gravity"), "gravity");
+  assert.equal(getTutorSessionKey("/gravity/"), "gravity");
+  for (const path of ["/", "/gravity-extra", "/gravity/unknown", "/unknown/gravity"]) assert.equal(getTutorSessionKey(path), null);
 });
 
 test("shared tutor validates every locale, mode and gravity stage without coercion", () => {
@@ -211,42 +230,15 @@ test("experiment prompts use a fresh trusted snapshot despite stale dialogue in 
   }
 });
 
-test("two-body experiment guidance stays out of gallery and orbit prompts", () => {
-  for (const context of [{ kind: "three-body" }, ...orbits.map(({ slug }) => ({ kind: "three-body", slug }))]) {
-    const prompt = buildTutorPrompt({ ...validRequest(), context });
-    assert.equal("hypotheticalChanges" in buildTutorContext(context), false);
-    assert.equal(prompt.instructions.includes("hypotheticalChanges"), false);
-    assert.equal(prompt.instructions.includes("explicitly report current.mass1"), false);
-  }
-});
-
-test("all six orbit contexts use exact server catalogue values and documented sources", () => {
+test("Three Body contexts are rejected in every locale, including all six known orbit slugs", () => {
   assert.equal(orbits.length, 6);
-  const gallery = buildTutorContext({ kind: "three-body" });
-  assert.equal(gallery.view, "gallery");
-  assert.equal(gallery.catalogue.length, 6);
-  assert.equal(gallery.selectedOrbit, undefined);
-  assert.equal("parameters" in gallery, false);
-  assert.deepEqual(gallery.model.masses, [1, 1, 1]);
-  assert.equal(gallery.model.gravitationalConstant, 1);
-  for (const orbit of orbits) {
-    const context = { kind: "three-body", slug: orbit.slug };
-    assert.equal(isTutorRequest({ ...validRequest(), context }), true);
-    const trusted = buildTutorContext(context);
-    assert.equal(trusted.view, "orbit-detail");
-    assert.deepEqual(trusted.selectedOrbit.initial, orbit.initial);
-    assert.equal(trusted.selectedOrbit.period, orbit.period);
-    assert.equal(trusted.selectedOrbit.name, orbit.name);
-    assert.equal(trusted.selectedOrbit.description, orbit.description);
-    assert.equal(trusted.selectedOrbit.convention, orbit.convention);
-    assert.equal(trusted.selectedOrbit.source, orbit.source);
-    const published = publishedOrbits.find(({ slug }) => slug === orbit.slug);
-    if (JSON.stringify(published.initial) !== JSON.stringify(orbit.initial)) {
-      assert.deepEqual(trusted.selectedOrbit.publishedInitial, published.initial);
-      assert.equal(trusted.selectedOrbit.publishedPeriod, published.period);
+  for (const locale of ["es", "en", "fr"]) {
+    for (const context of [{ kind: "three-body" }, ...orbits.map(({ slug }) => ({ kind: "three-body", slug }))]) {
+      const request = { ...validRequest(), locale, context };
+      assert.equal(isTutorRequest(request), false);
+      assert.equal(parseTutorRequest(request), null);
     }
   }
-  assert.throws(() => buildTutorContext({ kind: "three-body", slug: "invented" }), RangeError);
 });
 
 test("obsolete challenge context cannot be submitted to the tutor", () => {
@@ -255,7 +247,7 @@ test("obsolete challenge context cannot be submitted to the tutor", () => {
   }
 });
 
-test("prompts separate trusted physics context from untrusted dialogue and explain each model", () => {
+test("gravity prompts separate trusted physics context from untrusted dialogue in every language", () => {
   const request = validRequest();
   request.messages = [
     { role: "user", content: "Previous question" },
@@ -267,11 +259,11 @@ test("prompts separate trusted physics context from untrusted dialogue and expla
   assert.equal(gravity.instructions.includes("INVENT_A_PERIOD_XYZ"), false);
   assert.match(gravity.instructions, /two-body attraction/);
   assert.match(gravity.instructions, /Respond in es/);
-  const orbital = buildTutorPrompt({ ...request, locale: "fr", context: { kind: "three-body", slug: "lagrange" } });
-  assert.match(orbital.instructions, /three-body context/);
-  assert.match(orbital.instructions, /Respond in fr/);
-  assert.match(orbital.instructions, /dimensionless/);
-  assert.equal(orbital.instructions.includes('"current"'), false);
+  for (const locale of ["es", "en", "fr"]) {
+    const prompt = buildTutorPrompt({ ...request, locale });
+    assert.match(prompt.instructions, new RegExp(`Respond in ${locale}`));
+    assert.equal(prompt.instructions.includes("three-body context"), false);
+  }
 });
 
 test("legacy quick-action requests normalize without forwarding arbitrary client fields", () => {
@@ -384,11 +376,6 @@ test("single OpenAI adapter passes configured model and bounded history with sto
     await assert.rejects(openaiTutor.explain(validRequest()), SyntaxError);
     globalThis.fetch = async () => Response.json({ status: "completed", output: [{ type: "message", content: [{ type: "refusal", refusal: "Unable to answer." }] }] });
     await assert.rejects(openaiTutor.explain(validRequest()), /Incomplete/);
-    globalThis.fetch = async (_url, options) => {
-      assert.equal(JSON.parse(options.body).text, undefined, "Part B keeps its original plain-text response format");
-      return modelReply("An explanation of this orbit.");
-    };
-    assert.deepEqual(await openaiTutor.explain({ ...validRequest(), context: { kind: "three-body", slug: publishedOrbits[0].slug } }), { text: "An explanation of this orbit." });
     globalThis.fetch = async () => Response.json({ error: "provider failure" }, { status: 503 });
     await assert.rejects(openaiTutor.explain(validRequest()), /unavailable/);
     globalThis.fetch = async () => Response.json({ status: "incomplete", output: [] });
@@ -453,6 +440,15 @@ test("API keeps valid proposals and translates rejected actions into educational
       reply = { text: "G is the gravitational constant.", proposal: null };
       assert.deepEqual(await (await post(locale)).json(), { text: reply.text });
     }
+    for (const locale of ["es", "en", "fr"]) {
+      for (const context of [{ kind: "three-body" }, ...orbits.map(({ slug }) => ({ kind: "three-body", slug }))]) {
+        const response = await POST(new Request("http://localhost/api/ai", {
+          method: "POST", headers: { "content-type": "application/json" },
+          body: JSON.stringify({ ...validRequest(), locale, context }),
+        }));
+        assert.equal(response.status, 400);
+      }
+    }
     assert.equal(calls, 9);
   } finally {
     globalThis.fetch = originalFetch;
@@ -504,5 +500,24 @@ test("experiment explanation uses trusted domain values and only accepts its own
   const { parseTutorReply } = load("ai/application/tutorResponse");
   for (const proposal of [null, { action: "set_gravity_parameters", parameters: { mass1: 80, mass2: null, distance: null } }, { action: "execute" }]) {
     assert.deepEqual(parseTutorReply({ text: "Explanation", proposal }, request.context, request.intent), { text: "Explanation" });
+  }
+});
+
+
+test("formula and laboratory histories have stable, distinct session identifiers", () => {
+  const context = validRequest().context;
+  assert.equal(getTutorConversationKey({ ...context, stage: "gravity-understanding" }), "gravity-understanding");
+  assert.equal(getTutorConversationKey({ ...context, stage: "gravity-laboratory" }), "gravity-laboratory");
+  assert.equal(getTutorConversationKey({ ...context, stage: "gravity-discovery" }), "gravity");
+});
+
+test("all formula follow-ups use current values and are explanation-only", () => {
+  for (const mode of ["explain", "simplify", "example"]) {
+    const request = { ...validRequest(), mode, context: { kind: "gravity", stage: "gravity-understanding", parameters: { mass1: 60, mass2: 30, distance: 7 } } };
+    assert.equal(isTutorRequest(request), true);
+    const prompt = buildTutorPrompt(request).instructions;
+    assert.match(prompt, /whole formula lesson is read-only/);
+    assert.match(prompt, /always return proposal null/);
+    assert.match(prompt, /"mass1":60/);
   }
 });

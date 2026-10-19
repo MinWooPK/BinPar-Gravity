@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type FocusEvent, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import css from "./GravitySplitPanels.module.css";
 
@@ -25,28 +25,42 @@ export const GravitySplitPanels = ({ left, right, leftLabel, rightLabel }: {
   const t = useTranslations("Gravity.panels");
   const id = useId();
   const desktop = useSyncExternalStore(subscribe, desktopSnapshot, serverSnapshot);
-  const [collapsed, setCollapsed] = useState<Side | null>(null);
+  const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [selected, setSelected] = useState<Side>("left");
   const contents = useRef<Partial<Record<Side, HTMLDivElement>>>({});
-  const desktopButtons = useRef<Partial<Record<Side, HTMLButtonElement>>>({});
+  const toggleButton = useRef<HTMLButtonElement>(null);
   const mobileButtons = useRef<Partial<Record<Side, HTMLButtonElement>>>({});
   const lastFocusedPanel = useRef<Side | null>(null);
-  const visible = (side: Side) => desktop ? collapsed !== side : selected === side;
+  const lastFocusedControl = useRef<"desktop" | "mobile" | null>(null);
+  const visible = (side: Side) => desktop ? side === "right" || !leftCollapsed : selected === side;
 
   // Also handles a viewport change while a field in the newly hidden panel has focus.
   useLayoutEffect(() => {
+    const active = document.activeElement;
+    if (!desktop && (active === toggleButton.current || lastFocusedControl.current === "desktop")) {
+      mobileButtons.current[selected]?.focus({ preventScroll: true });
+    } else if (desktop && (lastFocusedControl.current === "mobile" || sides.some(side => active === mobileButtons.current[side]))) {
+      toggleButton.current?.focus({ preventScroll: true });
+    }
     const focusedSide = lastFocusedPanel.current;
-    if (!focusedSide || (desktop ? collapsed !== focusedSide : selected === focusedSide)) return;
-    const target = desktop ? desktopButtons.current[focusedSide] : mobileButtons.current[selected];
+    if (!focusedSide || (desktop ? focusedSide === "right" || !leftCollapsed : selected === focusedSide)) return;
+    const target = desktop ? toggleButton.current : mobileButtons.current[selected];
     target?.focus({ preventScroll: true });
     lastFocusedPanel.current = null;
-  }, [desktop, collapsed, selected]);
+  }, [desktop, leftCollapsed, selected]);
 
-  const toggle = (side: Side) => {
-    const content = contents.current[side];
+  const onControlBlur = (event: FocusEvent<HTMLButtonElement>) => {
+    // CSS may hide the focused control before the media-query subscriber runs.
+    // Retain it only in that case so the layout effect can transfer focus.
+    if (event.relatedTarget || event.currentTarget.getClientRects().length > 0) {
+      lastFocusedControl.current = null;
+    }
+  };
+
+  const toggleLeft = () => {
+    const content = contents.current.left;
     if (content) content.style.setProperty("--closing-width", `${content.getBoundingClientRect().width}px`);
-    // Closing the other side restores the previously closed panel in the same update.
-    setCollapsed(current => current === side ? null : side);
+    setLeftCollapsed(current => !current);
   };
 
   return (
@@ -56,35 +70,40 @@ export const GravitySplitPanels = ({ left, right, leftLabel, rightLabel }: {
           <button key={side} ref={element => { if (element) mobileButtons.current[side] = element; }}
             type="button" aria-label={t("show", { panel: side === "left" ? leftLabel : rightLabel })}
             aria-expanded={selected === side} aria-controls={`${id}-${side}`} data-panel-select={side}
-            onFocus={() => { lastFocusedPanel.current = null; }}
+            onFocus={() => { lastFocusedPanel.current = null; lastFocusedControl.current = "mobile"; }}
+            onBlur={onControlBlur}
             onClick={() => setSelected(side)}
             className={`min-h-11 min-w-0 rounded-lg px-2 py-2 text-sm font-semibold ${buttonStyle} ${selected === side ? "border-violet-300 bg-violet-300/15 text-cyan-100" : ""}`}>
             {side === "left" ? leftLabel : rightLabel}
           </button>
         ))}
       </div>
-      <div className={css.grid} data-collapsed={collapsed ?? "none"} data-selected={selected} data-gravity-stage-layout>
+      <div className={css.grid} data-collapsed={leftCollapsed ? "left" : "none"} data-selected={selected} data-gravity-stage-layout>
         {sides.map(side => (
           <div key={side} className={css.panel} data-side={side} data-open={visible(side)}>
             <div className={css.clip}>
               <div id={`${id}-${side}`} ref={element => { if (element) contents.current[side] = element; }}
                 className={css.content} inert={!visible(side)} aria-hidden={!visible(side)}
-                onFocusCapture={() => { lastFocusedPanel.current = side; }}
+                onFocusCapture={() => { lastFocusedPanel.current = side; lastFocusedControl.current = null; }}
                 onBlurCapture={event => {
                   if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) lastFocusedPanel.current = null;
                 }}>
                 {side === "left" ? left : right}
               </div>
             </div>
-            <button ref={element => { if (element) desktopButtons.current[side] = element; }}
-              type="button" data-panel-toggle={side} aria-controls={`${id}-${side}`} aria-expanded={collapsed !== side}
-              aria-label={t(collapsed === side ? "expand" : "collapse", { panel: side === "left" ? leftLabel : rightLabel })}
-              onFocus={() => { lastFocusedPanel.current = null; }} onClick={() => toggle(side)}
-              className={`${css.toggle} ${buttonStyle} hidden h-11 w-8 items-center justify-center rounded-lg lg:flex`}>
-              <svg aria-hidden="true" viewBox="0 0 20 20" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-                <path d={(side === "left") !== (collapsed === side) ? "m12 5-5 5 5 5" : "m8 5 5 5-5 5"} strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </button>
+            {side === "left" && (
+              <button ref={toggleButton}
+                type="button" data-panel-toggle="left" aria-controls={`${id}-left`} aria-expanded={!leftCollapsed}
+                aria-label={t(leftCollapsed ? "expand" : "collapse", { panel: leftLabel })}
+                title={t(leftCollapsed ? "expand" : "collapse", { panel: leftLabel })}
+                onFocus={() => { lastFocusedPanel.current = null; lastFocusedControl.current = "desktop"; }}
+                onBlur={onControlBlur} onClick={toggleLeft}
+                className={`${css.toggle} ${buttonStyle} rounded-lg`}>
+                <svg aria-hidden="true" viewBox="0 0 20 20" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8">
+                  <path d={leftCollapsed ? "m8 5 5 5-5 5" : "m12 5-5 5 5 5"} strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            )}
           </div>
         ))}
       </div>

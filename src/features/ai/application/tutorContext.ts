@@ -5,11 +5,6 @@ import {
   isWithinLaboratoryRange,
   laboratoryLimits,
 } from "../../gravity/domain/gravitation";
-import {
-  getOrbit,
-  orbits,
-  publishedOrbits,
-} from "../../three-body/data/orbits";
 import type { TutorContext } from "../types/tutor.types";
 
 // Aligned with the discovery panel; these facts are owned by the server, not dialogue.
@@ -53,108 +48,54 @@ const gravityDiscovery = {
   },
 } as const;
 
-/** Numerical facts and orbit metadata come exclusively from the project on the server. */
+/** Gravity facts come exclusively from the project on the server. */
 export const buildTutorContext = (context: TutorContext) => {
-  if (context.kind === "gravity") {
-    const baselineForce = gravitationalForce(initialParameters);
-    const currentForce = gravitationalForce(context.parameters);
-    // Educational what-ifs, relative to the current snapshot, never applied to the lab.
-    const hypotheticalChanges = [
-      { variable: "mass1", factor: 2 },
-      { variable: "mass2", factor: 2 },
-      { variable: "distance", factor: 2 },
-      { variable: "distance", factor: 0.5 },
-    ] as const;
-    return {
-      kind: context.kind,
-      stage: context.stage,
-      model:
-        "Newtonian attraction between two spherical bodies; this is not an orbital simulation",
-      units: {
-        mass: "kg",
-        distance: "metres between centres",
-        force: "newtons",
-      },
-      gravitationalConstant: GRAVITATIONAL_CONSTANT,
-      laboratory: {
-        limits: laboratoryLimits,
-        scale:
-          "Everyday masses in kilograms and centre-to-centre distances in metres. Their gravitational forces are very small and are displayed in scientific notation, not rounded to zero.",
-        illustration:
-          "Sphere sizes and separation are illustrative, not to scale. The arrows show equal and opposite force directions, not force magnitudes.",
-      },
-      ...(context.stage === "gravity-discovery" && {
-        discovery: gravityDiscovery,
-      }),
-      current: { ...context.parameters, forceNewtons: currentForce },
-      hypotheticalChanges: hypotheticalChanges.map(({ variable, factor }) => {
-        const parameters = {
-          ...context.parameters,
-          [variable]: context.parameters[variable] * factor,
-        };
-        const forceNewtons = gravitationalForce(parameters);
-        return {
-          variable,
-          factor,
-          parameters,
-          forceNewtons,
-          forceRatioToCurrent: forceNewtons / currentForce,
-          withinLaboratoryRange: isWithinLaboratoryRange(parameters),
-        };
-      }),
-      baseline: { ...initialParameters, forceNewtons: baselineForce },
-
-    };
-  }
-
-  const selected = context.slug ? getOrbit(context.slug) : undefined;
-  // Validation rejects unknown slugs; keep this boundary safe for other callers too.
-  if (context.slug && !selected) throw new RangeError("Unknown orbit");
-  const published = publishedOrbits.find(({ slug }) => slug === selected?.slug);
-  const refined =
-    selected &&
-    published &&
-    JSON.stringify(selected.initial) !== JSON.stringify(published.initial);
+  const baselineForce = gravitationalForce(initialParameters);
+  const currentForce = gravitationalForce(context.parameters);
+  // Educational what-ifs, relative to the current snapshot, never applied to the lab.
+  const hypotheticalChanges = [
+    { variable: "mass1", factor: 2 },
+    { variable: "mass2", factor: 2 },
+    { variable: "distance", factor: 2 },
+    { variable: "distance", factor: 0.5 },
+  ] as const;
   return {
     kind: context.kind,
-    view: selected ? "orbit-detail" : "gallery",
-    model: {
-      gravity: "Newtonian planar three-body problem with point masses",
-      gravitationalConstant: 1,
-      masses: [1, 1, 1],
-      units: "dimensionless",
-      integration:
-        "adaptive RK4 step doubling with Richardson correction; uniformly sampled physical time",
+    stage: context.stage,
+    model:
+      "Newtonian attraction between two spherical bodies; this is not an orbital simulation",
+    units: {
+      mass: "kg",
+      distance: "metres between centres",
+      force: "newtons",
     },
-    catalogue: orbits.map(
-      ({ slug, name, description, insight, period, source, sourceLabel }) => ({
-        slug,
-        name,
-        description,
-        insight,
-        period,
-        source,
-        sourceLabel,
-      }),
-    ),
-    selectedOrbit: selected && {
-      slug: selected.slug,
-      name: selected.name,
-      description: selected.description,
-      insight: selected.insight,
-      initialStateLayout: ["x", "y", "vx", "vy"],
-      initial: selected.initial,
-      period: selected.period,
-      convention: selected.convention,
-      source: selected.source,
-      sourceLabel: selected.sourceLabel,
-      ...(refined &&
-        published && {
-          refinement:
-            "The simulation uses a reproducible local shooting correction of the published seed; do not confuse it with the original published values.",
-          publishedInitial: published.initial,
-          publishedPeriod: published.period,
-        }),
+    gravitationalConstant: GRAVITATIONAL_CONSTANT,
+    laboratory: {
+      limits: laboratoryLimits,
+      scale:
+        "Everyday masses in kilograms and centre-to-centre distances in metres. Their gravitational forces are very small and are displayed in scientific notation, not rounded to zero.",
+      illustration:
+        "Sphere sizes and separation are illustrative, not to scale. The arrows show equal and opposite force directions, not force magnitudes.",
     },
+    ...(context.stage === "gravity-discovery" && {
+      discovery: gravityDiscovery,
+    }),
+    current: { ...context.parameters, forceNewtons: currentForce },
+    hypotheticalChanges: hypotheticalChanges.map(({ variable, factor }) => {
+      const parameters = {
+        ...context.parameters,
+        [variable]: context.parameters[variable] * factor,
+      };
+      const forceNewtons = gravitationalForce(parameters);
+      return {
+        variable,
+        factor,
+        parameters,
+        forceNewtons,
+        forceRatioToCurrent: forceNewtons / currentForce,
+        withinLaboratoryRange: isWithinLaboratoryRange(parameters),
+      };
+    }),
+    baseline: { ...initialParameters, forceNewtons: baselineForce },
   };
 };
