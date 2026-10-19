@@ -207,7 +207,18 @@ export const OrbitGallery = ({
           </button>
         </div>
       </div>
-
+      {/* ACLARACIÓN SOBRE LAS SEIS SOLUCIONES */}
+      <div className="mb-5 rounded-xl border border-[#60517f] bg-[#201b35] p-4">
+        <p className="text-sm leading-7 text-slate-200 sm:text-base">
+          {t.rich("galleryGuide.keyMessage", {
+            highlight: (children) => (
+              <strong className="font-semibold text-[#d3c5ff]">
+                {children}
+              </strong>
+            ),
+          })}
+        </p>
+      </div>
       {/* Ventana del carrusel */}
       <div
         id="orbit-gallery-carousel"

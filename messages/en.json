@@ -516,32 +516,56 @@
     "galleryGuide": {
       "eyebrow": "BEFORE EXPLORING",
       "title": "What do these orbits represent?",
-      "intro": "The trajectories show how three bodies attract one another and change position over time. Each solution starts from specific initial conditions.",
-      "diagramTitle": "Three interacting bodies",
-      "diagramDescription": "Conceptual diagram showing three bodies, their pairwise distances and velocity vectors.",
-      "diagramCaption": "Dashed lines represent distances and arrows show velocities. This is an illustration, not a specific orbit.",
+
+      "intro": "Three bodies attract one another through gravity. Depending on <highlight>where they start and how they move</highlight>, they can follow very different paths.",
+
+      "keyMessage": "The six orbits <highlight>do not occur under arbitrary conditions</highlight>. Our simulations use <highlight>equal masses (1), G = 1, and specific initial positions and velocities</highlight> to reproduce each solution.",
+      "diagramTitle": "Three attracting bodies",
+      "diagramDescription": "Diagram of three bodies attracting one another through gravity, showing the distances between them and their initial velocities.",
+      "diagramCaption": "The lines show the distances between the bodies. The green arrows show their initial velocities. This is a visual example, not one of the six orbits.",
+
       "masses": "Masses",
       "gravity": "Gravity",
       "dimensions": "Space",
-      "modelTitle": "The physical model",
-      "modelDescription": "The three bodies are modeled as point masses attracting one another under Newton's law. Equal masses and two-dimensional motion are used.",
+
+      "modelTitle": "How does the model work?",
+      "modelDescription": "We simulate three bodies attracting one another through gravity. We use equal masses and two-dimensional motion to study their trajectories.",
+
       "equationTitle": "Universal law of gravitation",
-      "equationDescription": "The force between two bodies equals G times their masses divided by the square of their separation.",
-      "parametersTitle": "Model parameters",
+      "equationDescription": "Gravitational attraction depends on the masses of the bodies and the distance between them.",
+
+      "parametersTitle": "What conditions do we need?",
+      "sharedConditions": "Shared by all six simulations",
+      "specificConditions": "Specific to each orbit",
+
       "massTitle": "Masses · m₁, m₂, m₃",
-      "massDescription": "All three masses equal 1 in normalized units. Their values remain fixed across these six solutions.",
-      "positionTitle": "Positions · x, y",
-      "positionDescription": "Specify where each body starts. Initial positions are defined separately for every orbit.",
-      "velocityTitle": "Velocities · vₓ, vᵧ",
-      "velocityDescription": "Specify each body's initial speed and direction. They are essential in determining the trajectory.",
-      "distanceTitle": "Distances · rᵢⱼ",
-      "distanceDescription": "The separation between each pair of bodies. Distances vary during motion and affect gravitational attraction.",
+      "massDescription": "All three bodies have the same mass. In our simulations, each mass equals 1.",
+
+      "positionTitle": "Initial positions · x, y",
+      "positionDescription": "These determine where each body starts. Every orbit requires specific starting positions.",
+
+      "velocityTitle": "Initial velocities · vₓ, vᵧ",
+      "velocityDescription": "These determine how fast and in which direction each body starts moving. Every orbit requires specific values.",
+
+      "distanceTitle": "Distances between bodies",
+      "distanceDescription": "These show how far apart the bodies are. The distances change as the bodies move and affect gravitational attraction.",
+
       "periodTitle": "Period · T",
-      "periodDescription": "The approximate time required to complete a periodic orbit, expressed in normalized time units.",
-      "integrationTitle": "Numerical integration",
-      "integrationDescription": "Positions are computed by solving the equations of motion using adaptive RK4 with numerical error control.",
-      "importantTitle": "Why are the orbits different?",
-      "importantDescription": "Although all six solutions use the same masses and G, their initial positions and velocities differ. Lagrange starts as an equilateral triangle; the other five start with collinear positions. Units are dimensionless, not kilometers or kilograms.",
+      "periodDescription": "The time required for a periodic orbit to complete one cycle and return approximately to its initial state.",
+
+      "integrationTitle": "How is the motion calculated?",
+      "integrationDescription": "The computer calculates the bodies' positions and velocities step by step using Newton's equations and a numerical method called adaptive RK4.",
+
+      "importantTitle": "Why are the six orbits different?",
+      "importantDescription": "All six use equal masses and G = 1, but they do not all start in the same way. Lagrange begins as an equilateral triangle. The other five start with aligned bodies and different initial positions or velocities. Each combination reproduces a known periodic solution.",
+
+      "modelNote": "These six simulations use equal masses, G = 1 and two-dimensional motion. These are features of the model we use, not requirements for every three-body problem.",
+
+      "shapeNote": "<highlight>Lagrange</highlight> starts as a triangle. <highlight>The other five orbits</highlight> start with aligned bodies, but use different initial conditions.",
+
+      "takeawayTitle": "The key idea",
+      "takeaway": "To reproduce each of these six orbits, we need <highlight>its specific initial conditions</highlight>. Changing those values can change the motion and prevent it from repeating. <highlight>There is no single minimum distance or speed</highlight> that guarantees all six solutions.",
+
       "explore": "Explore the six orbits",
       "back": "Back to explanation",
       "previous": "Previous",

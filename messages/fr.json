@@ -490,35 +490,60 @@
       "normalizedUnits": "UNITÉS NORMALISÉES",
       "note": "Les six solutions sont comparées dans un système adimensionnel. C’est pourquoi on n’utilise pas ici les kg, m et N de la partie sur la gravité."
     },
+
     "galleryGuide": {
       "eyebrow": "AVANT D'EXPLORER",
       "title": "Que représentent ces orbites ?",
-      "intro": "Les trajectoires montrent comment trois corps s'attirent mutuellement et changent de position au cours du temps. Chaque solution part de conditions initiales précises.",
-      "diagramTitle": "Trois corps en interaction",
-      "diagramDescription": "Schéma conceptuel montrant trois corps, leurs distances et leurs vecteurs de vitesse.",
-      "diagramCaption": "Les lignes pointillées représentent les distances et les flèches indiquent les vitesses. Il s'agit d'un schéma, pas d'une orbite particulière.",
+
+      "intro": "Trois corps s'attirent par gravitation. Selon <highlight>leur position de départ et leur mouvement initial</highlight>, ils peuvent suivre des trajectoires très différentes.",
+
+      "keyMessage": "Les six orbites <highlight>n'apparaissent pas dans n'importe quelles conditions</highlight>. Nos simulations utilisent <highlight>des masses égales (1), G = 1, ainsi que des positions et des vitesses initiales précises</highlight> pour reproduire chaque solution.",
+      "diagramTitle": "Trois corps qui s'attirent",
+      "diagramDescription": "Schéma de trois corps qui s'attirent par gravitation, montrant leurs distances et leurs vitesses initiales.",
+      "diagramCaption": "Les lignes montrent les distances entre les corps. Les flèches vertes indiquent leurs vitesses initiales. Il s'agit d'un exemple visuel, pas de l'une des six orbites.",
+
       "masses": "Masses",
-      "gravity": "Gravité",
+      "gravity": "Gravitation",
       "dimensions": "Espace",
-      "modelTitle": "Le modèle physique",
-      "modelDescription": "Les trois corps sont modélisés comme des masses ponctuelles qui s'attirent selon la loi de Newton. Les masses sont égales et le mouvement est bidimensionnel.",
+
+      "modelTitle": "Comment fonctionne le modèle ?",
+      "modelDescription": "Nous simulons trois corps qui s'attirent par gravitation. Nous utilisons des masses égales et un mouvement en deux dimensions pour étudier leurs trajectoires.",
+
       "equationTitle": "Loi de la gravitation universelle",
-      "equationDescription": "La force entre deux corps est égale à G multiplié par leurs masses, puis divisé par le carré de leur distance.",
-      "parametersTitle": "Paramètres du modèle",
+      "equationDescription": "L'attraction gravitationnelle dépend des masses des corps et de la distance qui les sépare.",
+
+      "parametersTitle": "Quelles conditions faut-il ?",
+      "sharedConditions": "Communes aux six simulations",
+      "specificConditions": "Propres à chaque orbite",
+
       "massTitle": "Masses · m₁, m₂, m₃",
-      "massDescription": "Les trois masses valent 1 en unités normalisées. Leurs valeurs restent fixes pour ces six solutions.",
-      "positionTitle": "Positions · x, y",
-      "positionDescription": "Elles indiquent la position de départ de chaque corps. Les positions initiales sont définies pour chaque orbite.",
-      "velocityTitle": "Vitesses · vₓ, vᵧ",
-      "velocityDescription": "Elles indiquent la vitesse et la direction initiales de chaque corps et déterminent sa trajectoire.",
-      "distanceTitle": "Distances · rᵢⱼ",
-      "distanceDescription": "Il s'agit des séparations entre chaque paire de corps. Elles varient pendant le mouvement et influencent l'attraction gravitationnelle.",
+      "massDescription": "Les trois corps ont la même masse. Dans nos simulations, chaque masse vaut 1.",
+
+      "positionTitle": "Positions initiales · x, y",
+      "positionDescription": "Elles indiquent où commence chaque corps. Chaque orbite nécessite des positions de départ précises.",
+
+      "velocityTitle": "Vitesses initiales · vₓ, vᵧ",
+      "velocityDescription": "Elles indiquent à quelle vitesse et dans quelle direction chaque corps commence à se déplacer. Chaque orbite nécessite des valeurs précises.",
+
+      "distanceTitle": "Distances entre les corps",
+      "distanceDescription": "Elles indiquent à quelle distance les corps se trouvent les uns des autres. Ces distances changent pendant le mouvement et influencent l'attraction gravitationnelle.",
+
       "periodTitle": "Période · T",
-      "periodDescription": "Temps approximatif nécessaire pour parcourir une orbite périodique, exprimé en unités de temps normalisées.",
-      "integrationTitle": "Intégration numérique",
-      "integrationDescription": "Les positions sont calculées en résolvant les équations du mouvement avec la méthode RK4 adaptative et un contrôle de l'erreur numérique.",
-      "importantTitle": "Pourquoi les orbites sont-elles différentes ?",
-      "importantDescription": "Même si les masses et G sont identiques pour les six solutions, les positions et vitesses initiales diffèrent. Lagrange commence par un triangle équilatéral ; les cinq autres solutions commencent avec des positions alignées. Les unités sont sans dimension, et non des kilomètres ou des kilogrammes.",
+      "periodDescription": "Le temps nécessaire pour qu'une orbite périodique effectue un cycle et retrouve approximativement son état initial.",
+
+      "integrationTitle": "Comment calcule-t-on le mouvement ?",
+      "integrationDescription": "L'ordinateur calcule les positions et les vitesses des corps étape par étape grâce aux équations de Newton et à une méthode numérique appelée RK4 adaptative.",
+
+      "importantTitle": "Pourquoi les six orbites sont-elles différentes ?",
+      "importantDescription": "Les six solutions utilisent des masses égales et G = 1, mais elles ne commencent pas toutes de la même manière. Lagrange débute avec un triangle équilatéral. Les cinq autres commencent avec des corps alignés et des positions ou vitesses initiales différentes. Chaque combinaison permet de reproduire une solution périodique connue.",
+
+      "modelNote": "Ces six simulations utilisent des masses égales, G = 1 et un mouvement en deux dimensions. Ce sont des caractéristiques de notre modèle, pas des exigences de tous les problèmes à trois corps.",
+
+      "shapeNote": "<highlight>Lagrange</highlight> commence par un triangle. <highlight>Les cinq autres orbites</highlight> commencent avec des corps alignés, mais utilisent des conditions initiales différentes.",
+
+      "takeawayTitle": "L'essentiel à retenir",
+      "takeaway": "Pour reproduire chacune de ces six orbites, nous avons besoin de <highlight>ses conditions initiales précises</highlight>. Modifier ces valeurs peut changer le mouvement et l'empêcher de se répéter. <highlight>Il n'existe pas de distance ou de vitesse minimale unique</highlight> garantissant les six solutions.",
+
       "explore": "Explorer les six orbites",
       "back": "Retour à l'explication",
       "previous": "Précédent",

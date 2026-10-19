@@ -490,35 +490,60 @@
       "normalizedUnits": "UNIDADES NORMALIZADAS",
       "note": "Las seis soluciones se comparan usando un sistema adimensional. Por eso aquí no se usan kg, m y N como en la parte de gravedad."
     },
+
     "galleryGuide": {
       "eyebrow": "ANTES DE EXPLORAR",
       "title": "¿Qué representan estas órbitas?",
-      "intro": "Las trayectorias muestran cómo tres cuerpos se atraen mutuamente y cambian de posición con el tiempo. Cada solución parte de unas condiciones iniciales concretas.",
-      "diagramTitle": "Tres cuerpos en interacción",
-      "diagramDescription": "Esquema conceptual con tres cuerpos, las distancias entre ellos y sus vectores de velocidad.",
-      "diagramCaption": "Las líneas discontinuas representan distancias y las flechas indican velocidades. Es un esquema ilustrativo, no una órbita concreta.",
+
+      "intro": "Tres cuerpos se atraen por la gravedad. Según <highlight>dónde empiecen y cómo se muevan</highlight>, pueden seguir caminos muy diferentes.",
+
+      "keyMessage": "Las seis órbitas <highlight>no aparecen en cualquier situación</highlight>. En nuestras simulaciones utilizamos <highlight>masas iguales (1), G = 1 y posiciones y velocidades iniciales específicas</highlight> para reproducir cada solución.",
+      "diagramTitle": "Tres cuerpos que se atraen",
+      "diagramDescription": "Esquema de tres cuerpos que se atraen por gravedad, mostrando las distancias entre ellos y sus velocidades iniciales.",
+      "diagramCaption": "Las líneas indican las distancias entre los cuerpos. Las flechas verdes muestran sus velocidades iniciales. Es un ejemplo visual, no una de las seis órbitas.",
+
       "masses": "Masas",
       "gravity": "Gravedad",
       "dimensions": "Espacio",
-      "modelTitle": "El modelo físico",
-      "modelDescription": "Los tres cuerpos se representan como masas puntuales que se atraen según la ley de Newton. Se utilizan masas iguales y un espacio bidimensional.",
+
+      "modelTitle": "¿Cómo funciona el modelo?",
+      "modelDescription": "Simulamos tres cuerpos que se atraen por la gravedad. Utilizamos masas iguales y movimiento en dos dimensiones para estudiar sus trayectorias.",
+
       "equationTitle": "Ley de gravitación universal",
-      "equationDescription": "La fuerza entre dos cuerpos es G multiplicada por sus masas y dividida por la distancia al cuadrado.",
-      "parametersTitle": "Parámetros del modelo",
+      "equationDescription": "La atracción gravitatoria depende de las masas de los cuerpos y de la distancia entre ellos.",
+
+      "parametersTitle": "¿Qué condiciones necesitamos?",
+      "sharedConditions": "Iguales en las seis simulaciones",
+      "specificConditions": "Específicas de cada órbita",
+
       "massTitle": "Masas · m₁, m₂, m₃",
-      "massDescription": "Las tres masas valen 1 en unidades normalizadas. Su valor es fijo en estas seis soluciones.",
-      "positionTitle": "Posiciones · x, y",
-      "positionDescription": "Indican dónde empieza cada cuerpo. Las posiciones iniciales se especifican para cada órbita.",
-      "velocityTitle": "Velocidades · vₓ, vᵧ",
-      "velocityDescription": "Indican la dirección y rapidez inicial de cada cuerpo. Son esenciales para determinar su trayectoria.",
-      "distanceTitle": "Distancias · rᵢⱼ",
-      "distanceDescription": "Son las separaciones entre cada pareja de cuerpos. Cambian durante el movimiento y afectan a la atracción gravitatoria.",
+      "massDescription": "Los tres cuerpos tienen la misma masa. En nuestras simulaciones, cada masa vale 1.",
+
+      "positionTitle": "Posiciones iniciales · x, y",
+      "positionDescription": "Indican dónde comienza cada cuerpo. Cada órbita necesita unas posiciones de partida concretas.",
+
+      "velocityTitle": "Velocidades iniciales · vₓ, vᵧ",
+      "velocityDescription": "Indican la rapidez y dirección con las que empieza a moverse cada cuerpo. Cada órbita necesita unos valores concretos.",
+
+      "distanceTitle": "Distancias entre cuerpos",
+      "distanceDescription": "Indican lo separados que están los cuerpos. Estas distancias cambian mientras se mueven y afectan a la gravedad.",
+
       "periodTitle": "Período · T",
-      "periodDescription": "Es el tiempo aproximado necesario para completar una órbita periódica. Se expresa en unidades de tiempo normalizadas.",
-      "integrationTitle": "Integración numérica",
-      "integrationDescription": "Las posiciones se calculan resolviendo las ecuaciones de movimiento mediante RK4 adaptativo, con control del error numérico.",
-      "importantTitle": "¿Por qué las órbitas son diferentes?",
-      "importantDescription": "Aunque las masas y G son iguales en las seis soluciones, las posiciones y velocidades iniciales no lo son. Lagrange empieza con un triángulo equilátero; las otras cinco soluciones parten de posiciones alineadas. Se utilizan unidades adimensionales, no kilómetros ni kilogramos.",
+      "periodDescription": "Es el tiempo que tarda una órbita periódica en completar un ciclo y volver aproximadamente a su estado inicial.",
+
+      "integrationTitle": "¿Cómo se calcula el movimiento?",
+      "integrationDescription": "El ordenador calcula paso a paso las posiciones y velocidades de los cuerpos utilizando las ecuaciones de Newton y un método numérico llamado RK4 adaptativo.",
+
+      "importantTitle": "¿Por qué son diferentes las seis órbitas?",
+      "importantDescription": "Las seis utilizan masas iguales y G = 1, pero no todas empiezan igual. Lagrange comienza formando un triángulo equilátero. Las otras cinco parten de cuerpos alineados, con distintas posiciones o velocidades iniciales. Cada combinación permite reproducir una solución periódica conocida.",
+
+      "modelNote": "En estas seis simulaciones usamos masas iguales, G = 1 y movimiento en 2D. Son características del modelo que utilizamos, no requisitos de todos los problemas de tres cuerpos.",
+
+      "shapeNote": "<highlight>Lagrange</highlight> comienza formando un triángulo. <highlight>Las otras cinco órbitas</highlight> comienzan con los cuerpos alineados, pero utilizan condiciones iniciales diferentes.",
+
+      "takeawayTitle": "Lo más importante",
+      "takeaway": "Para reproducir cada una de estas seis órbitas necesitamos <highlight>sus condiciones iniciales específicas</highlight>. Si modificamos esos valores, el movimiento puede cambiar y dejar de repetirse. <highlight>No existe una distancia o velocidad mínima común</highlight> que garantice estas seis soluciones.",
+
       "explore": "Explorar las seis órbitas",
       "back": "Volver a la explicación",
       "previous": "Anterior",
