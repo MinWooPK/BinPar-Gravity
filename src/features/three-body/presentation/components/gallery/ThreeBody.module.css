@@ -468,3 +468,53 @@
     padding: 0;
   }
 }
+
+/* =====================================
+   GALERÍA · CARRUSEL DE ÓRBITAS
+===================================== */
+
+/* Solo muestra las tarjetas de la página actual */
+.gallery :global(.orbit-carousel-viewport) {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Pista horizontal con transición */
+.gallery :global(.orbit-carousel-track) {
+  display: flex;
+  width: 100%;
+  gap: 1.25rem;
+  align-items: stretch;
+
+  transition: transform 450ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* Móvil: una tarjeta */
+.gallery :global(.orbit-carousel-track) > :global(.orbit-card) {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+/* Tablet: dos tarjetas */
+@media (min-width: 640px) {
+  .gallery :global(.orbit-carousel-track) > :global(.orbit-card) {
+    flex-basis: calc((100% - 1.25rem) / 2);
+  }
+}
+
+/* Escritorio: tres tarjetas */
+@media (min-width: 1024px) {
+  .gallery :global(.orbit-carousel-track) > :global(.orbit-card) {
+    flex-basis: calc((100% - 2.5rem) / 3);
+  }
+}
+
+/* Respetar preferencias de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .gallery :global(.orbit-carousel-track) {
+    transition: none;
+    will-change: auto;
+  }
+}

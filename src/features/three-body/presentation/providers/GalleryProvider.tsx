@@ -15,8 +15,9 @@ const initial: GalleryState = {
   scroll: 0,
   galleryPlaying: false,
   detailPlaying: false,
+  galleryView: "intro",
+  galleryPage: 0,
 };
-
 const Context = createContext<{
   state: GalleryState;
   update: (patch: Partial<GalleryState>) => void;
