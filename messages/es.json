@@ -500,7 +500,7 @@
       "keyMessage": "Las seis órbitas <highlight>no aparecen en cualquier situación</highlight>. En nuestras simulaciones utilizamos <highlight>masas iguales (1), G = 1 y posiciones y velocidades iniciales específicas</highlight> para reproducir cada solución.",
       "diagramTitle": "Tres cuerpos que se atraen",
       "diagramDescription": "Esquema de tres cuerpos que se atraen por gravedad, mostrando las distancias entre ellos y sus velocidades iniciales.",
-      "diagramCaption": "Las líneas indican las distancias entre los cuerpos. Las flechas verdes muestran sus velocidades iniciales. Es un ejemplo visual, no una de las seis órbitas.",
+      "diagramCaption": "Líneas: distancias entre cuerpos. Flechas: velocidades iniciales. Es un esquema ilustrativo.",
 
       "masses": "Masas",
       "gravity": "Gravedad",
@@ -542,8 +542,7 @@
       "shapeNote": "<highlight>Lagrange</highlight> comienza formando un triángulo. <highlight>Las otras cinco órbitas</highlight> comienzan con los cuerpos alineados, pero utilizan condiciones iniciales diferentes.",
 
       "takeawayTitle": "Lo más importante",
-      "takeaway": "Para reproducir cada una de estas seis órbitas necesitamos <highlight>sus condiciones iniciales específicas</highlight>. Si modificamos esos valores, el movimiento puede cambiar y dejar de repetirse. <highlight>No existe una distancia o velocidad mínima común</highlight> que garantice estas seis soluciones.",
-
+      "takeaway": "Cada una de las seis órbitas necesita <highlight>condiciones iniciales específicas</highlight>. Si cambiamos esos valores, la trayectoria puede cambiar y dejar de repetirse.",
       "explore": "Explorar las seis órbitas",
       "back": "Volver a la explicación",
       "previous": "Anterior",

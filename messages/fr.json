@@ -500,7 +500,7 @@
       "keyMessage": "Les six orbites <highlight>n'apparaissent pas dans n'importe quelles conditions</highlight>. Nos simulations utilisent <highlight>des masses égales (1), G = 1, ainsi que des positions et des vitesses initiales précises</highlight> pour reproduire chaque solution.",
       "diagramTitle": "Trois corps qui s'attirent",
       "diagramDescription": "Schéma de trois corps qui s'attirent par gravitation, montrant leurs distances et leurs vitesses initiales.",
-      "diagramCaption": "Les lignes montrent les distances entre les corps. Les flèches vertes indiquent leurs vitesses initiales. Il s'agit d'un exemple visuel, pas de l'une des six orbites.",
+      "diagramCaption": "Lignes : distances entre les corps. Flèches : vitesses initiales. Il s'agit d'un schéma illustratif.",
 
       "masses": "Masses",
       "gravity": "Gravitation",
@@ -542,8 +542,7 @@
       "shapeNote": "<highlight>Lagrange</highlight> commence par un triangle. <highlight>Les cinq autres orbites</highlight> commencent avec des corps alignés, mais utilisent des conditions initiales différentes.",
 
       "takeawayTitle": "L'essentiel à retenir",
-      "takeaway": "Pour reproduire chacune de ces six orbites, nous avons besoin de <highlight>ses conditions initiales précises</highlight>. Modifier ces valeurs peut changer le mouvement et l'empêcher de se répéter. <highlight>Il n'existe pas de distance ou de vitesse minimale unique</highlight> garantissant les six solutions.",
-
+      "takeaway": "Chacune des six orbites nécessite des <highlight>conditions initiales précises</highlight>. Modifier ces valeurs peut changer la trajectoire et l'empêcher de se répéter.",
       "explore": "Explorer les six orbites",
       "back": "Retour à l'explication",
       "previous": "Précédent",

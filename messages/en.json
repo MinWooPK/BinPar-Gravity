@@ -522,7 +522,7 @@
       "keyMessage": "The six orbits <highlight>do not occur under arbitrary conditions</highlight>. Our simulations use <highlight>equal masses (1), G = 1, and specific initial positions and velocities</highlight> to reproduce each solution.",
       "diagramTitle": "Three attracting bodies",
       "diagramDescription": "Diagram of three bodies attracting one another through gravity, showing the distances between them and their initial velocities.",
-      "diagramCaption": "The lines show the distances between the bodies. The green arrows show their initial velocities. This is a visual example, not one of the six orbits.",
+      "diagramCaption": "Lines: distances between bodies. Arrows: initial velocities. This is an illustrative diagram.",
 
       "masses": "Masses",
       "gravity": "Gravity",
@@ -564,8 +564,7 @@
       "shapeNote": "<highlight>Lagrange</highlight> starts as a triangle. <highlight>The other five orbits</highlight> start with aligned bodies, but use different initial conditions.",
 
       "takeawayTitle": "The key idea",
-      "takeaway": "To reproduce each of these six orbits, we need <highlight>its specific initial conditions</highlight>. Changing those values can change the motion and prevent it from repeating. <highlight>There is no single minimum distance or speed</highlight> that guarantees all six solutions.",
-
+      "takeaway": "Each of the six orbits requires <highlight>specific initial conditions</highlight>. Changing these values can alter the trajectory and prevent it from repeating.",
       "explore": "Explore the six orbits",
       "back": "Back to explanation",
       "previous": "Previous",
