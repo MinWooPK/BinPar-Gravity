@@ -4,5 +4,6 @@ export type Category = "Todas" | OrbitDefinition["category"];
 
 export type GalleryState = {
   scroll: number;
-  playing: boolean | null;
+  galleryPlaying: boolean;
+  detailPlaying: boolean;
 };

@@ -1,11 +1,10 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
 import { Icon } from "@/components/icons/index";
-import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 import { orbits } from "../../../data/orbits";
 import type { OrbitPlayback } from "../../../types/animation.types";
@@ -31,10 +30,20 @@ export const OrbitGallery = ({
   const { state, update } = useGalleryState();
   const t = useTranslations("ThreeBody");
 
-  const reducedMotion = useReducedMotion();
-  const playing = state.playing ?? !reducedMotion;
+  // Cada órbita tiene su propio estado de reproducción.
+  // Inicialmente todas están pausadas.
+  const [playingByOrbit, setPlayingByOrbit] = useState<Record<string, boolean>>(
+    {},
+  );
 
-  // Conservar el scroll al regresar desde el detalle.
+  const toggleOrbit = (slug: string) => {
+    setPlayingByOrbit((current) => ({
+      ...current,
+      [slug]: !current[slug],
+    }));
+  };
+
+  // Conservar el scroll al volver desde el detalle.
   const savedScroll = useRef(state.scroll);
 
   useLayoutEffect(() => {
@@ -81,82 +90,108 @@ export const OrbitGallery = ({
         <p className={styles.scienceFootnote}>{t("galleryScience.note")}</p>
       </aside>
 
-      {/* Control de animaciones */}
-      <p id="orbit-gallery-animation-note" className="sr-only">
-        {t("animationGalleryNote")}
-      </p>
-
-      <div className="mb-4 flex justify-end">
-        <button
-          type="button"
-          className={`button ${styles.playbackButton}`}
-          aria-label={t(playing ? "animationPauseAll" : "animationPlayAll")}
-          aria-describedby="orbit-gallery-animation-note"
-          title={t(playing ? "animationPauseAll" : "animationPlayAll")}
-          onClick={() => update({ playing: !playing })}
-        >
-          <Icon name={playing ? "pause" : "play"} />
-
-          <span className={styles.playbackLabel}>
-            {t(playing ? "animationPauseAll" : "animationPlayAll")}
-          </span>
-        </button>
-      </div>
-
-      {/* Galería: mostrar todas las órbitas */}
+      {/* Galería sin reproductor universal */}
       <div className="orbit-grid">
-        {orbits.map((orbit, index) => (
-          <Link
-            key={orbit.slug}
-            className="orbit-card panel"
-            href={`/three-body/${orbit.slug}`}
-            onNavigate={() => {
-              update({ scroll: window.scrollY });
-            }}
-          >
-            <div className="orbit-card-art space-grid">
-              <span className="orbit-index">
-                {String(index + 1).padStart(2, "0")}
-              </span>
+        {orbits.map((orbit, index) => {
+          // Estado de reproducción propio de esta órbita.
+          const playing = playingByOrbit[orbit.slug] ?? false;
 
-              <OrbitAnimation
-                data={animationData[orbit.slug]}
-                name={orbit.name}
-                playing={active && playing}
+          return (
+            <article key={orbit.slug} className="orbit-card panel relative">
+              {/* Enlace a detalle que cubre la tarjeta.
+                  Es hermano del botón, no su padre. */}
+              <Link
+                href={`/three-body/${orbit.slug}`}
+                aria-label={`${t("galleryExplore")}: ${orbit.name}`}
+                className="absolute inset-0 z-10 rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c7baff]"
+                onNavigate={() => {
+                  update({ scroll: window.scrollY });
+                }}
               />
 
-              <span className="orbit-open">
-                <Icon name="arrow" />
-              </span>
-            </div>
-
-            <div className="orbit-card-content">
-              <div className="card-topline">
-                <span className="badge">
-                  {t(categoryNames[orbit.category])}
+              {/* Animación */}
+              <div className="orbit-card-art space-grid">
+                <span className="orbit-index">
+                  {String(index + 1).padStart(2, "0")}
                 </span>
 
-                <span>{orbit.year}</span>
-              </div>
+                <OrbitAnimation
+                  data={animationData[orbit.slug]}
+                  name={orbit.name}
+                  playing={active && playing}
+                />
 
-              <h2>{orbit.name}</h2>
+                {/* Play / Pausa independiente */}
+                <button
+                  type="button"
+                  aria-label={`${t(
+                    playing ? "animationPause" : "animationPlay",
+                  )}: ${orbit.name}`}
+                  aria-pressed={playing}
+                  title={t(playing ? "animationPause" : "animationPlay")}
+                  onClick={() => toggleOrbit(orbit.slug)}
+                  className="
+                    absolute
+                    bottom-3
+                    left-3
+                    z-20
+                    flex
+                    size-11
+                    cursor-pointer
+                    items-center
+                    justify-center
+                    rounded-full
+                    border
+                    border-[#60517f]
+                    bg-[#171526]
+                    text-[#d8cbff]
+                    transition-colors
+                    hover:border-[#aa97ff]
+                    hover:bg-[#302748]
+                    focus-visible:outline
+                    focus-visible:outline-2
+                    focus-visible:outline-offset-2
+                    focus-visible:outline-[#c7baff]
+                  "
+                >
+                  <Icon name={playing ? "pause" : "play"} />
+                </button>
 
-              <p lang="es">{orbit.description}</p>
-
-              <div className="orbit-card-footer">
-                <span>
-                  {t("galleryPeriod")}{" "}
-                  <strong>{orbit.period.toFixed(3)} u.t.</strong>
-                </span>
-
-                <span>
-                  {t("galleryExplore")}
+                {/* Flecha hacia el detalle */}
+                <span className="orbit-open" aria-hidden="true">
                   <Icon name="arrow" />
                 </span>
               </div>
-            </div>
-          </Link>
-        ))}
+
+              {/* Información de la órbita */}
+              <div className="orbit-card-content">
+                <div className="card-topline">
+                  <span className="badge">
+                    {t(categoryNames[orbit.category])}
+                  </span>
+
+                  <span>{orbit.year}</span>
+                </div>
+
+                <h2>{orbit.name}</h2>
+
+                <p lang="es">{orbit.description}</p>
+
+                <div className="orbit-card-footer">
+                  <span>
+                    {t("galleryPeriod")}{" "}
+                    <strong>{orbit.period.toFixed(3)} u.t.</strong>
+                  </span>
+
+                  <span>
+                    {t("galleryExplore")}
+                    <Icon name="arrow" />
+                  </span>
+                </div>
+              </div>
+            </article>
+          );
+        })}
       </div>
     </div>
   );

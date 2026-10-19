@@ -13,7 +13,8 @@ import type { GalleryState } from "../../types/gallery.types";
 
 const initial: GalleryState = {
   scroll: 0,
-  playing: null,
+  galleryPlaying: false,
+  detailPlaying: false,
 };
 
 const Context = createContext<{
