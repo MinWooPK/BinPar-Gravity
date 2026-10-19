@@ -106,7 +106,7 @@ const GravityFormulaContent = ({
     changeValue,
     selectUnknown,
   } = useGravityFormulaDraft();
-  const { active, selected, hover, focus, select } =
+  const { active, hover, focus, select } =
     useGravityFormulaInteraction();
   const inputRefs = useRef<
     Partial<Record<GravityVariable, HTMLInputElement | null>>
@@ -124,31 +124,6 @@ const GravityFormulaContent = ({
   const focusField = (key: GravityVariable) => {
     select(key);
     inputRefs.current[key]?.focus({ preventScroll: true });
-  };
-  const term = (key: GravityVariable) => {
-    const field = fields.find((field) => field.key === key)!;
-    const value = currentValue(key);
-    return (
-      <button
-        type="button"
-        data-formula-variable={key}
-        data-active={isActive(key)}
-        aria-pressed={selected === key}
-        aria-label={`${t(field.label)} (${field.symbol})${value === null ? "" : `: ${formatValue(value)} ${field.unit}`}`}
-        aria-describedby={`${id}-description-${key}`}
-        className={styles.term}
-        onPointerEnter={(event) => {
-          if (event.pointerType === "mouse") hover(key);
-        }}
-        onPointerLeave={() => hover(null)}
-        onFocus={() => focus(key)}
-        onBlur={() => focus(null)}
-        onClick={() => focusField(key)}
-      >
-        {field.symbol}
-        {key === "distance" && <sup>2</sup>}
-      </button>
-    );
   };
   const invalidFields = fields.filter(
     ({ key }) =>
@@ -212,47 +187,7 @@ const GravityFormulaContent = ({
       </p>
       <p className="sr-only">{t("formulaSpoken")}</p>
       <div className={styles.formulaControls}>
-        <div className={styles.equation}>
-          <span className={styles.equationLeft}>
-            {term("force")}
-            <span aria-hidden="true" className={styles.operator}>
-              =
-            </span>
-          </span>
-          <span className={styles.equationRight}>
-            <button
-              type="button"
-              data-formula-variable="constant"
-              data-active={active === "constant"}
-              className={styles.term}
-              aria-label={`${t("formulaConstantTitle")}. ${t("formulaConstantFixed")}`}
-              aria-describedby={`${id}-constant-value ${id}-constant-description`}
-              aria-pressed={selected === "constant"}
-              onPointerEnter={(event) => {
-                if (event.pointerType === "mouse") hover("constant");
-              }}
-              onPointerLeave={() => hover(null)}
-              onFocus={() => focus("constant")}
-              onBlur={() => focus(null)}
-              onClick={() =>
-                select(selected === "constant" ? null : "constant")
-              }
-            >
-              G
-            </button>
-            <span aria-hidden="true" className={styles.operator}>
-              ×
-            </span>
-            <span className={styles.fraction}>
-              <span>
-                {term("mass1")}
-                <span aria-hidden="true">×</span>
-                {term("mass2")}
-              </span>
-              <span>{term("distance")}</span>
-            </span>
-          </span>
-        </div>
+        <GravityEquation id={id} currentValue={currentValue} onSelect={focusField} />
         <fieldset
           className={styles.unknowns}
           aria-label={t("calculateUnknown")}
@@ -372,30 +307,124 @@ const GravityFormulaContent = ({
           : t("formulaThreeKnownHint")}
       </p>
       <GravityFormulaLegend id={id} />
-      <p id={`${id}-status`} role="status" aria-atomic="true" className="sr-only">{status}</p>
-      <p id={`${id}-reset-hint`} className="sr-only">{t("resetLaboratoryHint")}</p>
-      {/* <p
-        id={`${id}-status`}
-        role="status"
-        aria-atomic="true"
-        className={
-          invalidFields.length > 0 || numericalError || rangeError
-            ? styles.error
-            : "sr-only"
-        }
-      >
-        {status}
-      </p>
+      <p id={`${id}-status`} role="status" aria-atomic="true"
+        className={invalidFields.length > 0 || numericalError || rangeError ? styles.error : styles.help}>{status}</p>
       <p data-formula-sync-status className={styles.help}>
-        {t(
-          result && isInLaboratoryRange(result)
-            ? "formulaAutomaticSync"
-            : "formulaPendingSync",
-        )}
+        {t(result && isInLaboratoryRange(result) ? "formulaAutomaticSync" : "formulaPendingSync")}
       </p>
-      <p id={`${id}-reset-hint`} className={styles.help}>
-        {t("resetLaboratoryHint")}
-      </p> */}
+      <p id={`${id}-reset-hint`} className={styles.help}>{t("resetLaboratoryHint")}</p>
+    </section>
+  );
+};
+
+/** Shared equation presentation; all calculations remain in the existing provider. */
+const GravityEquation = ({ id, currentValue, onSelect }: {
+  id: string;
+  currentValue?: (key: GravityVariable) => number | null;
+  onSelect?: (key: GravityVariable) => void;
+}) => {
+  const t = useTranslations("Gravity");
+  const format = useFormatter();
+  const { active, selected, hover, focus, select } = useGravityFormulaInteraction();
+  const isActive = (term: FormulaTerm) => active === term ||
+    (active === "masses" && (term === "mass1" || term === "mass2"));
+  const formatValue = (value: number) => format.number(value, {
+    maximumSignificantDigits: 6,
+    ...(value < 0.001 ? { notation: "scientific" } : {}),
+  });
+  const term = (key: GravityVariable) => {
+    const field = fields.find((field) => field.key === key)!;
+    const value = currentValue?.(key) ?? null;
+    return (
+      <button
+        type="button"
+        data-formula-variable={key}
+        data-active={isActive(key)}
+        aria-pressed={selected === key}
+        aria-label={`${t(field.label)} (${field.symbol})${value === null ? "" : `: ${formatValue(value)} ${field.unit}`}`}
+        aria-describedby={`${id}-description-${key}`}
+        className={styles.term}
+        onPointerEnter={(event) => {
+          if (event.pointerType === "mouse") hover(key);
+        }}
+        onPointerLeave={() => hover(null)}
+        onFocus={() => focus(key)}
+        onBlur={() => focus(null)}
+        onClick={() => { select(key); onSelect?.(key); }}
+      >
+        {field.symbol}
+        {key === "distance" && <sup>2</sup>}
+      </button>
+    );
+  };
+  return (
+    <div className={styles.equation}>
+      <span className={styles.equationLeft}>
+        {term("force")}
+        <span aria-hidden="true" className={styles.operator}>
+          =
+        </span>
+      </span>
+      <span className={styles.equationRight}>
+        <button
+          type="button"
+          data-formula-variable="constant"
+          data-active={active === "constant"}
+          className={styles.term}
+          aria-label={`${t("formulaConstantTitle")}. ${t("formulaConstantFixed")}`}
+          aria-describedby={`${id}-constant-value ${id}-constant-description`}
+          aria-pressed={selected === "constant"}
+          onPointerEnter={(event) => {
+            if (event.pointerType === "mouse") hover("constant");
+          }}
+          onPointerLeave={() => hover(null)}
+          onFocus={() => focus("constant")}
+          onBlur={() => focus(null)}
+          onClick={() =>
+            select(selected === "constant" ? null : "constant")
+          }
+        >
+          G
+        </button>
+        <span aria-hidden="true" className={styles.operator}>
+          ×
+        </span>
+        <span className={styles.fraction}>
+          <span>
+            {term("mass1")}
+            <span aria-hidden="true">×</span>
+            {term("mass2")}
+          </span>
+          <span>{term("distance")}</span>
+        </span>
+      </span>
+    </div>
+  );
+};
+
+/** Educational view: interactive symbols and definitions, without calculator inputs. */
+export const GravityFormulaEducation = () => {
+  const t = useTranslations("Gravity");
+  const id = useId();
+  const { active, select, hover } = useGravityFormulaInteraction();
+  return (
+    <section className={styles.embedded} aria-labelledby={`${id}-heading`}
+      onKeyDown={event => { if (event.key === "Escape") { select(null); hover(null); } }}>
+      <div className={styles.header}><h3 id={`${id}-heading`}>{t("introFormulaTitle")}</h3></div>
+      <p className="sr-only">{t("formulaSpoken")}</p>
+      <GravityEquation id={id} />
+      <div className="grid min-w-0 gap-3">
+        {fields.map(field => (
+          <div key={field.key} className={styles.field}
+            data-active={active === field.key || (active === "masses" && (field.key === "mass1" || field.key === "mass2"))}>
+            <h4 className={styles.fieldTitle}>{t(field.label)} <span>{field.symbol}</span></h4>
+            <p id={`${id}-description-${field.key}`} className={styles.help}>
+              {t.rich(field.description, { highlight: chunks => <strong>{chunks}</strong> })}
+            </p>
+          </div>
+        ))}
+      </div>
+      <GravityFormulaLegend id={id} />
     </section>
   );
 };

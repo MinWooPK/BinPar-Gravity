@@ -1,7 +1,6 @@
 "use client";
 
-import { useTutorActions } from "@/features/ai/presentation/providers/tutorEnvironment";
-import { useId, useRef, useState } from "react";
+import { useId } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { compareGravitation } from "../../../domain/compareGravitation";
 import type { GravityParameters } from "../../../types/gravity.types";
@@ -9,7 +8,7 @@ import { GravityExperimentTutor } from "./GravityExperimentTutor";
 import { GravityForceComparison } from "./GravityForceComparison";
 import { GravitySlider, gravityControls } from "./GravitySlider";
 import { GravityFormula } from "../understanding/GravityFormula";
-import { useGravityFormulaInteraction } from "../understanding/GravityFormulaInteraction";
+import { GravityContentTabs } from "../shared/GravityContentTabs";
 import { gravityExperimentStyles as styles } from "./GravityExperiment.styles";
 
 type ExperimentProps = {
@@ -25,17 +24,6 @@ export const GravityExperiment = ({
   onReset,
 }: ExperimentProps) => {
   const id = useId();
-  const [view, setView] = useState<"experiment" | "formula">("experiment");
-  const tabs = useRef<Array<HTMLButtonElement | null>>([]);
-  const interaction = useGravityFormulaInteraction();
-  const selectView = (next: typeof view) => {
-    setView(next);
-    interaction.hover(null);
-    interaction.focus(null);
-    interaction.select(null);
-  };
-  const tutor = useTranslations("Tutor");
-  const { openTutor } = useTutorActions();
   const t = useTranslations("Gravity");
   const format = useFormatter();
   const comparison = compareGravitation(parameters);
@@ -47,30 +35,10 @@ export const GravityExperiment = ({
   });
 
   return (
-    <section
-      aria-label={t("experimentHeading")}
-      className={`${styles["gravity-lab"]} ${styles.panel}`}
-    >
-      <div role="tablist" aria-label={t("experimentViews.label")} className={styles.viewTabs}>
-        {(["experiment", "formula"] as const).map((tab, index) => (
-          <button key={tab} ref={(element) => { tabs.current[index] = element; }}
-            type="button" role="tab" id={`${id}-tab-${tab}`} data-experiment-view={tab}
-            aria-selected={view === tab} aria-controls={`${id}-panel-${tab}`} tabIndex={view === tab ? 0 : -1}
-            className={styles.viewTab} onClick={() => selectView(tab)}
-            onKeyDown={(event) => {
-              if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
-              event.preventDefault();
-              const next = event.key === "Home" ? 0 : event.key === "End" ? 1 : 1 - index;
-              selectView(next === 0 ? "experiment" : "formula");
-              tabs.current[next]?.focus();
-            }}>
-            {t(`experimentViews.${tab}`)}
-          </button>
-        ))}
-      </div>
-      <div role="tabpanel" id={`${id}-panel-experiment`} aria-labelledby={`${id}-tab-experiment`}
-        hidden={view !== "experiment"} inert={view !== "experiment"}
-        className={view === "experiment" ? styles.viewPanel : "hidden"}>
+    <GravityContentTabs primary="experiment"
+      calculator={<GravityFormula variant="embedded" />}
+      tutor={panel => <GravityExperimentTutor {...panel} />}>
+      <section aria-label={t("experimentHeading")} className={`${styles["gravity-lab"]} flex flex-col gap-3 pb-3`}>
         <div className={styles["lab-header"]}>
           <h3 id={`${id}-heading`} className={styles.heading}>
             {t("experimentHeading")}
@@ -130,25 +98,7 @@ export const GravityExperiment = ({
             <p>{t("tinyForce")}</p>
           </details>
         </div>
-        <div className="flex flex-wrap gap-2 px-3.5 pt-1 pb-3">
-          <button type="button" data-experiment-explain aria-controls="inline-tutor-gravity-laboratory"
-            className="min-h-11 min-w-0 flex-1 rounded-xl border border-violet-400/50 bg-violet-400/10 px-3 py-2 text-sm font-semibold text-violet-200 transition-colors hover:bg-violet-400/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 motion-reduce:transition-none"
-            onClick={(event) => openTutor("explain_experiment", event.currentTarget)}>
-            {tutor("explainExperiment")}
-          </button>
-          <button type="button" data-experiment-configure aria-controls="inline-tutor-gravity-laboratory"
-            className="min-h-11 min-w-0 flex-1 rounded-xl border border-cyan-300/40 bg-cyan-300/10 px-3 py-2 text-sm font-semibold text-cyan-100 transition-colors hover:bg-cyan-300/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 motion-reduce:transition-none"
-            onClick={(event) => openTutor("configure_experiment", event.currentTarget)}>
-            {tutor("configureExperiment")}
-          </button>
-        </div>
-      </div>
-      <div role="tabpanel" id={`${id}-panel-formula`} aria-labelledby={`${id}-tab-formula`}
-        hidden={view !== "formula"} inert={view !== "formula"}
-        className={view === "formula" ? styles.viewPanel : "hidden"}>
-        <GravityFormula variant="embedded" />
-      </div>
-      <div className="min-w-0 shrink-0 px-3.5 pb-3.5"><GravityExperimentTutor /></div>
-    </section>
+      </section>
+    </GravityContentTabs>
   );
 };

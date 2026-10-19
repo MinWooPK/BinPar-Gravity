@@ -122,7 +122,7 @@ slug; the browser only projects/interpolates samples and updates SVG refs throug
 ## Gravity tutor flow
 
 The locale layout mounts `TutorProvider` once. It mounts the conversation provider only on `/gravity`, in each supported locale.
-Stages 02 and 03 mount `InlineTutor` in the formula/experiment card and suppress
+Stages 02 and 03 mount `InlineTutor` in a dedicated `GravityContentTabs` panel and suppress
 `GlobalTutor`; discovery and practice keep their existing presentation. Three Body routes and all orbit details
 have no tutor launcher, dialog or context bridge. Leaving Gravity unmounts the
 chat, closes the dialog and aborts pending requests; returning mounts a fresh chat.
@@ -148,6 +148,13 @@ latest snapshot only after a user action.
 requests and late responses across stages. `TutorChat` is the shared presentation
 for `GlobalTutor` and `InlineTutor`, with up to 48 UI messages per session.
 Formula reset remounts only the calculator, leaving the inline chat mounted.
+`GravityContentTabs` keeps all three panels mounted, with `hidden`, `inert` and
+`aria-hidden` on inactive panels and a roving tab stop (arrows/Home/End). Stage 02
+starts on `GravityFormulaEducation`, which shares the interactive equation with
+`GravityFormula`; stage 03 starts on the sliders. Both calculator panels use
+`GravityFormula` and the existing provider draft, without additional calculation
+logic. Inline tutor launchers reveal their tab and the mobile right card before
+moving focus. Tab switches never invoke the AI request pipeline.
 Stage 02 quick actions select known formula terms through the interaction context;
 model output cannot control highlights or propose parameter changes.
 Stage 03 keeps its tutor outside the experiment/formula tab panels so switching

@@ -31,10 +31,14 @@ export const useLanguageSwitcher = () => {
   };
 
   const handleMenuKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    const index = optionRefs.current.findIndex((item) => item === document.activeElement);
+    const index = optionRefs.current.findIndex(
+      (item) => item === document.activeElement,
+    );
     let nextIndex = index;
-    if (event.key === "ArrowDown") nextIndex = (index + 1) % routing.locales.length;
-    else if (event.key === "ArrowUp") nextIndex = (index - 1 + routing.locales.length) % routing.locales.length;
+    if (event.key === "ArrowDown")
+      nextIndex = (index + 1) % routing.locales.length;
+    else if (event.key === "ArrowUp")
+      nextIndex = (index - 1 + routing.locales.length) % routing.locales.length;
     else if (event.key === "Home") nextIndex = 0;
     else if (event.key === "End") nextIndex = routing.locales.length - 1;
     else return;
@@ -44,7 +48,13 @@ export const useLanguageSwitcher = () => {
 
   const toggleMenu = () => {
     if (open) setOpen(false);
-    else openMenu(Math.max(0, routing.locales.findIndex((item) => item === locale)));
+    else
+      openMenu(
+        Math.max(
+          0,
+          routing.locales.findIndex((item) => item === locale),
+        ),
+      );
   };
 
   const handleBlur = (event: FocusEvent<HTMLDivElement>) => {
@@ -75,8 +85,18 @@ export const useLanguageSwitcher = () => {
   };
 
   return {
-    locale, open, pending, menuId, containerRef, triggerRef, optionRefs,
-    toggleMenu, handleBlur, handleEscape, handleTriggerKeyDown,
-    handleMenuKeyDown, selectLanguage,
+    locale,
+    open,
+    pending,
+    menuId,
+    containerRef,
+    triggerRef,
+    optionRefs,
+    toggleMenu,
+    handleBlur,
+    handleEscape,
+    handleTriggerKeyDown,
+    handleMenuKeyDown,
+    selectLanguage,
   };
 };

@@ -42,6 +42,7 @@ try {
     return 'const style=document.createElement("style");style.textContent='+JSON.stringify(css)+';document.head.append(style);module.exports='+JSON.stringify(names)+';';};`);
   const entry = join(directory, 'entry.tsx');
   writeFileSync(entry, `import React from 'react';import {createRoot} from 'react-dom/client';import {flushSync} from 'react-dom';
+    import {useTutorActions} from '@/features/ai/presentation/providers/tutorEnvironment';
     import {TutorProvider} from '@/features/ai/presentation/providers/TutorProvider';
     import {GravityParametersProvider,useGravityParameters} from '@/features/gravity/presentation/providers/GravityParametersProvider';
     import {GravityIntroduction} from '@/features/gravity/presentation/components/GravityIntroduction';
@@ -58,7 +59,7 @@ try {
         proposal:window.nextProposal??{action:'set_gravity_parameters',parameters:{mass1:80,mass2:null,distance:null}}};
       if(window.hold)return new Promise((resolve,reject)=>{window.release=()=>resolve(Response.json(data));options.signal.addEventListener('abort',()=>{window.aborts++;reject(new DOMException('Aborted','AbortError'))},{once:true})});
       return Promise.resolve(Response.json(data));};
-    function Parameters(){const {parameters}=useGravityParameters();window.parameters=parameters;return null;}
+    function Parameters(){window.openTutor=useTutorActions().openTutor;const {parameters}=useGravityParameters();window.parameters=parameters;return null;}
     function Page(){const route=useRoute();return <main data-route={route}>{route.endsWith('/gravity')&&<GravityParametersProvider><Parameters/><GravityFormulaAccess>
       <GravityJourney introduction={<p>Gravity</p>}>
         <GravityJourneyPanel stage={gravityStageById['gravity-discovery']}><p>Discovery</p></GravityJourneyPanel>
@@ -131,7 +132,7 @@ try {
   await call('Page.setDocumentContent', { frameId: (await call('Page.getFrameTree')).frameTree.frame.id,
     html: `<!doctype html><html><head><style>${tailwind}</style><style>body{padding:16px;margin:0}main{max-width:1200px;margin:auto}</style></head><body><div id="root"></div></body></html>` });
   const evaluate = async (expression) => {
-    const response = await call('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true });
+    const response = await call('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }).catch(error => { throw new Error(expression.slice(0, 400) + ': ' + error.message); });
     if (response.exceptionDetails) throw new Error(JSON.stringify(response.exceptionDetails));
     return response.result.value;
   };
@@ -143,7 +144,15 @@ try {
     }
     throw new Error(`Not ready: ${expression}`);
   };
-  const click=selector=>evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);
+  const click=async selector=>{
+    assert.ok(await evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});return e&&e.getBoundingClientRect().width>0&&!e.closest('[inert]')})()`),`Visible, interactive control: ${selector}`);
+    await evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);
+  };
+  const tab=(stage,name)=>click(`#gravity-${stage} [data-content-tab="${name}"]`);
+  const key=async name=>{
+    await call('Input.dispatchKeyEvent',{type:'keyDown',key:name,code:name});
+    await call('Input.dispatchKeyEvent',{type:'keyUp',key:name,code:name});
+  };
   const input=async(selector,text)=>{
     await evaluate(`document.querySelector(${JSON.stringify(selector)}).focus();document.querySelector(${JSON.stringify(selector)}).select()`);
     await call('Input.insertText',{text});
@@ -164,6 +173,21 @@ try {
   await stage('gravity-understanding');
   await waitFor(`!!document.querySelector('${inline}')&&!document.querySelector('#global-tutor-trigger')`);
   assert.equal(await evaluate("document.querySelector('#global-tutor-dialog')"),null);
+  assert.equal(await evaluate("document.querySelector('#gravity-understanding [data-content-tab][aria-selected=true]').dataset.contentTab"),'formula');
+  assert.equal(await evaluate("document.querySelector('#gravity-understanding [data-gravity-content-tabs] [role=tabpanel]:not([hidden]) input')"),null);
+  assert.equal(await evaluate("document.querySelector('#gravity-understanding [data-gravity-content-tabs] [role=tabpanel]:not([hidden]) [data-unknown-variable]')"),null);
+  await evaluate("window.calculatorNode=document.querySelector('#gravity-understanding input[name=mass1]');window.chatNode=document.querySelector('[data-inline-tutor=gravity-understanding]');window.simulationNode=document.querySelector('#gravity-understanding [data-understanding-simulation]');undefined");
+  await evaluate("document.querySelector('#gravity-understanding [data-content-tab=formula]').focus()");
+  for(const [keyName,selected] of [['ArrowRight','calculator'],['End','tutor'],['ArrowRight','formula'],['ArrowLeft','tutor'],['Home','formula']]){
+    await key(keyName);
+    assert.equal(await evaluate("document.activeElement.dataset.contentTab"),selected);
+    assert.equal(await evaluate("document.querySelector('#gravity-understanding [data-content-tab][aria-selected=true]').dataset.contentTab"),selected);
+    assert.equal(await evaluate("document.querySelectorAll('#gravity-understanding [data-gravity-content-tabs] [role=tabpanel]:not([hidden])').length"),1);
+  }
+  assert.equal(await evaluate('window.requests.length'),0);
+  await evaluate('window.openTutor()');
+  await waitFor(`document.activeElement.matches('${inline} textarea')`);
+  assert.equal(await evaluate("document.querySelector('#gravity-understanding [data-content-tab=tutor]').getAttribute('aria-selected')"),'true');
   await click(inline+' [data-tutor-action="formula"]');await settled();
   assert.equal(await evaluate('window.requests.at(-1).url'),'/api/ai');
   assert.equal(await evaluate('window.requests.at(-1).body.intent'),'explain_formula');
@@ -174,10 +198,14 @@ try {
   }
   assert.equal(await evaluate(`document.querySelectorAll('${inline} [data-tutor-proposal]').length`),0);
   assert.deepEqual(await evaluate('window.parameters'),{mass1:40,mass2:40,distance:8});
+  await tab('understanding','calculator');
   const previousForce=await evaluate("document.querySelector('#gravity-understanding input[name=force]').value");
   await input('#gravity-understanding input[name=mass1]','60');
   await waitFor('window.parameters.mass1===60');
   assert.notEqual(await evaluate("document.querySelector('#gravity-understanding input[name=force]').value"),previousForce);
+  await tab('understanding','formula');
+  await tab('understanding','tutor');
+  assert.ok(await evaluate("window.calculatorNode===document.querySelector('#gravity-understanding input[name=mass1]')&&window.chatNode===document.querySelector('[data-inline-tutor=gravity-understanding]')&&window.simulationNode===document.querySelector('#gravity-understanding [data-understanding-simulation]')"));
   await input(inline+' textarea','Explain these current values');
   await click(inline+' button[type=submit]');await settled();
   assert.equal(await evaluate('window.requests.at(-1).body.context.parameters.mass1'),60);
@@ -194,13 +222,15 @@ try {
   const right='#gravity-understanding [data-side=right]';
   const width=await evaluate(`document.querySelector('${right}').getBoundingClientRect().width`);
   await click('#gravity-understanding [data-panel-toggle=left]');
-  await evaluate('new Promise(resolve=>setTimeout(resolve,300))');
-  assert.ok(await evaluate(`document.querySelector('${right}').getBoundingClientRect().width>${width}`));
+  await waitFor(`document.querySelector('${right}').getBoundingClientRect().width>${width}`);
+  assert.ok(await evaluate(`document.querySelector('${right}').getBoundingClientRect().width>${width}`), JSON.stringify(await evaluate(`({before:${width},after:document.querySelector('${right}').getBoundingClientRect().width, grid:getComputedStyle(document.querySelector('#gravity-understanding [data-gravity-stage-layout]')).gridTemplateColumns, collapsed:document.querySelector('#gravity-understanding [data-gravity-stage-layout]').dataset.collapsed})`)));
   await click('#gravity-understanding [data-panel-toggle=left]');
+  await tab('understanding','calculator');
   await click('#gravity-understanding button[aria-label^="Restablecer laboratorio"]');
   await waitFor('window.parameters.mass1===40');
   assert.equal(await evaluate(`document.querySelectorAll('${log} [data-role]').length`),count);
   assert.equal(await evaluate(`document.querySelector('${log}').getBoundingClientRect().height<=384`),true);
+  await tab('understanding','tutor');
   // Formula stage responses arriving after navigation stay in their own session.
   await evaluate('window.hold=true');await click(inline+' [data-tutor-action="distance"]');
   await waitFor(`document.querySelector('${log}').getAttribute('aria-busy')==='true'`);
@@ -208,10 +238,6 @@ try {
   const lab='[data-inline-tutor="gravity-laboratory"]';
   const labLog=lab+' [role=log]';
   const labSettled=()=>waitFor(`document.querySelector('${labLog}').getAttribute('aria-busy')==='false'`);
-  const key=async name=>{
-    await call('Input.dispatchKeyEvent',{type:'keyDown',key:name,code:name});
-    await call('Input.dispatchKeyEvent',{type:'keyUp',key:name,code:name});
-  };
   const sliders='#gravity-laboratory input[type=range]';
   const pendingProposal=lab+' [data-tutor-proposal=pending]';
   const askLab=async(text,parameters)=>{
@@ -222,17 +248,22 @@ try {
   assert.equal(await evaluate("document.querySelector('#global-tutor-dialog')"),null);
   assert.equal(await evaluate(`document.querySelectorAll('${labLog} [data-role]').length`),0);
   await evaluate('window.hold=false;window.release()');
-  await click('#gravity-laboratory [data-experiment-explain]');await labSettled();
+  assert.equal(await evaluate("document.querySelector('#gravity-laboratory [data-content-tab][aria-selected=true]').dataset.contentTab"),'experiment');
+  assert.equal(await evaluate("document.querySelectorAll('#gravity-laboratory [data-experiment-explain],#gravity-laboratory [data-experiment-configure]').length"),0);
+  await evaluate("window.openTutor('explain_experiment')");await labSettled();
+  await waitFor("document.querySelector('#gravity-laboratory [data-content-tab=tutor]').getAttribute('aria-selected')==='true'");
   assert.equal(await evaluate('window.requests.at(-1).body.intent'),'explain_experiment');
   assert.equal(await evaluate('window.requests.at(-1).body.context.stage'),'gravity-laboratory');
   assert.equal(await evaluate('window.requests.at(-1).body.messages.length'),1);
   assert.deepEqual(await evaluate('window.requests.at(-1).body.context.parameters'),{mass1:40,mass2:40,distance:8});
   assert.equal(await evaluate(`document.querySelectorAll('${pendingProposal}').length`),0);
   const aiCount=await evaluate('window.requests.length');
+  await tab('laboratory','experiment');
   await evaluate(`document.querySelector('${sliders}').focus()`);await key('ArrowRight');
   await waitFor('window.parameters.mass1===41');
   assert.equal(await evaluate('window.requests.length'),aiCount);
   await waitFor(`document.querySelector('${lab} [data-tutor-context-changed]')?.textContent.includes('Los parámetros han cambiado')`);
+  await tab('laboratory','tutor');
   await click(lab+' [data-tutor-action="explain-experiment"]');await labSettled();
   assert.equal(await evaluate('window.requests.at(-1).body.context.parameters.mass1'),41);
   assert.equal(await evaluate(`document.querySelector('${lab} [data-tutor-context-changed]')`),null);
@@ -240,9 +271,11 @@ try {
     await click(lab+' [data-tutor-action="'+action+'"]');await labSettled();
     assert.equal(await evaluate(`document.querySelectorAll('${pendingProposal}').length`),0);
   }
-  // Both the legacy button and quick action configure the inline composer without an AI call.
+  // External requests and the quick action configure the inline composer without an AI call.
   const beforeConfigure=await evaluate('window.requests.length');
-  await click('#gravity-laboratory [data-experiment-configure]');
+  await tab('laboratory','experiment');
+  await evaluate("window.openTutor('configure_experiment')");
+  await waitFor(`document.activeElement.matches('${lab} textarea')`);
   assert.equal(await evaluate(`document.activeElement.matches('${lab} textarea')`),true);
   await waitFor(`!!document.querySelector('${lab} textarea').getAttribute('aria-describedby')`);
   await click(lab+' [data-tutor-action="configure-experiment"]');
@@ -264,8 +297,10 @@ try {
   await click(pendingProposal+' [data-proposal-cancel]');
   assert.equal(await evaluate('window.parameters.mass2'),40);
   await askLab('Reduce la distancia a 6 metros',{distance:6});
+  await tab('laboratory','experiment');
   await evaluate(`document.querySelectorAll('${sliders}')[2].focus()`);await key('ArrowRight');
   await waitFor('window.parameters.distance===8.1');
+  await tab('laboratory','tutor');
   await click(pendingProposal+' [data-proposal-apply]');
   assert.equal(await evaluate('window.parameters.distance'),8.1);
   assert.equal(await evaluate(`document.querySelectorAll('${lab} [data-tutor-proposal=stale]').length`),1);
@@ -276,11 +311,26 @@ try {
   await askLab('Pon la segunda masa en 80 kg',{mass2:80});
   await click(pendingProposal+' [data-proposal-apply]');
   await waitFor('window.parameters.mass2===80');
-  await click('#gravity-laboratory [data-experiment-view="formula"]');
+  await tab('laboratory','calculator');
   assert.equal(await evaluate("document.querySelector('#gravity-laboratory input[name=mass1]').value"),'80');
   assert.equal(await evaluate("document.querySelector('#gravity-laboratory input[name=mass2]').value"),'80');
-  assert.ok(await evaluate(`document.querySelector('${lab}').getBoundingClientRect().width>0`));
-  await click('#gravity-laboratory [data-experiment-view="experiment"]');
+  assert.equal(await evaluate(`document.querySelector('${lab}').getBoundingClientRect().width`),0);
+  await tab('laboratory','tutor');
+  const beforeTabs=await evaluate('window.requests.length');
+  await tab('laboratory','calculator');
+  await input('#gravity-laboratory input[name=mass1]','invalid');
+  assert.equal(await evaluate("document.querySelector('#gravity-laboratory input[name=mass1]').getAttribute('aria-invalid')"),'true');
+  assert.ok(await evaluate("document.querySelector('#gravity-laboratory [data-content-tab=calculator][aria-selected=true]')!==null"));
+  await tab('laboratory','experiment');await tab('laboratory','calculator');
+  assert.equal(await evaluate("document.querySelector('#gravity-laboratory input[name=mass1]').value"),'invalid');
+  await input('#gravity-laboratory input[name=mass1]','80');
+  await click('#gravity-laboratory [data-unknown-variable=mass2]');
+  await tab('laboratory','tutor');await tab('laboratory','calculator');
+  assert.equal(await evaluate("document.querySelector('#gravity-laboratory [data-unknown-variable=mass2]').getAttribute('aria-pressed')"),'true');
+  assert.ok(await evaluate("document.querySelector('#gravity-laboratory input[name=mass2]').readOnly"));
+  await click('#gravity-laboratory [data-unknown-variable=force]');
+  await tab('laboratory','tutor');
+  assert.equal(await evaluate('window.requests.length'),beforeTabs);
   const labCount=await evaluate(`document.querySelectorAll('${labLog} [data-role]').length`);
   await stage('gravity-understanding');await settled();
   assert.equal(await evaluate("document.querySelector('#global-tutor-dialog')"),null);
@@ -303,6 +353,14 @@ try {
   await stage('gravity-understanding');
   for(const width of [390,320]){
     await resize(width);await click('#gravity-understanding [data-panel-select=right]');
+    for(const name of ['formula','calculator','tutor']){
+      await tab('understanding',name);
+      assert.ok(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
+      assert.ok(await evaluate(`document.querySelector('#gravity-understanding [data-content-tab="${name}"]').getBoundingClientRect().height>=44`));
+    }
+    await click('#gravity-understanding [data-panel-select=left]');
+    await evaluate('window.openTutor()');
+    await waitFor(`document.activeElement.matches('${inline} textarea')`);
     assert.ok(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
     assert.equal(await evaluate(`document.querySelector('${inline}').getBoundingClientRect().width>0`),true);
     const before=await evaluate(`document.querySelectorAll('${log} [data-role]').length`);
@@ -314,6 +372,10 @@ try {
   for(const width of [1280,390,320]){
     await resize(width);
     if(width<1024)await click('#gravity-laboratory [data-panel-select=right]');
+    for(const name of ['experiment','calculator','tutor']){
+      await tab('laboratory',name);
+      assert.ok(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
+    }
     assert.ok(await evaluate('document.documentElement.scrollWidth<=innerWidth'));
     assert.ok(await evaluate(`document.querySelector('${labLog}').getBoundingClientRect().height<=384`));
     if(width>=1024){
@@ -331,7 +393,8 @@ try {
   // Locales change copy without altering session isolation or request validation.
   for(const locale of ['en','fr']){
     await evaluate(`window.navigate('/${locale}/gravity')`);
-    await click(lab+' [data-tutor-action="explain-experiment"]');await labSettled();
+    await tab('laboratory','tutor');
+  await click(lab+' [data-tutor-action="explain-experiment"]');await labSettled();
     assert.equal(await evaluate('window.requests.at(-1).body.locale'),locale);
     assert.equal(await evaluate('window.requests.at(-1).body.context.parameters.mass1'),80);
     assert.ok(await evaluate(`document.querySelector('${lab} h3').textContent.includes('${locale==='en'?'Experiment':'Expérimente'}')`));
@@ -350,7 +413,7 @@ try {
   assert.equal(await evaluate('document.querySelectorAll("[data-inline-tutor],#global-tutor-trigger,#global-tutor-dialog").length'),0);
 
   assert.deepEqual(errors, []);
-  console.log('Passed: inline API conversation, retries, real formula/reset, deterministic highlights, read-only stage 02, preserved history/panels, separated late responses, stage 03 inline proposals/apply/cancel/stale/limits, live slider context, no automatic requests, stage 01 modal, stage 04 endpoint, ES/EN/FR and mobile layout.');
+  console.log('Passed: three persistent accessible tabs, defaults, keyboard, calculator drafts/validation/unknowns, external tutor activation (including mobile), no requests on tab changes; inline API conversation, retries, real formula/reset, deterministic highlights, read-only stage 02, preserved history/panels, separated late responses, stage 03 inline proposals/apply/cancel/stale/limits, live slider context, no automatic requests, stage 01 modal, stage 04 endpoint, ES/EN/FR and mobile layout.');
   const exited=once(chrome,'exit');await send('Browser.close');await exited;
 } finally {
   for (const request of pending.values()) clearTimeout(request.timeout);

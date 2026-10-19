@@ -97,17 +97,25 @@ adaptativa, corrección e informes de aprendizaje. Conserva `/api/ai`, `/api/pra
 y las variables `OPENAI_API_KEY` y `OPENAI_MODEL`.
 
 El tutor está disponible únicamente en `/{locale}/gravity`. En 02 · Comprende,
-`InlineTutor` aparece dentro de la tarjeta de la fórmula; no se monta el diálogo
+`InlineTutor` ocupa la pestaña «Tutor IA» de la tarjeta derecha; no se monta el diálogo
 ni el botón flotante. Sus acciones explican la fórmula, G, las masas y la distancia
 al cuadrado, además de simplificar y dar ejemplos. Los resaltados los decide la
 acción local, nunca la respuesta del modelo. Toda esta etapa es de solo lectura
 para el tutor: servidor y cliente descartan propuestas de cambios.
 
-En 03 · Experimenta, el mismo `InlineTutor` aparece debajo de los controles y de la
-pestaña Fórmula. Explica el contexto actual y los ejemplos hipotéticos calculados
+En 03 · Experimenta, el mismo `InlineTutor` ocupa su propia pestaña junto a
+«Experimento» y «Calculadora». Explica el contexto actual y los ejemplos hipotéticos calculados
 por el dominio; mover sliders no llama a la IA. Al cambiar los parámetros, una nota
 invita a solicitar otra explicación. La acción de configuración enfoca el campo y
 muestra instrucciones, sin enviar ninguna petición ni modificar valores.
+
+`GravityContentTabs` mantiene montados los tres contenidos: Fórmula/Experimento,
+Calculadora y Tutor IA. Solo el seleccionado es visible y accesible. Las flechas,
+Inicio y Fin permiten navegar por las pestañas; los accesos externos al tutor
+activan su pestaña y muestran la tarjeta derecha también en móvil. Cambiar de
+pestaña conserva los borradores y conversaciones y no envía peticiones. La vista
+educativa comparte la ecuación interactiva con la calculadora existente; ambas
+calculadoras utilizan el mismo estado de `GravityParametersProvider`.
 
 Las instrucciones escritas pueden generar una `TutorProposalCard`. Aplicar utiliza
 `decideTutorProposal` y el `applyProposal` con revisión de `GravityParametersProvider`;

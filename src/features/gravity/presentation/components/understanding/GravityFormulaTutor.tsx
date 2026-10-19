@@ -1,12 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { InlineTutor } from "@/features/ai/presentation/components/InlineTutor";
+import { InlineTutor, type InlineTutorPresentation } from "@/features/ai/presentation/components/InlineTutor";
 import type { TutorQuickAction } from "@/features/ai/presentation/components/TutorChat";
 import type { FormulaTerm } from "../../../types/formula.types";
 import { useGravityFormulaInteraction } from "./GravityFormulaInteraction";
 
-export const GravityFormulaTutor = () => {
+export const GravityFormulaTutor = (presentation: InlineTutorPresentation) => {
   const t = useTranslations("Tutor");
   const { select, hover, focus } = useGravityFormulaInteraction();
   const highlight = (term: FormulaTerm | null) => () => { hover(null); focus(null); select(term); };
@@ -18,5 +18,5 @@ export const GravityFormulaTutor = () => {
     { id: "simplify", label: t("simplify"), question: t("simplify"), mode: "simplify" },
     { id: "example", label: t("example"), question: t("example"), mode: "example" },
   ];
-  return <InlineTutor sessionId="gravity-understanding" actions={actions} />;
+  return <InlineTutor {...presentation} sessionId="gravity-understanding" actions={actions} />;
 };

@@ -1,8 +1,11 @@
 "use client";
 
-import { useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type FocusEvent, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useId, useLayoutEffect, useRef, useState, useSyncExternalStore, type FocusEvent, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import css from "./GravitySplitPanels.module.css";
+
+const RevealContentContext = createContext<(() => void) | null>(null);
+export const useRevealGravityContent = () => useContext(RevealContentContext);
 
 const sides = ["left", "right"] as const;
 type Side = (typeof sides)[number];
@@ -27,6 +30,7 @@ export const GravitySplitPanels = ({ left, right, leftLabel, rightLabel }: {
   const desktop = useSyncExternalStore(subscribe, desktopSnapshot, serverSnapshot);
   const [leftCollapsed, setLeftCollapsed] = useState(false);
   const [selected, setSelected] = useState<Side>("left");
+  const revealContent = useCallback(() => setSelected("right"), []);
   const contents = useRef<Partial<Record<Side, HTMLDivElement>>>({});
   const toggleButton = useRef<HTMLButtonElement>(null);
   const mobileButtons = useRef<Partial<Record<Side, HTMLButtonElement>>>({});
@@ -88,7 +92,7 @@ export const GravitySplitPanels = ({ left, right, leftLabel, rightLabel }: {
                 onBlurCapture={event => {
                   if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget as Node)) lastFocusedPanel.current = null;
                 }}>
-                {side === "left" ? left : right}
+                {side === "left" ? left : <RevealContentContext.Provider value={revealContent}>{right}</RevealContentContext.Provider>}
               </div>
             </div>
             {side === "left" && (

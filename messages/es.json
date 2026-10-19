@@ -51,6 +51,7 @@
   "Gravity": {
     "siConversionsTitle": "Conversiones a unidades SI",
     "siConversionsText": "Antes de usar la fórmula: 1 km = 1000 m; 1 cm = 0,01 m; 1 t = 1000 kg. Convierte primero y eleva después la distancia en metros al cuadrado.",
+    "calculatorTab": "Calculadora",
     "experimentViews": {
       "label": "Vista del laboratorio",
       "experiment": "Experimento",
