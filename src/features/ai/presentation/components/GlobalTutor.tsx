@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useTutorConversation } from "../hooks/useTutorConversation";
-import { AtomIcon } from "@/components/icons/TutorIcons";
+import { AtomIcon, MessageCircle, Trash2, X } from "@/components/icons/TutorIcons";
 import { tutorContextId } from "../../application/tutorAvailability";
 import { tutorContextLabel } from "./tutorContextLabel";
 import { TutorChat, type TutorQuickAction } from "./TutorChat";
@@ -13,9 +13,9 @@ import css from "./GlobalTutor.module.css";
 
 const styles = {
   trigger: `${css["trigger"]} fixed [right:max(1rem,_env(safe-area-inset-right))] [bottom:max(1rem,_env(safe-area-inset-bottom))] [z-index:60] inline-flex items-center justify-center [gap:.5rem] [min-width:56px] [min-height:56px] [padding:.75rem_1rem] [border:1px_solid_#67e8f970] [border-radius:1.25rem] [background:#102c3b] [color:#cffafe] [box-shadow:0_8px_24px_#0006] [font-size:.875rem] font-semibold cursor-pointer [transition:background_180ms,_border-color_180ms] [@media(max-width:480px)]:[min-width:48px] [@media(max-width:480px)]:[min-height:48px] [@media(max-width:480px)]:[padding:.625rem_.875rem]`,
-  panel: `${css["panel"]} [container-type:size] fixed [inset:auto_max(1rem,_env(safe-area-inset-right))_calc(max(1rem,_env(safe-area-inset-bottom))_+_var(--tutor-keyboard-offset,_0px))_auto] [width:min(420px,_calc(100vw_-_2rem))] [height:min(680px,_calc(var(--tutor-available-height,_100dvh)_-_2rem))] [max-width:calc(100vw_-_2rem)] [max-height:calc(var(--tutor-available-height,_100dvh)_-_2rem)] m-0 p-0 overflow-hidden [border:1px_solid_#6d6591] [border-radius:1.25rem] [background:#101626] [color:#f8fafc] [box-shadow:0_24px_80px_#0008] [@media(max-width:480px)]:[inset:auto_0_var(--tutor-keyboard-offset,_0px)] [@media(max-width:480px)]:w-full [@media(max-width:480px)]:max-w-full [@media(max-width:480px)]:[height:min(680px,_calc(var(--tutor-available-height,_100dvh)_-_1rem))] [@media(max-width:480px)]:[max-height:calc(var(--tutor-available-height,_100dvh)_-_1rem)] [@media(max-width:480px)]:[border-radius:1.25rem_1.25rem_0_0]`,
-  header: `${css["header"]} flex shrink-0 [align-items:flex-start] justify-between [gap:.75rem] [padding:1rem] [border-bottom:1px_solid_#334155] [@media(max-width:480px)]:[padding-inline:.875rem]`,
-  close: `${css["close"]} inline-flex [min-width:44px] [min-height:44px] shrink-0 items-center justify-center [border:1px_solid_#475569] [border-radius:.75rem] [background:transparent] [color:#e2e8f0] [font-size:1.5rem] cursor-pointer`,
+  panel: `${css.panel} fixed m-0 w-[min(420px,calc(100vw-2rem))] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-slate-500/60 bg-linear-to-b from-[#141d30] to-[#0c1322] p-0 text-slate-100 shadow-[0_24px_80px_#0009]`,
+  header: "flex shrink-0 items-center justify-between gap-2 border-b border-slate-500/20 px-3 py-2.5",
+  headerButton: "inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-400/10 hover:text-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 motion-reduce:transition-none",
 } as const;
 
 export const GlobalTutor = () => {
@@ -181,13 +181,14 @@ export const GlobalTutor = () => {
           className={styles.trigger}
         >
           <AtomIcon />
-          <span>{t("shortLabel")}</span>
+          <span className={css.triggerText}>{t("shortLabel")}</span>
         </button>
       }
       <dialog
         ref={dialogRef}
         id="global-tutor-dialog"
         aria-labelledby="global-tutor-title"
+        data-has-messages={session.messages.length > 0}
         className={styles.panel}
         onCancel={(event) => {
           event.preventDefault();
@@ -223,25 +224,39 @@ export const GlobalTutor = () => {
         }}
       >
         <header className={styles.header}>
-          <div>
-            <h2 id="global-tutor-title">{t("title")}</h2>
-            <p data-tutor-current-context>{label}</p>
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-xl border border-cyan-200/15 bg-cyan-300/10 text-cyan-200">
+              <MessageCircle className="size-[18px]" />
+            </span>
+            <div className="min-w-0">
+              <h2 id="global-tutor-title" className="m-0 text-base leading-snug font-semibold">{t("title")}</h2>
+              <p data-tutor-current-context className="mt-0.5 text-xs leading-snug text-slate-400 [overflow-wrap:anywhere]">{label}</p>
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-0.5">
+            {session.messages.length > 0 && <button
+              type="button"
+              onClick={() => {
+                clear();
+                requestAnimationFrame(() => inputRef.current?.focus({ preventScroll: true }));
+              }}
+              data-tutor-clear
+              aria-label={t("clearConversation")}
+              title={t("clearConversation")}
+              className={styles.headerButton}
+            >
+              <Trash2 className="size-[18px]" />
+            </button>}
             <button
               type="button"
-              onClick={clear}
-              className="min-h-11 rounded-lg px-2 text-xs text-slate-300 hover:text-white"
+              data-tutor-close
+              className={styles.headerButton}
+              aria-label={t("close")}
+              onClick={() => setOpen(false)}
             >
-              {t("clearConversation")}
+              <X className="size-5" />
             </button>
           </div>
-          <button
-            type="button"
-            className={styles.close}
-            aria-label={t("close")}
-            onClick={() => setOpen(false)}
-          >
-            ×
-          </button>
         </header>
         <TutorChat
           active={open}

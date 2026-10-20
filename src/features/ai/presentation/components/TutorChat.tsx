@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type RefObject } from "react";
 import { useTranslations } from "next-intl";
+import { ArrowUp, Sparkles } from "@/components/icons/TutorIcons";
 import { TUTOR_MAX_MESSAGE_LENGTH } from "../../application/tutor";
 import type { TutorRequest } from "../../types/tutor.types";
 import { useTutorConversation } from "../hooks/useTutorConversation";
@@ -35,6 +36,7 @@ export const TutorChat = ({ id, actions, active = true, inputRef, configure = fa
   const { key, session, update, performRequest, ask, decideProposal } = useTutorConversation();
   const { context } = useTutorEnvironment();
   const transcriptRef = useRef<HTMLDivElement>(null);
+  const hasMessages = session.messages.length > 0;
   useEffect(() => {
     const transcript = transcriptRef.current;
     if (transcript) transcript.scrollTop = transcript.scrollHeight;
@@ -47,45 +49,51 @@ export const TutorChat = ({ id, actions, active = true, inputRef, configure = fa
     { id: "example", label: t("example"), question: t("example"), mode: "example" },
   ];
   return (
-    <div className={`${css.chat} flex min-h-0 min-w-0 flex-1 flex-col`}>
-      <div ref={transcriptRef} className={styles.transcript}
-        role="log" aria-label={t("conversation")} aria-live="polite" aria-relevant="additions" aria-atomic="false" aria-busy={session.pending}>
-        {session.messages.length === 0 && <p className={styles.introduction}>{t("description")}</p>}
-        {session.messages.map(message => (
-          <div key={message.id} className={styles.message} data-role={message.role}>
-            <span className="sr-only">{t(message.role === "user" ? "userLabel" : "assistantLabel")}: </span>
-            <small className="mb-1 block text-xs text-slate-400">{t("historicalMessage", { context: tutorContextLabel(message.contextId, t) })}</small>
-            <p>{message.content}</p>
-            {message.proposal && <TutorProposalCard proposal={message.proposal} onDecision={decision => decideProposal(message.id, decision)} />}
-          </div>
-        ))}
+    <div className={`${css.chat} flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden`} data-long-conversation={session.messages.length >= 8}>
+      <div ref={transcriptRef} className={styles.transcript} data-tutor-scroll-region>
+        <div className={hasMessages ? "shrink-0" : "flex flex-1 flex-col"}
+          role="log" aria-label={t("conversation")} aria-live="polite" aria-relevant="additions" aria-atomic="false" aria-busy={session.pending}>
+          {!hasMessages && <div className={styles.introduction} data-tutor-welcome>
+            <Sparkles className="mb-3 size-6 text-cyan-200/80" />
+            <h3 className="m-0 text-lg leading-snug font-semibold text-slate-100">{t("emptyTitle")}</h3>
+            <p className="mt-2 max-w-64 text-sm leading-relaxed text-slate-400">{t("emptyDescription")}</p>
+          </div>}
+          {session.messages.map(message => (
+            <div key={message.id} className={styles.message} data-role={message.role}>
+              <span className="sr-only">{t(message.role === "user" ? "userLabel" : "assistantLabel")}: </span>
+              <small className="mb-1.5 block text-[11px] leading-snug text-slate-400">{t("historicalMessage", { context: tutorContextLabel(message.contextId, t) })}</small>
+              <p>{message.content}</p>
+              {message.proposal && <TutorProposalCard proposal={message.proposal} onDecision={decision => decideProposal(message.id, decision)} />}
+            </div>
+          ))}
+        </div>
+        <div className="text-xs leading-relaxed text-cyan-200" aria-atomic="true" role="status">{session.pending ? t("thinking") : ""}</div>
+        {session.error && <div className={styles.error}>
+          <p role="alert">{t(session.error)}</p>
+          {session.request && <button type="button" disabled={session.pending} onClick={() => {
+            if (session.request) void performRequest(key, session.request);
+          }}>{t("retry")}</button>}
+        </div>}
+        {contextChanged && <p data-tutor-context-changed className={styles.contextNote}>{t("contextChanged")}</p>}
+        {configure && <p id={`${id}-configure-hint`} role="status" className="my-2 text-sm leading-relaxed text-cyan-100">{t("configureInvitation")}</p>}
+        <div className={styles.quickActions} aria-label={t("quickActions")} role="group">
+          {quickActions.map(action => <button key={action.id} type="button" disabled={session.pending}
+            data-tutor-action={action.id} data-explain-experiment={action.id === "explain-experiment" || undefined}
+            onClick={() => {
+              action.onSelect?.();
+              if (action.compose) onConfigure?.();
+              else ask(action.mode ?? "explain", action.question, action.intent);
+            }}>
+            {action.label}
+          </button>)}
+        </div>
       </div>
-      <div className="shrink-0 px-4" aria-atomic="true" role="status">{session.pending ? t("thinking") : ""}</div>
-      {session.error && <div className={`${styles.error} px-4`}>
-        <p role="alert">{t(session.error)}</p>
-        {session.request && <button type="button" disabled={session.pending} onClick={() => {
-          if (session.request) void performRequest(key, session.request);
-        }}>{t("retry")}</button>}
-      </div>}
-      {contextChanged && <p data-tutor-context-changed className={`${styles.contextNote} px-4`}>{t("contextChanged")}</p>}
-      <div className={styles.quickActions} aria-label={t("quickActions")} role="group">
-        {quickActions.map(action => <button key={action.id} type="button" disabled={session.pending}
-          data-tutor-action={action.id} data-explain-experiment={action.id === "explain-experiment" || undefined}
-          onClick={() => {
-            action.onSelect?.();
-            if (action.compose) onConfigure?.();
-            else ask(action.mode ?? "explain", action.question, action.intent);
-          }}>
-          {action.label}
-        </button>)}
-      </div>
-      {configure && <p id={`${id}-configure-hint`} role="status" className="mx-4 my-2 text-sm leading-relaxed text-cyan-100">{t("configureInvitation")}</p>}
       <form className={styles.composer} onSubmit={event => { event.preventDefault(); onSubmit?.(); ask("explain", session.draft); }}>
         <label htmlFor={`${id}-question`} className="sr-only">{t("question")}</label>
-        <textarea ref={inputRef} id={`${id}-question`} rows={2} aria-describedby={configure ? `${id}-configure-hint` : undefined}
+        <textarea ref={inputRef} id={`${id}-question`} rows={1} aria-describedby={configure ? `${id}-configure-hint` : undefined}
           value={session.draft} maxLength={TUTOR_MAX_MESSAGE_LENGTH} placeholder={t("question")} disabled={session.pending}
           onChange={event => update(key, { draft: event.target.value })} />
-        <button type="submit" disabled={session.pending || !session.draft.trim()}>{t("send")}</button>
+        <button type="submit" aria-label={t("send")} title={t("send")} disabled={session.pending || !session.draft.trim()}><ArrowUp className="size-5" /></button>
       </form>
       <p className={styles.disclaimer}>{t("disclaimer")}</p>
     </div>

@@ -31,3 +31,21 @@ export const AtomIcon = (props: SVGProps<SVGSVGElement>) => (
     <ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)" />
   </svg>
 );
+
+export const Sparkles = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...attributes} {...props}>
+    <path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5L12 3Z" />
+    <path d="M20 2v4M18 4h4" />
+  </svg>
+);
+export const ArrowUp = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...attributes} {...props}><path d="M12 19V5m-6 6 6-6 6 6" /></svg>
+);
+export const Trash2 = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...attributes} {...props}>
+    <path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7" />
+  </svg>
+);
+export const X = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...attributes} {...props}><path d="m6 6 12 12M6 18 18 6" /></svg>
+);

@@ -1,12 +1,12 @@
 import css from "./TutorChat.module.css";
 
 export const tutorChatStyles = {
-  "composer": `${css["composer"]} flex shrink-0 [align-items:flex-end] [gap:.5rem] [padding:.5rem_1rem] [@media(max-width:480px)]:[padding-inline:.875rem]`,
-  "transcript": "[flex:1] min-h-0 [padding:1rem] overflow-y-auto [overscroll-behavior:contain] [scrollbar-width:thin] [scrollbar-color:#75669f_#101626] [@media(max-width:480px)]:[padding-inline:.875rem]",
-  "introduction": "m-0 [color:#cbd5e1] [font-size:1rem] [line-height:1.6]",
-  "message": `${css["message"]} [margin:0_0_.75rem] [padding:.75rem] [border:1px_solid_#334155] [border-radius:.875rem] [background:#171f32] [font-size:1rem] [line-height:1.6]`,
-  "quickActions": `${css["quickActions"]} flex shrink-0 flex-wrap [gap:.375rem] [padding:.5rem_1rem] [border-top:1px_solid_#334155] [@media(max-width:480px)]:[padding-inline:.875rem]`,
-  "error": `${css["error"]} [margin:.75rem_0] [color:#fde68a] [font-size:.875rem]`,
-  "disclaimer": `${css["disclaimer"]} shrink-0 [margin:.25rem_1rem_.875rem] [color:#a8b4c7] [font-size:.75rem] [line-height:1.5] [@media(max-width:480px)]:[margin-bottom:max(.75rem,_env(safe-area-inset-bottom))]`,
-  "contextNote": "[margin:.75rem_0_0] [color:#a5f3fc] [font-size:.875rem] [line-height:1.5]",
+  composer: `${css.composer} mx-3 flex shrink-0 items-end gap-1.5 rounded-2xl border border-slate-500/50 bg-slate-950/60 p-1.5`,
+  transcript: "relative flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overscroll-contain px-4 py-3 [scrollbar-width:thin] [scrollbar-color:#475569_transparent]",
+  introduction: `${css.introduction} flex min-h-28 flex-1 flex-col items-center justify-center py-5 text-center`,
+  message: `${css.message} mb-3 w-fit max-w-[94%] rounded-2xl border border-slate-500/25 bg-slate-800/45 px-3 py-2.5 text-sm leading-relaxed text-slate-200`,
+  quickActions: `${css.quickActions} flex shrink-0 flex-wrap gap-1.5 pt-2`,
+  error: `${css.error} my-2 rounded-xl border border-amber-300/20 bg-amber-950/20 p-2.5 text-sm text-amber-100`,
+  disclaimer: `${css.disclaimer} mx-4 mt-2 mb-3 shrink-0 text-center text-[11px] leading-snug text-slate-400`,
+  contextNote: "my-2 text-xs leading-relaxed text-slate-400",
 } as const;

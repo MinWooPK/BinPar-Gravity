@@ -3,81 +3,83 @@
   grid-template-columns: minmax(0, 1fr);
   min-width: 0;
 }
-.toggle { display: none; }
-.panel { position: relative; min-width: 0; }
-.clip { min-width: 0; border-radius: 14px; }
-.content { display: flex; flex-direction: column; min-width: 0; }
-.content > * { flex: 1 0 auto; min-width: 0; }
 
+.panel {
+  position: relative;
+  min-width: 0;
+}
+
+.clip {
+  min-width: 0;
+  border-radius: 14px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.content > * {
+  flex: 1 0 auto;
+  min-width: 0;
+}
+
+/* Escritorio: dos tarjetas siempre al 50 % */
 @media (min-width: 1024px) {
   .grid {
-    container-type: inline-size;
     flex: 1;
-    grid-template-columns: minmax(48px, 1fr) minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: clamp(20px, 2.5vw, 32px);
     align-items: stretch;
-    transition: grid-template-columns 250ms cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .grid[data-collapsed="left"] {
-    grid-template-columns: minmax(48px, 0fr) minmax(0, 1fr);
+
+  .panel,
+  .clip {
+    display: flex;
+    flex-direction: column;
   }
-  .panel, .clip { display: flex; flex-direction: column; }
-  .clip { flex: 1; overflow: clip; }
+
+  .clip {
+    flex: 1;
+    overflow: clip;
+  }
+
   .content {
     flex: 1 0 auto;
-    /* Keep readable line lengths while the left column shrinks to its rail. */
-    min-width: calc((100cqw - clamp(20px, 2.5vw, 32px)) / 2);
-    transition: opacity 250ms cubic-bezier(0.4, 0, 0.2, 1), visibility 250ms;
-  }
-  .panel[data-side="left"][data-open="false"] {
-    border-radius: 14px;
-    background: linear-gradient(145deg, #131724, #0e121d);
-    box-shadow: inset 0 0 0 1px #30364b;
-  }
-  .panel[data-open="false"] .content {
-    position: absolute;
-    width: var(--closing-width, 100%);
-    opacity: 0;
-    visibility: hidden;
-  }
-  .panel[data-open="false"] .clip { position: relative; }
-  .toggle {
-    display: flex;
-    position: absolute;
-    z-index: 2;
-    top: 10px;
-    right: 10px;
-    width: 44px;
-    height: 44px;
-    align-items: center;
-    justify-content: center;
-  }
-  /* Leave room for the control in both existing left-card headers. */
-  .panel[data-side="left"] [data-discovery-education] > h2 {
-    padding-right: 48px;
-    min-height: 38px;
-  }
-  .panel[data-side="left"] [data-understanding-simulation] > :first-child {
-    padding-right: 64px;
-    min-height: 64px;
-  }
-  .panel[data-open="false"] .toggle {
-    left: calc(50% - 22px);
-    right: auto;
-    top: calc(50% - 22px);
+    min-width: 0;
   }
 }
 
+/* Móvil y tablet: se muestra la tarjeta seleccionada */
 @media (max-width: 1023px) {
-  .panel[data-open="false"] { display: none; }
-  .panel[data-open="true"] { animation: panel-enter 220ms cubic-bezier(0.4, 0, 0.2, 1); }
-  .content > * { flex: none; }
+  .panel[data-open="false"] {
+    display: none;
+  }
+
+  .panel[data-open="true"] {
+    animation: panel-enter 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .content > * {
+    flex: none;
+  }
 }
+
 @keyframes panel-enter {
-  from { opacity: 0; transform: translateX(8px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
+
 @media (prefers-reduced-motion: reduce) {
-  .grid, .content { transition: none; }
-  .panel[data-open="true"] { animation: none; }
+  .panel[data-open="true"] {
+    animation: none;
+  }
 }

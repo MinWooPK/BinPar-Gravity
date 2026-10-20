@@ -4,7 +4,8 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
@@ -63,7 +64,7 @@ try {
     window.fetch=(url,options)=>{const body=JSON.parse(options.body);window.requests.push({url,body});
       if(url==='/api/practice')return Promise.resolve(Response.json({error:'not_configured'},{status:503}));
       if(window.failNext){window.failNext=false;return Promise.resolve(Response.json({error:'unavailable'},{status:503}));}
-      const data={text:'Response '+window.requests.length+' '+body.context.stage+' '+body.messages.at(-1).content,
+      const data={text:window.longReply||'Response '+window.requests.length+' '+body.context.stage+' '+body.messages.at(-1).content,
         proposal:body.context.kind==='gravity'&&body.context.stage==='gravity-laboratory'&&!body.intent ? {action:'set_gravity_parameters',parameters:{mass1:80,mass2:null,distance:null}} : null};
       if(window.hold)return new Promise((resolve,reject)=>{window.release=()=>resolve(Response.json(data));options.signal.addEventListener('abort',()=>{window.aborts++;reject(new DOMException('Aborted','AbortError'))},{once:true})});
       return Promise.resolve(Response.json(data));};
@@ -180,6 +181,21 @@ try {
   const close=async()=>{await key('Escape');await waitFor("!document.querySelector('#global-tutor-dialog').open")};
   const ask=async text=>{await input('#global-tutor-question',text);await click('#global-tutor-dialog button[type=submit]');await settled()};
   const navigate=async path=>{await evaluate(`window.navigate('${path}')`);await waitFor(`document.querySelector('main').dataset.route==='${path}'`)};
+  const checkLayout=async(label,width,availableHeight=1000)=>{
+    await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
+    const metrics=await evaluate(`(()=>{const panel=document.querySelector('#global-tutor-dialog'),scroll=panel.querySelector('[data-tutor-scroll-region]'),form=panel.querySelector('form'),header=panel.querySelector('header'),notice=panel.querySelector('form + p');const rect=e=>{const r=e.getBoundingClientRect();return {top:r.top,bottom:r.bottom,height:r.height,left:r.left,right:r.right}};return {panel:rect(panel),form:rect(form),header:rect(header),notice:rect(notice),scroll:rect(scroll),overflow:document.documentElement.scrollWidth-innerWidth,panelOverflow:panel.scrollHeight-panel.clientHeight,scrollOverflow:scroll.scrollHeight-scroll.clientHeight,display:getComputedStyle(panel).display,scrollDisplay:getComputedStyle(scroll).overflowY}})()`);
+    assert.equal(metrics.display,'flex');
+    assert.equal(metrics.scrollDisplay,'auto');
+    assert.ok(metrics.overflow<=0&&metrics.panelOverflow<=1,JSON.stringify({label,width,metrics}));
+    assert.ok(metrics.panel.left>=0&&metrics.panel.right<=width&&metrics.panel.top>=0&&metrics.panel.bottom<=availableHeight+1,JSON.stringify({label,width,metrics}));
+    assert.ok(metrics.form.top>=metrics.header.bottom&&metrics.form.bottom<=metrics.panel.bottom&&metrics.notice.bottom<=metrics.panel.bottom,JSON.stringify({label,width,metrics}));
+    assert.ok(metrics.scroll.height>20,JSON.stringify({label,width,metrics}));
+    if(label==='empty')assert.ok(metrics.panel.height>=400&&metrics.panel.height<=440);
+    if(label==='long')assert.ok(metrics.panel.height>=600&&metrics.panel.height<=620&&metrics.scrollOverflow>0);
+    const clip=await evaluate("(()=>{const r=document.querySelector('#global-tutor-dialog').getBoundingClientRect();return {x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height,scale:1}})()");
+    const {data}=await call('Page.captureScreenshot',{format:'png',clip,captureBeyondViewport:true});
+    writeFileSync(join(tmpdir(),`tutor-layout-${label}-${width}.png`),Buffer.from(data,'base64'));
+  };
   await resize(1280);
   await waitFor("!!document.querySelector('#global-tutor-trigger')");
   assert.equal(await evaluate('window.requests.length'),0);
@@ -198,6 +214,17 @@ try {
   }
   await navigate('/es/gravity');
   await stage('gravity-understanding');
+  assert.equal(await evaluate("getComputedStyle(document.querySelector('#global-tutor-dialog')).display"),'none');
+  await open();
+  assert.equal(await evaluate("document.querySelector('#global-tutor-title').textContent"),'Tutor IA');
+  assert.equal(await evaluate("document.querySelector('#global-tutor-dialog [data-tutor-clear]')"),null);
+  assert.equal(await evaluate("document.querySelector('[data-tutor-welcome] h3').textContent"),'¿Qué quieres aprender?');
+  for(const width of [1280,768,375,320]){await resize(width);await checkLayout('empty',width)}
+  await input('#global-tutor-question','Line one\nLine two\nLine three\nLine four\nLine five');
+  await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');
+  assert.ok(await evaluate("document.querySelector('#global-tutor-question').getBoundingClientRect().height>44"));
+  await input('#global-tutor-question','');
+  await close();await resize(1280);
   assert.equal(await evaluate('document.querySelectorAll("[data-inline-tutor],[data-content-tab=tutor]").length'),0);
   // Each help icon sends exactly once, even with two synchronous clicks.
   await evaluate(`document.querySelector('#gravity-understanding [data-explain-topic=formula]').click();document.querySelector('#gravity-understanding [data-explain-topic=formula]').click()`);
@@ -209,6 +236,8 @@ try {
   await click('#global-tutor-dialog [data-tutor-action=constant]');await settled();
   assert.equal(await evaluate("document.querySelector('#gravity-understanding [data-formula-variable=constant]').dataset.active"),'true');
   const before=await count();await close();await open();assert.equal(await count(),before);
+  await checkLayout('messages',1280);
+  assert.ok(await evaluate("getComputedStyle(document.querySelector('[data-role=user]')).backgroundColor!==getComputedStyle(document.querySelector('[data-role=assistant]')).backgroundColor"));
   await close();await stage('gravity-laboratory');await open();
   await ask('Pon la primera masa en 80 kg');
   assert.equal(await evaluate('window.parameters.mass1'),40);
@@ -239,6 +268,18 @@ try {
   assert.equal(await evaluate('window.requests.at(-1).body.context.result.detected'),true);
   await navigate('/es');await ask('¿Qué puedo aprender aquí?');
   assert.equal(await evaluate('window.requests.at(-1).body.context.kind'),'home');
+  await evaluate("window.longReply=('A long explanation about gravity with readable paragraphs. '.repeat(35)+'\\n\\n'+'A-very-long-unbroken-example-'.repeat(20))");
+  await ask('Dame una explicación extensa');
+  await evaluate('window.longReply=null');
+  for(const width of [1280,768,375,320]){await resize(width);await checkLayout('long',width)}
+  // Emulate a keyboard that reduces the visual viewport while leaving the layout
+  // viewport unchanged, as on mobile browsers with an overlaid keyboard.
+  await resize(375);
+  await evaluate("Object.defineProperty(window.visualViewport,'height',{configurable:true,value:300});window.visualViewport.dispatchEvent(new Event('resize'))");
+  await checkLayout('keyboard',375,300);
+  assert.ok(await evaluate("parseInt(document.querySelector('#global-tutor-dialog').style.getPropertyValue('--tutor-keyboard-offset'))>0"));
+  await evaluate("delete window.visualViewport.height;window.visualViewport.dispatchEvent(new Event('resize'))");
+  await resize(1280);
   // Exceed the cap deliberately, then compare the actual surviving transcript.
   for(let index=0;index<4;index++)await ask('Persistencia '+index);
   assert.equal(await count(),30);
@@ -288,11 +329,13 @@ try {
   await evaluate('window.hold=true');
   await input('#global-tutor-question','Slow question');await click('#global-tutor-dialog button[type=submit]');
   await waitFor("document.querySelector('#global-tutor-dialog [role=log]').getAttribute('aria-busy')==='true'");
-  await click('#global-tutor-dialog header button');
+  await click('#global-tutor-dialog [data-tutor-clear]');
   await waitFor('window.aborts===1');
+  await waitFor("document.activeElement.id==='global-tutor-question'");
   assert.equal(await count(),0);
   assert.equal(await evaluate("localStorage.getItem('gravity-lab:tutor:v1')"),null);
   await close();
+  await waitFor("document.activeElement.id==='global-tutor-trigger'");
   assert.equal(await evaluate('document.activeElement.id'),'global-tutor-trigger');
   await call('Page.reload');
   await waitFor("!!document.querySelector('#global-tutor-trigger')&&window.requests?.length===0");
@@ -309,5 +352,5 @@ try {
   if (chrome && chrome.exitCode === null && chrome.signalCode === null) {
     chrome.kill(); await once(chrome, 'exit');
   }
-  rmSync(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+  await rm(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
 }
