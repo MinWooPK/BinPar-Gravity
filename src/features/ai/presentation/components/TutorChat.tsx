@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, type RefObject } from "react";
 import { useTranslations } from "next-intl";
-import { ArrowUp, Sparkles } from "@/components/icons/TutorIcons";
+import { ArrowUp, Sparkles } from "@/components/icons";
 import { TUTOR_MAX_MESSAGE_LENGTH } from "../../application/tutor";
 import type { TutorRequest } from "../../types/tutor.types";
 import { useTutorConversation } from "../hooks/useTutorConversation";

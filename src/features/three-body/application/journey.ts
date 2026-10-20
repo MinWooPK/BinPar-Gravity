@@ -1,4 +1,5 @@
 import type { ThreeBodyStageId } from "../types/journey.types";
+
 export const threeBodyStages = [
   {
     id: "discover",
@@ -7,14 +8,20 @@ export const threeBodyStages = [
     description: "discoverDescription",
   },
   {
-    id: "gallery",
+    id: "understand",
     number: "02",
+    title: "understandTitle",
+    description: "understandDescription",
+  },
+  {
+    id: "gallery",
+    number: "03",
     title: "galleryTitle",
     description: "galleryDescription",
   },
   {
     id: "experiment",
-    number: "03",
+    number: "04",
     title: "experimentTitle",
     description: "experimentDescription",
   },

@@ -8,7 +8,7 @@ import {
   MessageCircle,
   Trash2,
   X,
-} from "@/components/icons/TutorIcons";
+} from "@/components/icons";
 import { tutorContextId } from "../../application/tutorAvailability";
 import { tutorContextLabel } from "./tutorContextLabel";
 import { TutorChat, type TutorQuickAction } from "./TutorChat";

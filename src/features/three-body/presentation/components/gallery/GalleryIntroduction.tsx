@@ -26,20 +26,33 @@ export const GalleryIntroduction = ({ onExplore }: Props) => {
   return (
     <section className="flex min-w-0 flex-col gap-5">
       {/* INTRODUCCIÓN */}
-      <header className="space-y-3">
+      <header className="space-y-0">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b9a8ff]">
-          {t("eyebrow")}
-        </p>
-
-        <h2 className="text-2xl font-semibold text-slate-50 sm:text-3xl">
+          {/* {t("eyebrow")} */}
           {t("title")}
-        </h2>
-
-        <p className=" text-sm leading-7 text-slate-300 sm:text-base">
-          {t.rich("intro", {
-            highlight: (children) => <Highlight>{children}</Highlight>,
-          })}
         </p>
+        <div className="flex gap-5 items-center justify-between">
+          {/* <h2 className="text-2xl font-semibold text-slate-50 sm:text-3xl">
+          {t("title")}
+        </h2> */}
+
+          <p className=" text-sm leading-7 text-slate-300 sm:text-base">
+            {t.rich("intro", {
+              highlight: (children) => <Highlight>{children}</Highlight>,
+            })}
+          </p>
+          {/* BOTÓN GALERÍA */}
+          <div className="flex justify-center py-2">
+            <button
+              type="button"
+              onClick={onExplore}
+              className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#aa97ff] px-4 py-0 text-center font-semibold text-[#101122] transition-colors hover:bg-[#c4b5fd] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c4b5fd]"
+            >
+              {t("explore")}
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
       </header>
 
       {/* DOS TARJETAS */}
@@ -224,18 +237,6 @@ export const GalleryIntroduction = ({ onExplore }: Props) => {
               <p className="mt-1 text-sm leading-6 text-slate-200">
                 {t("velocityDescription")}
               </p>
-            </div>
-
-            {/* BOTÓN GALERÍA */}
-            <div className="flex justify-center py-2">
-              <button
-                type="button"
-                onClick={onExplore}
-                className="inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#aa97ff] px-6 py-3 text-center font-semibold text-[#101122] transition-colors hover:bg-[#c4b5fd] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c4b5fd]"
-              >
-                {t("explore")}
-                <span aria-hidden="true">→</span>
-              </button>
             </div>
           </div>
         </div>

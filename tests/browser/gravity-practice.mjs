@@ -1,5 +1,5 @@
 // Run with a local app server: node tests/browser/gravity-practice.mjs
-// PRACTICE_REAL=1 opts into a complete real 10-question practice (21 provider requests) (requires configured server).
+// PRACTICE_REAL=1 opts into a complete real 5-question practice (11 provider requests) (requires configured server).
 // Override PANELS_URL and CHROME_PATH when needed. No external test dependencies.
 import { spawn } from "node:child_process";
 import { mkdtempSync, rmSync, existsSync } from "node:fs";
@@ -172,11 +172,11 @@ const delay = (ms) => new Promise((r) => setTimeout(r, ms));
           ? "response=await original(url,options);"
           : `
       if(request.action==='start')history=[];
-      const schedule=['attraction','attraction','km','square','distance','tonnes','power','mutual','force','reasoning'];
+      const schedule=['attraction','attraction','km','power','force'];
       if(request.action!=='answer')question={id:'q'+history.length,number:history.length+1,concept:schedule[history.length],difficulty:history.length>4?2:1,a:history.length===2?0.01:history.length===5?0.04:40,b:40,r:history.length>4?0.008:8,exponent:-9,scene:'laboratory',hint:'units',reinforcement:history.length===1};
       let feedback;
       if(request.action==='answer'){const value=expected(question),correct=question.number!==1;feedback={correct,expected:value,actual:request.answer.value,error:correct?null:'unknown',explanation:'Educational explanation',steps:['Review the relation.']};history.push({concept:question.concept,correct,usedHint:request.usedHint});}
-      const report=history.length===10?{summary:'Summary of ten observed answers.',strengths:['Masses'],review:['Attraction'],recommendations:[{stage:'gravity-discovery',text:'Review attraction'},{stage:'gravity-understanding',text:'Review units'},{stage:'gravity-laboratory',text:'Experiment with masses'}]}:undefined;
+      const report=history.length===5?{summary:'Summary of five observed answers.',strengths:['Masses'],review:['Attraction'],recommendations:[{stage:'gravity-discovery',text:'Review attraction'},{stage:'gravity-understanding',text:'Review units'},{stage:'gravity-laboratory',text:'Experiment with masses'}]}:undefined;
       response=Response.json({token:'fixture',question,count:history.length,score:history.filter(h=>h.correct).length,hints:history.filter(h=>h.usedHint).length,history,...(feedback&&{feedback}),...(report&&{report})});`
       }
       const body=await response.clone().json();window.practiceReplies.push({status:response.status,body});if(response.ok)window.practiceView=body;return response;}})()`;
@@ -241,7 +241,7 @@ const delay = (ms) => new Promise((r) => setTimeout(r, ms));
       await evaluate(
         `document.querySelector('#global-tutor-trigger')?.getClientRects().length??0`,
       ),
-      0,
+      1,
     );
     assert.equal(await evaluate(`window.practiceRequests.length`), 0);
     assert.equal(
@@ -279,11 +279,12 @@ const delay = (ms) => new Promise((r) => setTimeout(r, ms));
           question.id,
         );
       }
-      if (n === 4 || n === 9) {
+      if (n === 4) {
         for (const [width, height] of [
           [320, 600],
           [375, 667],
           [768, 800],
+          [1024, 800],
           [1280, 800],
         ]) {
           await call("Emulation.setDeviceMetricsOverride", {
@@ -354,14 +355,14 @@ const delay = (ms) => new Promise((r) => setTimeout(r, ms));
         question.concept,
         checked.feedback.correct ? "correct" : "reinforcement needed",
       );
-      if (n < 10) await perform(t.next);
+      if (n < 5) await perform(t.next);
     }
     assert.ok(
       await evaluate(`!!document.querySelector('[data-practice-report]')`),
     );
-    assert.equal(await evaluate("window.practiceView.score"), 9);
+    assert.equal(await evaluate("window.practiceView.score"), 4);
     assert.equal(await evaluate("window.practiceView.hints"), 1);
-    assert.equal(await evaluate("window.practiceView.history.length"), 10);
+    assert.equal(await evaluate("window.practiceView.history.length"), 5);
     const link = await evaluate(
       `document.querySelector('[data-practice-report] a').getAttribute('href')`,
     );

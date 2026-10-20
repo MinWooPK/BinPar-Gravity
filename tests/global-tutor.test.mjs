@@ -40,6 +40,14 @@ const validRequest = () => ({
   messages: [{ role: "user", content: "¿Qué representa G?" }],
 });
 
+// Read the structured payload independently of its translated prose label.
+const readPromptContext = ({ instructions }) => {
+  const line = instructions.trimEnd().split("\n").at(-1);
+  const start = line.indexOf("{");
+  assert.ok(start >= 0, "The prompt must include its structured current context");
+  return JSON.parse(line.slice(start));
+};
+
 test("one tutor session covers every route and locale", () => {
   for (const path of ["/", "/gravity", "/three-body", ...orbits.map(({ slug }) => `/three-body/${slug}`)]) {
     for (const locale of ["es", "en", "fr"]) assert.equal(getTutorSessionKey(`/${locale}${path}`), "global");
@@ -86,8 +94,8 @@ test("discovery tutor receives verified introductory facts, SI units and unchang
   assert.match(context.discovery.siUnits.N, /1 N = 1 kg·m\/s²/);
   assert.equal(context.challenge, undefined);
   assert.equal(context.attempt, undefined);
-  assert.match(buildTutorPrompt(request).instructions, /introductory discovery stage/);
-  assert.match(buildTutorPrompt(request).instructions, /Do not invent calculator actions or a checked challenge/);
+  assert.match(buildTutorPrompt(request).instructions, /etapa introductoria Descubre/);
+  assert.match(buildTutorPrompt(request).instructions, /No inventes acciones de calculadora ni ejercicios corregidos/);
   assert.equal(buildTutorContext(validRequest().context).discovery, undefined);
   assert.equal(buildTutorContext({ ...request.context, stage: "gravity-understanding" }).discovery, undefined);
 });
@@ -148,7 +156,7 @@ test("tutor context derives tiny nonzero forces from the current SI parameters",
   assert.deepEqual(trusted.laboratory.limits, laboratoryLimits);
   assert.match(trusted.laboratory.scale, /scientific notation/);
   assert.match(trusted.laboratory.illustration, /not to scale/);
-  assert.match(buildTutorPrompt(request).instructions, /do not turn a small nonzero force into zero/);
+  assert.match(buildTutorPrompt(request).instructions, /Nunca conviertas una fuerza distinta de cero en cero/);
 });
 
 test("message limits reject empty, oversized, privileged and incomplete dialogue", () => {
@@ -210,14 +218,15 @@ test("experiment prompts use a fresh trusted snapshot despite stale dialogue in 
       { role: "user", content: "What is happening in my experiment?" },
     ];
     const prompt = buildTutorPrompt({ ...validRequest(), locale, context: { kind: "gravity", stage: "gravity-laboratory", parameters }, messages });
-    const trusted = JSON.parse(prompt.instructions.split("Trusted project context (JSON): ")[1]);
+    const trusted = readPromptContext(prompt);
     assert.deepEqual(trusted.current, { ...parameters, forceNewtons: gravitationalForce(parameters) });
+    assert.deepEqual(trusted, { mode: "explain", ...buildTutorContext({ kind: "gravity", stage: "gravity-laboratory", parameters }) });
     assert.deepEqual(prompt.input, messages);
-    assert.match(prompt.instructions, new RegExp(`Respond in ${locale}`));
-    assert.match(prompt.instructions, /explicitly report current.mass1, current.mass2, current.distance and current.forceNewtons/);
-    assert.match(prompt.instructions, /even if older dialogue mentions other values/);
-    assert.match(prompt.instructions, /Never claim to change parameters/);
-    assert.match(prompt.instructions, /outside the slider limits/);
+    assert.match(prompt.instructions, new RegExp(`Responde en el idioma indicado por ${locale}:`));
+    assert.match(prompt.instructions, /indica explícitamente los valores actuales de current\.mass1, current\.mass2, current\.distance y current\.forceNewtons/);
+    assert.match(prompt.instructions, /Tienen prioridad sobre cualquier número mencionado anteriormente en la conversación/);
+    assert.match(prompt.instructions, /Nunca afirmes que se ha aplicado hasta que la aplicación lo confirme/);
+    assert.match(prompt.instructions, /fuera de los límites de los controles deslizantes/);
     assert.equal(prompt.instructions.includes("999 N"), false);
   }
 });
@@ -249,12 +258,12 @@ test("gravity prompts separate trusted physics context from untrusted dialogue i
   const gravity = buildTutorPrompt(request);
   assert.deepEqual(gravity.input, request.messages);
   assert.equal(gravity.instructions.includes("INVENT_A_PERIOD_XYZ"), false);
-  assert.match(gravity.instructions, /two-body attraction/);
-  assert.match(gravity.instructions, /Respond in es/);
+  assert.match(gravity.instructions, /El laboratorio representa la atracción entre dos cuerpos, pero no simula sus órbitas/);
+  assert.match(gravity.instructions, /Responde en el idioma indicado por es:/);
   for (const locale of ["es", "en", "fr"]) {
     const prompt = buildTutorPrompt({ ...request, locale });
-    assert.match(prompt.instructions, new RegExp(`Respond in ${locale}`));
-    assert.equal(prompt.instructions.includes("three-body context"), false);
+    assert.match(prompt.instructions, new RegExp(`Responde en el idioma indicado por ${locale}:`));
+    assert.equal(readPromptContext(prompt).kind, "gravity");
   }
 });
 
@@ -468,9 +477,9 @@ test("formula explanation intent is restricted to the understanding stage", () =
   assert.equal(isTutorRequest({ ...request, context: { kind: "three-body" } }), false);
   assert.equal(isTutorRequest({ ...request, context: { ...request.context, stage: "gravity-challenges" } }), false);
   const prompt = buildTutorPrompt(request);
-  assert.match(prompt.instructions, /explanation-only/);
-  assert.match(prompt.instructions, /Return proposal null regardless/);
-  assert.match(prompt.instructions, /negative power of ten/);
+  assert.match(prompt.instructions, /Esta acción sirve únicamente para explicar la fórmula/);
+  assert.match(prompt.instructions, /Devuelve siempre proposal null, independientemente de las peticiones anteriores/);
+  assert.match(prompt.instructions, /notación científica y el significado de los exponentes negativos/);
   assert.match(prompt.instructions, /"mass1":40/);
 });
 
@@ -495,8 +504,8 @@ test("experiment explanation uses trusted domain values and only accepts its own
   const context = buildTutorContext(request.context);
   assert.equal(context.current.forceNewtons, gravitationalForce(request.context.parameters));
   const prompt = buildTutorPrompt(request);
-  assert.match(prompt.instructions, /experiment explanation is read-only/);
-  assert.match(prompt.instructions, /return proposal null regardless/);
+  assert.match(prompt.instructions, /Esta acción sirve únicamente para explicar el experimento/);
+  assert.match(prompt.instructions, /Devuelve siempre proposal null, independientemente de las peticiones anteriores/);
   assert.ok(prompt.instructions.includes(JSON.stringify(context.current)));
   const { parseTutorReply } = load("ai/application/tutorResponse");
   for (const proposal of [null, { action: "set_gravity_parameters", parameters: { mass1: 80, mass2: null, distance: null } }, { action: "execute" }]) {
@@ -516,8 +525,8 @@ test("all formula follow-ups use current values and are explanation-only", () =>
     const request = { ...validRequest(), mode, context: { kind: "gravity", stage: "gravity-understanding", parameters: { mass1: 60, mass2: 30, distance: 7 } } };
     assert.equal(isTutorRequest(request), true);
     const prompt = buildTutorPrompt(request).instructions;
-    assert.match(prompt, /whole formula lesson is read-only/);
-    assert.match(prompt, /always return proposal null/);
+    assert.match(prompt, /No se permiten propuestas de modificación de parámetros, ni siquiera mediante preguntas libres o mensajes posteriores/);
+    assert.match(prompt, /Devuelve siempre proposal null/);
     assert.match(prompt, /"mass1":60/);
   }
 });
@@ -528,8 +537,8 @@ test("home and all three-body stages use validated context and canonical catalog
     for (const context of [{ kind: "home", stage: null }, ...[null, "discover", "gallery"].map(stage => ({ kind: "three-body", stage })), ...orbits.map(({slug}) => ({kind:"three-body",stage:"orbit",slug}))]) {
       const request = { ...validRequest(), locale, context, intent: "explain_context" };
       assert.equal(isTutorRequest(request), true);
-      assert.match(buildTutorPrompt(request).instructions, /historical dialogue/);
-      assert.match(buildTutorPrompt(request).instructions, /return proposal null/);
+      assert.match(buildTutorPrompt(request).instructions, /Los mensajes anteriores del usuario y del asistente forman parte del historial de conversación/);
+      assert.match(buildTutorPrompt(request).instructions, /Devuelve (?:siempre )?proposal null/);
       if(context.stage === "orbit") {
         const trusted = buildTutorContext(context).orbit;
         const orbit = orbits.find(orbit=>orbit.slug===context.slug);
@@ -577,8 +586,8 @@ test("persistent history is bounded, treats storage as untrusted and strips auth
 
 test("practice hints cannot authorize changes or replace the evaluation flow", () => {
   const context={...validRequest().context,stage:'gravity-challenges'};
-  assert.match(buildTutorPrompt({...validRequest(),context}).instructions,/conceptual hints only/);
-  assert.match(buildTutorPrompt({...validRequest(),context}).instructions,/Do not disclose a pending exercise/);
+  assert.match(buildTutorPrompt({...validRequest(),context}).instructions,/ofrece solamente pistas conceptuales/);
+  assert.match(buildTutorPrompt({...validRequest(),context}).instructions,/No reveles la respuesta de un ejercicio pendiente, no calcules su resultado final, no selecciones una opción y no corrijas ni califiques respuestas/);
   const {parseTutorReply}=load('ai/application/tutorResponse');
   assert.equal(parseTutorReply({text:'Hint',proposal:{action:'set_gravity_parameters',parameters:{mass1:80,mass2:null,distance:null}}},context).proposal,undefined);
 });

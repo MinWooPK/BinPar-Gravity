@@ -9,7 +9,16 @@ import { useTranslations } from "next-intl";
 import type { ExperimentConfiguration } from "../../../domain/experiment-simulation";
 import type { AnalyzedExperimentTrajectory } from "../../../domain/periodicity-detection";
 import { ExperimentAnimation } from "./ExperimentAnimation";
-import { PeriodicityAnalysis } from "./PeriodicityAnalysis";
+import {
+  Play,
+  Pause,
+  RotateCcw,
+  SkipBack,
+  LoaderCircle,
+  Gauge,
+  Clock3,
+  Route,
+} from "lucide-react";
 
 type WorkerResponse =
   | { id: number; ok: true; result: AnalyzedExperimentTrajectory }
@@ -67,10 +76,20 @@ const cloneInitial = (): ExperimentDraft => ({
 });
 
 const inputStyles =
-  "mt-1 min-h-11 w-full min-w-0 rounded-lg border border-[#48516b] " +
-  "bg-[#0d1320] px-3 py-2 text-sm text-slate-100 " +
-  "outline-none transition-colors focus:border-[#aa97ff] " +
-  "focus-visible:ring-2 focus-visible:ring-[#aa97ff]/50";
+  "min-h-11 min-w-0 w-full bg-[#0d1320] " +
+  "px-3 py-2 text-sm text-slate-100 outline-none " +
+  "focus-visible:ring-2 focus-visible:ring-[#aa97ff]/50 " +
+  "[appearance:textfield] " +
+  "[&::-webkit-inner-spin-button]:appearance-none " +
+  "[&::-webkit-outer-spin-button]:appearance-none";
+
+const bodySymbols = {
+  mass: "m",
+  x: "x",
+  y: "y",
+  vx: "vₓ",
+  vy: "vᵧ",
+} as const;
 
 export const ThreeBodyExperiment = ({
   active = true,
@@ -81,9 +100,8 @@ export const ThreeBodyExperiment = ({
 
   const [draft, setDraft] = useState<ExperimentDraft>(cloneInitial);
   const [selectedBody, setSelectedBody] = useState(0);
-  const [simulation, setSimulation] = useState<AnalyzedExperimentTrajectory | null>(
-    null,
-  );
+  const [simulation, setSimulation] =
+    useState<AnalyzedExperimentTrajectory | null>(null);
   const [calculating, setCalculating] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [elapsed, setElapsed] = useState(0);
@@ -326,7 +344,7 @@ export const ThreeBodyExperiment = ({
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
-      return () => cancelAnimationFrame(frame);
+    return () => cancelAnimationFrame(frame);
   }, [simulation, playing, speed, active]);
 
   const restartPlayback = () => {
@@ -345,12 +363,20 @@ export const ThreeBodyExperiment = ({
 
   const tutorContext = useMemo<TutorContext>(() => {
     const snapshot: TutorContext = {
-      kind: "three-body", stage: "experiment",
-      status: error ? "invalid" : runError ?? (calculating ? "calculating" : simulation ? "complete" : "idle"),
+      kind: "three-body",
+      stage: "experiment",
+      status: error
+        ? "invalid"
+        : (runError ??
+          (calculating ? "calculating" : simulation ? "complete" : "idle")),
       ...(!error && { configuration: parsed }),
-      ...(simulation && !error && !calculating && { result: simulation.periodicity }),
+      ...(simulation &&
+        !error &&
+        !calculating && { result: simulation.periodicity }),
     };
-    return isTutorContext(snapshot) ? snapshot : { kind: "three-body", stage: "experiment", status: "invalid" };
+    return isTutorContext(snapshot)
+      ? snapshot
+      : { kind: "three-body", stage: "experiment", status: "invalid" };
   }, [error, runError, calculating, simulation, parsed]);
 
   const selected = draft.bodies[selectedBody];
@@ -359,311 +385,169 @@ export const ThreeBodyExperiment = ({
     <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
       <TutorContextBridge active={active} context={tutorContext} />
       {/* PANEL IZQUIERDO: CONFIGURACIÓN */}
-      <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-[#303b59] bg-[#131724] p-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="text-lg font-semibold text-slate-100">
-            {t("settingsTitle")} <ExplainWithAI topic="simulation" />
+
+      {/* PANEL IZQUIERDO: CONFIGURACIÓN */}
+      <section className="flex min-w-0 flex-col gap-2.5 rounded-2xl border border-[#39455f] bg-linear-to-b from-[#151a2a] to-[#101421] p-3">
+        {/* ENCABEZADO */}
+        <div className="flex min-w-0 items-center gap-2">
+          <h3 className="min-w-0 text-base font-semibold text-slate-100">
+            {t("settingsTitle")}
           </h3>
 
-          <button
-            type="button"
-            onClick={() => {
-              invalidateSimulation();
-              setDraft(cloneInitial());
-              setSelectedBody(0);
-              setSpeed(1);
-              setShowTrails(true);
-            }}
-            className="min-h-11 cursor-pointer rounded-lg border border-[#60517f] px-3 py-2 text-sm text-[#d3c5ff] hover:bg-[#302748]"
-          >
-            {t("reset")}
-          </button>
+          <ExplainWithAI topic="simulation" />
         </div>
 
-        {/* PARÁMETROS COMUNES */}
-        <div className="grid grid-cols-2 gap-3">
-          <label className="block min-w-0">
-            <span className="text-sm font-medium text-slate-200">
-              {t("gravity")}
-            </span>
+        {/* PARÁMETROS GENERALES */}
+        <div className="space-y-2">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-[#b9a8ff]">
+            {t("commonParameters")}
+          </h4>
 
-            <input
-              type="number"
-              step="any"
-              min="0"
-              value={draft.gravity}
-              onChange={(event) => updateCommon("gravity", event.target.value)}
-              className={inputStyles}
-            />
-          </label>
+          <div className="grid min-w-0 grid-cols-2 gap-2">
+            {/* GRAVEDAD */}
+            <label className="block min-w-0">
+              <span className="text-xs text-slate-300">{t("gravity")}</span>
 
-          <label className="block min-w-0">
-            <span className="text-sm font-medium text-slate-200">
-              {t("duration")}
-            </span>
-
-            <input
-              type="number"
-              step="any"
-              min="0"
-              value={draft.duration}
-              onChange={(event) => updateCommon("duration", event.target.value)}
-              className={inputStyles}
-            />
-          </label>
-        </div>
-
-        <div className="border-t border-[#30364b]" />
-
-        {/* SELECCIÓN DEL CUERPO */}
-        <div
-          className="grid grid-cols-3 gap-2"
-          role="group"
-          aria-label={t("chooseBody")}
-        >
-          {draft.bodies.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              aria-pressed={selectedBody === index}
-              onClick={() => setSelectedBody(index)}
-              className={`flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border px-2 py-2 text-xs font-semibold transition-colors sm:text-sm ${
-                selectedBody === index
-                  ? "border-[#aa97ff] bg-[#302748] text-white"
-                  : "border-[#30364b] bg-[#0d1320] text-slate-300 hover:border-[#60517f]"
-              }`}
-            >
-              <span
-                className="size-2.5 shrink-0 rounded-full"
-                style={{ backgroundColor: bodyColors[index] }}
-              />
-              {t("body", { number: index + 1 })}
-            </button>
-          ))}
-        </div>
-
-        {/* CAMPOS DEL CUERPO SELECCIONADO */}
-        <div className="grid grid-cols-2 gap-3">
-          {bodyFields.map(({ key, label }) => (
-            <label key={key} className="block min-w-0">
-              <span className="text-sm font-medium text-slate-200">
-                {t(label)}
-              </span>
-
-              <input
-                type="number"
-                step="any"
-                min={key === "mass" ? "0" : undefined}
-                value={selected[key]}
-                onChange={(event) => updateBody(key, event.target.value)}
-                className={inputStyles}
-              />
-            </label>
-          ))}
-        </div>
-
-        <p className="text-xs leading-5 text-slate-400">{t("unitsNote")}</p>
-
-        {/* EJECUTAR SIMULACIÓN */}
-        <div className="mt-auto border-t border-[#30364b] pt-4">
-          <button
-            type="button"
-            disabled={error !== null || calculating}
-            onClick={runSimulation}
-            className="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#aa97ff] px-5 py-3 font-semibold text-[#101122] transition-colors hover:bg-[#c4b5fd] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <span aria-hidden="true">▶</span>
-            {calculating ? t("calculating") : t("runSimulation")}
-          </button>
-          <p className="mt-2 text-center text-xs text-slate-400">
-            {t("runHelp")}
-          </p>
-        </div>
-      </section>
-
-      {/* PANEL DERECHO: VISTA PREVIA */}
-      <section className="flex min-w-0 flex-col gap-3 rounded-2xl border border-[#303b59] bg-[#0b1120] p-4">
-        <h3 className="text-lg font-semibold text-slate-100">
-          {t(simulation ? "simulationTitle" : "previewTitle")}
-        </h3>
-
-        <div className="flex flex-1 items-center justify-center rounded-xl border border-[#29364f] bg-[#090f1c] p-2">
-          {simulation ? (
-            <ExperimentAnimation
-              trajectory={simulation}
-              elapsed={elapsed}
-              showTrails={showTrails}
-              label={t("simulationTitle")}
-            />
-          ) : preview ? (
-            <svg
-              viewBox="0 0 400 260"
-              className="block h-auto w-full max-w-xl"
-              role="img"
-              aria-label={t("previewDescription")}
-            >
-              <defs>
-                <marker
-                  id={markerId}
-                  markerWidth="6"
-                  markerHeight="6"
-                  refX="5"
-                  refY="3"
-                  orient="auto"
-                >
-                  <path
-                    d="M0 0L6 3L0 6"
-                    fill="none"
-                    stroke="#a7f3e5"
-                    strokeWidth="1.5"
-                  />
-                </marker>
-              </defs>
-
-              {/* Ejes de referencia */}
-              <path
-                d="M20 130H380 M200 15V245"
-                stroke="#526079"
-                strokeWidth="1"
-                strokeDasharray="4 6"
-                opacity="0.55"
-              />
-
-              {/* Flechas y cuerpos */}
-              {preview.map((body) => (
-                <g key={body.index}>
-                  {body.speed > 0 && (
-                    <line
-                      x1={body.x}
-                      y1={body.y}
-                      x2={body.arrowX}
-                      y2={body.arrowY}
-                      stroke="#a7f3e5"
-                      strokeWidth="2"
-                      markerEnd={`url(#${markerId})`}
-                    />
-                  )}
-
-                  <circle
-                    cx={body.x}
-                    cy={body.y}
-                    r="19"
-                    fill={bodyColors[body.index]}
-                    fillOpacity="0.17"
-                    stroke={bodyColors[body.index]}
-                    strokeWidth="1.5"
-                  />
-
-                  <circle
-                    cx={body.x}
-                    cy={body.y}
-                    r="8"
-                    fill={bodyColors[body.index]}
-                  />
-                </g>
-              ))}
-            </svg>
-          ) : (
-            <p className="p-5 text-center text-sm text-slate-400">
-              {t("previewUnavailable")}
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          {bodyColors.map((color, index) => (
-            <div
-              key={color}
-              className="flex items-center gap-2 text-xs text-slate-300"
-            >
-              <span
-                className="size-2.5 rounded-full"
-                style={{ backgroundColor: color }}
-              />
-              {t("body", { number: index + 1 })}
-            </div>
-          ))}
-        </div>
-
-        {simulation && (
-          <div className="space-y-3 rounded-xl border border-[#30364b] bg-[#111827] p-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  if (elapsed >= simulation.duration) {
-                    restartPlayback();
-                  } else {
-                    setPlaying((current) => !current);
+              <div className="mt-1 flex min-w-0 overflow-hidden rounded-lg border border-[#48516b] bg-[#0d1320] transition-colors focus-within:border-[#aa97ff] focus-within:ring-2 focus-within:ring-[#aa97ff]/30">
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  min="0"
+                  value={draft.gravity}
+                  onChange={(event) =>
+                    updateCommon("gravity", event.target.value)
                   }
-                }}
-                className="min-h-11 rounded-lg border border-[#60517f] px-3 py-2 text-sm text-[#d3c5ff] hover:bg-[#302748]"
-              >
-                {playing ? t("pause") : t("resume")}
-              </button>
-              <button
-                type="button"
-                onClick={restartPlayback}
-                className="min-h-11 rounded-lg border border-[#60517f] px-3 py-2 text-sm text-[#d3c5ff] hover:bg-[#302748]"
-              >
-                {t("restart")}
-              </button>
-              <label className="ml-auto flex items-center gap-2 text-sm text-slate-300">
-                <span>{t("playbackSpeed")}</span>
-                <select
-                  value={speed}
-                  onChange={(event) => setSpeed(Number(event.target.value))}
-                  className="min-h-11 rounded-lg border border-[#48516b] bg-[#0d1320] px-2 text-slate-100"
+                  className={inputStyles}
+                />
+
+                <span
+                  aria-hidden="true"
+                  className="flex min-w-11 shrink-0 items-center justify-center border-l border-[#48516b] bg-[#302748] px-2 font-mono text-sm font-semibold text-[#b9a8ff]"
                 >
-                  <option value="0.5">0.5×</option>
-                  <option value="1">1×</option>
-                  <option value="2">2×</option>
-                </select>
-              </label>
-            </div>
-            <label className="block text-xs text-slate-300">
-              <span>
-                {t("elapsedTime", {
-                  current: elapsed.toFixed(2),
-                  total: simulation.duration.toFixed(2),
-                })}
-              </span>
-              <input
-                type="range"
-                min="0"
-                max={simulation.duration}
-                step={simulation.duration / 600}
-                value={elapsed}
-                onChange={(event) => seek(Number(event.target.value))}
-                aria-label={t("timeControl")}
-                className="mt-2 block w-full accent-[#aa97ff]"
-              />
+                  G
+                </span>
+              </div>
             </label>
-            <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-300">
-              <input
-                type="checkbox"
-                checked={showTrails}
-                onChange={(event) => setShowTrails(event.target.checked)}
-                className="size-4 accent-[#aa97ff]"
-              />
-              {t("showTrails")}
+
+            {/* DURACIÓN */}
+            <label className="block min-w-0">
+              <span className="text-xs text-slate-300">{t("duration")}</span>
+
+              <div className="mt-1 flex min-w-0 overflow-hidden rounded-lg border border-[#48516b] bg-[#0d1320] transition-colors focus-within:border-[#aa97ff] focus-within:ring-2 focus-within:ring-[#aa97ff]/30">
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  step="any"
+                  min="0"
+                  value={draft.duration}
+                  onChange={(event) =>
+                    updateCommon("duration", event.target.value)
+                  }
+                  className={inputStyles}
+                />
+
+                <span
+                  aria-hidden="true"
+                  className="flex min-w-11 shrink-0 items-center justify-center border-l border-[#48516b] bg-[#302748] px-2 font-mono text-sm font-semibold text-[#b9a8ff]"
+                >
+                  t<sub>max</sub>
+                </span>
+              </div>
             </label>
           </div>
-        )}
+        </div>
 
-        {simulation && (
-          <PeriodicityAnalysis result={simulation.periodicity} duration={simulation.duration} />
-        )}
+        {/* SELECCIÓN DEL CUERPO */}
+        <div className="space-y-2 border-t border-[#30364b] pt-2.5">
+          <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-[#b9a8ff]">
+              {t("chooseBody")}
+            </h4>
 
-        <p className="text-sm leading-6 text-slate-400">
-          {t(simulation ? "simulationNote" : "previewNote")}
-        </p>
+            <div
+              role="group"
+              aria-label={t("chooseBody")}
+              className="grid grid-cols-3 gap-1.5"
+            >
+              {draft.bodies.map((_, index) => {
+                const isSelected = selectedBody === index;
+
+                return (
+                  <button
+                    key={index}
+                    type="button"
+                    aria-pressed={isSelected}
+                    aria-label={t("body", {
+                      number: index + 1,
+                    })}
+                    title={t("body", {
+                      number: index + 1,
+                    })}
+                    onClick={() => setSelectedBody(index)}
+                    style={{
+                      borderColor: isSelected ? bodyColors[index] : undefined,
+                    }}
+                    className={`flex min-h-11 min-w-11 cursor-pointer items-center justify-center gap-1.5 rounded-lg border px-2 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 ${
+                      isSelected
+                        ? "bg-[#302748] text-white"
+                        : "border-[#303b59] bg-[#0b1120] text-slate-300 hover:border-[#60517f]"
+                    }`}
+                  >
+                    <span
+                      className="size-2 shrink-0 rounded-full"
+                      style={{
+                        backgroundColor: bodyColors[index],
+                      }}
+                    />
+                    {t("body", { number: index + 1 })}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* INPUTS DEL CUERPO SELECCIONADO */}
+          <div className="grid min-w-0 grid-cols-2 gap-2 min-[520px]:grid-cols-3">
+            {bodyFields.map(({ key, label }) => (
+              <label key={key} className="block min-w-0">
+                {/* NOMBRE DEL PARÁMETRO */}
+                <span className="text-xs text-slate-300">{t(label)}</span>
+
+                {/* INPUT + VARIABLE */}
+                <div className="mt-1 flex min-w-0 overflow-hidden rounded-lg border border-[#48516b] bg-[#0d1320] transition-colors focus-within:border-[#aa97ff] focus-within:ring-2 focus-within:ring-[#aa97ff]/30">
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    step="any"
+                    min={key === "mass" ? "0" : undefined}
+                    value={selected[key]}
+                    onChange={(event) => updateBody(key, event.target.value)}
+                    className={inputStyles}
+                  />
+
+                  {/* SÍMBOLO FÍSICO */}
+                  <span
+                    aria-hidden="true"
+                    className="flex min-w-11 shrink-0 items-center justify-center border-l border-[#48516b] bg-[#302748] px-2 font-mono text-sm font-semibold text-[#b9a8ff]"
+                  >
+                    {bodySymbols[key]}
+                    <sub>{selectedBody + 1}</sub>
+                  </span>
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* NOTA SOBRE LAS UNIDADES */}
+        <p className="text-xs leading-4 text-slate-400">{t("unitsNote")}</p>
 
         {/* VALIDACIÓN */}
         <p
           role="status"
           aria-live="polite"
-          className={`rounded-lg border p-3 text-sm ${
+          className={`rounded-lg border px-3 py-2 text-xs leading-5 sm:text-sm ${
             error || runError
               ? "border-[#805052] bg-[#321c23] text-[#fecaca]"
               : "border-[#315c5b] bg-[#10242a] text-[#a7f3e5]"
@@ -685,6 +569,290 @@ export const ThreeBodyExperiment = ({
                     )
                   : t("valid")}
         </p>
+      </section>
+
+      {/* PANEL DERECHO: VISTA PREVIA Y SIMULACIÓN */}
+      <section className="flex min-w-0 flex-col self-start gap-2 rounded-2xl border border-[#303b59] bg-[#0b1120] p-3">
+        {/* ENCABEZADO */}
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <h3 className="min-w-0 text-base font-semibold leading-tight text-slate-100 sm:text-lg">
+            {t(simulation ? "simulationTitle" : "previewTitle")}
+          </h3>
+
+          <div className="flex shrink-0 items-center gap-1.5">
+            {/* EJECUTAR SIMULACIÓN */}
+            <button
+              type="button"
+              disabled={error !== null || calculating}
+              onClick={runSimulation}
+              aria-label={calculating ? t("calculating") : t("runSimulation")}
+              title={calculating ? t("calculating") : t("runSimulation")}
+              className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#aa97ff] px-2 py-2 text-sm font-semibold text-[#101122] transition-colors hover:bg-[#c4b5fd] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 disabled:cursor-not-allowed disabled:opacity-50 2xl:px-3"
+            >
+              {calculating ? (
+                <LoaderCircle
+                  size={14}
+                  strokeWidth={2}
+                  className="shrink-0 animate-spin"
+                  aria-hidden="true"
+                />
+              ) : (
+                <Play
+                  size={14}
+                  strokeWidth={2}
+                  fill="currentColor"
+                  className="shrink-0"
+                  aria-hidden="true"
+                />
+              )}
+
+              <span className=" whitespace-nowrap 2xl:inline">
+                {calculating ? t("calculating") : t("runSimulation")}
+              </span>
+            </button>
+
+            {/* RESTABLECER PARÁMETROS */}
+            <button
+              type="button"
+              onClick={() => {
+                invalidateSimulation();
+                setDraft(cloneInitial());
+                setSelectedBody(0);
+                setSpeed(1);
+                setShowTrails(true);
+              }}
+              aria-label={t("reset")}
+              title={t("reset")}
+              className="inline-flex min-h-11 min-w-11 cursor-pointer items-center justify-center gap-2 rounded-xl border border-[#60517f] px-2 py-2 text-sm font-semibold text-[#d3c5ff] transition-colors hover:bg-[#302748] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 2xl:px-3"
+            >
+              <RotateCcw
+                size={14}
+                strokeWidth={2}
+                className="shrink-0"
+                aria-hidden="true"
+              />
+
+              <span className=" whitespace-nowrap 2xl:inline">
+                {t("reset")}
+              </span>
+            </button>
+          </div>
+        </div>
+
+        {/* VISTA PREVIA / ANIMACIÓN */}
+        <div className="flex min-w-0 items-center justify-center rounded-xl border border-[#29364f] bg-[#090f1c] p-1.5">
+          <div className="w-full max-w-[400px]">
+            {simulation ? (
+              <ExperimentAnimation
+                trajectory={simulation}
+                elapsed={elapsed}
+                showTrails={showTrails}
+                label={t("simulationTitle")}
+              />
+            ) : preview ? (
+              <svg
+                viewBox="0 0 400 260"
+                className="block h-auto w-full"
+                role="img"
+                aria-label={t("previewDescription")}
+              >
+                <defs>
+                  <marker
+                    id={markerId}
+                    markerWidth="6"
+                    markerHeight="6"
+                    refX="5"
+                    refY="3"
+                    orient="auto"
+                  >
+                    <path
+                      d="M0 0L6 3L0 6"
+                      fill="none"
+                      stroke="#a7f3e5"
+                      strokeWidth="1.5"
+                    />
+                  </marker>
+                </defs>
+
+                {/* EJES DE REFERENCIA */}
+                <path
+                  d="M20 130H380 M200 15V245"
+                  stroke="#526079"
+                  strokeWidth="1"
+                  strokeDasharray="4 6"
+                  opacity="0.55"
+                />
+
+                {/* FLECHAS Y CUERPOS */}
+                {preview.map((body) => (
+                  <g key={body.index}>
+                    {body.speed > 0 && (
+                      <line
+                        x1={body.x}
+                        y1={body.y}
+                        x2={body.arrowX}
+                        y2={body.arrowY}
+                        stroke="#a7f3e5"
+                        strokeWidth="2"
+                        markerEnd={`url(#${markerId})`}
+                      />
+                    )}
+
+                    <circle
+                      cx={body.x}
+                      cy={body.y}
+                      r="19"
+                      fill={bodyColors[body.index]}
+                      fillOpacity="0.17"
+                      stroke={bodyColors[body.index]}
+                      strokeWidth="1.5"
+                    />
+
+                    <circle
+                      cx={body.x}
+                      cy={body.y}
+                      r="8"
+                      fill={bodyColors[body.index]}
+                    />
+                  </g>
+                ))}
+              </svg>
+            ) : (
+              <p className="p-4 text-center text-sm text-slate-400">
+                {t("previewUnavailable")}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* LEYENDA DE LOS CUERPOS */}
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          {bodyColors.map((color, index) => (
+            <div
+              key={color}
+              className="flex items-center gap-1.5 text-xs text-slate-300"
+            >
+              <span
+                className="size-2 rounded-full"
+                style={{ backgroundColor: color }}
+              />
+
+              {t("body", { number: index + 1 })}
+            </div>
+          ))}
+        </div>
+
+        {/* CONTROLES DE REPRODUCCIÓN */}
+
+        {/* CONTROLES DE REPRODUCCIÓN */}
+        <div className="space-y-2 rounded-xl  mt-2 border border-[#30364b] bg-[#111827] p-2.5">
+          {/* BOTONES Y OPCIONES */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* PLAY / PAUSA */}
+            <button
+              type="button"
+              disabled={!simulation}
+              onClick={() => {
+                if (!simulation) return;
+
+                if (elapsed >= simulation.duration) {
+                  restartPlayback();
+                } else {
+                  setPlaying((current) => !current);
+                }
+              }}
+              className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#60517f] px-3 py-2 text-xs font-semibold text-[#d3c5ff] transition-colors hover:bg-[#302748] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {playing ? (
+                <Pause size={16} aria-hidden="true" />
+              ) : (
+                <Play size={16} aria-hidden="true" />
+              )}
+
+              {playing ? t("pause") : t("resume")}
+            </button>
+
+            {/* REINICIAR */}
+            <button
+              type="button"
+              disabled={!simulation}
+              onClick={restartPlayback}
+              className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#60517f] px-3 py-2 text-xs font-semibold text-[#d3c5ff] transition-colors hover:bg-[#302748] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <SkipBack size={16} aria-hidden="true" />
+              {t("restart")}
+            </button>
+
+            {/* VELOCIDAD */}
+            <label className="flex min-h-11 items-center gap-2 text-xs text-slate-300">
+              <Gauge
+                size={16}
+                className="shrink-0 text-[#b9a8ff]"
+                aria-hidden="true"
+              />
+
+              <span>{t("playbackSpeed")}</span>
+
+              <select
+                value={speed}
+                disabled={!simulation}
+                onChange={(event) => setSpeed(Number(event.target.value))}
+                className="min-h-11 rounded-lg border border-[#48516b] bg-[#0d1320] px-2 text-slate-100 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <option value="0.5">0.5×</option>
+                <option value="1">1×</option>
+                <option value="2">2×</option>
+              </select>
+            </label>
+
+            {/* MOSTRAR TRAYECTORIAS */}
+            <label className="flex min-h-11 cursor-pointer items-center gap-2 text-xs text-slate-300">
+              <Route
+                size={16}
+                className="shrink-0 text-[#b9a8ff]"
+                aria-hidden="true"
+              />
+
+              <input
+                type="checkbox"
+                checked={showTrails}
+                disabled={!simulation}
+                onChange={(event) => setShowTrails(event.target.checked)}
+                className="size-4 accent-[#aa97ff] disabled:cursor-not-allowed disabled:opacity-40"
+              />
+
+              {t("showTrails")}
+            </label>
+          </div>
+
+          {/* TIEMPO Y BARRA */}
+          <label className="flex min-w-0 flex-wrap items-center gap-2 text-xs text-slate-300">
+            <Clock3
+              size={16}
+              className="shrink-0 text-[#b9a8ff]"
+              aria-hidden="true"
+            />
+
+            <span className="shrink-0 tabular-nums">
+              {t("elapsedTime", {
+                current: simulation ? elapsed.toFixed(2) : "0.00",
+                total: simulation ? simulation.duration.toFixed(2) : "—",
+              })}
+            </span>
+
+            <input
+              type="range"
+              min="0"
+              max={simulation?.duration ?? 1}
+              step={simulation ? simulation.duration / 600 : 1}
+              value={simulation ? elapsed : 0}
+              disabled={!simulation}
+              onChange={(event) => seek(Number(event.target.value))}
+              aria-label={t("timeControl")}
+              className="min-h-11 min-w-28 flex-1 cursor-pointer accent-[#aa97ff] disabled:cursor-not-allowed disabled:opacity-40"
+            />
+          </label>
+        </div>
       </section>
     </div>
   );

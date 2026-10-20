@@ -17,7 +17,7 @@ const modules = new Map([...files].map((file) => {
     const specifier = node.moduleSpecifier.text;
     const root = specifier.startsWith("@/") ? `src/${specifier.slice(2)}`
       : specifier.startsWith(".") ? normalize(join(dirname(file), specifier)) : null;
-    const target = root && [root, `${root}.ts`, `${root}.tsx`, `${root}/index.tsx`].find((path) => files.has(path));
+    const target = root && [root, `${root}.ts`, `${root}.tsx`, `${root}/index.ts`, `${root}/index.tsx`].find((path) => files.has(path));
     return [{ specifier, target }];
   });
   const client = source.statements.some((node) => ts.isExpressionStatement(node) &&

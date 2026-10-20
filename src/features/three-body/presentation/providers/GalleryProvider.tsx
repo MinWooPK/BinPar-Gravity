@@ -13,6 +13,7 @@ import type { GalleryState } from "../../types/gallery.types";
 
 const initial: GalleryState = {
   scroll: 0,
+  categoryFilter: "all",
   galleryPlaying: false,
   detailPlaying: false,
   galleryView: "intro",

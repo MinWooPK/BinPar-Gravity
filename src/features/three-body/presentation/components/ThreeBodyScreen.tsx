@@ -7,5 +7,10 @@ export const ThreeBodyScreen = () => {
   const animationData = Object.fromEntries(
     orbits.map(({ slug }) => [slug, getOrbitPlayback(slug)]),
   );
-  return <ThreeBodyJourney discovery={<ThreeBodyDiscovery />} animationData={animationData} />;
+  return (
+    <ThreeBodyJourney
+      discovery={<ThreeBodyDiscovery />}
+      animationData={animationData}
+    />
+  );
 };

@@ -1,5 +1,7 @@
 "use client";
 
+import { X, Menu } from "@/components/icons";
+
 import { useEffect, useId, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
@@ -111,30 +113,10 @@ export const Header = () => {
             >
               {menuOpen ? (
                 // Icono cerrar
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  className="size-5"
-                >
-                  <path d="M18 6 6 18M6 6l12 12" />
-                </svg>
+                <X className="size-5" />
               ) : (
                 // Icono menú
-                <svg
-                  aria-hidden="true"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  className="size-5"
-                >
-                  <path d="M4 7h16M4 12h16M4 17h16" />
-                </svg>
+                <Menu className="size-5" />
               )}
             </button>
 

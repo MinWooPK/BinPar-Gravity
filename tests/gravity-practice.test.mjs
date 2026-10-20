@@ -42,6 +42,7 @@ const {
   parsePracticeNumber,
 } = load("domain/practice/evaluation");
 const { gravitationalForce } = load("domain/gravitation");
+const { PRACTICE_QUESTION_COUNT } = load("types/practice/practice.types");
 const { nextPlan, learningEvidence } = load("application/practice/adaptation");
 const { parsePracticeRequest, isDefinition } = load(
   "application/practice/validation",
@@ -175,7 +176,7 @@ test("common numerical error matches are evidence, not inferred learner beliefs"
   );
   assert.equal(evaluateAnswer(q("force"), answer(5, 0), false).error, null);
 });
-test("difficulty changes gradually; errors produce simpler reinforcement within ten questions", () => {
+test("difficulty changes gradually; errors produce simpler reinforcement within five questions", () => {
   const incorrect = evaluateAnswer(
     q("distance", { difficulty: 3 }),
     answer("half"),
@@ -189,13 +190,13 @@ test("difficulty changes gradually; errors produce simpler reinforcement within 
   const correct = evaluateAnswer(q("square"), answer(1600), false);
   assert.equal(nextPlan([correct]).difficulty, 1);
   assert.equal(nextPlan([correct, correct]).difficulty, 2);
-  const many = Array.from({ length: 8 }, () =>
+  const many = Array.from({ length: PRACTICE_QUESTION_COUNT - 2 }, () =>
     evaluateAnswer(q("attraction"), answer("repel"), false),
   );
   assert.deepEqual(nextPlan(many).allowed, ["km", "tonnes"]);
   assert.throws(() => nextPlan([...many, correct, correct]));
 });
-test("session checks exactly ten answers, counts hints and rejects duplicate correction or skipping", async () => {
+test("session checks exactly five answers, counts hints and rejects duplicate correction or skipping", async () => {
   const generator = {
     question: async (history) =>
       q(nextPlan(history).allowed[0], {
@@ -204,7 +205,7 @@ test("session checks exactly ten answers, counts hints and rejects duplicate cor
       }),
     explanation: async () => ({ explanation: "Explanation", steps: ["Step"] }),
     report: async (history) => {
-      assert.equal(history.length, 10);
+      assert.equal(history.length, PRACTICE_QUESTION_COUNT);
       return {
         summary: "Summary",
         strengths: [],
@@ -215,7 +216,8 @@ test("session checks exactly ten answers, counts hints and rejects duplicate cor
   };
   let session = await startPractice("es", generator);
   await assert.rejects(() => nextQuestion(session, generator));
-  for (let n = 0; n < 5; n++) {
+  assert.equal(PRACTICE_QUESTION_COUNT, 5);
+  for (let n = 0; n < PRACTICE_QUESTION_COUNT; n++) {
     const expected = expectedAnswer(session.question);
     const result = await checkQuestion(
       session,
@@ -224,15 +226,15 @@ test("session checks exactly ten answers, counts hints and rejects duplicate cor
       generator,
     );
     assert.equal(result.session.history.length, n + 1);
-    assert.equal(!!result.report, n === 9);
+    assert.equal(!!result.report, n === PRACTICE_QUESTION_COUNT - 1);
     await assert.rejects(() =>
       checkQuestion(result.session, answer(expected, 0), false, generator),
     );
     session =
-      n === 9 ? result.session : await nextQuestion(result.session, generator);
+      n === PRACTICE_QUESTION_COUNT - 1 ? result.session : await nextQuestion(result.session, generator);
   }
   assert.equal(session.phase, "complete");
-  assert.equal(learningEvidence(session.history).score, 10);
+  assert.equal(learningEvidence(session.history).score, PRACTICE_QUESTION_COUNT);
   assert.equal(learningEvidence(session.history).hints, 1);
   await assert.rejects(() => nextQuestion(session, generator));
 });
@@ -355,7 +357,7 @@ test("structured generation, hints, feedback and report validate model output an
     assert.equal(
       (
         await generateReport(
-          Array.from({ length: 10 }, () => attempt("square")),
+          Array.from({ length: PRACTICE_QUESTION_COUNT }, () => attempt("square")),
           "en",
         )
       ).recommendations[0].stage,
@@ -364,7 +366,7 @@ test("structured generation, hints, feedback and report validate model output an
     output.recommendations[0].stage = "fake-route";
     await assert.rejects(() =>
       generateReport(
-        Array.from({ length: 10 }, () => attempt("square")),
+        Array.from({ length: PRACTICE_QUESTION_COUNT }, () => attempt("square")),
         "en",
       ),
     );

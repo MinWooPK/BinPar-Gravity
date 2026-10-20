@@ -44,23 +44,28 @@ export const GravityJourney = ({
   const activeStageRef = useRef<GravityStageId | null>(null);
   const lastStage = useRef<GravityStageId>("gravity-discovery");
   const viewportRef = useRef<HTMLDivElement>(null);
-  const scrollPositions = useRef<Partial<Record<GravityStageId, { viewport: number; document: number }>>>({});
+  const scrollPositions = useRef<
+    Partial<Record<GravityStageId, { viewport: number; document: number }>>
+  >({});
   const focusOnChange = useRef(false);
 
-  const activateStage = useCallback((stage: GravityStageId | null, moveFocus: boolean) => {
-    const previous = activeStageRef.current;
-    if (stage === previous) return;
-    if (previous) {
-      scrollPositions.current[previous] = {
-        viewport: viewportRef.current?.scrollTop ?? 0,
-        document: window.scrollY,
-      };
-      lastStage.current = previous;
-    }
-    activeStageRef.current = stage;
-    focusOnChange.current = moveFocus;
-    setActiveStage(stage);
-  }, []);
+  const activateStage = useCallback(
+    (stage: GravityStageId | null, moveFocus: boolean) => {
+      const previous = activeStageRef.current;
+      if (stage === previous) return;
+      if (previous) {
+        scrollPositions.current[previous] = {
+          viewport: viewportRef.current?.scrollTop ?? 0,
+          document: window.scrollY,
+        };
+        lastStage.current = previous;
+      }
+      activeStageRef.current = stage;
+      focusOnChange.current = moveFocus;
+      setActiveStage(stage);
+    },
+    [],
+  );
 
   const selectStage = useCallback(
     (stage: GravityStageId, focusPanel = false) => {
@@ -76,7 +81,11 @@ export const GravityJourney = ({
   );
 
   const returnToJourney = useCallback(() => {
-    window.history.pushState(null, "", window.location.pathname + window.location.search);
+    window.history.pushState(
+      null,
+      "",
+      window.location.pathname + window.location.search,
+    );
     activateStage(null, true);
   }, [activateStage]);
 
@@ -101,7 +110,9 @@ export const GravityJourney = ({
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
-    const position = activeStage ? scrollPositions.current[activeStage] : undefined;
+    const position = activeStage
+      ? scrollPositions.current[activeStage]
+      : undefined;
     if (viewport) {
       viewport.scrollTop = position?.viewport ?? 0;
       if (getComputedStyle(viewport).overflowY === "visible") {
@@ -126,7 +137,11 @@ export const GravityJourney = ({
         data-introduction={activeStage === null}
         data-active-stage={activeStage ?? undefined}
       >
-        {activeStage !== null && <h1 className="sr-only">{t("heroLead")} {t("heroSubject")}</h1>}
+        {activeStage !== null && (
+          <h1 className="sr-only">
+            {t("heroLead")} {t("heroSubject")}
+          </h1>
+        )}
         {activeStage === null && introduction}
         <GravityJourneyNavigation
           activeStage={activeStage}

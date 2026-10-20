@@ -3,7 +3,7 @@
 import { useId, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
-import { Icon } from "@/components/icons/index";
+import { Icon } from "@/components/icons";
 import css from "./GravityEveryday.module.css";
 
 const styles = {

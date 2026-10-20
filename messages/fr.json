@@ -61,7 +61,8 @@
       "discover": "Découvrir",
       "understand": "Comprendre",
       "experiment": "Expérimenter",
-      "check": "Vérifier"
+      "check": "Vérifier",
+      "gallery": "Galerie"
     },
     "panels": {
       "choose": "Panneau visible",
@@ -103,9 +104,9 @@
     "scienceSymbolColumn": "Symbole",
     "scienceMeaningColumn": "Signification",
     "scienceUnitColumn": "Unité",
-    "scienceFirstMassMeaning": "Masse du premier corps",
-    "scienceSecondMassMeaning": "Masse du second corps",
-    "scienceDistanceMeaning": "Distance entre les centres",
+    "scienceFirstMassMeaning": "Masse 1",
+    "scienceSecondMassMeaning": "Masse 2",
+    "scienceDistanceMeaning": "Distance",
     "scienceUnitsExplanation": "Unités SI : <highlight>kg</highlight>, kilogramme (masse) ; <highlight>m</highlight>, mètre (distance) ; <highlight>N</highlight>, newton (force).",
     "scienceNewtonIdentity": "Un newton équivaut à un kilogramme mètre par seconde au carré.",
     "liveResultShort": "En direct",
@@ -612,7 +613,8 @@
     "galleryViewLabel": "Vue de la galerie",
     "galleryViewGrid": "Vue en cartes",
     "galleryViewList": "Vue en liste",
-    "galleryFilterLabel": "Filtrer par type",
+    "galleryFilterAll": "Toutes",
+    "galleryFilterLabel": "Filtrer les orbites par catégorie",
     "galleryResults": "{count} orbites sur {total}",
     "galleryPeriod": "Période",
     "galleryExplore": "Explorer",
@@ -626,25 +628,47 @@
     "categoryClassical": "Classique",
     "categoryChoreography": "Chorégraphie",
     "categoryPeriodic": "Périodique",
+
     "journey": {
       "eyebrow": "02 — Expérience interactive",
       "title": "Le problème des trois corps",
       "description": "Découvrez pourquoi trois corps qui s’attirent peuvent produire des mouvements extraordinairement complexes.",
       "navigationTitle": "Parcours d’exploration",
+
       "discoverTitle": "Découvre le problème",
       "discoverDescription": "Définition, principes physiques, histoire et explication du problème des trois corps.",
-      "galleryTitle": "Explore les solutions",
+
+      "understandTitle": "Comprendre les orbites",
+      "understandDescription": "Découvrez ce que représentent les orbites et comment les positions, les vitesses et les masses initiales influencent leurs trajectoires.",
+
+      "galleryTitle": "Explore les 6 solutions",
       "galleryDescription": "Explore six solutions, des orbites animées, des filtres et leurs détails.",
+
+      "experimentTitle": "Créez votre propre mouvement",
+      "experimentDescription": "Configurez les masses, les positions et les vitesses de trois corps et découvrez comment ils se déplacent sous l'effet de la gravitation.",
+
       "freedomNote": "Choisis par où commencer. Tu peux changer d’étape à tout moment.",
       "backToWelcome": "Revenir à l’accueil des trois corps",
       "chooseStage": "Choisir une étape",
+
       "galleryIntroduction": "Six solutions extraordinaires. Trois corps qui s’attirent. Découvrez les motifs que révèle la gravité.",
       "galleryScienceNote": "Ces courbes ne sont pas décoratives. Chaque trajectoire est calculée en intégrant les équations de Newton avec des conditions initiales documentées. Masses égales, G = 1 et unités normalisées.",
-      "experimentTitle": "Créez votre propre mouvement",
-      "experimentDescription": "Configurez les masses, les positions et les vitesses de trois corps et découvrez comment ils se déplacent sous l'effet de la gravitation.",
-      "experimentPlaceholder": "Bientôt : simulateur à trois corps."
+
+      "experimentPlaceholder": "Bientôt : simulateur à trois corps.",
+
+      "stageTags": {
+        "discover": "Découvrir",
+        "understand": "Comprendre",
+        "gallery": "Galerie",
+        "experiment": "Expérimenter"
+      }
     },
+
     "experiment": {
+      "commonParameters": "Paramètres généraux",
+      "initialPosition": "Position initiale",
+      "initialVelocity": "Vitesse initiale",
+      "generalParametersHelp": "G détermine l’intensité de l’attraction gravitationnelle, tandis que la durée définit le temps pendant lequel le mouvement est simulé.",
       "periodicity": {
         "title": "Analyse de périodicité",
         "possibleOrbit": "Possible orbite approximativement périodique",
@@ -702,20 +726,26 @@
     }
   },
   "Practice": {
+    "checking": "Correction de votre réponse…",
+    "noReview": "Le bilan n’a pas identifié de notions à renforcer dans ces exercices.",
+    "noStrengths": "Le bilan n’a pas identifié de points forts précis dans ces réponses.",
+    "percentage": "{percentage} de bonnes réponses",
+    "scoreValue": "{score} sur {total}",
+    "summaryTitle": "Le bilan de votre apprentissage",
     "title": "Vérifie tes connaissances",
     "subtitle": "Pratique à ton rythme",
     "introduction": "Réponds à 5 questions de théorie, d’unités et de calcul. Les suivantes s’adaptent à tes réponses. Utilise des indices et visite les autres étapes sans perdre ta progression.",
     "start": "Commencer",
-    "finished": "Ta pratique est terminée",
+    "finished": "Vous avez terminé les exercices !",
     "score": "{score} bonnes réponses sur 5",
     "hintsUsed": "Indices utilisés : {count}",
-    "strengths": "Ce que tu as démontré",
-    "review": "Ce qu’il faut revoir",
-    "recommendations": "Où poursuivre ton apprentissage",
-    "history": "Résumé des réponses",
+    "strengths": "Ce que vous avez appris",
+    "review": "Ce que vous pouvez améliorer",
+    "recommendations": "Votre prochaine étape",
+    "history": "Voir mes réponses",
     "restart": "Recommencer",
     "correct": "Bonne réponse",
-    "incorrect": "Reprenons ensemble",
+    "incorrect": "Réponse incorrecte · Reprenons ensemble",
     "hintUsed": "Avec un indice",
     "position": "Question {number} sur 5",
     "difficulty": "Difficulté {level} sur 3",

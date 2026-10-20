@@ -1,5 +1,7 @@
 "use client";
 
+import { ChevronDown } from "@/components/icons";
+
 import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 
@@ -85,9 +87,7 @@ export const StageSelector = <Id extends string>({ id, label, options, value, on
       >
         <span className="shrink-0 font-mono text-violet-300">{active.number}</span>
         <span className="min-w-0 flex-1 break-words">{active.label}</span>
-        <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" className={`size-4 shrink-0 transition-transform motion-reduce:transition-none ${open ? "rotate-180" : ""}`}>
-          <path d="m5 7 5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <ChevronDown className={`size-4 shrink-0 transition-transform motion-reduce:transition-none ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
         <div id={menuId} role="menu" aria-label={label} onKeyDown={handleMenuKeyDown} className="absolute right-0 top-full z-50 mt-2 max-h-[min(16rem,35dvh)] w-full overflow-y-auto overscroll-contain rounded-xl border border-violet-300/30 bg-[#111624] p-1.5 shadow-xl shadow-black/40">

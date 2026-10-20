@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import { useTranslations } from "next-intl";
-import { CircleHelp } from "@/components/icons/TutorIcons";
+import { CircleHelp } from "@/components/icons";
 import { useTutorActions } from "../providers/tutorEnvironment";
 
 export type ExplainTopic =

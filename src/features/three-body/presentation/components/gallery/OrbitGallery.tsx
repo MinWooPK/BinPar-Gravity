@@ -4,20 +4,27 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { Link } from "@/i18n/navigation";
-import { Icon } from "@/components/icons/index";
+import { Icon } from "@/components/icons";
 
 import { orbits } from "../../../data/orbits";
 import type { OrbitPlayback } from "../../../types/animation.types";
+import type { OrbitCategoryFilter } from "../../../types/gallery.types";
 import { useGalleryState } from "../../providers/GalleryProvider";
 import { OrbitAnimation } from "../shared/OrbitAnimation";
 import { threeBodyStyles as styles } from "./ThreeBody.styles";
-import { GalleryIntroduction } from "./GalleryIntroduction";
 
 const categoryNames = {
   Clásica: "categoryClassical",
   Coreografía: "categoryChoreography",
   Periódica: "categoryPeriodic",
 } as const;
+
+const categoryFilters: OrbitCategoryFilter[] = [
+  "all",
+  "Clásica",
+  "Coreografía",
+  "Periódica",
+];
 
 type OrbitGalleryProps = {
   animationData: Readonly<Record<string, OrbitPlayback>>;
@@ -31,15 +38,14 @@ export const OrbitGallery = ({
   const { state, update } = useGalleryState();
   const t = useTranslations("ThreeBody");
 
-  // Reproducción independiente, pausada por defecto.
+  // Estado de reproducción de cada órbita.
   const [playingByOrbit, setPlayingByOrbit] = useState<Record<string, boolean>>(
     {},
   );
 
-  // Cuántas tarjetas se muestran según la pantalla.
+  // Número de tarjetas por página según el dispositivo.
   const [itemsPerPage, setItemsPerPage] = useState(1);
 
-  // Detectar móvil, tablet y escritorio.
   useEffect(() => {
     const tablet = window.matchMedia("(min-width: 640px)");
     const desktop = window.matchMedia("(min-width: 1024px)");
@@ -59,15 +65,42 @@ export const OrbitGallery = ({
     };
   }, []);
 
-  const totalPages = Math.ceil(orbits.length / itemsPerPage);
+  // ======================================
+  // FILTRADO POR CATEGORÍAS
+  // ======================================
 
-  // Evitar páginas inválidas al cambiar de tamaño.
+  const filteredOrbits =
+    state.categoryFilter === "all"
+      ? orbits
+      : orbits.filter((orbit) => orbit.category === state.categoryFilter);
+
+  const changeCategory = (category: OrbitCategoryFilter) => {
+    if (state.categoryFilter === category) return;
+
+    update({
+      categoryFilter: category,
+      galleryPage: 0,
+    });
+  };
+
+  // ======================================
+  // PAGINACIÓN
+  // ======================================
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredOrbits.length / itemsPerPage),
+  );
+
   const currentPage = Math.min(state.galleryPage, totalPages - 1);
 
   const firstVisible = currentPage * itemsPerPage;
-  const lastVisible = Math.min(firstVisible + itemsPerPage, orbits.length);
 
-  // Desplazar horizontalmente una página completa.
+  const lastVisible = Math.min(
+    firstVisible + itemsPerPage,
+    filteredOrbits.length,
+  );
+
   const trackTransform = `translate3d(
     calc(-${currentPage * 100}% - ${currentPage * 1.25}rem),
     0,
@@ -90,7 +123,10 @@ export const OrbitGallery = ({
     });
   };
 
-  // Play/Pausa individual por órbita.
+  // ======================================
+  // REPRODUCCIÓN
+  // ======================================
+
   const toggleOrbit = (slug: string) => {
     setPlayingByOrbit((current) => ({
       ...current,
@@ -98,27 +134,10 @@ export const OrbitGallery = ({
     }));
   };
 
-  // Abrir la galería desde la explicación.
-  const showGallery = () => {
-    update({
-      galleryView: "gallery",
-      galleryPage: 0,
-      scroll: 0,
-    });
-  };
+  // ======================================
+  // RESTAURACIÓN DEL SCROLL
+  // ======================================
 
-  // Regresar a la explicación.
-  const showIntroduction = () => {
-    setPlayingByOrbit({});
-
-    update({
-      galleryView: "intro",
-      galleryPage: 0,
-      scroll: 0,
-    });
-  };
-
-  // Guardar scroll al navegar entre vistas y detalles.
   const savedScroll = useRef(state.scroll);
 
   useLayoutEffect(() => {
@@ -130,42 +149,62 @@ export const OrbitGallery = ({
 
     const id = requestAnimationFrame(() => {
       window.scrollTo({
-        top: state.galleryView === "gallery" ? savedScroll.current : 0,
+        top: savedScroll.current,
         behavior: "instant",
       });
     });
 
     return () => cancelAnimationFrame(id);
-  }, [active, state.galleryView]);
+  }, [active]);
 
   // ======================================
-  // VISTA 1: EXPLICACIÓN
-  // ======================================
-
-  if (state.galleryView === "intro") {
-    return (
-      <div className={styles.gallery}>
-        <GalleryIntroduction onExplore={showGallery} />
-      </div>
-    );
-  }
-
-  // ======================================
-  // VISTA 2: CARRUSEL
+  // GALERÍA
   // ======================================
 
   return (
     <div className={styles.gallery}>
-      {/* Volver y controles de navegación */}
+      {/* FILTROS Y NAVEGACIÓN */}
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={showIntroduction}
-          className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-[#c9baff] transition-colors hover:bg-[#aa97ff12] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#c7baff]"
+        {/* Tags de categoría */}
+        <div
+          role="group"
+          aria-label={t("galleryFilterLabel")}
+          className="flex flex-wrap items-center gap-2"
         >
-          <span aria-hidden="true">←</span>
-          {t("galleryGuide.back")}
-        </button>
+          {categoryFilters.map((category) => {
+            const selected = state.categoryFilter === category;
+
+            const label =
+              category === "all"
+                ? t("galleryFilterAll")
+                : t(categoryNames[category]);
+
+            return (
+              <button
+                key={category}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => changeCategory(category)}
+                className={`
+                  min-h-11 cursor-pointer rounded-xl border
+                  px-3 py-2 text-sm font-semibold
+                  transition-colors duration-200
+                  focus-visible:outline-2
+                  focus-visible:outline-offset-2
+                  focus-visible:outline-violet-300
+                  motion-reduce:transition-none
+                  ${
+                    selected
+                      ? "border-violet-300 bg-violet-300/15 text-cyan-100"
+                      : "border-slate-600 bg-slate-950/40 text-slate-300 hover:border-violet-300 hover:bg-violet-300/10"
+                  }
+                `}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
 
         {/* Flechas del carrusel */}
         <div
@@ -191,7 +230,9 @@ export const OrbitGallery = ({
             aria-atomic="true"
             className="min-w-20 text-center text-sm font-medium tabular-nums text-slate-300"
           >
-            {firstVisible + 1}–{lastVisible} / {orbits.length}
+            {filteredOrbits.length === 0
+              ? "0 / 0"
+              : `${firstVisible + 1}–${lastVisible} / ${filteredOrbits.length}`}
           </span>
 
           <button
@@ -207,7 +248,8 @@ export const OrbitGallery = ({
           </button>
         </div>
       </div>
-      {/* ACLARACIÓN SOBRE LAS SEIS SOLUCIONES */}
+
+      {/* ACLARACIÓN SOBRE LAS SOLUCIONES */}
       <div className="mb-5 rounded-xl border border-[#60517f] bg-[#201b35] p-4">
         <p className="text-sm leading-7 text-slate-200 sm:text-base">
           {t.rich("galleryGuide.keyMessage", {
@@ -219,23 +261,26 @@ export const OrbitGallery = ({
           })}
         </p>
       </div>
-      {/* Ventana del carrusel */}
+
+      {/* CARRUSEL */}
       <div
         id="orbit-gallery-carousel"
         className="orbit-carousel-viewport"
         role="region"
         aria-label={t("journey.galleryTitle")}
       >
-        {/* Las seis tarjetas permanecen montadas.
-            Solo se desplaza la pista horizontal. */}
         <div
           className="orbit-carousel-track"
           style={{ transform: trackTransform }}
         >
-          {orbits.map((orbit, index) => {
+          {filteredOrbits.map((orbit, index) => {
             const playing = playingByOrbit[orbit.slug] ?? false;
 
             const isVisible = index >= firstVisible && index < lastVisible;
+
+            // Mantener la numeración original.
+            const originalIndex =
+              orbits.findIndex((item) => item.slug === orbit.slug) + 1;
 
             return (
               <article
@@ -259,7 +304,7 @@ export const OrbitGallery = ({
                 {/* Animación */}
                 <div className="orbit-card-art space-grid">
                   <span className="orbit-index">
-                    {String(index + 1).padStart(2, "0")}
+                    {String(originalIndex).padStart(2, "0")}
                   </span>
 
                   <OrbitAnimation
@@ -268,7 +313,7 @@ export const OrbitGallery = ({
                     playing={active && playing && isVisible}
                   />
 
-                  {/* Play/Pausa propio de la tarjeta */}
+                  {/* Play/Pausa */}
                   <button
                     type="button"
                     aria-label={`${t(

@@ -6,7 +6,7 @@ export const gravityFormulaStyles = {
   embedded: `${css["card"]} flex flex-col w-full max-w-[560px] mx-auto self-start min-w-0 gap-2 p-3 text-base leading-normal`,
   header: `${css["header"]} flex items-center justify-between flex-wrap [gap:8px_12px]`,
   reset: `${css["reset"]} [min-height:44px] [padding:8px_12px] [border:1px_solid_#544776] [border-radius:8px] [background:#aa97ff12] [color:#d0c1ff] [font-size:.875rem] cursor-pointer`,
-  headerActions: "flex flex-wrap items-center [gap:4px] min-w-0",
+  headerActions: "flex flex-wrap items-center [gap:4px] min-w-0 gap-2",
   formulaControls: "flex flex-col items-center gap-2",
   help: `${css["help"]} [min-height:1.45em] [margin:6px_0] [color:#aeb8cb] [font-size:.875rem] [line-height:1.45] in-[#gravity-understanding]:my-0.5`,
   equation:
@@ -28,6 +28,7 @@ export const gravityFormulaStyles = {
   error:
     "[margin:10px_0_0] [font-size:.875rem] [line-height:1.5] [overflow-wrap:anywhere] [color:#fde68a]",
   rangeWarning: `${css.rangeWarning} mt-3 min-w-0 space-y-3 rounded-xl border border-amber-400/60 bg-amber-950/40 p-4 text-sm leading-relaxed text-amber-50/90 [overflow-wrap:anywhere]`,
+  rangeWarning2: `${css.rangeWarning} mt-3 min-w-0 space-y-3 rounded-xl border border-amber-400/60 bg-[#24191d] p-4 text-sm leading-relaxed text-amber-50/90 [overflow-wrap:anywhere]`,
   constant: `${css["constant"]} flex items-center [gap:12px] min-w-0 [margin-top:6px] [padding:8px] [border:1px_solid_#aa97ff45] [border-radius:10px] bg-lab-surface [transition:border-color_140ms,_background_140ms] in-[#gravity-understanding]:mt-0.5 in-[#gravity-understanding]:px-2 in-[#gravity-understanding]:py-1 in-[#gravity-understanding]:gap-2`,
   constantSymbol:
     "inline-flex shrink-0 items-center justify-center [width:44px] [min-height:44px] [padding:4px] [border:1px_solid_#aa97ff60] [border-radius:8px] [background:#aa97ff12] [color:#c4b5fd] [font-family:Georgia,_serif] [font-size:1.5rem] [line-height:1] cursor-pointer",

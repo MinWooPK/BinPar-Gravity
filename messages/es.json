@@ -61,7 +61,8 @@
       "discover": "Descubre",
       "understand": "Comprende",
       "experiment": "Experimenta",
-      "check": "Comprueba"
+      "check": "Comprueba",
+      "gallery": "Galería"
     },
     "panels": {
       "choose": "Panel visible",
@@ -176,9 +177,9 @@
     "resetShort": "Restablecer",
     "reset": "Restablecer laboratorio a 40 kg, 40 kg y 8 m",
     "diagramNote": "Las flechas indican atracción mutua. Tamaños, separación y flechas son ilustrativos: no están a escala.",
-    "firstMass": "Masa del cuerpo 1",
-    "secondMass": "Masa del cuerpo 2",
-    "centreDistance": "Distancia entre centros",
+    "firstMass": "Masa 1",
+    "secondMass": "Masa 2",
+    "centreDistance": "Distancia",
     "tinyForce": "N significa newton, la unidad de fuerza. Entre masas cotidianas la atracción es muy pequeña; la notación científica permite leerla sin redondearla a cero. Usamos kg y m.",
     "challenges": "Retos de aprendizaje",
     "challengeNumber": "Reto {number}",
@@ -612,7 +613,6 @@
     "galleryViewLabel": "Vista de galería",
     "galleryViewGrid": "Vista de tarjetas",
     "galleryViewList": "Vista de lista",
-    "galleryFilterLabel": "Filtrar por tipo",
     "galleryResults": "{count} de {total} órbitas",
     "galleryPeriod": "Período",
     "galleryExplore": "Explorar",
@@ -626,25 +626,49 @@
     "categoryClassical": "Clásica",
     "categoryChoreography": "Coreografía",
     "categoryPeriodic": "Periódica",
+    "galleryFilterAll": "Todas",
+    "galleryFilterLabel": "Filtrar órbitas por categoría",
+
     "journey": {
       "eyebrow": "02 — Experiencia interactiva",
       "title": "El problema de los tres cuerpos",
       "description": "Descubre por qué tres cuerpos que se atraen pueden producir movimientos extraordinariamente complejos.",
       "navigationTitle": "Recorrido de exploración",
+
       "discoverTitle": "Descubre el problema",
       "discoverDescription": "Definición, fundamentos físicos, historia y explicación del problema de los tres cuerpos.",
-      "galleryTitle": "Explora las soluciones",
+
+      "understandTitle": "Comprende las órbitas",
+      "understandDescription": "Aprende qué representan las órbitas y cómo influyen las posiciones, velocidades y masas iniciales en sus trayectorias.",
+
+      "galleryTitle": "Explora las 6 soluciones",
       "galleryDescription": "Seis soluciones, animaciones orbitales, filtros y detalles para explorar.",
+
+      "experimentTitle": "Crea tu propio movimiento",
+      "experimentDescription": "Configura las masas, posiciones y velocidades de tres cuerpos y descubre cómo se mueven bajo la gravedad.",
+
       "freedomNote": "Elige por dónde empezar. Puedes cambiar de etapa en cualquier momento.",
       "backToWelcome": "Volver al inicio de Tres Cuerpos",
       "chooseStage": "Elegir etapa",
+
       "galleryIntroduction": "Seis soluciones extraordinarias. Tres cuerpos que se atraen. Descubre los patrones que esconde la gravedad.",
       "galleryScienceNote": "Estas no son curvas decorativas. Cada trayectoria se calcula integrando las ecuaciones de Newton con condiciones iniciales documentadas. Masas iguales, G = 1 y unidades normalizadas.",
-      "experimentTitle": "Crea tu propio movimiento",
-      "experimentDescription": "Configura las masas, posiciones y velocidades de tres cuerpos y descubre cómo se mueven bajo la gravedad.",
-      "experimentPlaceholder": "Próximamente: simulador de tres cuerpos."
+
+      "experimentPlaceholder": "Próximamente: simulador de tres cuerpos.",
+
+      "stageTags": {
+        "discover": "Descubre",
+        "understand": "Comprende",
+        "gallery": "Galería",
+        "experiment": "Experimenta"
+      }
     },
+
     "experiment": {
+      "commonParameters": "Parámetros generales",
+      "initialPosition": "Posición inicial",
+      "initialVelocity": "Velocidad inicial",
+      "generalParametersHelp": "G determina la intensidad de la atracción gravitatoria y la duración establece cuánto tiempo se simula el movimiento.",
       "periodicity": {
         "title": "Análisis de periodicidad",
         "possibleOrbit": "Posible órbita periódica aproximada",
@@ -703,20 +727,26 @@
   },
 
   "Practice": {
+    "checking": "Corrigiendo tu respuesta…",
+    "noReview": "El informe no ha identificado conceptos que necesites reforzar en esta práctica.",
+    "noStrengths": "El informe no ha identificado fortalezas concretas en estas respuestas.",
+    "percentage": "{percentage} de aciertos",
+    "scoreValue": "{score} de {total}",
+    "summaryTitle": "Resumen de tu aprendizaje",
     "title": "Comprueba lo aprendido",
     "subtitle": "Practica a tu ritmo",
     "introduction": "Resuelve 5 preguntas de teoría, unidades y cálculo. Las siguientes preguntas se adaptarán a tus respuestas. Puedes usar pistas y volver a otras etapas sin perder el progreso.",
     "start": "Empezar práctica",
-    "finished": "Tu práctica ha terminado",
+    "finished": "¡Has completado la práctica!",
     "score": "{score} de 5 aciertos",
     "hintsUsed": "Pistas utilizadas: {count}",
-    "strengths": "Lo que has demostrado",
-    "review": "Qué conviene reforzar",
-    "recommendations": "Dónde continuar aprendiendo",
-    "history": "Resumen de respuestas",
+    "strengths": "Lo que has aprendido",
+    "review": "Qué puedes mejorar",
+    "recommendations": "Tu siguiente paso",
+    "history": "Ver mis respuestas",
     "restart": "Volver a practicar",
     "correct": "Respuesta correcta",
-    "incorrect": "Vamos a repasarlo",
+    "incorrect": "Respuesta incorrecta · Vamos a repasarlo",
     "hintUsed": "Con pista",
     "position": "Pregunta {number} de 5",
     "difficulty": "Dificultad {level} de 3",

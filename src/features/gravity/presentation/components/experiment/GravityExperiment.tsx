@@ -1,5 +1,7 @@
 "use client";
 
+import { Reset } from "@/components/icons";
+
 import { useId } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { compareGravitation } from "../../../domain/compareGravitation";
@@ -54,19 +56,7 @@ export const GravityExperiment = ({
               aria-label={t("reset")}
               className={styles.resetButton}
             >
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.7"
-              >
-                <path
-                  d="M4 10a8 8 0 1 1 1 7M4 4v6h6"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Reset variant="gravity" strokeWidth="1.7" />
               <span>{t("resetShort")}</span>
             </button>
           </div>

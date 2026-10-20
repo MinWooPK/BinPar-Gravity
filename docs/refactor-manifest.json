@@ -69,7 +69,7 @@
     "src/features/ai/components/GlobalTutor.tsx": "src/features/ai/presentation/components/GlobalTutor.tsx",
     "src/features/ai/components/TutorProvider.tsx": "src/features/ai/presentation/providers/TutorProvider.tsx",
     "src/features/ai/components/conversation.ts": "src/features/ai/application/conversation.ts",
-    "src/components/icons.tsx": "src/components/icons/index.tsx",
+    "src/components/icons.tsx": "src/components/icons/index.ts",
     "src/features/three-body/domain/orbit.ts": "src/features/three-body/types/orbit.types.ts",
     "src/features/gravity/application/tutor.ts": "src/features/ai/types/legacyTutor.types.ts",
     "src/features/gravity/application/tutorRequest.ts": "src/features/ai/application/legacyTutorRequest.ts"

@@ -61,7 +61,8 @@
       "discover": "Discover",
       "understand": "Understand",
       "experiment": "Experiment",
-      "check": "Check"
+      "check": "Check",
+      "gallery": "Gallery"
     },
     "panels": {
       "choose": "Visible panel",
@@ -103,9 +104,9 @@
     "scienceSymbolColumn": "Symbol",
     "scienceMeaningColumn": "Meaning",
     "scienceUnitColumn": "Unit",
-    "scienceFirstMassMeaning": "Mass of the first body",
-    "scienceSecondMassMeaning": "Mass of the second body",
-    "scienceDistanceMeaning": "Distance between centres",
+    "scienceFirstMassMeaning": "Mass 1",
+    "scienceSecondMassMeaning": "Mass 2",
+    "scienceDistanceMeaning": "Distance",
     "scienceUnitsExplanation": "SI units: <highlight>kg</highlight>, kilogram (mass); <highlight>m</highlight>, metre (distance); <highlight>N</highlight>, newton (force).",
     "scienceNewtonIdentity": "One newton equals one kilogram metre per second squared.",
     "liveResultShort": "Live",
@@ -554,7 +555,8 @@
     "galleryViewLabel": "Gallery view",
     "galleryViewGrid": "Card view",
     "galleryViewList": "List view",
-    "galleryFilterLabel": "Filter by type",
+    "galleryFilterAll": "All",
+    "galleryFilterLabel": "Filter orbits by category",
     "galleryResults": "{count} of {total} orbits",
     "galleryPeriod": "Period",
     "galleryExplore": "Explore",
@@ -626,25 +628,47 @@
       "previous": "Previous",
       "next": "Next"
     },
+
     "journey": {
       "eyebrow": "02 — Interactive experience",
       "title": "The three-body problem",
       "description": "Discover why three bodies attracting one another can produce extraordinarily complex motion.",
       "navigationTitle": "Exploration journey",
+
       "discoverTitle": "Discover the problem",
       "discoverDescription": "Definition, physical principles, history and an explanation of the three-body problem.",
-      "galleryTitle": "Explore the solutions",
+
+      "understandTitle": "Understand the orbits",
+      "understandDescription": "Learn what the orbits represent and how initial positions, velocities and masses influence their trajectories.",
+
+      "galleryTitle": "Explore the 6 solutions",
       "galleryDescription": "Explore six solutions, animated orbits, filters and detailed views.",
+
+      "experimentTitle": "Create your own motion",
+      "experimentDescription": "Set the masses, positions and velocities of three bodies and discover how they move under gravity.",
+
       "freedomNote": "Choose where to start. You can change stages at any time.",
       "backToWelcome": "Back to the Three Bodies welcome screen",
       "chooseStage": "Choose a stage",
+
       "galleryIntroduction": "Six extraordinary solutions. Three bodies attracting one another. Discover the patterns hidden in gravity.",
       "galleryScienceNote": "These are not decorative curves. Each trajectory is calculated by integrating Newton’s equations with documented initial conditions. Equal masses, G = 1 and normalized units.",
-      "experimentTitle": "Create your own motion",
-      "experimentDescription": "Set the masses, positions and velocities of three bodies and discover how they move under gravity.",
-      "experimentPlaceholder": "Coming soon: three-body simulator."
+
+      "experimentPlaceholder": "Coming soon: three-body simulator.",
+
+      "stageTags": {
+        "discover": "Discover",
+        "understand": "Understand",
+        "gallery": "Gallery",
+        "experiment": "Experiment"
+      }
     },
+
     "experiment": {
+      "commonParameters": "General parameters",
+      "initialPosition": "Initial position",
+      "initialVelocity": "Initial velocity",
+      "generalParametersHelp": "G determines the strength of gravitational attraction, while duration sets how long the motion is simulated.",
       "periodicity": {
         "title": "Periodicity analysis",
         "possibleOrbit": "Possible approximately periodic orbit",
@@ -702,20 +726,26 @@
     }
   },
   "Practice": {
+    "checking": "Checking your answer…",
+    "noReview": "The report has not identified concepts you need to reinforce in this practice.",
+    "noStrengths": "The report has not identified specific strengths in these answers.",
+    "percentage": "{percentage} correct",
+    "scoreValue": "{score} out of {total}",
+    "summaryTitle": "Your learning summary",
     "title": "Check your understanding",
     "subtitle": "Practise at your own pace",
     "introduction": "Answer 5 questions about theory, units and calculations. Later questions adapt to your answers. Use hints and visit other stages without losing progress.",
     "start": "Start practice",
-    "finished": "Your practice is complete",
+    "finished": "You’ve completed the practice!",
     "score": "{score} correct out of 5",
     "hintsUsed": "Hints used: {count}",
-    "strengths": "What you demonstrated",
-    "review": "What to revisit",
-    "recommendations": "Where to continue learning",
-    "history": "Answer summary",
+    "strengths": "What you’ve learned",
+    "review": "What you can improve",
+    "recommendations": "Your next step",
+    "history": "View my answers",
     "restart": "Practise again",
     "correct": "Correct answer",
-    "incorrect": "Let’s review this",
+    "incorrect": "Incorrect answer · Let’s review it",
     "hintUsed": "With a hint",
     "position": "Question {number} of 5",
     "difficulty": "Difficulty {level} of 3",

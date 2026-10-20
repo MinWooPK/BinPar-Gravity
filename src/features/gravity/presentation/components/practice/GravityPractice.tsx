@@ -1,12 +1,18 @@
 "use client";
+
 import { useEffect, useId, useRef } from "react";
 import { useFormatter, useTranslations } from "next-intl";
-import { GravityStageLink } from "../GravityJourneyTabs";
+import { Lightbulb } from "@/components/icons";
 import { usePracticeSession } from "./usePracticeSession";
-import { PracticeAnswer, practiceButton } from "./PracticeAnswer";
+import { PracticeAnswer } from "./PracticeAnswer";
+import { ArrowRight } from "@/components/icons";
+import { PracticeFeedback } from "./PracticeFeedback";
+import { PracticeReport } from "./PracticeReport";
+import { practiceStyles as styles } from "./Practice.styles";
 import { GRAVITATIONAL_CONSTANT } from "../../../domain/gravitation";
 import { answerKind, numericAnswer } from "../../../domain/practice/input";
-import { PRACTICE_QUESTION_COUNT } from "@/features/gravity/types/practice/practice.types";
+import { PRACTICE_QUESTION_COUNT } from "../../../types/practice/practice.types";
+
 export const GravityPractice = () => {
   const t = useTranslations("Practice"),
     format = useFormatter(),
@@ -26,250 +32,234 @@ export const GravityPractice = () => {
   } = usePracticeSession();
   const focusRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
+    const heading = focusRef.current;
     if (
-      view &&
-      focusRef.current?.getClientRects().length &&
-      !focusRef.current.closest("[hidden],[inert]")
+      !view ||
+      !heading?.getClientRects().length ||
+      heading.closest("[hidden],[inert]")
     )
-      focusRef.current.focus({ preventScroll: true });
+      return;
+    // Announce the question/result through focus, without reading the whole AI response twice.
+    heading.focus({ preventScroll: true });
+    heading.scrollIntoView({
+      block: "nearest",
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
   }, [view]);
   const q = view?.question;
+  const kind = q ? answerKind(q) : null;
   const valid =
     q &&
-    (answerKind(q) === "choice"
+    (kind === "choice"
       ? !!answer.value
-      : numericAnswer(answer, answerKind(q) === "scientific") !== null);
+      : numericAnswer(answer, kind === "scientific") !== null);
   const number = (value: number) =>
     format.number(value, { maximumSignificantDigits: 8, useGrouping: false });
-  const correctValue = view?.feedback
-    ? typeof view.feedback.expected === "number"
-      ? format.number(view.feedback.expected, {
-          maximumSignificantDigits: 6,
-          ...(Math.abs(view.feedback.expected) < 0.001
-            ? { notation: "scientific" as const }
-            : {}),
-        })
-      : t(`options.${view.feedback.expected}`)
-    : "";
+
   return (
     <section
       data-practice
-      className="mx-auto w-full min-w-0 max-w-5xl rounded-2xl border border-lab-line bg-slate-950/65 p-4 text-slate-200 sm:p-6"
       aria-labelledby={`${id}-title`}
       aria-busy={pending}
+      className="mx-auto mb-24 w-full min-w-0 max-w-5xl rounded-2xl border border-lab-line bg-slate-950/65 p-4 text-slate-200 [overflow-wrap:anywhere] sm:p-6"
     >
       <h3 id={`${id}-title`} className="text-xl font-semibold text-slate-50">
         {t("title")}
       </h3>
-      <p className="mt-1 text-slate-300">{t("subtitle")}</p>
+      <p className="mt-1 text-sm text-slate-300">{t("subtitle")}</p>
       {!view && (
         <div className="mt-5 space-y-4">
-          <p>{t("introduction")}</p>
-          <button className={practiceButton} disabled={pending} onClick={start}>
-            {t("start")}
+          <p className="max-w-prose leading-7">{t("introduction")}</p>
+          <button
+            type="button"
+            className={`${styles.primary} w-full sm:w-auto`}
+            disabled={pending}
+            onClick={start}
+          >
+            {t(pending ? "loading" : "start")}
           </button>
         </div>
       )}
       {view?.report ? (
-        <div className="mt-5 space-y-4" data-practice-report>
-          <h4
-            ref={focusRef}
-            tabIndex={-1}
-            className="text-xl font-semibold text-violet-100"
-          >
-            {t("finished")}
-          </h4>
-          <p className="text-lg">
-            {t("score", { score: view.score })} ·{" "}
-            {t("hintsUsed", { count: view.hints })}
-          </p>
-          <p>{view.report.summary}</p>
-          <h5 className="font-semibold text-emerald-200">{t("strengths")}</h5>
-          <ul className="list-disc space-y-1 pl-5">
-            {view.report.strengths.map((text, i) => (
-              <li key={i}>{text}</li>
-            ))}
-          </ul>
-          <h5 className="font-semibold text-amber-200">{t("review")}</h5>
-          <ul className="list-disc space-y-1 pl-5">
-            {view.report.review.map((text, i) => (
-              <li key={i}>{text}</li>
-            ))}
-          </ul>
-          <h5 className="font-semibold">{t("recommendations")}</h5>
-          {view.report.recommendations.map((r, i) => (
-            <div
-              key={i}
-              className="space-y-2 rounded-xl border border-violet-300/25 p-3"
-            >
-              <p>{r.text}</p>
-              <GravityStageLink
-                stageId={r.stage}
-                className={`${practiceButton} inline-flex items-center`}
-              >
-                {t(`stages.${r.stage}`)}
-              </GravityStageLink>
-            </div>
-          ))}
-          <details>
-            <summary className="min-h-11 cursor-pointer py-2">
-              {t("history")}
-            </summary>
-            <ol className="list-decimal space-y-2 pl-5">
-              {view.history.map((a, i) => (
-                <li key={i}>
-                  {t(`concepts.${a.concept}`)} ·{" "}
-                  {t(a.correct ? "correct" : "incorrect")}
-                  {a.usedHint ? ` · ${t("hintUsed")}` : ""}
-                </li>
-              ))}
-            </ol>
-          </details>
-          <button className={practiceButton} onClick={start} disabled={pending}>
-            {t("restart")}
-          </button>
-        </div>
+        <PracticeReport
+          view={view}
+          report={view.report}
+          headingRef={focusRef}
+          pending={pending}
+          onRestart={start}
+        />
       ) : (
         q &&
         view && (
           <div className="mt-5 space-y-4">
-            <p id={`${id}-progress`} className="font-semibold text-violet-200">
+            <p
+              id={`${id}-progress`}
+              className="text-sm font-semibold text-violet-200"
+            >
               {t("position", { number: q.number })}
             </p>
             <progress
               aria-labelledby={`${id}-progress`}
-              className="block h-2 w-full accent-violet-300"
+              className={styles.progress}
               max={PRACTICE_QUESTION_COUNT}
               value={view.count}
             />
-            <div className="flex flex-wrap gap-2 text-sm">
-              <span className="rounded-lg bg-violet-300/10 px-3 py-2">
-                {t(`kinds.${answerKind(q)}`)}
-              </span>
-              <span className="rounded-lg bg-cyan-300/10 px-3 py-2">
-                {t("difficulty", { level: q.difficulty })}
-              </span>
-              {q.reinforcement && (
-                <span className="px-3 py-2 text-amber-200">
-                  {t("reinforcement")}
-                </span>
+            <div
+              className={`grid min-w-0 gap-5 ${
+                view.feedback ? "lg:grid-cols-2" : ""
+              }`}
+            >
+              <div className="min-w-0 space-y-4">
+                <div className="flex flex-wrap justify-between items-center gap-2 text-xs font-medium">
+                  <div className="flex min-w-0 flex-wrap gap-2">
+                    <span className="rounded-full border border-violet-300/20 bg-violet-300/10 px-3 py-1.5">
+                      {t(`kinds.${kind}`)}
+                    </span>
+                    <span className="rounded-full border border-cyan-300/20 bg-cyan-300/5 px-3 py-1.5">
+                      {t("difficulty", { level: q.difficulty })}
+                    </span>
+                    {q.reinforcement && (
+                      <span className="rounded-full bg-amber-300/5 px-3 py-1.5 text-amber-200">
+                        {t("reinforcement")}
+                      </span>
+                    )}
+                  </div>
+                  {!view.feedback && (
+                    <div data-practice-help>
+                      <button
+                        type="button"
+                        className={styles.hintButton}
+                        aria-expanded={hintOpen}
+                        aria-controls={`${id}-hint`}
+                        onClick={toggleHint}
+                      >
+                        <Lightbulb className="size-4 shrink-0" />
+                        {t(hintOpen ? "hideHint" : "hint")}
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <h4
+                  ref={view.feedback ? undefined : focusRef}
+                  tabIndex={-1}
+                  data-practice-question
+                  className={`${styles.focus} max-w-prose text-lg font-semibold leading-relaxed text-slate-50`}
+                >
+                  {t(`scenes.${q.scene}`)}{" "}
+                  {t(`questions.${q.concept}`, {
+                    a: number(
+                      q.concept === "power" ? q.a * 10 ** q.exponent : q.a,
+                    ),
+                    b: number(q.b),
+                    r: number(q.r),
+                    massUnit:
+                      q.concept === "force" && q.difficulty === 3 ? "t" : "kg",
+                    distanceUnit:
+                      q.concept === "force" && q.difficulty >= 2 ? "km" : "m",
+                  })}
+                </h4>
+                {kind !== "choice" && (
+                  <p className="max-w-prose text-sm leading-6 text-slate-400">
+                    {t("rounding")}
+                    {q.concept === "force" &&
+                      ` · G = ${format.number(GRAVITATIONAL_CONSTANT, { notation: "scientific", maximumSignificantDigits: 6 })} N·m²/kg²`}
+                  </p>
+                )}
+                <div
+                  id={`${id}-hint`}
+                  className={styles.reveal}
+                  data-open={hintOpen}
+                  aria-hidden={!hintOpen}
+                  inert={!hintOpen}
+                >
+                  <div className="min-h-0 overflow-hidden">
+                    <p className="mt-3 max-w-prose rounded-xl border border-teal-300/25 bg-teal-950/50 p-3 text-sm leading-6 text-teal-100">
+                      {t(`hints.${q.hint}`)}
+                    </p>
+                  </div>
+                </div>
+                <PracticeAnswer
+                  question={q}
+                  answer={answer}
+                  onChange={setAnswer}
+                  disabled={pending || !!view.feedback}
+                />
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {!view.feedback ? (
+                    // BOTÓN CORREGIR
+                    <button
+                      type="button"
+                      data-practice-check
+                      className={`${styles.primary} w-full sm:min-w-40 sm:w-auto`}
+                      disabled={!valid || pending}
+                      onClick={check}
+                    >
+                      {t(pending ? "checking" : "check")}
+                    </button>
+                  ) : (
+                    // BOTÓN SIGUIENTE PREGUNTA
+                    <button
+                      type="button"
+                      className={`${styles.primary} w-full sm:min-w-40 sm:w-auto`}
+                      disabled={pending}
+                      onClick={next}
+                    >
+                      {t(pending ? "loading" : "next")}
+                      <ArrowRight className="size-4 shrink-0" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {view.feedback && (
+                <div className="min-w-0 lg:relative lg:min-h-0">
+                  <div
+                    tabIndex={0}
+                    aria-label={t(
+                      view.feedback.correct ? "correct" : "incorrect",
+                    )}
+                    className="
+        min-w-0
+        lg:absolute lg:inset-0
+        lg:overflow-y-auto
+        lg:overscroll-contain
+        [scrollbar-width:none]
+        [-ms-overflow-style:none]
+        [&::-webkit-scrollbar]:hidden
+        focus-visible:outline-2
+        focus-visible:outline-violet-300
+      "
+                  >
+                    <PracticeFeedback
+                      feedback={view.feedback}
+                      headingRef={focusRef}
+                    />
+                  </div>
+                </div>
               )}
             </div>
-            <h4
-              ref={focusRef}
-              tabIndex={-1}
-              className="text-lg font-semibold leading-relaxed text-slate-50"
-              data-practice-question
-            >
-              {t(`scenes.${q.scene}`)}{" "}
-              {t(`questions.${q.concept}`, {
-                a: number(q.concept === "power" ? q.a * 10 ** q.exponent : q.a),
-                b: number(q.b),
-                r: number(q.r),
-                massUnit:
-                  q.concept === "force" && q.difficulty === 3 ? "t" : "kg",
-                distanceUnit:
-                  q.concept === "force" && q.difficulty >= 2 ? "km" : "m",
-              })}
-            </h4>
-            <p className="text-sm text-slate-300">
-              {t("rounding")}
-              {q.concept === "force" &&
-                ` · G = ${format.number(GRAVITATIONAL_CONSTANT, { notation: "scientific", maximumSignificantDigits: 6 })} N·m²/kg²`}
-            </p>
-            <PracticeAnswer
-              question={q}
-              answer={answer}
-              onChange={setAnswer}
-              disabled={pending || !!view.feedback}
-            />
-            {!view.feedback && (
-              <>
-                <button
-                  type="button"
-                  className={practiceButton}
-                  aria-expanded={hintOpen}
-                  aria-controls={`${id}-hint`}
-                  onClick={toggleHint}
-                >
-                  {t(hintOpen ? "hideHint" : "hint")}
-                </button>
-                <p
-                  id={`${id}-hint`}
-                  hidden={!hintOpen}
-                  className="rounded-xl border border-cyan-300/25 bg-cyan-300/5 p-3"
-                >
-                  {t(`hints.${q.hint}`)}
-                </p>
-                <div>
-                  <button
-                    className={`${practiceButton} bg-violet-300/10`}
-                    disabled={!valid || pending}
-                    onClick={check}
-                  >
-                    {t("check")}
-                  </button>
-                </div>
-              </>
-            )}
-            {view.feedback && (
-              <div
-                role="status"
-                className="space-y-3 rounded-xl border border-violet-300/30 p-4"
-                data-practice-feedback
-              >
-                <h5
-                  className={`font-semibold ${view.feedback.correct ? "text-emerald-200" : "text-amber-200"}`}
-                >
-                  {t(view.feedback.correct ? "correct" : "incorrect")}
-                </h5>
-                <p>
-                  {t("expected")}: <strong>{correctValue}</strong>
-                </p>
-                <p>{view.feedback.explanation}</p>
-                <ol className="list-decimal space-y-2 pl-5">
-                  {view.feedback.steps.map((step, i) => (
-                    <li key={i}>{step}</li>
-                  ))}
-                </ol>
-                <button
-                  className={practiceButton}
-                  disabled={pending}
-                  onClick={next}
-                >
-                  {t("next")}
-                </button>
-              </div>
-            )}
           </div>
         )
       )}
-      {view?.report && view.feedback && (
-        <details className="mt-4">
-          <summary className="min-h-11 cursor-pointer py-2">
-            {t("lastFeedback")}
-          </summary>
-          <p>
-            {t("expected")}: {correctValue}
-          </p>
-          <p>{view.feedback.explanation}</p>
-          <ol className="list-decimal pl-5">
-            {view.feedback.steps.map((step, i) => (
-              <li key={i}>{step}</li>
-            ))}
-          </ol>
-        </details>
-      )}
-      {pending && (
-        <p role="status" className="mt-4 text-cyan-100">
-          {t("loading")}
-        </p>
-      )}
+      <p
+        role="status"
+        aria-atomic="true"
+        className={pending ? "mt-4 text-sm text-cyan-100" : "sr-only"}
+      >
+        {pending ? t(q && !view.feedback ? "checking" : "loading") : ""}
+      </p>
       {error && (
-        <div role="alert" className="mt-4 space-y-3 text-amber-200">
+        <div
+          role="alert"
+          className="mt-4 space-y-3 rounded-xl border border-amber-300/30 bg-amber-300/5 p-4 text-amber-200"
+        >
           <p>{t(`errors.${error}`)}</p>
           <button
-            className={practiceButton}
+            type="button"
+            className={styles.secondary}
             disabled={pending}
             onClick={error === "invalid_session" ? start : retry}
           >

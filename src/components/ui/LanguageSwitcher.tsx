@@ -1,5 +1,7 @@
 "use client";
 
+import { Globe, ChevronDown, Check } from "@/components/icons";
+
 import { useTranslations } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { useLanguageSwitcher } from "@/i18n/hooks/useLanguageSwitcher";
@@ -43,29 +45,9 @@ export const LanguageSwitcher = () => {
         onKeyDown={handleTriggerKeyDown}
         className={`flex h-11 cursor-pointer items-center gap-2 rounded-full border px-3 text-sm font-semibold tracking-wide shadow-sm transition-colors hover:border-sky-400/50 hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 disabled:cursor-wait disabled:opacity-60 motion-reduce:transition-none ${open ? "border-sky-400 bg-slate-900 text-sky-200" : "border-slate-600 bg-slate-900 text-slate-100"}`}
       >
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.5}
-          className="size-4"
-        >
-          <circle cx="12" cy="12" r="9" />
-          <ellipse cx="12" cy="12" rx="4" ry="9" />
-          <path d="M3 12h18" />
-        </svg>
+        <Globe className="size-4" />
         {locale.toUpperCase()}
-        <svg
-          aria-hidden="true"
-          viewBox="0 0 20 20"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.5}
-          className={`size-3.5 transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
-        >
-          <path d="m6 8 4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+        <ChevronDown className={`size-3.5 transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`} compact />
       </button>
 
       <div
@@ -98,20 +80,7 @@ export const LanguageSwitcher = () => {
               {languageNames[language]}
             </span>
             {locale === language && (
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 20 20"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.8}
-                className="size-4"
-              >
-                <path
-                  d="m4 10 4 4 8-8"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+              <Check className="size-4" />
             )}
           </button>
         ))}

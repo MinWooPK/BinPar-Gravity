@@ -3,7 +3,7 @@
 import { useId, useState, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 
-import { Icon } from "@/components/icons/index";
+import { Icon } from "@/components/icons";
 import { useGalleryState } from "@/features/three-body/presentation/providers/GalleryProvider";
 
 import { OrbitAnimation, bodyColors } from "../shared/OrbitAnimation";

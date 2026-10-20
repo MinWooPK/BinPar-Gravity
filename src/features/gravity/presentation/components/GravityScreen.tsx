@@ -13,7 +13,9 @@ export const GravityScreen = () => {
   const t = useTranslations("Gravity");
 
   return (
-    <div className={`relative isolate w-full overflow-hidden bg-[#020713] ${styles.page}`}>
+    <div
+      className={`relative isolate w-full overflow-hidden bg-[#020713] ${styles.page}`}
+    >
       <SpaceStarfield />
 
       <div className={`page-enter relative z-10 ${styles.screen}`}>
@@ -26,15 +28,22 @@ export const GravityScreen = () => {
                   <h1 className={styles.heroTitle}>
                     <span>{t("heroLead")}</span> <span>{t("heroSubject")}</span>
                   </h1>
-                  <p className={styles.heroDescription}>{t("heroDescription")}</p>
+                  <p className={styles.heroDescription}>
+                    {t("heroDescription")}
+                  </p>
                 </header>
               }
             >
-              <GravityJourneyPanel stage={gravityStageById["gravity-discovery"]} className={styles.stage}>
+              <GravityJourneyPanel
+                stage={gravityStageById["gravity-discovery"]}
+                className={styles.stage}
+              >
                 <GravityDiscovery />
               </GravityJourneyPanel>
 
-              <GravityJourneyPanel stage={gravityStageById["gravity-understanding"]}>
+              <GravityJourneyPanel
+                stage={gravityStageById["gravity-understanding"]}
+              >
                 <GravityIntroduction />
               </GravityJourneyPanel>
 
