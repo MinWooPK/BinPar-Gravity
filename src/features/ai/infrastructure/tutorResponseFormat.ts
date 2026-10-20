@@ -1,5 +1,5 @@
 // Define el formato JSON obligatorio de las respuestas del Tutor IA,
-// incluyendo explicaciones y propuestas para Gravedad o Tres Cuerpos.
+// incluyendo explicaciones y propuestas para Gravedad.
 export const tutorResponseFormat = {
   type: "json_schema",
   name: "gravity_tutor_reply",
@@ -17,46 +17,6 @@ export const tutorResponseFormat = {
       proposal: {
         anyOf: [
           { type: "null" },
-
-          // Define las propuestas para modificar el experimento de tres cuerpos.
-          {
-            type: "object",
-            properties: {
-              action: { type: "string", enum: ["set_three_body_parameters"] },
-
-              // Define la gravedad, duración y propiedades de los tres cuerpos.
-              parameters: {
-                type: "object",
-                properties: {
-                  gravity: { type: ["number", "null"] },
-                  duration: { type: ["number", "null"] },
-
-                  // Exige exactamente tres cuerpos con sus parámetros físicos.
-                  bodies: {
-                    type: "array",
-                    minItems: 3,
-                    maxItems: 3,
-                    items: {
-                      type: "object",
-                      properties: {
-                        mass: { type: ["number", "null"] },
-                        x: { type: ["number", "null"] },
-                        y: { type: ["number", "null"] },
-                        vx: { type: ["number", "null"] },
-                        vy: { type: ["number", "null"] },
-                      },
-                      required: ["mass", "x", "y", "vx", "vy"],
-                      additionalProperties: false,
-                    },
-                  },
-                },
-                required: ["gravity", "duration", "bodies"],
-                additionalProperties: false,
-              },
-            },
-            required: ["action", "parameters"],
-            additionalProperties: false,
-          },
 
           // Define las propuestas para modificar el laboratorio de gravedad.
           {

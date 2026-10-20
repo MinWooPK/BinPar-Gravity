@@ -1,4 +1,4 @@
-/** Labels are translated at render time, including restored historical messages. */
+/** Includes legacy Three Body labels solely for already saved conversation history. */
 export function tutorContextLabel(
   id: string | undefined,
   t: (key: string) => string,

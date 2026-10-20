@@ -364,21 +364,11 @@
     },
     "helpTopics": {
       "formula": "la fórmula",
-      "mass": "las masas",
-      "distance": "la distancia",
-      "simulation": "el simulador",
-      "orbit": "esta órbita",
-      "periodicity": "la periodicidad",
-      "threeBody": "los tres cuerpos"
+      "simulation": "el simulador"
     },
     "helpQuestions": {
       "formula": "Explícame esta fórmula y qué significa cada variable con los valores actuales disponibles.",
-      "mass": "Explícame cómo influyen las masas en la fuerza gravitatoria.",
-      "distance": "¿Por qué la fuerza disminuye al aumentar la distancia entre los centros?",
-      "simulation": "Explícame qué ocurre con la configuración actual del simulador y sus resultados disponibles.",
-      "orbit": "Explícame por qué los tres cuerpos siguen la trayectoria de esta órbita seleccionada y cómo se relaciona con sus condiciones iniciales.",
-      "periodicity": "Explícame qué significa este resultado de periodicidad, sus errores de retorno y sus límites.",
-      "threeBody": "¿Qué es el problema de los tres cuerpos y qué puedo explorar en esta sección?"
+      "simulation": "Explícame qué ocurre con la configuración actual del simulador y sus resultados disponibles."
     },
     "configureExperiment": "Configurar con IA",
     "configureInvitation": "Escribe el cambio que deseas, por ejemplo: «Duplica la primera masa y aumenta la distancia a 12 metros». Revisarás una propuesta antes de aplicar los cambios.",
@@ -388,8 +378,6 @@
     "explainFormula": "Explícame esta fórmula",
     "formulaQuestion": "Explícame esta fórmula con los valores actuales de mi laboratorio. ¿Qué significan F, G, m₁, m₂ y r, por qué la distancia está al cuadrado y cómo leo la notación científica? Usa un ejemplo sencillo, sin modificar los parámetros.",
     "proposalRejected": "No puedo ofrecer un cambio aplicable con esos valores. El laboratorio admite masas de 10 a 100 kg en pasos de 1 kg y distancias de 5 a 20 m en pasos de 0,1 m. Nada ha cambiado. Indica qué masa o distancia quieres ajustar dentro de esos límites; podemos explicar otros casos sin modificar el simulador.",
-    "proposalRejectedThreeBody": "No puedo aplicar esa configuración. Comprueba que G y las masas sean positivos, la duración no supere 100 y los cuerpos no estén demasiado próximos. Se conserva tu borrador.",
-    "proposalThreeBodyNote": "Valores en unidades adimensionales. Al aplicar se actualizará la vista previa y se descartará la simulación anterior. Pulsa «Ejecutar simulación» cuando quieras calcular la nueva trayectoria.",
     "proposalTitle": "Cambios propuestos",
     "proposalTo": "a",
     "proposalForce": "Fuerza prevista: {before} N → {after} N.",
@@ -516,7 +504,6 @@
     },
     "backToSolutions": "Volver a las soluciones",
     "detail": {
-      "explainQuestion": "Explícame la órbita {name}: qué movimiento realizan los tres cuerpos, qué la caracteriza y cómo se relaciona con sus condiciones iniciales.",
       "simulationTitle": "Simulación orbital",
       "orbitIndex": "Órbita {number} / {total}",
       "period": "Período",
@@ -672,20 +659,6 @@
       "initialPosition": "Posición inicial",
       "initialVelocity": "Velocidad inicial",
       "generalParametersHelp": "G determina la intensidad de la atracción gravitatoria y la duración establece cuánto tiempo se simula el movimiento.",
-      "periodicity": {
-        "title": "Análisis de periodicidad",
-        "possibleOrbit": "Posible órbita periódica aproximada",
-        "notDetected": "Periodicidad aproximada no detectada",
-        "estimatedPeriod": "Período estimado: {period} u.t.",
-        "positionError": "Error de posición",
-        "velocityError": "Error de velocidad",
-        "combinedError": "Error de retorno",
-        "errorHelp": "Errores en t = {time} u.t., como porcentaje de las escalas características del sistema. El error de retorno es el mayor de los dos; ambos deben ser ≤ {tolerance}. No es una cota del error del integrador.",
-        "explanation": "Buscamos que los tres cuerpos vuelvan cerca de sus posiciones y velocidades iniciales después de haberse alejado. Refinamos los posibles retornos con el mismo motor de Newton y RK4.",
-        "insufficientMotion": "El sistema no se ha alejado lo suficiente de sus posiciones iniciales para distinguir un retorno de un movimiento casi estacionario.",
-        "approximateOnly": "Este resultado indica un retorno aproximado en el intervalo calculado. No demuestra que la órbita se repetirá para siempre ni que este sea su período fundamental.",
-        "intervalOnly": "No se ha identificado un retorno aproximado entre 0 y {duration} u.t. Esto solo describe el intervalo analizado; no descarta retornos posteriores ni retornos que puedan pasar inadvertidos a esta resolución numérica."
-      },
       "settingsTitle": "Configura los tres cuerpos",
       "reset": "Restablecer",
       "gravity": "Gravedad · G",

@@ -4,14 +4,12 @@ import { createContext, useContext } from "react";
 import type { TutorContext, TutorIntent } from "../../types/tutor.types";
 import type {
   GravityProposalPort,
-  ThreeBodyProposalPort,
 } from "../../types/proposal.types";
 
 export type PublishedContext = {
   pathname: string;
   context: TutorContext;
   gravity?: GravityProposalPort;
-  threeBody?: ThreeBodyProposalPort;
 };
 export type TutorLaunch =
   | TutorIntent
@@ -24,7 +22,6 @@ export type TutorLauncher = (
 import type { TutorSessionId } from "../../application/tutorAvailability";
 
 type TutorEnvironment = {
-  registerThreeBody: (port: ThreeBodyProposalPort) => () => void;
   activeSessionId: TutorSessionId;
   context: TutorContext;
   openTutor: TutorLauncher;

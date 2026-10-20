@@ -1,4 +1,4 @@
-// Run against the local app: node tests/browser/orbit-tutor.mjs
+// Run against the local app: node tests/browser/three-body-no-ai.mjs
 // Override TUTOR_URL (origin) and CHROME_PATH when needed.
 // Chrome intercepts every /api/ai request: no real model calls or credentials.
 import assert from 'node:assert/strict';
@@ -14,7 +14,7 @@ const executable = process.env.CHROME_PATH || [
   '/usr/bin/google-chrome', '/usr/bin/chromium',
 ].find(existsSync);
 assert.ok(executable, 'Set CHROME_PATH to Chrome/Chromium');
-const directory = mkdtempSync(join(tmpdir(), 'orbit-tutor-'));
+const directory = mkdtempSync(join(tmpdir(), 'three-body-no-ai-'));
 const chrome = spawn(executable, ['--headless=new', '--remote-debugging-pipe',
   '--no-first-run', '--no-default-browser-check', `--user-data-dir=${directory}`, 'about:blank'],
 { stdio: ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'] });
@@ -56,6 +56,13 @@ try {
   const { targetId } = await send('Target.createTarget', { url: 'about:blank' });
   const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true });
   const call = (method, params) => send(method, params, sessionId);
+  await call('Page.addScriptToEvaluateOnNewDocument', { source: `
+    window.experimentResults=[];
+    const NativeWorker=window.Worker;
+    window.Worker=class extends NativeWorker {
+      constructor(...args){super(...args);this.addEventListener('message',event=>{if(event.data?.result?.periodicity)window.experimentResults.push(event.data.result.periodicity)})}
+    };
+  ` });
   await call('Page.enable'); await call('Runtime.enable'); await call('Page.bringToFront');
   await call('Emulation.setFocusEmulationEnabled', { enabled: true });
   await call('Fetch.enable', { patterns: [{ urlPattern: '*/api/ai*', requestStage: 'Request' }] });
@@ -74,58 +81,40 @@ try {
     throw new Error('Not ready: ' + expression + '\n' + JSON.stringify({ state, requests: requests.length, errors }));
   };
   const click = selector => evaluate(`(()=>{const e=document.querySelector(${JSON.stringify(selector)});if(!e||e.disabled||e.closest('[inert],[hidden]'))throw Error('Unavailable '+${JSON.stringify(selector)});e.click()})()`);
-  const count = () => evaluate("document.querySelectorAll('#global-tutor-dialog [data-role]').length");
-  const help = '[data-explain-topic="orbit"]';
-  const close = '[data-tutor-close]';
   const cases = [
     ['lagrange', 'Lagrange'], ['figura-de-ocho', 'Figura de ocho'],
     ['butterfly-i', 'Butterfly I'], ['goggles', 'Goggles'],
     ['moth-i', 'Moth I'], ['yin-yang-i', 'Yin-Yang I'],
   ];
-  const ask = async selector => {
-    const before = requests.length, messageCount = await count();
-    await click(selector);
-    await waitFor("document.querySelector('#global-tutor-dialog').open&&document.querySelector('#global-tutor-dialog [role=log]').getAttribute('aria-busy')==='false'");
-    await waitFor(`document.querySelector('#global-tutor-dialog [data-role="assistant"]:last-of-type p')?.textContent==='Mock orbit reply ${before + 1}'`);
-    await delay(150);
-    assert.equal(requests.length, before + 1, 'Exactly one request per help click');
-    assert.equal(await count(), Math.min(30, messageCount + 2), 'Global conversation retained');
-    if (before > 0) assert.ok(requests.at(-1).messages.some(message => message.role === 'assistant' && message.content.includes(`Mock orbit reply ${before}`)), 'Prior reply stays in the history');
-    await click(close); await waitFor("!document.querySelector('#global-tutor-dialog').open");
-    await waitFor(`document.activeElement===document.querySelector(${JSON.stringify(selector)})`);
-    return requests.at(-1);
-  };
   for (const locale of ['es', 'en', 'fr']) {
     const messages = JSON.parse(readFileSync(new URL(`../../messages/${locale}.json`, import.meta.url), 'utf8'));
     await call('Emulation.setDeviceMetricsOverride', { width: locale === 'fr' ? 375 : 1280, height: 850, deviceScaleFactor: 1, mobile: false });
     await call('Page.navigate', { url: (process.env.TUTOR_URL || 'http://localhost:3000') + `/${locale}/three-body/lagrange` });
-    await waitFor("document.readyState==='complete'&&!!document.querySelector('#global-tutor-trigger')");
+    await waitFor("document.readyState==='complete'&&!!document.querySelector('#orbit-solution-title')");
     await delay(500);
+    const noAI = async () => assert.equal(await evaluate("!!document.querySelector('#global-tutor-trigger,#global-tutor-dialog,[data-explain-topic],[data-tutor-proposal]')"), false);
     for (const [index, [slug, name]] of cases.entries()) {
-      await waitFor(`location.pathname==='/${locale}/three-body/${slug}'&&document.querySelector('#orbit-solution-title')?.textContent.trim().startsWith(${JSON.stringify(name)})&&!!document.querySelector('${help}')`);
-      if (index === 0) await evaluate('window.orbitHelpDocument=true');
-      else assert.equal(await evaluate('window.orbitHelpDocument'), true, 'Orbit links preserve the document and global provider');
-      const request = await ask(help);
-      assert.equal(request.locale, locale);
-      assert.equal(request.mode, 'explain');
-      assert.equal(request.intent, 'explain_context');
-      assert.deepEqual({ ...request.context, draftConfiguration: undefined }, { kind: 'three-body', stage: 'orbit', slug, draftConfiguration: undefined });
-      assert.equal(request.context.draftConfiguration.bodies.length, 3);
-      assert.equal(request.messages.at(-1).content, messages.ThreeBody.detail.explainQuestion.replace('{name}', name));
-      assert.equal(request.messages.at(-1).role, 'user');
+      await waitFor(`location.pathname==='/${locale}/three-body/${slug}'&&document.querySelector('#orbit-solution-title')?.textContent.trim().startsWith(${JSON.stringify(name)})`);
+      await noAI();
+      assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
       if (index < cases.length - 1) await click('.next-orbit a');
     }
-    // Existing help buttons without a custom question retain their translated default.
     await click(`a[href="/${locale}/three-body#gallery"]`);
     await waitFor("document.querySelector('[data-active-stage]')?.dataset.activeStage==='gallery'");
-    await click('button[aria-controls="three-body-experiment"]');
-    await waitFor("document.querySelector('[data-active-stage]').dataset.activeStage==='experiment'");
-    const request = await ask('[data-explain-topic="simulation"]');
-    assert.equal(request.messages.at(-1).content, messages.Tutor.helpQuestions.simulation);
-    assert.equal(request.context.stage, 'experiment');
-    console.log(`PASS ${locale}: six orbit names/slugs, localized questions, single requests, route changes, shared history, focus and unchanged default help`);
+    await noAI();
+    for (const stage of ['discover','understand','experiment']) {
+      await click(`button[aria-controls="three-body-${stage}"]`);
+      await waitFor(`document.querySelector('[data-active-stage]')?.dataset.activeStage==='${stage}'`);
+      await noAI();
+    }
+    await evaluate(`[...document.querySelectorAll('#three-body-experiment button')].find(b=>b.textContent.includes(${JSON.stringify(messages.ThreeBody.experiment.runSimulation)})).click()`);
+    await waitFor("window.experimentResults?.at(-1)?.detected===true");
+    assert.equal(await evaluate("document.querySelector('#three-body-experiment input[type=range]').disabled"),false);
+    await noAI();
+    assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
+    console.log(`PASS ${locale}: six orbital details, four stages, manual Worker simulation and periodicity without AI`);
   }
-  assert.equal(requests.length, 21);
+  assert.equal(requests.length, 0, 'No AI requests from Three Body');
   assert.deepEqual(errors, []);
   const exited = once(chrome, 'exit'); await send('Browser.close'); await exited;
 } finally {

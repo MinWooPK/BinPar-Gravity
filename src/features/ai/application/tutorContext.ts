@@ -1,5 +1,3 @@
-import { buildThreeBodyTutorContext } from "./threeBodyTutorContext";
-
 import {
   gravitationalForce,
   GRAVITATIONAL_CONSTANT,
@@ -65,8 +63,6 @@ export const buildTutorContext = (context: TutorContext) => {
       ],
       current: null,
     };
-
-  if (context.kind === "three-body") return buildThreeBodyTutorContext(context);
 
   // Calcula la fuerza gravitatoria de los parámetros iniciales.
   const baselineForce = gravitationalForce(initialParameters);

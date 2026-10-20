@@ -364,21 +364,11 @@
     },
     "helpTopics": {
       "formula": "the formula",
-      "mass": "the masses",
-      "distance": "the distance",
-      "simulation": "the simulator",
-      "orbit": "this orbit",
-      "periodicity": "periodicity",
-      "threeBody": "the three-body problem"
+      "simulation": "the simulator"
     },
     "helpQuestions": {
       "formula": "Explain this formula and what each variable means using the available current values.",
-      "mass": "Explain how the masses affect gravitational force.",
-      "distance": "Why does the force decrease as the distance between the centres increases?",
-      "simulation": "Explain what is happening with the current simulator configuration and its available results.",
-      "orbit": "Explain why the three bodies follow this selected orbit’s trajectory and how it relates to its initial conditions.",
-      "periodicity": "Explain this periodicity result, its return errors and its limitations.",
-      "threeBody": "What is the three-body problem and what can I explore in this section?"
+      "simulation": "Explain what is happening with the current simulator configuration and its available results."
     },
     "configureExperiment": "Configure with AI",
     "configureInvitation": "Describe the change you want, for example: “Double the first mass and increase the distance to 12 metres.” You will review a proposal before applying changes.",
@@ -388,8 +378,6 @@
     "explainFormula": "Explain this formula",
     "formulaQuestion": "Explain this formula using my current laboratory values. What do F, G, m₁, m₂ and r mean, why is distance squared, and how do I read scientific notation? Use a simple example without changing parameters.",
     "proposalRejected": "I cannot offer an applicable change with those values. The laboratory accepts masses from 10 to 100 kg in 1 kg steps and distances from 5 to 20 m in 0.1 m steps. Nothing has changed. Specify a mass or distance within those limits; we can discuss other cases without changing the simulator.",
-    "proposalRejectedThreeBody": "I cannot apply that configuration. Check that G and the masses are positive, the duration does not exceed 100, and the bodies are not too close. Your draft is preserved.",
-    "proposalThreeBodyNote": "Values use dimensionless units. Applying updates the preview and discards the previous simulation. Press “Run simulation” when you want to calculate the new trajectory.",
     "proposalTitle": "Proposed changes",
     "proposalTo": "to",
     "proposalForce": "Expected force: {before} N → {after} N.",
@@ -516,7 +504,6 @@
     },
     "backToSolutions": "Back to the solutions",
     "detail": {
-      "explainQuestion": "Explain the {name} orbit: how the three bodies move, what makes it distinctive, and how it relates to its initial conditions.",
       "simulationTitle": "Orbital simulation",
       "orbitIndex": "Orbit {number} / {total}",
       "period": "Period",
@@ -672,20 +659,6 @@
       "initialPosition": "Initial position",
       "initialVelocity": "Initial velocity",
       "generalParametersHelp": "G determines the strength of gravitational attraction, while duration sets how long the motion is simulated.",
-      "periodicity": {
-        "title": "Periodicity analysis",
-        "possibleOrbit": "Possible approximately periodic orbit",
-        "notDetected": "Approximate periodicity not detected",
-        "estimatedPeriod": "Estimated period: {period} time units",
-        "positionError": "Position error",
-        "velocityError": "Velocity error",
-        "combinedError": "Return error",
-        "errorHelp": "Errors at t = {time} time units, as percentages of the system’s characteristic scales. The return error is the larger of the two; both must be ≤ {tolerance}. This is not an integration error bound.",
-        "explanation": "We look for all three bodies to return close to their initial positions and velocities after moving away. We refine potential returns using the same Newton and RK4 engine.",
-        "insufficientMotion": "The system has not moved far enough from its initial positions to distinguish a return from almost stationary motion.",
-        "approximateOnly": "This result indicates an approximate return within the calculated interval. It does not prove that the orbit will repeat forever or that this is its fundamental period.",
-        "intervalOnly": "No approximate return was identified between 0 and {duration} time units. This only describes the analyzed interval; it does not rule out later returns or ones missed at this numerical resolution."
-      },
       "settingsTitle": "Configure the three bodies",
       "reset": "Reset",
       "gravity": "Gravity · G",

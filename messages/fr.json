@@ -364,21 +364,11 @@
     },
     "helpTopics": {
       "formula": "la formule",
-      "mass": "les masses",
-      "distance": "la distance",
-      "simulation": "le simulateur",
-      "orbit": "cette orbite",
-      "periodicity": "la périodicité",
-      "threeBody": "les trois corps"
+      "simulation": "le simulateur"
     },
     "helpQuestions": {
       "formula": "Explique-moi cette formule et chaque variable avec les valeurs actuelles disponibles.",
-      "mass": "Explique-moi l’influence des masses sur la force gravitationnelle.",
-      "distance": "Pourquoi la force diminue-t-elle lorsque la distance entre les centres augmente ?",
-      "simulation": "Explique ce qui se passe avec la configuration actuelle du simulateur et ses résultats disponibles.",
-      "orbit": "Explique pourquoi les trois corps suivent la trajectoire de cette orbite sélectionnée et son lien avec les conditions initiales.",
-      "periodicity": "Explique ce résultat de périodicité, ses erreurs de retour et ses limites.",
-      "threeBody": "Qu’est-ce que le problème des trois corps et que puis-je explorer dans cette section ?"
+      "simulation": "Explique ce qui se passe avec la configuration actuelle du simulateur et ses résultats disponibles."
     },
     "configureExperiment": "Configurer avec l’IA",
     "configureInvitation": "Décris le changement souhaité, par exemple : « Double la première masse et augmente la distance à 12 mètres. » Tu examineras une proposition avant d’appliquer les changements.",
@@ -388,8 +378,6 @@
     "explainFormula": "Explique-moi cette formule",
     "formulaQuestion": "Explique cette formule avec les valeurs actuelles de mon laboratoire. Que signifient F, G, m₁, m₂ et r, pourquoi la distance est-elle au carré et comment lire la notation scientifique ? Utilise un exemple simple sans modifier les paramètres.",
     "proposalRejected": "Je ne peux pas proposer de modification applicable avec ces valeurs. Le laboratoire accepte des masses de 10 à 100 kg par pas de 1 kg et des distances de 5 à 20 m par pas de 0,1 m. Rien n’a changé. Précisez une masse ou une distance dans ces limites ; nous pouvons expliquer d’autres cas sans modifier le simulateur.",
-    "proposalRejectedThreeBody": "Je ne peux pas appliquer cette configuration. Vérifie que G et les masses sont positifs, que la durée ne dépasse pas 100 et que les corps ne sont pas trop proches. Ton brouillon est conservé.",
-    "proposalThreeBodyNote": "Les valeurs sont sans dimension. Appliquer actualise l’aperçu et efface la simulation précédente. Appuie sur « Lancer la simulation » pour calculer la nouvelle trajectoire.",
     "proposalTitle": "Modifications proposées",
     "proposalTo": "à",
     "proposalForce": "Force prévue : {before} N → {after} N.",
@@ -516,7 +504,6 @@
     },
     "backToSolutions": "Retour aux solutions",
     "detail": {
-      "explainQuestion": "Explique-moi l’orbite {name} : comment les trois corps se déplacent, ce qui la caractérise et son lien avec ses conditions initiales.",
       "simulationTitle": "Simulation orbitale",
       "orbitIndex": "Orbite {number} / {total}",
       "period": "Période",
@@ -672,20 +659,6 @@
       "initialPosition": "Position initiale",
       "initialVelocity": "Vitesse initiale",
       "generalParametersHelp": "G détermine l’intensité de l’attraction gravitationnelle, tandis que la durée définit le temps pendant lequel le mouvement est simulé.",
-      "periodicity": {
-        "title": "Analyse de périodicité",
-        "possibleOrbit": "Possible orbite approximativement périodique",
-        "notDetected": "Périodicité approximative non détectée",
-        "estimatedPeriod": "Période estimée : {period} unités de temps",
-        "positionError": "Erreur de position",
-        "velocityError": "Erreur de vitesse",
-        "combinedError": "Erreur de retour",
-        "errorHelp": "Erreurs à t = {time} unités de temps, en pourcentage des échelles caractéristiques du système. L’erreur de retour est la plus grande des deux ; toutes deux doivent être ≤ {tolerance}. Ce n’est pas une borne de l’erreur d’intégration.",
-        "explanation": "Nous cherchons un retour des trois corps près de leurs positions et vitesses initiales après qu’ils se sont éloignés. Nous affinons les retours possibles avec le même moteur de Newton et RK4.",
-        "insufficientMotion": "Le système ne s’est pas assez éloigné de ses positions initiales pour distinguer un retour d’un mouvement presque stationnaire.",
-        "approximateOnly": "Ce résultat indique un retour approximatif dans l’intervalle calculé. Il ne prouve ni que l’orbite se répétera indéfiniment, ni qu’il s’agit de sa période fondamentale.",
-        "intervalOnly": "Aucun retour approximatif n’a été identifié entre 0 et {duration} unités de temps. Ce résultat concerne uniquement l’intervalle analysé ; il n’exclut pas des retours ultérieurs ou manqués à cette résolution numérique."
-      },
       "settingsTitle": "Configurez les trois corps",
       "reset": "Réinitialiser",
       "gravity": "Gravitation · G",

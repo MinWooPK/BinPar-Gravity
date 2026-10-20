@@ -1,7 +1,5 @@
 import type { ExperimentConfiguration } from "../domain/experiment-simulation";
-import type { ExperimentBodyField } from "../types/experiment-proposal.types";
-import { experimentBodyFields } from "./experimentConfiguration";
-import { resolveThreeBodyProposal } from "./experimentProposal";
+type ExperimentBodyField = "mass" | "x" | "y" | "vx" | "vy";
 
 // Define los valores editables del experimento como cadenas de texto.
 export type ExperimentDraft = {
@@ -69,11 +67,10 @@ export type ExperimentDraftAction =
   | { type: "reset" }
   | { type: "common"; key: "gravity" | "duration"; value: string }
   | { type: "body"; index: number; key: ExperimentBodyField; value: string }
-  | { type: "select"; index: number }
-  | { type: "proposal"; proposal: unknown; expectedRevision: number };
+  | { type: "select"; index: number };
 
 // Gestiona los cambios del formulario, la selección de cuerpos,
-// el restablecimiento y las propuestas del Tutor IA.
+// y el restablecimiento de sus parámetros.
 export const experimentDraftReducer = (
   state: ExperimentDraftState,
   action: ExperimentDraftAction,
@@ -121,45 +118,5 @@ export const experimentDraftReducer = (
     };
   }
 
-  // Rechaza una propuesta si el formulario ha cambiado desde su generación.
-  if (action.expectedRevision !== state.revision) return state;
-
-  // Convierte el formulario actual en una configuración numérica.
-  const current = parseExperimentDraft(state.draft);
-
-  // Valida y resuelve la propuesta de parámetros del Tutor IA.
-  const next = resolveThreeBodyProposal(current, action.proposal);
-
-  if (!next) return state;
-
-  // Identifica el primer cuerpo modificado por la propuesta.
-  const changedBody = next.bodies.findIndex((body, i) =>
-    experimentBodyFields.some((key) => body[key] !== current.bodies[i][key]),
-  );
-
-  return {
-    revision: state.revision + 1,
-    selectedBody: changedBody < 0 ? state.selectedBody : changedBody,
-    draft: {
-      gravity:
-        next.gravity === current.gravity
-          ? state.draft.gravity
-          : String(next.gravity),
-      duration:
-        next.duration === current.duration
-          ? state.draft.duration
-          : String(next.duration),
-      bodies: state.draft.bodies.map(
-        (body, i) =>
-          Object.fromEntries(
-            experimentBodyFields.map((key) => [
-              key,
-              current.bodies[i][key] === next.bodies[i][key]
-                ? body[key]
-                : String(next.bodies[i][key]),
-            ]),
-          ) as Record<ExperimentBodyField, string>,
-      ),
-    },
-  };
+  return state;
 };

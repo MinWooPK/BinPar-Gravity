@@ -206,17 +206,7 @@ export const GlobalTutor = () => {
   // BOTONES ADICIONALES
   // ============================================
 
-  if (context.kind === "three-body") {
-    // Tres cuerpos:
-    // mantener Dar un ejemplo,
-    // eliminar Simplificar.
-    actions.push({
-      id: "example",
-      label: t("example"),
-      question: t("example"),
-      mode: "example",
-    });
-  } else if (context.kind === "home") {
+  if (context.kind === "home") {
     // Inicio: conservar ambos.
     actions.push(
       {

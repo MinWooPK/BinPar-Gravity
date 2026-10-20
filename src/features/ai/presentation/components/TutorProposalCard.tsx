@@ -3,8 +3,6 @@
 import { useId, useRef } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { resolveGravityProposal } from "@/features/gravity/application/gravityProposal";
-import { resolveThreeBodyProposal } from "@/features/three-body/application/experimentProposal";
-import { experimentBodyFields } from "@/features/three-body/application/experimentConfiguration";
 import { gravitationalForce } from "@/features/gravity/domain/gravitation";
 import type { TutorProposal } from "../../types/proposal.types";
 
@@ -34,9 +32,6 @@ export const TutorProposalCard = ({
   // Obtiene las traducciones del laboratorio de gravedad.
   const gravity = useTranslations("Gravity");
 
-  // Obtiene las traducciones del experimento de tres cuerpos.
-  const threeBody = useTranslations("ThreeBody.experiment");
-
   // Formatea los valores numéricos según el idioma.
   const format = useFormatter();
 
@@ -47,76 +42,20 @@ export const TutorProposalCard = ({
   const cardRef = useRef<HTMLElement>(null);
 
   // Calcula los parámetros propuestos para el laboratorio de gravedad.
-  const gravityParameters =
-    proposal.kind === "gravity"
-      ? resolveGravityProposal(proposal.baseline, proposal.action)
-      : null;
+  const gravityParameters = resolveGravityProposal(
+    proposal.baseline,
+    proposal.action,
+  );
 
-  // Calcula los parámetros propuestos para el experimento de tres cuerpos.
-  const threeBodyParameters =
-    proposal.kind === "three-body"
-      ? resolveThreeBodyProposal(proposal.baseline, proposal.action)
-      : null;
+  if (!gravityParameters) return null;
+  const rows = fields.map(({ key, label, unit }) => ({
+    key,
+    label: gravity(label),
+    unit,
+    before: proposal.baseline[key],
+    after: gravityParameters[key],
+  }));
 
-  if (!gravityParameters && !threeBodyParameters) return null;
-
-  // Almacena los valores anteriores y nuevos que se mostrarán en la tarjeta.
-  const rows: {
-    key: string;
-    label: string;
-    before: number;
-    after: number;
-    unit: string;
-  }[] = [];
-
-  if (proposal.kind === "gravity" && gravityParameters) {
-    fields.forEach(({ key, label, unit }) =>
-      rows.push({
-        key,
-        label: gravity(label),
-        unit,
-        before: proposal.baseline[key],
-        after: gravityParameters[key],
-      }),
-    );
-  }
-
-  if (proposal.kind === "three-body" && threeBodyParameters) {
-    for (const key of ["gravity", "duration"] as const) {
-      if (proposal.baseline[key] !== threeBodyParameters[key])
-        rows.push({
-          key,
-          label: threeBody(key),
-          unit: "",
-          before: proposal.baseline[key],
-          after: threeBodyParameters[key],
-        });
-    }
-
-    // Relaciona los campos físicos de cada cuerpo con sus traducciones.
-    const labels = {
-      mass: "mass",
-      x: "positionX",
-      y: "positionY",
-      vx: "velocityX",
-      vy: "velocityY",
-    } as const;
-
-    threeBodyParameters.bodies.forEach((body, i) =>
-      experimentBodyFields.forEach((key) => {
-        if (proposal.baseline.bodies[i][key] !== body[key])
-          rows.push({
-            key: `${i}-${key}`,
-            label: `${threeBody("body", { number: i + 1 })} · ${threeBody(labels[key])}`,
-            unit: "",
-            before: proposal.baseline.bodies[i][key],
-            after: body[key],
-          });
-      }),
-    );
-  }
-
-  // Formatea los parámetros numéricos con un máximo de ocho cifras significativas.
   const number = (value: number) =>
     format.number(value, { maximumSignificantDigits: 8 });
 
@@ -166,18 +105,12 @@ export const TutorProposalCard = ({
         ))}
       </dl>
 
-      {proposal.kind === "gravity" && gravityParameters && (
-        <p className="text-sm text-slate-300">
-          {t("proposalForce", {
-            before: force(gravitationalForce(proposal.baseline)),
-            after: force(gravitationalForce(gravityParameters)),
-          })}
-        </p>
-      )}
-
-      {proposal.kind === "three-body" && (
-        <p className="text-sm text-slate-300">{t("proposalThreeBodyNote")}</p>
-      )}
+      <p className="text-sm text-slate-300">
+        {t("proposalForce", {
+          before: force(gravitationalForce(proposal.baseline)),
+          after: force(gravitationalForce(gravityParameters)),
+        })}
+      </p>
 
       <p
         role="status"

@@ -1,9 +1,5 @@
 "use client";
 
-import { TutorContextBridge } from "@/features/ai/presentation/providers/TutorProvider";
-import { ExplainWithAI } from "@/features/ai/presentation/components/ExplainWithAI";
-import { isTutorContext } from "@/features/ai/application/tutorRequest";
-import type { TutorContext } from "@/features/ai/types/tutor.types";
 import {
   useCallback,
   useLayoutEffect,
@@ -266,29 +262,10 @@ export const ThreeBodyExperiment = ({
     if (next >= simulation.duration) setPlaying(false);
   };
 
-  const tutorContext = useMemo<TutorContext>(() => {
-    const snapshot: TutorContext = {
-      kind: "three-body",
-      stage: "experiment",
-      status: error
-        ? "invalid"
-        : (runError ??
-          (calculating ? "calculating" : simulation ? "complete" : "idle")),
-      ...(!error && { configuration: parsed }),
-      ...(simulation &&
-        !error &&
-        !calculating && { result: simulation.periodicity }),
-    };
-    return isTutorContext(snapshot)
-      ? snapshot
-      : { kind: "three-body", stage: "experiment", status: "invalid" };
-  }, [error, runError, calculating, simulation, parsed]);
-
   const selected = draft.bodies[selectedBody];
 
   return (
     <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-      <TutorContextBridge active={active} context={tutorContext} />
       {/* PANEL IZQUIERDO: CONFIGURACIÓN */}
 
       {/* PANEL IZQUIERDO: CONFIGURACIÓN */}
@@ -298,8 +275,6 @@ export const ThreeBodyExperiment = ({
           <h3 className="min-w-0 text-base font-semibold text-slate-100">
             {t("settingsTitle")}
           </h3>
-
-          <ExplainWithAI topic="simulation" />
         </div>
 
         {/* PARÁMETROS GENERALES */}

@@ -54,13 +54,11 @@ try {
     import {GravityFormulaAccess,GravityFormulaButton} from '@/features/gravity/presentation/components/understanding/GravityFormulaAccess';
     import {gravityStageById} from '@/features/gravity/application/gravityJourney';
     import {useRoute,navigate} from './router';
-    import {TutorContextBridge} from '@/features/ai/presentation/providers/TutorProvider';
-    import {ExplainWithAI} from '@/features/ai/presentation/components/ExplainWithAI';
     import {ThreeBodyExperimentProvider} from '@/features/three-body/presentation/providers/ThreeBodyExperimentProvider';
     import {ThreeBodyExperiment} from '@/features/three-body/presentation/components/experiment/ThreeBodyExperiment';
     import {simulateExperiment} from '@/features/three-body/domain/experiment-simulation';
     import {detectPeriodicity} from '@/features/three-body/domain/periodicity-detection';
-    window.Worker=class {terminate(){this.stopped=true}postMessage({id,config}){setTimeout(()=>{if(this.stopped)return;try{const trajectory=simulateExperiment(config);const {duration,samples,bounds}=trajectory;const periodicity=detectPeriodicity(trajectory,{G:config.gravity,masses:config.bodies.map(b=>b.mass)});this.onmessage?.({data:{id,ok:true,result:{duration,samples,bounds,periodicity}}})}catch{this.onmessage?.({data:{id,ok:false,error:'tooClose'}})}},10)}};
+    window.Worker=class {terminate(){this.stopped=true}postMessage({id,config}){setTimeout(()=>{if(this.stopped)return;try{const trajectory=simulateExperiment(config);const {duration,samples,bounds}=trajectory;const periodicity=detectPeriodicity(trajectory,{G:config.gravity,masses:config.bodies.map(b=>b.mass)});window.lastPeriodicity=periodicity;this.onmessage?.({data:{id,ok:true,result:{duration,samples,bounds,periodicity}}})}catch{this.onmessage?.({data:{id,ok:false,error:'tooClose'}})}},10)}};
     
     window.requests=[];window.failNext=false;window.hold=false;window.aborts=0;
     window.fetch=(url,options)=>{const body=JSON.parse(options.body);window.requests.push({url,body});
@@ -71,7 +69,7 @@ try {
       if(window.hold)return new Promise((resolve,reject)=>{window.release=()=>resolve(Response.json(data));options.signal.addEventListener('abort',()=>{window.aborts++;reject(new DOMException('Aborted','AbortError'))},{once:true})});
       return Promise.resolve(Response.json(data));};
     function Parameters(){window.openTutor=useTutorActions().openTutor;const {parameters}=useGravityParameters();window.parameters=parameters;return null;}
-    function ThreeBody(){const [stage,setStage]=React.useState('gallery');window.selectThreeStage=setStage;return <div><button onClick={()=>setStage('experiment')}>Experiment</button>{stage!=='experiment'?<><TutorContextBridge context={{kind:'three-body',stage}}/><ExplainWithAI topic="threeBody"/></>:<ThreeBodyExperiment/>}</div>}
+    function ThreeBody(){return <ThreeBodyExperimentProvider><ThreeBodyExperiment/></ThreeBodyExperimentProvider>}
     function Page(){const route=useRoute();const slug=route.split('/three-body/')[1];return <main data-route={route}>{route.endsWith('/gravity')&&<GravityParametersProvider><Parameters/><GravityFormulaAccess>
       <GravityFormulaButton/>
       <GravityJourney introduction={<p>Gravity</p>}>
@@ -79,7 +77,7 @@ try {
         <GravityJourneyPanel stage={gravityStageById['gravity-understanding']}><GravityIntroduction/></GravityJourneyPanel>
         <GravityLab/>
       </GravityJourney>
-    </GravityFormulaAccess></GravityParametersProvider>}{route.endsWith('/three-body')&&<ThreeBodyExperimentProvider><ThreeBody/></ThreeBodyExperimentProvider>}{slug&&<><TutorContextBridge context={{kind:'three-body',stage:'orbit',slug}}/><ExplainWithAI topic="orbit"/></>}</main>}
+    </GravityFormulaAccess></GravityParametersProvider>}{route.endsWith('/three-body')&&<ThreeBody/>}{slug&&<p>{slug}</p>}</main>}
     createRoot(document.getElementById('root')).render(<TutorProvider><Page/></TutorProvider>);
     window.navigate=route=>flushSync(()=>navigate(route));`);
   const {compile}=require('@tailwindcss/node');const {Scanner}=require('@tailwindcss/oxide');
@@ -203,7 +201,7 @@ try {
   assert.equal(await evaluate('window.requests.length'),0);
   // The production drawer currently has no visible launcher; exercise its public
   // trigger in this fixture without adding controls to the application.
-  for (const locale of ['es','en','fr']) {
+  for (const locale of (process.env.TUTOR_ONLY === '1' ? [] : ['es','en','fr'])) {
     await navigate('/'+locale+'/gravity');
     await click('[data-formula-trigger]');
     await waitFor("document.querySelector('#gravity-formula-dialog').open");
@@ -246,29 +244,25 @@ try {
   await click('[data-proposal-apply]');await waitFor('window.parameters.mass1===80');
   assert.equal(await evaluate("document.querySelector('#gravity-laboratory input[type=range]').value"),'80');
   assert.equal(await evaluate("document.querySelector('[data-tutor-proposal=applied]')!==null"),true);
-  // New questions take a fresh route context; history remains intact.
-  const storedCount=await count();
-  await navigate('/es/three-body');
-  assert.equal(await count(),storedCount);
-  await ask('Describe esta galería');
-  assert.equal(await evaluate('window.requests.at(-1).body.context.stage'),'gallery');
-  for(const slug of ['lagrange','figura-de-ocho','butterfly-i','goggles','moth-i','yin-yang-i']){
-    await navigate('/es/three-body/'+slug);
-    await ask('Explica la órbita '+slug);
-    assert.equal(await evaluate('window.requests.at(-1).body.context.slug'),slug);
+  // The chat disappears throughout Three Body; its persistent owner stays mounted.
+  const storedCount=await count(), requestsBeforeThree=await evaluate('window.requests.length');
+  await open();
+  for (const locale of ['es','en','fr']) {
+    for (const path of ['/three-body', ...['lagrange','figura-de-ocho','butterfly-i','goggles','moth-i','yin-yang-i'].map(slug=>'/three-body/'+slug)]) {
+      await navigate('/'+locale+path);
+      assert.equal(await evaluate("document.querySelector('#global-tutor-trigger,#global-tutor-dialog,[data-explain-topic]')"),null);
+      await evaluate('window.openTutor()');
+      assert.equal(await evaluate("document.querySelector('#global-tutor-dialog')"),null);
+    }
   }
-  await navigate('/es/three-body');await close();
-  await evaluate("window.selectThreeStage('experiment')");
-  await waitFor("!!document.querySelector('[data-explain-topic=simulation]')");
-  await click('[data-explain-topic=simulation]');await settled();
-  assert.equal(await evaluate('window.requests.at(-1).body.context.configuration.bodies.length'),3);
-  await close();
-  await evaluate("(()=>{const buttons=[...document.querySelectorAll('button')];const button=buttons.find(b=>b.textContent.includes('Ejecutar simulación'));if(!button)throw Error(JSON.stringify(buttons.map(b=>b.textContent)));button.click()})()");
-  await waitFor("!!document.querySelector('[data-explain-topic=periodicity]')");
-  await click('[data-explain-topic=periodicity]');await settled();
-  assert.equal(await evaluate('window.requests.at(-1).body.context.status'),'complete');
-  assert.equal(await evaluate('window.requests.at(-1).body.context.result.detected'),true);
-  await navigate('/es');await ask('¿Qué puedo aprender aquí?');
+  await navigate('/es/three-body');
+  await evaluate("[...document.querySelectorAll('button')].find(b=>b.textContent.includes('Ejecutar simulación')).click()");
+  await waitFor("window.lastPeriodicity?.detected===true");
+  assert.equal(await evaluate("document.querySelector('input[type=range]').disabled"),false);
+  assert.equal(await evaluate('window.requests.length'),requestsBeforeThree);
+  await navigate('/es');await open();
+  assert.equal(await count(),storedCount);
+  await ask('¿Qué puedo aprender aquí?');
   assert.equal(await evaluate('window.requests.at(-1).body.context.kind'),'home');
   await evaluate("window.longReply=('A long explanation about gravity with readable paragraphs. '.repeat(35)+'\\n\\n'+'A-very-long-unbroken-example-'.repeat(20))");
   await ask('Dame una explicación extensa');
@@ -283,7 +277,7 @@ try {
   await evaluate("delete window.visualViewport.height;window.visualViewport.dispatchEvent(new Event('resize'))");
   await resize(1280);
   // Exceed the cap deliberately, then compare the actual surviving transcript.
-  for(let index=0;index<4;index++)await ask('Persistencia '+index);
+  for(let index=0;index<15;index++)await ask('Persistencia '+index);
   assert.equal(await count(),30);
   const transcript=()=>evaluate(`[...document.querySelectorAll('#global-tutor-dialog [data-role]')].map(element=>({role:element.dataset.role,content:element.querySelector('p').textContent}))`);
   const beforeReload=await transcript();
@@ -346,7 +340,7 @@ try {
   assert.equal(await evaluate("localStorage.getItem('gravity-lab:tutor:v1')"),null);
   assert.equal(await evaluate('window.requests.length'),0);
   assert.deepEqual(errors, []);
-  console.log('Passed: one global chat, contextual single-send help, formula highlighting, confirmed/stale proposals, shared route history, last 30 messages persisted and restored, no stored authorizations, API retry, clear/abort and empty reload, independent practice endpoint, real experiment periodicity, six orbits, all locales, mobile and keyboard.');
+  console.log('Passed: one global chat, contextual single-send help, formula highlighting, confirmed/stale proposals, shared route history, last 30 messages persisted and restored, no stored authorizations, API retry, clear/abort and empty reload, independent practice endpoint, real experiment periodicity without AI, disabled tutor on all six orbital routes, all locales, mobile and keyboard.');
   const exited=once(chrome,'exit');await send('Browser.close');await exited;
 } finally {
   for (const request of pending.values()) clearTimeout(request.timeout);

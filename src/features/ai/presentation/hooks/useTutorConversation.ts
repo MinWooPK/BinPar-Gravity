@@ -243,20 +243,6 @@ const useConversationStore = () => {
             baseline: { ...request.context.parameters },
           };
 
-        if (
-          reply.proposal?.action === "set_three_body_parameters" &&
-          source?.threeBody &&
-          request.context.kind === "three-body" &&
-          request.context.draftConfiguration
-        )
-          proposal = {
-            ...common,
-            kind: "three-body",
-            action: reply.proposal,
-            source: source.threeBody,
-            baseline: request.context.draftConfiguration,
-          };
-
         // Construye el mensaje del asistente con su explicación
         // y la propuesta de modificación cuando corresponda.
         const message: ChatMessage = {
@@ -264,11 +250,7 @@ const useConversationStore = () => {
           contextId: tutorContextId(request.context),
           role: "assistant",
           content: reply.proposalRejected
-            ? t(
-                request.context.kind === "three-body"
-                  ? "proposalRejectedThreeBody"
-                  : "proposalRejected",
-              )
+            ? t("proposalRejected")
             : reply.text,
           ...(proposal && { proposal }),
         };

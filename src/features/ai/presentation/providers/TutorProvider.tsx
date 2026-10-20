@@ -10,7 +10,6 @@ import {
 } from "react";
 
 import { usePathname } from "@/i18n/navigation";
-import type { ThreeBodyProposalPort } from "../../types/proposal.types";
 import type { TutorContext } from "../../types/tutor.types";
 import { routeTutorContext } from "../../application/tutorAvailability";
 
@@ -29,34 +28,13 @@ import { TutorConversationProvider } from "../hooks/useTutorConversation";
 export const TutorProvider = ({ children }: { children: ReactNode }) => {
   // Obtiene la ruta actual de la aplicación.
   const pathname = usePathname();
+  const available = routeTutorContext(pathname) !== null;
 
   // Almacena el contexto publicado por la página activa.
   const [published, setPublished] = useState<PublishedContext | null>(null);
 
   // Mantiene una referencia actualizada del contexto publicado.
   const publishedRef = useRef<PublishedContext | null>(null);
-
-  // Almacena las funciones disponibles del experimento de tres cuerpos.
-  const [threeBody, setThreeBody] = useState<ThreeBodyProposalPort | null>(
-    null,
-  );
-
-  // Mantiene una referencia actualizada de las funciones del experimento.
-  const threeBodyRef = useRef<ThreeBodyProposalPort | null>(null);
-
-  // Registra las funciones que permiten al Tutor IA
-  // consultar y proponer cambios en el experimento de tres cuerpos.
-  const registerThreeBody = useCallback((port: ThreeBodyProposalPort) => {
-    threeBodyRef.current = port;
-    setThreeBody(port);
-
-    return () => {
-      if (threeBodyRef.current === port) {
-        threeBodyRef.current = null;
-        setThreeBody(null);
-      }
-    };
-  }, []);
 
   // Almacena la función que permite resaltar elementos de la fórmula.
   const highlightRef = useRef<
@@ -87,8 +65,10 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
 
   // Permite abrir el Tutor IA desde cualquier componente.
   const openTutor = useCallback<TutorLauncher>(
-    (intent, trigger) => launcherRef.current?.(intent, trigger),
-    [],
+    (intent, trigger) => {
+      if (available) launcherRef.current?.(intent, trigger);
+    },
+    [available],
   );
 
   // Registra la función que controla la apertura del Tutor IA.
@@ -119,54 +99,26 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
 
   // Obtiene el contexto actual y las acciones disponibles
   // para las peticiones y propuestas del Tutor IA.
-  const current = useCallback((): PublishedContext => {
-    // Recupera el último contexto publicado.
+  const current = useCallback((): PublishedContext | null => {
+    const fallback = routeTutorContext(pathname);
+    if (!fallback) return null;
     const value = publishedRef.current;
-
-    // Selecciona el contexto publicado o el correspondiente a la URL.
-    const page =
-      value?.pathname === pathname
-        ? value
-        : { pathname, context: routeTutorContext(pathname) };
-
-    // Obtiene las funciones actuales del experimento de tres cuerpos.
-    const port = threeBodyRef.current;
-
-    return page.context.kind === "three-body" && port
-      ? {
-          ...page,
-          threeBody: port,
-          context: {
-            ...page.context,
-            ...(port.configuration && {
-              draftConfiguration: port.configuration,
-            }),
-          },
-        }
-      : page;
+    return value?.pathname === pathname
+      ? value
+      : { pathname, context: fallback };
   }, [pathname]);
 
-  // Determina el contexto de la página que debe recibir el Tutor IA.
-  const pageContext =
-    published?.pathname === pathname
-      ? published.context
-      : routeTutorContext(pathname);
-
-  // Combina el contexto actual con la configuración
-  // del experimento de tres cuerpos cuando está disponible.
   const context = useMemo<TutorContext>(
-    () =>
-      pageContext.kind === "three-body" && threeBody?.configuration
-        ? { ...pageContext, draftConfiguration: threeBody.configuration }
-        : pageContext,
-    [pageContext, threeBody],
+    () => available && published?.pathname === pathname
+      ? published.context
+      : { kind: "home", stage: null },
+    [available, published, pathname],
   );
 
   // Agrupa el contexto global, la sesión y las funciones
   // que se compartirán con los componentes del Tutor IA.
   const environment = useMemo(
     () => ({
-      registerThreeBody,
       sessionKey: "global" as const,
       activeSessionId: "global" as const,
       context,
@@ -185,7 +137,6 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
       registerLauncher,
       registerHighlight,
       highlight,
-      registerThreeBody,
     ],
   );
 
@@ -193,7 +144,7 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
     <EnvironmentContext.Provider value={environment}>
       <TutorConversationProvider>
         {children}
-        <GlobalTutor />
+        {available && <GlobalTutor />}
       </TutorConversationProvider>
     </EnvironmentContext.Provider>
   );

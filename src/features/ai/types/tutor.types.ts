@@ -14,27 +14,6 @@ export type TutorContext =
   | {
       kind: "home";
       stage: null;
-    }
-  | {
-      kind: "three-body";
-      stage:
-        | "discover"
-        | "understand"
-        | "gallery"
-        | "experiment"
-        | "orbit"
-        | null;
-      slug?: string;
-      draftConfiguration?: import("../../three-body/domain/experiment-simulation").ExperimentConfiguration;
-      configuration?: import("../../three-body/domain/experiment-simulation").ExperimentConfiguration;
-      result?: import("../../three-body/domain/periodicity-detection").PeriodicityResult;
-      status?:
-        | "idle"
-        | "calculating"
-        | "complete"
-        | "invalid"
-        | "tooClose"
-        | "calculationFailed";
     };
 export type TutorMessage = { role: "user" | "assistant"; content: string };
 export type TutorIntent =
@@ -53,6 +32,6 @@ export type Tutor = {
 };
 export type TutorReply = {
   text: string;
-  proposal?: GravityParameterProposal | import("../../three-body/types/experiment-proposal.types").ThreeBodyParameterProposal;
+  proposal?: GravityParameterProposal;
   proposalRejected?: true;
 };

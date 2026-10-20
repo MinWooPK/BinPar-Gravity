@@ -1,4 +1,3 @@
-import { isThreeBodyTutorContext } from "./threeBodyTutorContext";
 import { gravityStages } from "../../gravity/application/gravityJourney";
 import { laboratoryLimits } from "../../gravity/domain/gravitation";
 import { isTutorRequest as isLegacyTutorRequest } from "./legacyTutorRequest";
@@ -36,8 +35,6 @@ export const isTutorContext = (value: unknown): value is TutorContext => {
 
   if (value.kind === "home")
     return value.stage === null && hasOnlyKeys(value, ["kind", "stage"]);
-
-  if (value.kind === "three-body") return isThreeBodyTutorContext(value);
 
   if (
     value.kind !== "gravity" ||

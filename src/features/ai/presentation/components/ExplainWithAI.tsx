@@ -5,22 +5,11 @@ import { useTranslations } from "next-intl";
 import { CircleHelp } from "@/components/icons";
 import { useTutorActions } from "../providers/tutorEnvironment";
 
-export type ExplainTopic =
-  | "formula"
-  | "mass"
-  | "distance"
-  | "simulation"
-  | "orbit"
-  | "periodicity"
-  | "threeBody";
+type ExplainTopic = "formula" | "simulation";
 export const ExplainWithAI = ({
   topic,
-  question,
-  onExplain,
 }: {
   topic: ExplainTopic;
-  question?: string;
-  onExplain?: () => void;
 }) => {
   const t = useTranslations("Tutor");
   const { openTutor } = useTutorActions();
@@ -36,10 +25,9 @@ export const ExplainWithAI = ({
         aria-controls="global-tutor-dialog"
         className="inline-flex size-11 items-center justify-center rounded-full text-[#F8BA00] transition-[color,transform,filter] duration-200 hover:scale-105 hover:text-[#ffdb70] hover:drop-shadow-[0_0_5px_#F8BA0080] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#F8BA00] motion-reduce:transform-none motion-reduce:transition-none"
         onClick={(event) => {
-          onExplain?.();
           openTutor(
             {
-              question: question ?? t(`helpQuestions.${topic}`),
+              question: t(`helpQuestions.${topic}`),
               intent: "explain_context",
             },
             event.currentTarget,

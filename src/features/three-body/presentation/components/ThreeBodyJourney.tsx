@@ -1,9 +1,6 @@
 "use client";
 
-import { TutorContextBridge } from "@/features/ai/presentation/providers/TutorProvider";
-import { useThreeBodyExperiment } from "../providers/ThreeBodyExperimentProvider";
 import { GalleryIntroduction } from "./gallery/GalleryIntroduction";
-// import { ExplainWithAI } from "@/features/ai/presentation/components/ExplainWithAI";
 
 import {
   useCallback,
@@ -26,7 +23,7 @@ import { threeBodyStyles as galleryStyles } from "./gallery/ThreeBody.styles";
 import { ThreeBodyExperiment } from "./experiment/ThreeBodyExperiment";
 
 // Gestiona la navegación entre las etapas del problema de los tres cuerpos,
-// conservando el estado de la galería y sincronizando el Tutor IA.
+// conservando el estado de la galería.
 export const ThreeBodyJourney = ({
   discovery,
   animationData,
@@ -41,7 +38,6 @@ export const ThreeBodyJourney = ({
   const { update } = useGalleryState();
 
   // Permite registrar una función de navegación desde el experimento.
-  const { registerNavigator } = useThreeBodyExperiment();
 
   // Guarda la etapa activa; null representa la pantalla de bienvenida.
   const [activeStage, setActiveStage] = useState<ThreeBodyStageId | null>(null);
@@ -129,10 +125,6 @@ export const ThreeBodyJourney = ({
 
   // Registra una función para que otros componentes puedan
   // dirigir al usuario a la etapa Experimenta.
-  useLayoutEffect(
-    () => registerNavigator(() => selectStage("experiment", true)),
-    [registerNavigator, selectStage],
-  );
 
   // Regresa a la pantalla principal del recorrido educativo.
   const returnToJourney = useCallback(() => {
@@ -201,10 +193,6 @@ export const ThreeBodyJourney = ({
       data-three-body-journey
       data-active-stage={activeStage ?? "welcome"}
     >
-      <TutorContextBridge
-        active={activeStage !== "experiment"}
-        context={{ kind: "three-body", stage: activeStage }}
-      />
 
       <div
         className={styles.view}

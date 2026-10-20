@@ -1,9 +1,4 @@
 import {
-  isThreeBodyParameterProposal,
-  resolveThreeBodyProposal,
-} from "../../three-body/application/experimentProposal";
-
-import {
   isGravityParameterProposal,
   resolveGravityProposal,
 } from "../../gravity/application/gravityProposal";
@@ -47,18 +42,6 @@ export const parseTutorReply = (
   // Devuelve únicamente la explicación cuando no existe ninguna propuesta.
   if (reply.proposal === null || reply.proposal === undefined)
     return { text: reply.text.trim() };
-
-  // Valida las propuestas para el experimento de los tres cuerpos.
-  if (context.kind === "three-body") {
-    if (
-      !context.draftConfiguration ||
-      !isThreeBodyParameterProposal(reply.proposal) ||
-      !resolveThreeBodyProposal(context.draftConfiguration, reply.proposal)
-    )
-      return { text: "", proposalRejected: true };
-
-    return { text: reply.text.trim(), proposal: reply.proposal };
-  }
 
   // Rechaza las propuestas de gravedad si el contexto,
   // la estructura o los parámetros solicitados no son válidos.

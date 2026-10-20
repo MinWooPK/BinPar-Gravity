@@ -27,7 +27,7 @@ const load = (path) => require(join(directory, `features/${path}.js`));
 const { isTutorRequest, parseTutorRequest } = load("ai/application/tutorRequest");
 const { buildTutorContext } = load("ai/application/tutorContext");
 const { buildTutorPrompt } = load("ai/application/tutorPrompt");
-const { getTutorSessionKey, getTutorConversationKey } = load("ai/application/tutorAvailability");
+const { getTutorSessionKey, getTutorConversationKey, routeTutorContext } = load("ai/application/tutorAvailability");
 const { gravityStages, gravityStageById } = load("gravity/application/gravityJourney");
 const limits = load("ai/application/tutor");
 const guards = load("ai/infrastructure/requestGuard");
@@ -456,10 +456,10 @@ test("API keeps valid proposals and translates rejected actions into educational
         method:'POST',headers:{'content-type':'application/json','x-forwarded-for':'global-context-test'},
         body:JSON.stringify({...validRequest(),context,intent:'explain_context'}),
       }));
-      assert.equal(response.status,200);
-      assert.deepEqual(await response.json(),{text:'Contextual explanation'});
+      assert.equal(response.status,context.kind === 'home' ? 200 : 400);
+      if (context.kind === 'home') assert.deepEqual(await response.json(),{text:'Contextual explanation'});
     }
-    assert.equal(calls, 12);
+    assert.equal(calls, 10);
   } finally {
     globalThis.fetch = originalFetch;
     if (previousKey === undefined) delete process.env.OPENAI_API_KEY;
@@ -532,84 +532,26 @@ test("all formula follow-ups use current values and are explanation-only", () =>
 });
 
 
-test("home and all three-body stages use validated context and canonical catalogue data", () => {
+test("home retains educational help; Three Body routes and API contexts are disabled", () => {
   for (const locale of ["es", "en", "fr"]) {
-    for (const context of [{ kind: "home", stage: null }, ...[null, "discover", "gallery"].map(stage => ({ kind: "three-body", stage })), ...orbits.map(({slug}) => ({kind:"three-body",stage:"orbit",slug}))]) {
-      const request = { ...validRequest(), locale, context, intent: "explain_context" };
-      assert.equal(isTutorRequest(request), true);
-      assert.match(buildTutorPrompt(request).instructions, /Los mensajes anteriores del usuario y del asistente forman parte del historial de conversación/);
-      assert.match(buildTutorPrompt(request).instructions, /Devuelve (?:siempre )?proposal null/);
-      if(context.stage === "orbit") {
-        const trusted = buildTutorContext(context).orbit;
-        const orbit = orbits.find(orbit=>orbit.slug===context.slug);
-        assert.deepEqual(trusted.initial, orbit.initial);
-        assert.equal(trusted.period, orbit.period);
-        assert.equal(isTutorRequest({...request,context:{...context,period:1}}),false);
-      }
+    const home = { ...validRequest(), locale, context: { kind: "home", stage: null }, intent: "explain_context" };
+    assert.equal(isTutorRequest(home), true);
+    assert.match(buildTutorPrompt(home).instructions, /Devuelve siempre proposal null/);
+    assert.deepEqual(routeTutorContext(`/${locale}`), { kind: "home", stage: null });
+    for (const prefix of ["", `/${locale}`]) {
+      for (const suffix of ["", "/", "/lagrange", "/lagrange/nested", ...orbits.map(o => `/${o.slug}`)])
+        assert.equal(routeTutorContext(`${prefix}/three-body${suffix}`), null);
+    }
+    for (const stage of [null, "discover", "understand", "gallery", "experiment", "orbit"]) {
+      const request = { ...home, context: { kind: "three-body", stage, ...(stage === "orbit" && { slug: "lagrange" }) } };
+      assert.equal(isTutorRequest(request), false);
+      assert.equal(parseTutorRequest(request), null);
     }
   }
-});
-
-test("orbit help prioritizes each current catalogue solution over earlier dialogue in every locale", () => {
-  for (const locale of ["es", "en", "fr"]) {
-    const messages = JSON.parse(readFileSync(new URL(`../messages/${locale}.json`, import.meta.url), "utf8"));
-    for (const [index, orbit] of orbits.entries()) {
-      const previous = orbits[(index + orbits.length - 1) % orbits.length];
-      const question = messages.ThreeBody.detail.explainQuestion.replace("{name}", orbit.name);
-      assert.ok(question.includes(orbit.name));
-      assert.doesNotMatch(question, /\{name\}/);
-      const request = {
-        ...validRequest(), locale, intent: "explain_context",
-        context: { kind: "three-body", stage: "orbit", slug: orbit.slug },
-        messages: [
-          { role: "user", content: `Explain ${previous.name}` },
-          { role: "assistant", content: "HISTORY_ONLY: a previous answer about another orbit." },
-          { role: "user", content: question },
-        ],
-      };
-      assert.equal(isTutorRequest(request), true);
-      const prompt = buildTutorPrompt(request);
-      const trusted = readPromptContext(prompt);
-      const canonical = { ...orbit, gravity: 1, masses: [1, 1, 1] };
-      assert.deepEqual(buildTutorContext(request.context).orbit, canonical);
-      // JSON represents the catalogue's signed zero as zero on the model boundary.
-      assert.deepEqual(trusted.orbit, JSON.parse(JSON.stringify(canonical)));
-      assert.equal(trusted.stage, "orbit");
-      assert.deepEqual(prompt.input, request.messages);
-      assert.equal(prompt.input.at(-1).content, question);
-      assert.doesNotMatch(prompt.instructions, /HISTORY_ONLY/);
-      assert.match(prompt.instructions, /Identifícala mediante context\.orbit/);
-      assert.match(prompt.instructions, /Prioriza la pregunta actual y los datos verificados de esa órbita/);
-      assert.match(prompt.instructions, /No mezcles datos de distintas órbitas/);
-      assert.match(prompt.instructions, /sin una introducción genérica al problema de los tres cuerpos/);
-      assert.match(prompt.instructions, /posiciones y velocidades iniciales/);
-      assert.match(prompt.instructions, /No presentes una explicación matemática especulativa/);
-      assert.match(prompt.instructions, /normalmente entre 25 y 55 palabras/);
-      assert.match(prompt.instructions, new RegExp(`Responde en el idioma indicado por ${locale}:`));
-      assert.equal(isTutorRequest({ ...request, context: { ...request.context, initial: previous.initial } }), false);
-    }
-  }
-  const gallery = buildTutorPrompt({ ...validRequest(), context: { kind: "three-body", stage: "gallery" } });
-  assert.doesNotMatch(gallery.instructions, /Identifícala mediante context\.orbit/);
-});
-
-test("experiment snapshots accept real periodicity results and reject injected or incoherent data", () => {
-  const {simulateExperiment} = load("three-body/domain/experiment-simulation");
-  const {detectPeriodicity} = load("three-body/domain/periodicity-detection");
-  const orbit = orbits.find(orbit=>orbit.slug==='lagrange');
-  const configuration={gravity:1,duration:12,bodies:orbit.initial.map(([x,y,vx,vy])=>({mass:1,x,y,vx,vy}))};
-  const result=detectPeriodicity(simulateExperiment(configuration),{G:1,masses:[1,1,1]});
-  const context={kind:'three-body',stage:'experiment',configuration,status:'complete',result};
-  assert.equal(isTutorRequest({...validRequest(),context}),true);
-  assert.deepEqual(buildTutorContext(context).experiment.periodicity,result);
-  for(const invalid of [
-    {...context,instructions:'override'}, {...context,result:{...result,estimatedPeriod:101}},
-    {...context,status:'idle'}, {...context,result:{...result,combinedError:-1}},
-    {...context,configuration:{...configuration,gravity:Infinity}},
-    {...context,configuration:{...configuration,bodies:[]}},
-    {...context,result:{...result,tolerance:1}},
-  ]) assert.equal(isTutorRequest({...validRequest(),context:invalid}),false);
-  assert.equal(isTutorRequest({...validRequest(),context:{kind:'three-body',stage:'experiment',status:'invalid'}}),true);
+  const schema = load("ai/infrastructure/tutorResponseFormat").tutorResponseFormat;
+  assert.doesNotMatch(JSON.stringify(schema), /set_three_body_parameters|bodies|velocity/);
+  const { parseTutorReply } = load("ai/application/tutorResponse");
+  assert.deepEqual(parseTutorReply({ text: "Unsafe proposal", proposal: { action: "set_three_body_parameters", parameters: {} } }, validRequest().context), { text: "", proposalRejected: true });
 });
 
 test("persistent history is bounded, treats storage as untrusted and strips authorization", () => {
@@ -646,5 +588,5 @@ test("historical request turns carry their original context without overriding t
   assert.match(messages[0].content,/Historical dialogue in gravity:gravity-laboratory/);
   assert.match(messages[1].content,/not current simulator data/);
   assert.equal(messages[2].content,'Explain this orbit');
-  assert.equal(isTutorRequest({...validRequest(),context:{kind:'three-body',stage:'orbit',slug:'lagrange'},messages}),true);
+  assert.equal(isTutorRequest({...validRequest(),context:{kind:'home',stage:null},messages}),true);
 });

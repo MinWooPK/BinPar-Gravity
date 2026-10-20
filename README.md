@@ -97,7 +97,9 @@ activarse explícitamente. Se suspende fuera de pantalla y con la pestaña ocult
 ## Tutor IA global
 
 Un solo `TutorProvider` del layout de idiomas mantiene la conversación en Inicio,
-Gravedad (sus cuatro etapas), Tres Cuerpos y los seis detalles orbitales. La única
+Gravedad (sus cuatro etapas). En `/three-body` y todas sus subrutas no se monta
+la interfaz del tutor ni se permiten consultas o propuestas para ese módulo.
+El historial global se conserva al entrar y salir de Tres Cuerpos. La única
 interfaz es `GlobalTutor`: botón flotante MessageCircle, diálogo con teclado/Escape,
 scroll interno y adaptación al teclado virtual y safe areas. Los dos iconos Lucide
 se incluyen como SVG locales con su licencia; no se instala otra dependencia.
@@ -117,13 +119,9 @@ bloquea el almacenamiento, la conversación continúa en memoria.
 
 Cada pregunta usa el contexto actual publicado por `TutorContextBridge`. Gravedad
 aporta parámetros reales; el servidor calcula fuerzas y ejemplos con el dominio.
-En las órbitas, el servidor obtiene condiciones y períodos del catálogo. En el
-experimento se acepta una instantánea numérica validada (configuración, estado y
-resumen de periodicidad), identificada como observación del navegador y no como
-resultado recalculado por el servidor. No se envían trayectorias completas. Los
-mensajes anteriores se identifican como históricos, nunca como valores actuales.
+Los mensajes anteriores se identifican como históricos, nunca como valores actuales.
 
-La fórmula, Inicio y Tres Cuerpos no autorizan cambios desde el tutor. Las
+La fórmula e Inicio no autorizan cambios desde el tutor. Las
 propuestas de Gravedad siguen requiriendo «Aplicar» y superar la validación de
 rangos, contexto y revisión de parámetros. Las ayudas «Explícamelo» son de solo
 lectura. En Comprueba el tutor proporciona pistas conceptuales sin resolver ni
@@ -178,7 +176,8 @@ npm start
 
 Las pruebas verifican unidades SI, simetría, proporcionalidad con las masas, ley
 del inverso del cuadrado, calculadora, retos, integrador y conservación física.
-Las del tutor cubren los contextos de Inicio, Gravedad y Tres Cuerpos, datos
+Las del tutor cubren los contextos de Inicio y Gravedad, el rechazo de contextos
+de Tres Cuerpos, datos
 inválidos, límites del historial y del cuerpo, consumo y concurrencia, y el contrato
 del adaptador. Las pruebas físicas cubren las seis órbitas, el simulador personalizado
 y el detector de periodicidad.
@@ -188,12 +187,21 @@ verificación separada; ejecutar estos tests no la sustituye.
 
 `node tests/browser/global-tutor.mjs` comprueba el tutor y los componentes reales
 con Chrome, rutas aisladas y respuestas de IA interceptadas: conversación compartida
-entre Inicio, Gravedad y las seis órbitas, recarga exacta de los últimos 30 mensajes,
+entre Inicio y Gravedad, ausencia del tutor en las seis rutas orbitales,
+recarga exacta de los últimos 30 mensajes,
 propuestas confirmadas y obsoletas, preguntas de ayuda sin duplicados, reintento tras
 errores, borrado persistente y cancelación de peticiones, teclado y tamaños
 móvil/escritorio. Comprueba también la simulación y periodicidad reales de Tres
 Cuerpos y el endpoint independiente de evaluación. No necesita credenciales ni
 un servidor Next.
+
+`TUTOR_ONLY=1 node tests/browser/global-tutor.mjs` ejecuta esas verificaciones
+sin la comprobación adicional del aviso de límites del drawer de calculadora.
+
+`node tests/browser/three-body-no-ai.mjs` verifica las seis órbitas, las cuatro
+etapas y una simulación manual con periodicidad en ES/EN/FR sobre la aplicación
+local (`TUTOR_URL`, por defecto `http://localhost:3000`). Comprueba que no haya
+controles de IA ni peticiones a `/api/ai`.
 
 ## Pendiente de la prueba técnica
 
