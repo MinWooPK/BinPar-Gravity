@@ -22,11 +22,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Gravity-BinPar",
+  title: "BinPar · Gravity Lab",
+
   description:
-    "Explora la ley de gravitación universal de Newton mediante simulaciones interactivas.",
+    "Explora la gravedad y el problema de los tres cuerpos mediante simulaciones interactivas.",
+
+  // Mantiene el icono en la pestaña del navegador.
   icons: {
     icon: "/gravity-lab.ico",
+  },
+
+  // Información para compartir enlaces, sin imagen.
+  openGraph: {
+    title: "BinPar · Gravity Lab",
+    description: "Aprende física con simulaciones interactivas.",
+    type: "website",
+    images: [],
   },
 };
 
