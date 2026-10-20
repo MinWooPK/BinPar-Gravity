@@ -7,7 +7,7 @@ import { GravityFormulaAccess } from "./understanding/GravityFormulaAccess";
 import { GravityJourney, GravityJourneyPanel } from "./GravityJourneyTabs";
 import { gravityStageById } from "../../application/gravityJourney";
 import { gravityJourneyStyles as styles } from "./GravityJourney.styles";
-import { SpaceStarfield } from "@/components/layout/SpaceStarfield";
+import { SpaceStarfield } from "@/components/layout/SpaceStarfield/SpaceStarfield";
 
 export const GravityScreen = () => {
   const t = useTranslations("Gravity");

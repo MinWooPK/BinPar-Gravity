@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import css from "./GravityPrinciples.module.css";
 
+// Define los estilos de la sección y las tarjetas de los principios gravitatorios.
 const styles = {
   section: "min-w-0",
   heading:
@@ -10,8 +11,12 @@ const styles = {
   marker: `${css["marker"]} block [width:22px] [height:3px] [border-radius:2px] [background:#aa97ff]`,
 } as const;
 
+// Muestra los tres principios fundamentales de la gravedad:
+// influencia de la masa, influencia de la distancia y atracción mutua.
 export const GravityPrinciples = () => {
+  // Obtiene las traducciones de los títulos y descripciones.
   const t = useTranslations("Gravity");
+
   return (
     <section
       aria-labelledby="gravity-principles-title"
@@ -20,6 +25,7 @@ export const GravityPrinciples = () => {
       <h3 id="gravity-principles-title" className={styles.heading}>
         {t("principlesTitle")}
       </h3>
+
       <div className={styles.principles}>
         {(["mass", "distance", "mutual"] as const).map((key) => (
           <article

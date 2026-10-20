@@ -5,9 +5,15 @@ import { MessageSquareText } from "@/components/icons";
 import { useTranslations } from "next-intl";
 import { useTutorActions } from "@/features/ai/presentation/providers/tutorEnvironment";
 
+// Muestra un botón para abrir el Tutor IA y solicitar
+// una explicación de la fórmula gravitatoria.
 export const GravityFormulaTutorButton = () => {
+  // Obtiene las traducciones del Tutor IA.
   const t = useTranslations("Tutor");
+
+  // Obtiene la función que permite abrir el Tutor IA global.
   const { openTutor } = useTutorActions();
+
   return (
     <button
       type="button"

@@ -487,4 +487,3 @@ export const SpaceStarfield = () => {
     </div>
   );
 };
-

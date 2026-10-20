@@ -7,10 +7,19 @@ import { orbitDetailStyles as styles } from "./OrbitDetail.styles";
 
 const tabs = ["explanation", "conditions"] as const;
 
-export const OrbitDetailTabs = ({ explanation, conditions }: { explanation: ReactNode; conditions: ReactNode }) => {
+export const OrbitDetailTabs = ({
+  explanation,
+  conditions,
+}: {
+  explanation: ReactNode;
+  conditions: ReactNode;
+}) => {
   const t = useTranslations("ThreeBody.detail");
   const id = useId();
-  const { selected, setSelected, tabRefs, handleTabKeyDown } = useTabs(tabs, "explanation");
+  const { selected, setSelected, tabRefs, handleTabKeyDown } = useTabs(
+    tabs,
+    "explanation",
+  );
 
   return (
     <div className={styles.informationTabs}>
@@ -18,7 +27,9 @@ export const OrbitDetailTabs = ({ explanation, conditions }: { explanation: Reac
         {tabs.map((tab, index) => (
           <TabButton
             key={tab}
-            ref={(element) => { tabRefs.current[index] = element; }}
+            ref={(element) => {
+              tabRefs.current[index] = element;
+            }}
             id={`${id}-tab-${tab}`}
             aria-controls={`${id}-panel-${tab}`}
             selected={selected === tab}

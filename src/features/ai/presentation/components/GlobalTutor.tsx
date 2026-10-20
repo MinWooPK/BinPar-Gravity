@@ -3,12 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useTutorConversation } from "../hooks/useTutorConversation";
-import {
-  AtomIcon,
-  MessageCircle,
-  Trash2,
-  X,
-} from "@/components/icons";
+import { AtomIcon, MessageCircle, Trash2, X } from "@/components/icons";
 import { tutorContextId } from "../../application/tutorAvailability";
 import { tutorContextLabel } from "./tutorContextLabel";
 import { TutorChat, type TutorQuickAction } from "./TutorChat";

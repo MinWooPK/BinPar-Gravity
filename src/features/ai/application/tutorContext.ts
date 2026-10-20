@@ -1,4 +1,5 @@
 import { buildThreeBodyTutorContext } from "./threeBodyTutorContext";
+
 import {
   gravitationalForce,
   GRAVITATIONAL_CONSTANT,
@@ -6,9 +7,11 @@ import {
   isWithinLaboratoryRange,
   laboratoryLimits,
 } from "../../gravity/domain/gravitation";
+
 import type { TutorContext } from "../types/tutor.types";
 
-// Aligned with the discovery panel; these facts are owned by the server, not dialogue.
+// Define la información científica y educativa sobre la gravedad
+// que el Tutor IA puede utilizar en la etapa 01 · Descubre.
 const gravityDiscovery = {
   definition:
     "Every body with mass attracts other bodies with mass. Gravity acts at a distance; the forces on two bodies have equal magnitude and opposite directions.",
@@ -49,7 +52,8 @@ const gravityDiscovery = {
   },
 } as const;
 
-/** Gravity facts come exclusively from the project on the server. */
+// Construye el contexto científico que recibe el Tutor IA
+// según la sección actual de Gravity Lab.
 export const buildTutorContext = (context: TutorContext) => {
   if (context.kind === "home")
     return {
@@ -61,16 +65,24 @@ export const buildTutorContext = (context: TutorContext) => {
       ],
       current: null,
     };
+
   if (context.kind === "three-body") return buildThreeBodyTutorContext(context);
+
+  // Calcula la fuerza gravitatoria de los parámetros iniciales.
   const baselineForce = gravitationalForce(initialParameters);
+
+  // Calcula la fuerza gravitatoria de los parámetros actuales.
   const currentForce = gravitationalForce(context.parameters);
-  // Educational what-ifs, relative to the current snapshot, never applied to the lab.
+
+  // Define cambios hipotéticos para explicar cómo afectan
+  // las masas y la distancia a la fuerza gravitatoria.
   const hypotheticalChanges = [
     { variable: "mass1", factor: 2 },
     { variable: "mass2", factor: 2 },
     { variable: "distance", factor: 2 },
     { variable: "distance", factor: 0.5 },
   ] as const;
+
   return {
     kind: context.kind,
     stage: context.stage,
@@ -94,11 +106,15 @@ export const buildTutorContext = (context: TutorContext) => {
     }),
     current: { ...context.parameters, forceNewtons: currentForce },
     hypotheticalChanges: hypotheticalChanges.map(({ variable, factor }) => {
+      // Genera unos parámetros hipotéticos a partir de los actuales.
       const parameters = {
         ...context.parameters,
         [variable]: context.parameters[variable] * factor,
       };
+
+      // Calcula la fuerza que producirían esos parámetros hipotéticos.
       const forceNewtons = gravitationalForce(parameters);
+
       return {
         variable,
         factor,

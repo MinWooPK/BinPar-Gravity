@@ -47,7 +47,10 @@ export const LanguageSwitcher = () => {
       >
         <Globe className="size-4" />
         {locale.toUpperCase()}
-        <ChevronDown className={`size-3.5 transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`} compact />
+        <ChevronDown
+          className={`size-3.5 transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`}
+          compact
+        />
       </button>
 
       <div
@@ -79,9 +82,7 @@ export const LanguageSwitcher = () => {
             <span className="flex-1" lang={language}>
               {languageNames[language]}
             </span>
-            {locale === language && (
-              <Check className="size-4" />
-            )}
+            {locale === language && <Check className="size-4" />}
           </button>
         ))}
       </div>

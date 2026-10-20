@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { SpaceStarfield } from "@/components/layout/SpaceStarfield";
+import { SpaceStarfield } from "@/components/layout/SpaceStarfield/SpaceStarfield";
 import { GalleryProvider } from "@/features/three-body/presentation/providers/GalleryProvider";
 
 import { ThreeBodyExperimentProvider } from "@/features/three-body/presentation/providers/ThreeBodyExperimentProvider";

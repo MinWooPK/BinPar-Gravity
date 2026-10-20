@@ -148,31 +148,7 @@ export const OrbitDetail = async ({ orbit }: { orbit: OrbitDefinition }) => {
                     </tbody>
                   </table>
                 </div>
-                {/* <p className={styles.helper}>{t("detail.coordinatesHelp")}</p>
-                <details
-                  className={styles.precision}
-                  data-orbit-detail-precision
-                >
-                  <summary>{t("detail.fullPrecision")}</summary>
-                  <p lang="es">{orbit.convention}</p>
-                  <dl>
-                    {orbit.initial.map((body, bodyIndex) => (
-                      <div key={bodyIndex}>
-                        <dt>{t("animationBody", { number: bodyIndex + 1 })}</dt>
-                        <dd>
-                          <code>
-                            {body
-                              .map(
-                                (value, coordinateIndex) =>
-                                  `${coordinates[coordinateIndex]} = ${String(value)}`,
-                              )
-                              .join(" · ")}
-                          </code>
-                        </dd>
-                      </div>
-                    ))}
-                  </dl>
-                </details> */}
+
                 {index >= 2 && (
                   <p className={styles.refinement}>
                     {t("detail.refinedConditions", {

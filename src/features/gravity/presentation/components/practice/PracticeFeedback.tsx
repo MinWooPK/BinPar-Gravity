@@ -6,6 +6,8 @@ import { AlertTriangle, Check } from "@/components/icons";
 import type { Feedback } from "../../../types/practice/practice.types";
 import { practiceStyles as styles } from "./Practice.styles";
 
+// Muestra el resultado de una respuesta, indicando si es correcta
+// y proporcionando la solución y una explicación educativa.
 export const PracticeFeedback = ({
   feedback,
   headingRef,
@@ -17,8 +19,11 @@ export const PracticeFeedback = ({
   pending?: boolean;
   onNext?: () => void;
 }) => {
+  // Obtiene las traducciones y el formato numérico según el idioma.
   const t = useTranslations("Practice"),
     format = useFormatter();
+
+  // Formatea la respuesta correcta como número o como opción traducida.
   const correctValue =
     typeof feedback.expected === "number"
       ? format.number(feedback.expected, {
@@ -28,7 +33,10 @@ export const PracticeFeedback = ({
             : {}),
         })
       : t(`options.${feedback.expected}`);
+
+  // Selecciona el icono según si la respuesta es correcta o incorrecta.
   const ResultIcon = feedback.correct ? Check : AlertTriangle;
+
   return (
     <div
       data-practice-feedback
@@ -43,11 +51,14 @@ export const PracticeFeedback = ({
         <ResultIcon className="size-5 shrink-0" />
         {t(feedback.correct ? "correct" : "incorrect")}
       </h5>
+
       <p className="text-sm text-slate-200">
         {t("expected")}:{" "}
         <strong className="text-slate-50">{correctValue}</strong>
       </p>
+
       <p className={styles.prose}>{feedback.explanation}</p>
+
       {feedback.steps.length > 0 && (
         <ol className={`${styles.prose} list-decimal space-y-2 pl-5`}>
           {feedback.steps.map((step, i) => (
@@ -55,6 +66,7 @@ export const PracticeFeedback = ({
           ))}
         </ol>
       )}
+
       {/* {onNext && (
         <button
           type="button"

@@ -6,19 +6,24 @@ import { useTranslations } from "next-intl";
 import { Icon } from "@/components/icons";
 import css from "./GravityEveryday.module.css";
 
+// Define los estilos de la sección de ejemplos cotidianos.
 const styles = {
-  "section": "min-w-0 [padding-top:14px] [border-top:1px_solid_#30364b]",
-  "heading": `${css["heading"]} [margin-bottom:12px]`,
-  "eyebrow": "[margin:0_0_4px] [color:#b8b0d6] [font-size:.75rem] font-semibold [line-height:1.5] [letter-spacing:.1em] uppercase",
-  "description": `${css["description"]} [margin:6px_0_0] [color:#b2bad0] [font-size:1rem] [line-height:1.5]`,
-  "exampleTabs": "grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] [gap:6px] [margin-bottom:10px]",
-  "exampleTab": `${css["exampleTab"]} min-w-0 [min-height:44px] [padding:8px] [border:1px_solid_#30364b] [border-radius:8px] bg-lab-surface [color:#bac2d6] [font-size:1rem] font-medium [line-height:1.4] [overflow-wrap:anywhere] cursor-pointer [transition:color_160ms,_background_160ms,_border-color_160ms] [@media(max-width:600px)]:[padding-inline:6px]`,
-  "example": `${css["example"]} grid [grid-template-columns:40px_minmax(0,_1fr)] [align-items:start] [gap:12px] min-w-0 [min-height:108px] [padding:14px] [border:1px_solid_#30364b] [border-radius:10px] bg-lab-surface [@media(max-width:600px)]:min-h-0 [@media(max-width:360px)]:[gap:10px] [@media(max-width:360px)]:[padding:12px]`,
-  "illustration": `${css["illustration"]} grid [place-items:center] [width:40px] [height:40px] [border-radius:9px] [color:#b9a8ff] [background:#aa97ff10]`,
+  section: "min-w-0 [padding-top:14px] [border-top:1px_solid_#30364b]",
+  heading: `${css["heading"]} [margin-bottom:12px]`,
+  eyebrow:
+    "[margin:0_0_4px] [color:#b8b0d6] [font-size:.75rem] font-semibold [line-height:1.5] [letter-spacing:.1em] uppercase",
+  description: `${css["description"]} [margin:6px_0_0] [color:#b2bad0] [font-size:1rem] [line-height:1.5]`,
+  exampleTabs:
+    "grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] [gap:6px] [margin-bottom:10px]",
+  exampleTab: `${css["exampleTab"]} min-w-0 [min-height:44px] [padding:8px] [border:1px_solid_#30364b] [border-radius:8px] bg-lab-surface [color:#bac2d6] [font-size:1rem] font-medium [line-height:1.4] [overflow-wrap:anywhere] cursor-pointer [transition:color_160ms,_background_160ms,_border-color_160ms] [@media(max-width:600px)]:[padding-inline:6px]`,
+  example: `${css["example"]} grid [grid-template-columns:40px_minmax(0,_1fr)] [align-items:start] [gap:12px] min-w-0 [min-height:108px] [padding:14px] [border:1px_solid_#30364b] [border-radius:10px] bg-lab-surface [@media(max-width:600px)]:min-h-0 [@media(max-width:360px)]:[gap:10px] [@media(max-width:360px)]:[padding:12px]`,
+  illustration: `${css["illustration"]} grid [place-items:center] [width:40px] [height:40px] [border-radius:9px] [color:#b9a8ff] [background:#aa97ff10]`,
 } as const;
 
+// Define los tres ejemplos de gravedad disponibles.
 const examples = ["fall", "moon", "objects"] as const;
 
+// Define las ilustraciones SVG de la caída y la atracción entre objetos.
 const illustrations = {
   fall: (
     <>
@@ -35,14 +40,28 @@ const illustrations = {
   ),
 };
 
+// Muestra ejemplos cotidianos de gravedad mediante pestañas interactivas.
 export const GravityEveryday = () => {
+  // Obtiene las traducciones de la sección.
   const t = useTranslations("Gravity");
+
+  // Genera identificadores únicos para relacionar las pestañas y sus paneles.
   const id = useId();
+
+  // Guarda el índice del ejemplo seleccionado.
   const [selectedIndex, setSelectedIndex] = useState(0);
+
+  // Almacena las referencias de los botones para gestionar el foco.
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+  // Gestiona la navegación entre ejemplos mediante el teclado.
+  const handleKeyDown = (
+    event: KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ) => {
+    // Determina el índice de la siguiente pestaña.
     let nextIndex: number;
+
     switch (event.key) {
       case "ArrowRight":
         nextIndex = (index + 1) % examples.length;
@@ -59,6 +78,7 @@ export const GravityEveryday = () => {
       default:
         return;
     }
+
     event.preventDefault();
     setSelectedIndex(nextIndex);
     buttonRefs.current[nextIndex]?.focus({ preventScroll: true });
@@ -71,11 +91,18 @@ export const GravityEveryday = () => {
         <h3 id={`${id}-heading`}>{t("everydayTitle")}</h3>
         <p className={styles.description}>{t("everydayDescription")}</p>
       </div>
-      <div role="tablist" aria-labelledby={`${id}-heading`} className={styles.exampleTabs}>
+
+      <div
+        role="tablist"
+        aria-labelledby={`${id}-heading`}
+        className={styles.exampleTabs}
+      >
         {examples.map((example, index) => (
           <button
             key={example}
-            ref={(element) => { buttonRefs.current[index] = element; }}
+            ref={(element) => {
+              buttonRefs.current[index] = element;
+            }}
             type="button"
             role="tab"
             id={`${id}-tab-${example}`}
@@ -90,6 +117,7 @@ export const GravityEveryday = () => {
           </button>
         ))}
       </div>
+
       {examples.map((example, index) => (
         <div
           key={example}

@@ -1,4 +1,6 @@
-.panel > * { flex-shrink: 0; }
+.panel > * {
+  flex-shrink: 0;
+}
 
 .resetButton svg {
   width: 16px;
@@ -37,7 +39,7 @@
 
 .slider-field output span {
   color: #a8afc3;
-  font-size: .85em;
+  font-size: 0.85em;
 }
 
 .slider-field input[type="range"] {

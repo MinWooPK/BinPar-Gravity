@@ -4,7 +4,15 @@ import { TutorContextBridge } from "@/features/ai/presentation/providers/TutorPr
 import { ExplainWithAI } from "@/features/ai/presentation/components/ExplainWithAI";
 import { isTutorContext } from "@/features/ai/application/tutorRequest";
 import type { TutorContext } from "@/features/ai/types/tutor.types";
-import { useCallback, useLayoutEffect, useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useLayoutEffect,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslations } from "next-intl";
 import { useThreeBodyExperiment } from "../../providers/ThreeBodyExperimentProvider";
 import { parseExperimentDraft } from "../../../application/experimentDraft";
@@ -62,8 +70,10 @@ export const ThreeBodyExperiment = ({
 }) => {
   const t = useTranslations("ThreeBody.experiment");
 
-  const { draft, selectedBody, dispatch, registerInvalidation } = useThreeBodyExperiment();
-  const setSelectedBody = (index: number) => dispatch({ type: "select", index });
+  const { draft, selectedBody, dispatch, registerInvalidation } =
+    useThreeBodyExperiment();
+  const setSelectedBody = (index: number) =>
+    dispatch({ type: "select", index });
   const [simulation, setSimulation] =
     useState<AnalyzedExperimentTrajectory | null>(null);
   const [calculating, setCalculating] = useState(false);
@@ -98,7 +108,10 @@ export const ThreeBodyExperiment = ({
     setRunError(null);
   }, [cancelCalculation]);
 
-  useLayoutEffect(() => registerInvalidation(invalidateSimulation), [registerInvalidation, invalidateSimulation]);
+  useLayoutEffect(
+    () => registerInvalidation(invalidateSimulation),
+    [registerInvalidation, invalidateSimulation],
+  );
 
   // Libera el Worker al desmontar el componente.
   useEffect(() => {
@@ -107,8 +120,10 @@ export const ThreeBodyExperiment = ({
     };
   }, []);
 
-  const updateCommon = (key: "gravity" | "duration", value: string) => dispatch({ type: "common", key, value });
-  const updateBody = (key: BodyField, value: string) => dispatch({ type: "body", index: selectedBody, key, value });
+  const updateCommon = (key: "gravity" | "duration", value: string) =>
+    dispatch({ type: "common", key, value });
+  const updateBody = (key: BodyField, value: string) =>
+    dispatch({ type: "body", index: selectedBody, key, value });
   const parsed = useMemo(() => parseExperimentDraft(draft), [draft]);
   const error = useMemo(() => experimentConfigurationError(parsed), [parsed]);
 

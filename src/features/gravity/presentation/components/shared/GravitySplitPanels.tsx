@@ -11,22 +11,31 @@ import {
 import { useTranslations } from "next-intl";
 import css from "./GravitySplitPanels.module.css";
 
+// Define los dos paneles disponibles: izquierdo y derecho.
 const sides = ["left", "right"] as const;
+
+// Define el tipo de identificador permitido para cada panel.
 type Side = (typeof sides)[number];
 
+// Detecta los cambios entre la vista móvil y la de escritorio.
 const subscribe = (notify: () => void) => {
   const media = window.matchMedia("(min-width: 1024px)");
   media.addEventListener("change", notify);
   return () => media.removeEventListener("change", notify);
 };
 
+// Comprueba si la pantalla tiene un ancho mínimo de 1024 píxeles.
 const desktopSnapshot = () => window.matchMedia("(min-width: 1024px)").matches;
 
+// Establece el valor inicial durante el renderizado en el servidor.
 const serverSnapshot = () => false;
 
+// Define los estilos de los botones para seleccionar los paneles.
 const buttonStyle =
   "border border-slate-600 bg-slate-900 text-violet-200 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200";
 
+// Organiza dos paneles adaptables: simultáneos en escritorio
+// y seleccionables mediante botones en móvil y tablet.
 export const GravitySplitPanels = ({
   left,
   right,
@@ -38,22 +47,29 @@ export const GravitySplitPanels = ({
   leftLabel: string;
   rightLabel: string;
 }) => {
+  // Obtiene las traducciones de los controles de los paneles.
   const t = useTranslations("Gravity.panels");
+
+  // Genera identificadores únicos para los paneles.
   const id = useId();
 
+  // Detecta si la aplicación se está mostrando en escritorio.
   const desktop = useSyncExternalStore(
     subscribe,
     desktopSnapshot,
     serverSnapshot,
   );
 
+  // Guarda el panel seleccionado en móvil y tablet.
   const [selected, setSelected] = useState<Side>("left");
 
+  // Almacena las referencias del contenido de ambos paneles.
   const contents = useRef<Partial<Record<Side, HTMLDivElement>>>({});
 
+  // Almacena las referencias de los botones de navegación móvil.
   const mobileButtons = useRef<Partial<Record<Side, HTMLButtonElement>>>({});
 
-  // Conserva el foco al cambiar entre móvil y escritorio.
+  // Mantiene el foco accesible al cambiar de panel o de tamaño de pantalla.
   useLayoutEffect(() => {
     const active = document.activeElement;
     if (!active) return;
@@ -106,13 +122,14 @@ export const GravitySplitPanels = ({
         ))}
       </div>
 
-      {/* Dos columnas fijas en escritorio */}
+      {/* Distribuye los paneles según el tamaño de pantalla. */}
       <div
         className={css.grid}
         data-selected={selected}
         data-gravity-stage-layout
       >
         {sides.map((side) => {
+          // Determina si el panel debe estar visible.
           const visible = desktop || selected === side;
 
           return (

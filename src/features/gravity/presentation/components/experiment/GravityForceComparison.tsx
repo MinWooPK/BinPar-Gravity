@@ -2,6 +2,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { getRelativeForceBars } from "../../gravityVisualization";
 import { gravityExperimentStyles as styles } from "./GravityExperiment.styles";
 
+// Define los valores y opciones necesarios para comparar dos fuerzas gravitatorias.
 type ForceComparisonProps = {
   currentForce: number;
   initialForce: number;
@@ -10,6 +11,8 @@ type ForceComparisonProps = {
   scaleForce?: number;
 };
 
+// Muestra una comparación visual entre la fuerza gravitatoria
+// inicial y la actual mediante barras proporcionales.
 export const GravityForceComparison = ({
   currentForce,
   initialForce,
@@ -17,14 +20,24 @@ export const GravityForceComparison = ({
   variant = "laboratory",
   scaleForce,
 }: ForceComparisonProps) => {
+  // Obtiene las traducciones de la sección de gravedad.
   const t = useTranslations("Gravity");
+
+  // Permite formatear números y porcentajes según el idioma.
   const format = useFormatter();
+
+  // Calcula las proporciones de las barras y la relación entre ambas fuerzas.
   const bars = getRelativeForceBars(currentForce, initialForce, scaleForce);
+
+  // Formatea la relación entre la fuerza actual y la inicial.
   const ratio = format.number(bars.ratio, { maximumSignificantDigits: 4 });
 
   if (variant === "challenge") {
+    // Convierte un valor numérico en un porcentaje formateado.
     const percentage = (value: number) =>
       format.number(value, { style: "percent", maximumFractionDigits: 2 });
+
+    // Define los datos de las barras comparativas para los desafíos.
     const rows = [
       {
         key: "initial",
@@ -43,6 +56,7 @@ export const GravityForceComparison = ({
         color: "#5ee7d5",
       },
     ];
+
     return (
       <figure
         className={styles.challengeComparison}
@@ -50,12 +64,14 @@ export const GravityForceComparison = ({
         aria-describedby={`${idPrefix}-note`}
       >
         <h4 id={`${idPrefix}-title`}>{t("challengeComparisonTitle")}</h4>
+
         {rows.map((row) => (
           <div key={row.key} className={styles.comparisonRow}>
             <div className={styles.comparisonLabel}>
               <span>{row.label}</span>
               <strong>{percentage(row.ratio)}</strong>
             </div>
+
             <svg
               viewBox="0 0 360 12"
               preserveAspectRatio="none"
@@ -71,6 +87,7 @@ export const GravityForceComparison = ({
                 fill={row.color}
               />
             </svg>
+
             <p className={styles.comparisonForce}>
               {format.number(row.force, {
                 notation: "scientific",
@@ -80,6 +97,7 @@ export const GravityForceComparison = ({
             </p>
           </div>
         ))}
+
         <figcaption id={`${idPrefix}-note`}>
           {t("challengeComparisonScale", {
             percentage: percentage(
@@ -92,6 +110,7 @@ export const GravityForceComparison = ({
     );
   }
 
+  // Define los datos de las barras comparativas del laboratorio.
   const rows = [
     {
       key: "initial",
@@ -108,6 +127,7 @@ export const GravityForceComparison = ({
       color: "#5ee7d5",
     },
   ];
+
   return (
     <figure
       className={styles.forceComparison}
@@ -115,9 +135,11 @@ export const GravityForceComparison = ({
       aria-describedby={`${idPrefix}-description ${idPrefix}-note`}
     >
       <h4 id={`${idPrefix}-title`}>{t("forceComparisonTitle")}</h4>
+
       <p id={`${idPrefix}-description`} className="sr-only">
         {t("forceComparisonDescription", { ratio })}
       </p>
+
       <div className={styles.labComparisonRows}>
         {rows.map((row) => (
           <div key={row.key} className={styles.comparisonRow}>
@@ -125,6 +147,7 @@ export const GravityForceComparison = ({
               <span>{row.label}</span>
               <strong>{row.value}</strong>
             </div>
+
             <svg
               viewBox="0 0 360 12"
               preserveAspectRatio="none"
@@ -143,6 +166,7 @@ export const GravityForceComparison = ({
           </div>
         ))}
       </div>
+
       <figcaption id={`${idPrefix}-note`}>
         {t("forceComparisonScaleShort")}
       </figcaption>

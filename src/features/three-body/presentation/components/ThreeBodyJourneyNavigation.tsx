@@ -63,6 +63,7 @@ export const ThreeBodyJourneyNavigation = ({
       </nav>
     );
   }
+
   const stage = threeBodyStages.find(({ id }) => id === activeStage)!;
   return (
     <nav aria-label={t("navigationTitle")} className={styles.stageNavigation}>

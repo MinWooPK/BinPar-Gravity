@@ -1,15 +1,21 @@
-import { isThreeBodyParameterProposal, resolveThreeBodyProposal } from "../../three-body/application/experimentProposal";
+import {
+  isThreeBodyParameterProposal,
+  resolveThreeBodyProposal,
+} from "../../three-body/application/experimentProposal";
+
 import {
   isGravityParameterProposal,
   resolveGravityProposal,
 } from "../../gravity/application/gravityProposal";
+
 import type {
   TutorContext,
   TutorReply,
   TutorIntent,
 } from "../types/tutor.types";
 
-/** Validate model output on the server and the API response again in the browser. */
+// Valida las respuestas generadas por el Tutor IA y comprueba
+// que las propuestas de modificación sean válidas y estén permitidas.
 export const parseTutorReply = (
   value: unknown,
   context: TutorContext,
@@ -17,14 +23,18 @@ export const parseTutorReply = (
 ): TutorReply => {
   if (typeof value !== "object" || value === null || Array.isArray(value))
     throw new Error("Invalid tutor response");
+
+  // Convierte la respuesta recibida en un objeto para validar sus propiedades.
   const reply = value as Record<string, unknown>;
+
   if (
     Object.keys(reply).some((key) => key !== "text" && key !== "proposal") ||
     typeof reply.text !== "string" ||
     !reply.text.trim()
   )
     throw new Error("Invalid tutor response");
-  // Educational launches are read-only even if the model returns an action.
+
+  // Impide las propuestas de modificación en acciones y etapas educativas.
   if (
     intent === "explain_context" ||
     context.stage === "gravity-challenges" ||
@@ -33,20 +43,31 @@ export const parseTutorReply = (
     intent === "explain_experiment"
   )
     return { text: reply.text.trim() };
+
+  // Devuelve únicamente la explicación cuando no existe ninguna propuesta.
   if (reply.proposal === null || reply.proposal === undefined)
     return { text: reply.text.trim() };
-  // Invalid actions never reach confirmation. The presentation supplies a localized
-  // explanation instead of repeating potentially misleading model text.
+
+  // Valida las propuestas para el experimento de los tres cuerpos.
   if (context.kind === "three-body") {
-    if (!context.draftConfiguration || !isThreeBodyParameterProposal(reply.proposal) || !resolveThreeBodyProposal(context.draftConfiguration, reply.proposal))
+    if (
+      !context.draftConfiguration ||
+      !isThreeBodyParameterProposal(reply.proposal) ||
+      !resolveThreeBodyProposal(context.draftConfiguration, reply.proposal)
+    )
       return { text: "", proposalRejected: true };
+
     return { text: reply.text.trim(), proposal: reply.proposal };
   }
+
+  // Rechaza las propuestas de gravedad si el contexto,
+  // la estructura o los parámetros solicitados no son válidos.
   if (
     context.kind !== "gravity" ||
     !isGravityParameterProposal(reply.proposal) ||
     !resolveGravityProposal(context.parameters, reply.proposal)
   )
     return { text: "", proposalRejected: true };
+
   return { text: reply.text.trim(), proposal: reply.proposal };
 };

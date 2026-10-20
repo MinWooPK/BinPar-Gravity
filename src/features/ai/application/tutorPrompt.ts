@@ -1,18 +1,6 @@
 import { buildTutorContext } from "./tutorContext";
 import type { TutorRequest } from "../types/tutor.types";
 
-/**
- * Construye las instrucciones que recibe el Tutor IA.
- *
- * El tutor adapta sus respuestas según:
- * - El idioma seleccionado.
- * - La página y etapa actual.
- * - La pregunta del usuario.
- * - Los parámetros reales del laboratorio.
- *
- * La IA puede explicar conceptos y proponer cambios,
- * pero nunca modifica directamente las simulaciones.
- */
 export const buildTutorPrompt = (request: TutorRequest) => {
   // Obtenemos el contexto validado de la página actual.
   const context = buildTutorContext(request.context);
@@ -132,7 +120,8 @@ export const buildTutorPrompt = (request: TutorRequest) => {
             // 4. INICIO Y PROBLEMA DE LOS TRES CUERPOS
             // ============================================
 
-            ...(request.context.kind === "three-body" && request.context.draftConfiguration
+            ...(request.context.kind === "three-body" &&
+            request.context.draftConfiguration
               ? [
                   "Devuelve JSON con text y proposal. Solo cuando la petición actual solicite explícitamente configurar el simulador libre, puedes proponer set_three_body_parameters. En cualquier otro caso devuelve proposal null. Una propuesta requiere confirmación humana; nunca afirmes haberla aplicado.",
                   "parameters contiene gravity, duration y bodies: exactamente tres objetos en orden cuerpo 1, 2 y 3, cada uno con mass, x, y, vx, vy. Incluye todos los campos; usa null para conservar un valor. Debe existir un cambio real. No autorices otras acciones ni ejecutes simulaciones.",
@@ -140,7 +129,9 @@ export const buildTutorPrompt = (request: TutorRequest) => {
                   "G y masas deben ser positivos; duración mayor que 0 y como máximo 100. Todos los valores deben ser finitos y su magnitud no superar 1e12. La separación inicial entre cada par de cuerpos debe ser al menos 0.05. No recortes ni redondees valores fuera de límites; explica el problema y devuelve proposal null. Si la petición es ambigua, pide aclaración.",
                   "Tras confirmar, la aplicación abrirá Tres Cuerpos → 04 · Experimenta con la vista previa actualizada. El usuario tendrá que pulsar Ejecutar simulación; no prometas periodicidad ni resultados sin calcularlos.",
                 ]
-              : ["En esta página el Tutor IA solamente puede explicar información. Devuelve siempre proposal null."]),
+              : [
+                  "En esta página el Tutor IA solamente puede explicar información. Devuelve siempre proposal null.",
+                ]),
 
             "Explica de forma sencilla el contexto actual del problema de los tres cuerpos o el contenido educativo de la página de inicio.",
 

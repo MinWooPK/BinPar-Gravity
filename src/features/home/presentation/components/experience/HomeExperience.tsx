@@ -12,9 +12,9 @@ import {
 } from "react";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import Earth3D from "./Earth3D";
-import { SpaceBackground } from "@/components/ui/SpaceBackground";
-import { homeExperienceStyles as styles } from "./HomeExperience.styles";
+import Earth3D from "../scene/Earth3D";
+import { SpaceBackground } from "@/components/ui/SpaceBackground/SpaceBackground";
+import { homeExperienceStyles as styles } from "../HomeExperience.styles";
 
 type HomeView = "introduction" | "topics";
 type HomeContextValue = {

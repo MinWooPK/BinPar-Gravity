@@ -1,26 +1,41 @@
-/** Responses API Structured Outputs; application validation enforces ranges and steps. */
+// Define el formato JSON obligatorio de las respuestas del Tutor IA,
+// incluyendo explicaciones y propuestas para Gravedad o Tres Cuerpos.
 export const tutorResponseFormat = {
   type: "json_schema",
   name: "gravity_tutor_reply",
   strict: true,
+
+  // Establece la estructura que debe cumplir la respuesta del modelo.
   schema: {
     type: "object",
     properties: {
+      // Contiene la explicación en texto generada por el Tutor IA.
       text: { type: "string" },
+
+      // Permite devolver una propuesta de modificación o null
+      // cuando el Tutor IA solamente debe responder.
       proposal: {
         anyOf: [
           { type: "null" },
+
+          // Define las propuestas para modificar el experimento de tres cuerpos.
           {
             type: "object",
             properties: {
               action: { type: "string", enum: ["set_three_body_parameters"] },
+
+              // Define la gravedad, duración y propiedades de los tres cuerpos.
               parameters: {
                 type: "object",
                 properties: {
                   gravity: { type: ["number", "null"] },
                   duration: { type: ["number", "null"] },
+
+                  // Exige exactamente tres cuerpos con sus parámetros físicos.
                   bodies: {
-                    type: "array", minItems: 3, maxItems: 3,
+                    type: "array",
+                    minItems: 3,
+                    maxItems: 3,
                     items: {
                       type: "object",
                       properties: {
@@ -42,10 +57,14 @@ export const tutorResponseFormat = {
             required: ["action", "parameters"],
             additionalProperties: false,
           },
+
+          // Define las propuestas para modificar el laboratorio de gravedad.
           {
             type: "object",
             properties: {
               action: { type: "string", enum: ["set_gravity_parameters"] },
+
+              // Permite proponer cambios en las dos masas y la distancia.
               parameters: {
                 type: "object",
                 properties: {

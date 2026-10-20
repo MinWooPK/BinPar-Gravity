@@ -1,17 +1,22 @@
 import "server-only";
+
 import { randomUUID } from "node:crypto";
 import { requestOpenAI } from "../../../ai/infrastructure/openaiResponse";
+
 import {
   nextPlan,
   learningEvidence,
 } from "../../application/practice/adaptation";
+
 import {
   isDefinition,
   onlyKeys,
   record,
 } from "../../application/practice/validation";
+
 import { GRAVITATIONAL_CONSTANT } from "../../domain/gravitation";
 import { expectedAnswer } from "../../domain/practice/evaluation";
+
 import {
   PRACTICE_QUESTION_COUNT,
   type Attempt,
@@ -19,27 +24,42 @@ import {
   type Question,
   type Report,
 } from "../../types/practice/practice.types";
+
+// Define la estructura de un objeto para los esquemas JSON de OpenAI.
 const obj = (properties: Record<string, unknown>) => ({
   type: "object",
   properties,
   required: Object.keys(properties),
   additionalProperties: false,
 });
+
+// Define el tipo de dato string para los esquemas JSON.
 const str = { type: "string" };
+
+// Define la estructura de un array dentro de un esquema JSON.
 const array = (items: unknown) => ({ type: "array", items });
+
+// Configura el formato de respuesta estructurada que debe devolver OpenAI.
 const format = (name: string, schema: unknown) => ({
   type: "json_schema",
   name,
   strict: true,
   schema,
 });
+
+// Valida que un texto sea válido, tenga una longitud permitida
+// y no contenga referencias explícitas a la IA.
 const boundedText = (v: unknown): v is string =>
   typeof v === "string" &&
   v.trim().length > 0 &&
   v.length <= 1800 &&
   !/\b(?:OpenAI|AI|IA)\b/i.test(v);
+
+// Valida que un array contenga como máximo ocho textos válidos.
 const texts = (v: unknown): v is string[] =>
   Array.isArray(v) && v.length <= 8 && v.every(boundedText);
+
+// Define las pistas permitidas según el concepto de la pregunta.
 export const hintsFor = (concept: string) =>
   ["km", "cm", "tonnes"].includes(concept)
     ? ["units", "conversion"]
@@ -52,6 +72,8 @@ export const hintsFor = (concept: string) =>
           : ["mass", "mutual", "attraction"].includes(concept)
             ? [concept]
             : ["formula"];
+
+// Envía una petición a OpenAI y convierte su respuesta JSON en un objeto.
 const call = async (
   name: string,
   schema: unknown,
@@ -69,12 +91,18 @@ const call = async (
       signal,
     ),
   );
+
+// Genera una nueva pregunta adaptada al historial,
+// la dificultad y los conceptos pendientes del usuario.
 export const generateQuestion = async (
   history: Attempt[],
   locale: Locale,
   signal?: AbortSignal,
 ): Promise<Question> => {
+  // Obtiene la planificación de la siguiente pregunta.
   const plan = nextPlan(history);
+
+  // Define la estructura y los valores permitidos para la respuesta de OpenAI.
   const schema = obj({
     definition: obj({
       concept: { enum: plan.allowed, type: "string" },
@@ -90,6 +118,8 @@ export const generateQuestion = async (
       enum: [...new Set(plan.allowed.flatMap(hintsFor))],
     },
   });
+
+  // Solicita a OpenAI una pregunta utilizando el plan y el historial.
   const raw = await call(
     "gravity_question",
     schema,
@@ -105,6 +135,7 @@ export const generateQuestion = async (
     },
     signal,
   );
+
   if (
     !record(raw) ||
     !onlyKeys(raw, ["definition", "hint"]) ||
@@ -115,7 +146,11 @@ export const generateQuestion = async (
     !hintsFor(raw.definition.concept).includes(raw.hint)
   )
     throw new Error("invalid_model_response");
+
+  // Extrae la definición validada de la pregunta generada.
   const definition = raw.definition;
+
+  // Crea un identificador basado en el contenido para detectar preguntas repetidas.
   const signature = (q: typeof definition) =>
     JSON.stringify([
       q.concept,
@@ -134,14 +169,19 @@ export const generateQuestion = async (
       q.concept === "force" ? q.difficulty : null,
       q.concept === "power" ? q.exponent : null,
     ]);
+
   if (history.some((a) => signature(a.question) === signature(definition)))
     throw new Error("repeated_question");
+
+  // Calcula y valida la respuesta correcta sin depender de OpenAI.
   const expected = expectedAnswer(definition);
+
   if (
     typeof expected === "number" &&
     (!Number.isFinite(expected) || expected <= 0)
   )
     throw new Error("invalid_model_response");
+
   return {
     ...definition,
     hint: raw.hint,
@@ -150,11 +190,15 @@ export const generateQuestion = async (
     reinforcement: plan.reinforcement,
   };
 };
+
+// Genera una explicación educativa de la respuesta del usuario
+// utilizando la corrección realizada previamente por la aplicación.
 export const explainAttempt = async (
   attempt: Attempt,
   locale: Locale,
   signal?: AbortSignal,
 ) => {
+  // Solicita a OpenAI una explicación y los pasos de resolución.
   const raw = await call(
     "gravity_feedback",
     obj({ explanation: str, steps: array(str) }),
@@ -162,6 +206,7 @@ export const explainAttempt = async (
     { ...attempt, G: GRAVITATIONAL_CONSTANT },
     signal,
   );
+
   if (
     !record(raw) ||
     !onlyKeys(raw, ["explanation", "steps"]) ||
@@ -169,14 +214,21 @@ export const explainAttempt = async (
     !texts(raw.steps)
   )
     throw new Error("invalid_model_response");
+
   return { explanation: raw.explanation, steps: raw.steps };
 };
+
+// Genera un informe final del aprendizaje a partir
+// de los resultados obtenidos en las cinco preguntas.
 export const generateReport = async (
   history: Attempt[],
   locale: Locale,
   signal?: AbortSignal,
 ): Promise<Report> => {
   if (history.length !== PRACTICE_QUESTION_COUNT) throw new Error("incomplete");
+
+  // Solicita a OpenAI un resumen de fortalezas, dificultades
+  // y recomendaciones personalizadas según el historial.
   const raw = await call(
     "gravity_report",
     obj({
@@ -201,6 +253,7 @@ export const generateReport = async (
     learningEvidence(history),
     signal,
   );
+
   if (
     !record(raw) ||
     !onlyKeys(raw, ["summary", "strengths", "review", "recommendations"]) ||
@@ -223,5 +276,6 @@ export const generateReport = async (
     )
   )
     throw new Error("invalid_model_response");
+
   return raw as Report;
 };

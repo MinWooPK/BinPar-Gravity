@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { homeExperienceStyles as styles } from "./HomeExperience.styles";
+import { homeExperienceStyles as styles } from "../HomeExperience.styles";
 import { getOrbitPlayback } from "@/features/three-body/infrastructure/orbitPlayback";
 import { HomeOrbitPreview } from "./HomeOrbitPreview";
 import { HomeGravityPreview } from "./HomeGravityPreview";

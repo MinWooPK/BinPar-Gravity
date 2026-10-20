@@ -1,10 +1,15 @@
 import "server-only";
+
 import { TUTOR_TIMEOUT_MS } from "../application/tutor";
-/** Shared server-only transport; callers own their prompts, schemas and validation. */
+
+// Realiza una petición a la API de OpenAI desde el servidor
+// y devuelve el texto generado por el modelo.
 export const requestOpenAI = async (
   payload: Record<string, unknown>,
   signal?: AbortSignal,
 ): Promise<string> => {
+  // Envía la petición a OpenAI con el modelo, la API Key
+  // y los límites de tiempo y tokens configurados.
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
@@ -21,7 +26,11 @@ export const requestOpenAI = async (
       ...payload,
     }),
   });
+
   if (!response.ok) throw new Error("Provider unavailable");
+
+  // Convierte la respuesta de OpenAI en un objeto
+  // que contiene el estado y los mensajes generados.
   const data = (await response.json()) as {
     status?: string;
     output?: {
@@ -32,6 +41,8 @@ export const requestOpenAI = async (
       }[];
     }[];
   };
+
+  // Extrae y combina los fragmentos de texto generados por el modelo.
   const text = data.output
     ?.filter((item) => item.type === "message")
     .flatMap((item) => item.content ?? [])
@@ -39,7 +50,9 @@ export const requestOpenAI = async (
     .map((item) => item.text ?? "")
     .join("\n")
     .trim();
+
   if (!text || data.status !== "completed")
     throw new Error("Incomplete provider response");
+
   return text;
 };

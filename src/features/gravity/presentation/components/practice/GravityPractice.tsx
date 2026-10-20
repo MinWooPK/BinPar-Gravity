@@ -13,10 +13,15 @@ import { GRAVITATIONAL_CONSTANT } from "../../../domain/gravitation";
 import { answerKind, numericAnswer } from "../../../domain/practice/input";
 import { PRACTICE_QUESTION_COUNT } from "../../../types/practice/practice.types";
 
+// Gestiona la interfaz de la etapa 04 · Comprueba,
+// mostrando preguntas, pistas, correcciones y el informe final.
 export const GravityPractice = () => {
+  // Obtiene las traducciones, el formato numérico y un identificador único.
   const t = useTranslations("Practice"),
     format = useFormatter(),
     id = useId();
+
+  // Obtiene el estado y las funciones para controlar la sesión de práctica.
   const {
     view,
     answer,
@@ -30,16 +35,23 @@ export const GravityPractice = () => {
     next,
     retry,
   } = usePracticeSession();
+
+  // Guarda la referencia del título para gestionar el foco.
   const focusRef = useRef<HTMLHeadingElement>(null);
+
+  // Actualiza el foco y el desplazamiento cuando cambia
+  // la pregunta o se muestra un resultado.
   useEffect(() => {
     const heading = focusRef.current;
+
     if (
       !view ||
       !heading?.getClientRects().length ||
       heading.closest("[hidden],[inert]")
     )
       return;
-    // Announce the question/result through focus, without reading the whole AI response twice.
+
+    // Anuncia el cambio mediante el foco sin duplicar la lectura de la respuesta.
     heading.focus({ preventScroll: true });
     heading.scrollIntoView({
       block: "nearest",
@@ -48,13 +60,21 @@ export const GravityPractice = () => {
         : "smooth",
     });
   }, [view]);
+
+  // Obtiene la pregunta actual de la sesión.
   const q = view?.question;
+
+  // Identifica el tipo de respuesta que necesita la pregunta.
   const kind = q ? answerKind(q) : null;
+
+  // Comprueba si la respuesta introducida es válida para poder corregirla.
   const valid =
     q &&
     (kind === "choice"
       ? !!answer.value
       : numericAnswer(answer, kind === "scientific") !== null);
+
+  // Formatea los números utilizados en los enunciados.
   const number = (value: number) =>
     format.number(value, { maximumSignificantDigits: 8, useGrouping: false });
 
@@ -68,7 +88,9 @@ export const GravityPractice = () => {
       <h3 id={`${id}-title`} className="text-xl font-semibold text-slate-50">
         {t("title")}
       </h3>
+
       <p className="mt-1 text-sm text-slate-300">{t("subtitle")}</p>
+
       {!view && (
         <div className="mt-5 space-y-4">
           <p className="max-w-prose leading-7">{t("introduction")}</p>
@@ -82,6 +104,7 @@ export const GravityPractice = () => {
           </button>
         </div>
       )}
+
       {view?.report ? (
         <PracticeReport
           view={view}
@@ -100,12 +123,14 @@ export const GravityPractice = () => {
             >
               {t("position", { number: q.number })}
             </p>
+
             <progress
               aria-labelledby={`${id}-progress`}
               className={styles.progress}
               max={PRACTICE_QUESTION_COUNT}
               value={view.count}
             />
+
             <div
               className={`grid min-w-0 gap-5 ${
                 view.feedback ? "lg:grid-cols-2" : ""
@@ -117,15 +142,18 @@ export const GravityPractice = () => {
                     <span className="rounded-full border border-violet-300/20 bg-violet-300/10 px-3 py-1.5">
                       {t(`kinds.${kind}`)}
                     </span>
+
                     <span className="rounded-full border border-cyan-300/20 bg-cyan-300/5 px-3 py-1.5">
                       {t("difficulty", { level: q.difficulty })}
                     </span>
+
                     {q.reinforcement && (
                       <span className="rounded-full bg-amber-300/5 px-3 py-1.5 text-amber-200">
                         {t("reinforcement")}
                       </span>
                     )}
                   </div>
+
                   {!view.feedback && (
                     <div data-practice-help>
                       <button
@@ -141,6 +169,7 @@ export const GravityPractice = () => {
                     </div>
                   )}
                 </div>
+
                 <h4
                   ref={view.feedback ? undefined : focusRef}
                   tabIndex={-1}
@@ -160,6 +189,7 @@ export const GravityPractice = () => {
                       q.concept === "force" && q.difficulty >= 2 ? "km" : "m",
                   })}
                 </h4>
+
                 {kind !== "choice" && (
                   <p className="max-w-prose text-sm leading-6 text-slate-400">
                     {t("rounding")}
@@ -167,6 +197,7 @@ export const GravityPractice = () => {
                       ` · G = ${format.number(GRAVITATIONAL_CONSTANT, { notation: "scientific", maximumSignificantDigits: 6 })} N·m²/kg²`}
                   </p>
                 )}
+
                 <div
                   id={`${id}-hint`}
                   className={styles.reveal}
@@ -180,6 +211,7 @@ export const GravityPractice = () => {
                     </p>
                   </div>
                 </div>
+
                 <PracticeAnswer
                   question={q}
                   answer={answer}
@@ -189,7 +221,7 @@ export const GravityPractice = () => {
 
                 <div className="flex flex-wrap items-center gap-2">
                   {!view.feedback ? (
-                    // BOTÓN CORREGIR
+                    // Botón para corregir la respuesta.
                     <button
                       type="button"
                       data-practice-check
@@ -200,7 +232,7 @@ export const GravityPractice = () => {
                       {t(pending ? "checking" : "check")}
                     </button>
                   ) : (
-                    // BOTÓN SIGUIENTE PREGUNTA
+                    // Botón para avanzar a la siguiente pregunta.
                     <button
                       type="button"
                       className={`${styles.primary} w-full sm:min-w-40 sm:w-auto`}
@@ -244,6 +276,7 @@ export const GravityPractice = () => {
           </div>
         )
       )}
+
       <p
         role="status"
         aria-atomic="true"
@@ -251,12 +284,14 @@ export const GravityPractice = () => {
       >
         {pending ? t(q && !view.feedback ? "checking" : "loading") : ""}
       </p>
+
       {error && (
         <div
           role="alert"
           className="mt-4 space-y-3 rounded-xl border border-amber-300/30 bg-amber-300/5 p-4 text-amber-200"
         >
           <p>{t(`errors.${error}`)}</p>
+
           <button
             type="button"
             className={styles.secondary}

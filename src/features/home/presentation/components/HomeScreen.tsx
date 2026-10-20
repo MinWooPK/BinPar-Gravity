@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
 // import { Link } from "@/i18n/navigation";
-import { HomeExperience, HomeExploreButton } from "./HomeExperience";
-import { HomeTopics } from "./HomeTopics";
+import { HomeExperience, HomeExploreButton } from "./experience/HomeExperience";
+import { HomeTopics } from "./topics/HomeTopics";
 
 export const HomeScreen = () => {
   const t = useTranslations("Home");

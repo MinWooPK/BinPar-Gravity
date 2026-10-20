@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { homeExperienceStyles as styles } from "./HomeExperience.styles";
+import { homeExperienceStyles as styles } from "../HomeExperience.styles";
 
 // Illustrative distance cycle, not a physics simulation. Equal, opposing arrows
 // grow with inverse-square attraction; the laboratory calculations are unchanged.

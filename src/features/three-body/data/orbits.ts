@@ -1,17 +1,34 @@
 import refinements from "./refinements.json";
 import type { Body, OrbitDefinition, State } from "../types/orbit.types";
+
+// Define la fuente científica de varias órbitas periódicas.
 const paper = "https://arxiv.org/pdf/1312.6796";
+
+// Define una referencia científica adicional sobre órbitas periódicas.
 const guide = "https://doi.org/10.1119/1.4867608";
+
+// Genera las posiciones y velocidades iniciales de tres cuerpos
+// colocados sobre una misma línea.
 const collinear = (vx: number, vy: number): State => [
   [-1, 0, vx, vy],
   [1, 0, vx, vy],
   [0, 0, -2 * vx, -2 * vy],
 ];
+
+// Describe las unidades y condiciones iniciales utilizadas
+// en las soluciones con configuración colineal.
 const convention =
   "G = 1; masas = (1, 1, 1); r₁ = (−1, 0), r₂ = (1, 0), r₃ = (0, 0); v₁ = v₂ = (vx, vy), v₃ = −2v₁. Unidades adimensionales.";
+
+// Calcula la velocidad angular de la solución triangular de Lagrange.
 const omega = Math.sqrt(1 / Math.sqrt(3));
+
+// Calcula la posición y velocidad inicial de cada cuerpo
+// en la órbita circular triangular de Lagrange.
 const circularBody = (index: number): Body => {
+  // Calcula el ángulo de cada cuerpo para separarlos 120 grados.
   const angle = (index * 2 * Math.PI) / 3;
+
   return [
     Math.cos(angle),
     Math.sin(angle),
@@ -19,8 +36,12 @@ const circularBody = (index: number): Body => {
     omega * Math.cos(angle),
   ];
 };
+
+// Genera las condiciones iniciales de los tres cuerpos de Lagrange.
 const lagrange: State = [circularBody(0), circularBody(1), circularBody(2)];
 
+// Define las seis soluciones orbitales publicadas, incluyendo
+// sus condiciones iniciales, períodos y referencias científicas.
 export const publishedOrbits: readonly OrbitDefinition[] = [
   {
     slug: "lagrange",
@@ -115,12 +136,16 @@ export const publishedOrbits: readonly OrbitDefinition[] = [
     convention,
   },
 ];
-/** Published seeds remain above; effective states use reproducible local shooting corrections. */
+
+// Genera las órbitas que utiliza la aplicación,
+// aplicando las correcciones numéricas disponibles en refinements.json.
 export const orbits: readonly OrbitDefinition[] = publishedOrbits.map(
   (orbit) => {
+    // Busca los valores refinados correspondientes a cada órbita.
     const refined = (
       refinements as Record<string, { vx: number; vy: number; period: number }>
     )[orbit.slug];
+
     return refined
       ? {
           ...orbit,
@@ -130,5 +155,7 @@ export const orbits: readonly OrbitDefinition[] = publishedOrbits.map(
       : orbit;
   },
 );
+
+// Busca y devuelve una órbita a partir de su identificador.
 export const getOrbit = (slug: string) =>
   orbits.find((orbit) => orbit.slug === slug);

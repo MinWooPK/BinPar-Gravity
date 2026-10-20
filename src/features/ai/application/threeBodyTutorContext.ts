@@ -2,18 +2,26 @@ import { isExperimentConfiguration } from "../../three-body/application/experime
 import { orbits } from "../../three-body/data/orbits";
 import type { TutorContext } from "../types/tutor.types";
 
+// Define el tipo de contexto del Tutor IA para el problema de los tres cuerpos.
 type ThreeBodyContext = Extract<TutorContext, { kind: "three-body" }>;
+
+// Comprueba que un valor sea un objeto válido y no un array.
 const record = (value: unknown): value is Record<string, unknown> =>
   !!value && typeof value === "object" && !Array.isArray(value);
+
+// Comprueba que un objeto contenga únicamente propiedades permitidas.
 const keys = (value: Record<string, unknown>, allowed: string[]) =>
   Object.keys(value).every((key) => allowed.includes(key));
+
+// Comprueba que un número sea finito y esté dentro de los límites establecidos.
 const finite = (value: unknown, min: number, max: number) =>
   typeof value === "number" &&
   Number.isFinite(value) &&
   value >= min &&
   value <= max;
 
-/** Accept only bounded numeric observations, never arbitrary instructions or trajectories. */
+// Valida los datos del contexto que recibe el Tutor IA
+// sobre la galería, las órbitas y el experimento de los tres cuerpos.
 export function isThreeBodyTutorContext(
   value: Record<string, unknown>,
 ): value is ThreeBodyContext {
@@ -27,12 +35,23 @@ export function isThreeBodyTutorContext(
       "result",
       "status",
     ]) ||
-    ![null, "discover", "understand", "gallery", "experiment", "orbit"].includes(
-      value.stage as null,
-    )
+    ![
+      null,
+      "discover",
+      "understand",
+      "gallery",
+      "experiment",
+      "orbit",
+    ].includes(value.stage as null)
   )
     return false;
-  if (value.draftConfiguration !== undefined && !isExperimentConfiguration(value.draftConfiguration)) return false;
+
+  if (
+    value.draftConfiguration !== undefined &&
+    !isExperimentConfiguration(value.draftConfiguration)
+  )
+    return false;
+
   if (value.stage === "orbit")
     return (
       typeof value.slug === "string" &&
@@ -41,13 +60,16 @@ export function isThreeBodyTutorContext(
       value.result === undefined &&
       value.status === undefined
     );
+
   if (value.slug !== undefined) return false;
+
   if (value.stage !== "experiment")
     return (
       value.configuration === undefined &&
       value.result === undefined &&
       value.status === undefined
     );
+
   if (
     ![
       "idle",
@@ -59,7 +81,10 @@ export function isThreeBodyTutorContext(
     ].includes(value.status as string)
   )
     return false;
+
+  // Obtiene la configuración física enviada desde el experimento.
   const config = value.configuration;
+
   if (config !== undefined) {
     if (
       !record(config) ||
@@ -70,6 +95,7 @@ export function isThreeBodyTutorContext(
       config.bodies.length !== 3
     )
       return false;
+
     for (const body of config.bodies) {
       if (
         !record(body) ||
@@ -82,8 +108,12 @@ export function isThreeBodyTutorContext(
         return false;
     }
   }
+
+  // Obtiene el resultado del análisis de periodicidad del experimento.
   const result = value.result;
+
   if (value.status !== "complete") return result === undefined;
+
   if (
     !record(config) ||
     !record(result) ||
@@ -99,6 +129,7 @@ export function isThreeBodyTutorContext(
     ])
   )
     return false;
+
   if (
     typeof result.detected !== "boolean" ||
     result.tolerance !== 1e-3 ||
@@ -110,6 +141,7 @@ export function isThreeBodyTutorContext(
       Math.max(result.positionError as number, result.velocityError as number)
   )
     return false;
+
   return result.detected
     ? result.reason === "approximateReturn" &&
         finite(
@@ -123,12 +155,15 @@ export function isThreeBodyTutorContext(
         ["noReturn", "insufficientMotion"].includes(result.reason as string);
 }
 
-/** Catalogue facts are loaded locally on the server, never accepted from the browser. */
+// Construye la información que recibe el Tutor IA
+// utilizando el contexto actual y los datos locales de las órbitas.
 export function buildThreeBodyTutorContext(context: ThreeBodyContext) {
+  // Busca la órbita seleccionada cuando el usuario está en su detalle.
   const orbit =
     context.stage === "orbit"
       ? orbits.find((orbit) => orbit.slug === context.slug)
       : undefined;
+
   return {
     kind: context.kind,
     stage: context.stage,

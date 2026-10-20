@@ -21,6 +21,7 @@ import type { FormulaTerm } from "../../../types/formula.types";
 import { GravityFormulaLegend } from "./GravityFormulaLegend";
 import { gravityFormulaStyles as styles } from "./GravityFormula.styles";
 
+// Define las variables de la fórmula, sus símbolos, unidades y claves de traducción.
 const fields = [
   {
     key: "force",
@@ -52,6 +53,7 @@ const fields = [
   },
 ] as const;
 
+// Coordina la calculadora gravitatoria y permite restablecer sus valores.
 export const GravityFormula = ({
   variant = "card",
   explanation,
@@ -61,17 +63,23 @@ export const GravityFormula = ({
   explanation?: ReactNode;
   footer?: ReactNode;
 }) => {
+  // Obtiene las funciones para restablecer la calculadora y controlar su versión.
   const { resetVersion, resetParameters } = useGravityControls();
+  // Accede a las interacciones compartidas con los símbolos de la fórmula.
   const interaction = useGravityFormulaInteraction();
+  // Guarda la referencia del botón de restablecimiento.
   const resetButtonRef = useRef<HTMLButtonElement>(null);
+  // Indica si se debe recuperar el foco tras restablecer la calculadora.
   const restoreResetFocus = useRef(false);
 
+  // Devuelve el foco al botón cuando cambia la versión de reinicio.
   useEffect(() => {
     if (restoreResetFocus.current) {
       resetButtonRef.current?.focus({ preventScroll: true });
       restoreResetFocus.current = false;
     }
   }, [resetVersion]);
+  // Prepara el contenido de la calculadora con las acciones de reinicio.
   const content = (
     <GravityFormulaContent
       key={resetVersion}
@@ -86,7 +94,7 @@ export const GravityFormula = ({
       }}
     />
   );
-  // Reset remounts only the calculator; the conversation remains mounted.
+  // Al reiniciar solo se vuelve a montar la calculadora, no la conversación.
   return footer ? (
     <div className={styles.card}>
       {content}
@@ -97,6 +105,7 @@ export const GravityFormula = ({
   );
 };
 
+// Muestra los campos editables de la fórmula, el resultado y los avisos de validación.
 const GravityFormulaContent = ({
   variant,
   explanation,
@@ -108,11 +117,17 @@ const GravityFormulaContent = ({
   resetButtonRef: RefObject<HTMLButtonElement | null>;
   onReset: () => void;
 }) => {
+  // Obtiene los textos traducidos de gravedad.
   const t = useTranslations("Gravity");
+  // Formatea los números según el idioma.
   const format = useFormatter();
+  // Genera identificadores accesibles para los elementos del formulario.
   const id = useId();
+  // Controla la visibilidad del aviso de valores fuera de rango.
   const [showWarning, setShowWarning] = useState(false);
+  // Consulta los parámetros actuales del laboratorio.
   const { parameters } = useGravityParameters();
+  // Obtiene los valores, la incógnita y las acciones de la calculadora.
   const {
     values,
     unknown,
@@ -121,35 +136,44 @@ const GravityFormulaContent = ({
     changeValue,
     selectUnknown,
   } = useGravityFormulaDraft();
+  // Consulta el estado y los eventos de interacción con la fórmula.
   const { active, hover, focus, select } = useGravityFormulaInteraction();
+  // Guarda las referencias de los campos para mover el foco.
   const inputRefs = useRef<
     Partial<Record<GravityVariable, HTMLInputElement | null>>
   >({});
+  // Identifica si un término debe mostrarse resaltado.
   const isActive = (term: FormulaTerm) =>
     active === term ||
     (active === "masses" && (term === "mass1" || term === "mass2"));
+  // Obtiene el valor de una variable, calculado o introducido.
   const currentValue = (key: GravityVariable) =>
     unknown === key ? (result?.[key] ?? null) : parseFormulaValue(values[key]);
+  // Da formato legible a los valores numéricos.
   const formatValue = (value: number) =>
     format.number(value, {
       maximumSignificantDigits: 6,
       ...(value < 0.001 ? { notation: "scientific" } : {}),
     });
+  // Selecciona una variable y enfoca su campo correspondiente.
   const focusField = (key: GravityVariable) => {
     select(key);
     inputRefs.current[key]?.focus({ preventScroll: true });
   };
+  // Localiza los campos con valores escritos que no son válidos.
   const invalidFields = fields.filter(
     ({ key }) =>
       key !== unknown &&
       values[key].trim() !== "" &&
       parseFormulaValue(values[key]) === null,
   );
+  // Detecta resultados correctos numéricamente pero fuera del laboratorio.
   const rangeError =
     result !== null &&
     !numericalError &&
     invalidFields.length === 0 &&
     !isInLaboratoryRange(result);
+  // Prepara el mensaje de estado o error que mostrará la calculadora.
   const status =
     invalidFields.length > 0
       ? t("invalidFormulaValue", { symbol: invalidFields[0].symbol })
@@ -333,12 +357,16 @@ const GravityFormulaContent = ({
       {explanation}
       <div className={styles.fields}>
         {fields.map((field) => {
+          // Comprueba si esta variable es la incógnita.
           const calculated = unknown === field.key;
+          // Obtiene el valor correspondiente al campo.
           const value = calculated
             ? (result?.[field.key] ?? null)
             : parseFormulaValue(values[field.key]);
+          // Recupera los límites permitidos para la variable.
           const limits =
             field.key === "force" ? null : laboratoryLimits[field.key];
+          // Marca el campo si contiene un valor incorrecto o fuera de rango.
           const invalid =
             (!calculated &&
               values[field.key].trim() !== "" &&
@@ -475,8 +503,8 @@ const GravityFormulaContent = ({
           </div>
         </section>
       )} */}
-      {/* Keep the announcement stable during out-of-range edits. Current laboratory
-          values remain readable above without becoming a second live region. */}
+      {/* Mantiene estable el anuncio accesible al introducir valores fuera de rango.
+          Los valores del laboratorio se muestran sin crear otra región dinámica. */}
       <p
         id={`${id}-status`}
         role="status"
@@ -495,7 +523,7 @@ const GravityFormulaContent = ({
   );
 };
 
-/** Shared equation presentation; all calculations remain in the existing provider. */
+// Representa la ecuación interactiva y permite seleccionar sus símbolos.
 const GravityEquation = ({
   id,
   currentValue,
@@ -505,20 +533,28 @@ const GravityEquation = ({
   currentValue?: (key: GravityVariable) => number | null;
   onSelect?: (key: GravityVariable) => void;
 }) => {
+  // Obtiene los textos traducidos de la fórmula.
   const t = useTranslations("Gravity");
+  // Formatea los valores que acompañan a los símbolos.
   const format = useFormatter();
+  // Consulta qué símbolos están activos, enfocados o seleccionados.
   const { active, selected, hover, focus, select } =
     useGravityFormulaInteraction();
+  // Identifica los símbolos que deben aparecer resaltados.
   const isActive = (term: FormulaTerm) =>
     active === term ||
     (active === "masses" && (term === "mass1" || term === "mass2"));
+  // Formatea el valor numérico de cada símbolo.
   const formatValue = (value: number) =>
     format.number(value, {
       maximumSignificantDigits: 6,
       ...(value < 0.001 ? { notation: "scientific" } : {}),
     });
+  // Construye un término seleccionable de la ecuación.
   const term = (key: GravityVariable) => {
+    // Obtiene la información del campo asociado al símbolo.
     const field = fields.find((field) => field.key === key)!;
+    // Obtiene su valor actual, si está disponible.
     const value = currentValue?.(key) ?? null;
     return (
       <button
@@ -588,11 +624,14 @@ const GravityEquation = ({
   );
 };
 
-/** Educational view: interactive symbols and definitions, without calculator inputs. */
+// Muestra la fórmula como material educativo, sin campos de cálculo editables.
 export const GravityFormulaEducation = () => {
+  // Obtiene las traducciones de la explicación educativa.
   const t = useTranslations("Gravity");
+  // Genera identificadores accesibles para símbolos y descripciones.
   const id = useId();
 
+  // Consulta las interacciones activas de los símbolos de la fórmula.
   const { active, select, hover } = useGravityFormulaInteraction();
 
   return (

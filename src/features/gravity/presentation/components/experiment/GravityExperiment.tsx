@@ -13,22 +13,33 @@ import { GravityFormula } from "../understanding/GravityFormula";
 import { GravityContentTabs } from "../shared/GravityContentTabs";
 import { gravityExperimentStyles as styles } from "./GravityExperiment.styles";
 
+// Define los parámetros y las funciones de control que recibe el experimento.
 type ExperimentProps = {
   parameters: GravityParameters;
   onChange: (parameters: GravityParameters) => void;
   onReset: () => void;
 };
 
-/** Controls for the shared laboratory; the stage layout owns its simulation. */
+// Muestra la etapa 03 · Experimenta, permitiendo modificar
+// las masas y la distancia y observar sus efectos sobre la gravedad.
 export const GravityExperiment = ({
   parameters,
   onChange,
   onReset,
 }: ExperimentProps) => {
+  // Genera identificadores únicos para los elementos accesibles.
   const id = useId();
+
+  // Obtiene las traducciones de la sección de gravedad.
   const t = useTranslations("Gravity");
+
+  // Permite formatear los valores numéricos según el idioma.
   const format = useFormatter();
+
+  // Compara la fuerza gravitatoria actual con la configuración inicial.
   const comparison = compareGravitation(parameters);
+
+  // Genera una explicación educativa según los cambios realizados.
   const forceExplanation = t(`forceExplanation.${comparison.explanation}`, {
     percentage: format.number(comparison.forceRatio, {
       style: "percent",
@@ -49,6 +60,7 @@ export const GravityExperiment = ({
           <h3 id={`${id}-heading`} className={styles.heading}>
             {t("experimentHeading")} <ExplainWithAI topic="simulation" />
           </h3>
+
           <div className={styles.headerActions}>
             <button
               type="button"
@@ -61,6 +73,7 @@ export const GravityExperiment = ({
             </button>
           </div>
         </div>
+
         <div className={styles["lab-sliders"]}>
           {gravityControls.map((control) => (
             <GravitySlider
@@ -77,15 +90,18 @@ export const GravityExperiment = ({
             />
           ))}
         </div>
+
         <GravityForceComparison
           currentForce={comparison.currentForce}
           initialForce={comparison.referenceForce}
           idPrefix={`${id}-intensity`}
         />
+
         <div className={styles.explanationPanel}>
           <p id={`${id}-force-explanation`} className={styles.forceExplanation}>
             {forceExplanation}
           </p>
+
           {/* <details className={styles.helperDetails}>
             <summary>{t("laboratoryDetails")}</summary>
             <p>{t("forceComparisonScale")}</p>

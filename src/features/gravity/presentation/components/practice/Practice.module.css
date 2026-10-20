@@ -3,7 +3,10 @@
   grid-template-rows: 0fr;
   opacity: 0;
   visibility: hidden;
-  transition: grid-template-rows 220ms ease, opacity 220ms ease, visibility 220ms;
+  transition:
+    grid-template-rows 220ms ease,
+    opacity 220ms ease,
+    visibility 220ms;
 }
 
 .reveal[data-open="true"] {
@@ -38,11 +41,19 @@
 }
 
 @keyframes practice-appear {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal { transition: none; }
-  .appearance { animation: none; }
+  .reveal {
+    transition: none;
+  }
+  .appearance {
+    animation: none;
+  }
 }
