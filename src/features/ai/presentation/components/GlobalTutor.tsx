@@ -3,11 +3,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useTutorConversation } from "../hooks/useTutorConversation";
-import { MessageCircle } from "@/components/icons/TutorIcons";
+import { AtomIcon } from "@/components/icons/TutorIcons";
 import { tutorContextId } from "../../application/tutorAvailability";
 import { tutorContextLabel } from "./tutorContextLabel";
 import { TutorChat, type TutorQuickAction } from "./TutorChat";
 import { useTutorEnvironment } from "../providers/tutorEnvironment";
+
 import css from "./GlobalTutor.module.css";
 
 const styles = {
@@ -179,7 +180,7 @@ export const GlobalTutor = () => {
           onClick={(event) => openTutor(undefined, event.currentTarget)}
           className={styles.trigger}
         >
-          <MessageCircle />
+          <AtomIcon />
           <span>{t("shortLabel")}</span>
         </button>
       }

@@ -408,7 +408,7 @@
     "open": "Open AI tutor",
     "close": "Close tutor",
     "title": "Your Gravity Lab tutor",
-    "shortLabel": "AI tutor",
+    "shortLabel": "Hablemos de ciencia",
     "description": "Ask about what you are exploring. I will use the current section’s context to help you.",
     "question": "Write your question…",
     "send": "Send",
