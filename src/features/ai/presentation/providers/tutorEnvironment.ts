@@ -5,16 +5,18 @@ import type { TutorContext, TutorIntent } from "../../types/tutor.types";
 import type { GravityProposalPort } from "../../types/proposal.types";
 
 export type PublishedContext = { pathname: string; context: TutorContext; gravity?: GravityProposalPort };
-export type TutorLauncher = (intent?: TutorIntent | "configure_experiment", trigger?: HTMLElement) => void;
+export type TutorLaunch = TutorIntent | "configure_experiment" | { question: string; intent?: TutorIntent };
+export type TutorLauncher = (intent?: TutorLaunch, trigger?: HTMLElement) => void;
 import type { TutorSessionId } from "../../application/tutorAvailability";
 
 type TutorEnvironment = {
   activeSessionId: TutorSessionId;
-  inlineActive: boolean;
-  practiceActive: boolean;
+  context: TutorContext;
   openTutor: TutorLauncher;
   registerLauncher: (launcher: TutorLauncher) => () => void;
-  sessionKey: "gravity" | null;
+  registerHighlight: (callback: (term: "constant" | "masses" | "distance" | null) => void) => () => void;
+  highlight: (term: "constant" | "masses" | "distance" | null) => void;
+  sessionKey: "global";
   publish: (value: PublishedContext) => () => void;
   current: () => PublishedContext | null;
 };

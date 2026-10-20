@@ -1,3 +1,4 @@
+import { ExplainWithAI } from "@/features/ai/presentation/components/ExplainWithAI";
 import { useFormatter, useTranslations } from "next-intl";
 import type { PeriodicityResult } from "../../../domain/periodicity-detection";
 
@@ -14,7 +15,7 @@ export const PeriodicityAnalysis = ({ result, duration }: {
 
   return (
     <section className="space-y-3 rounded-xl border border-[#60517f] bg-[#19182c] p-4">
-      <h4 className="font-semibold text-slate-100">{t("title")}</h4>
+      <h4 className="font-semibold text-slate-100">{t("title")} <ExplainWithAI topic="periodicity" /></h4>
       <p role="status" className={result.detected ? "font-medium text-[#5ee7d5]" : "font-medium text-[#d3c5ff]"}>
         {t(result.detected ? "possibleOrbit" : "notDetected")}
       </p>

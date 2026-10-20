@@ -57,7 +57,9 @@ export const GravityFormulaAccess = ({ children }: { children: ReactNode }) => {
         aria-labelledby="gravity-formula-title"
         className={styles.drawer}
         onCancel={(event) => { event.preventDefault(); setOpen(false); }}
-        onClose={() => {
+        onClose={(event) => {
+          // A queued close event must not dismiss a newly reopened drawer.
+          if (open || event.currentTarget.open) return;
           setOpen(false);
           const trigger = triggerRef.current;
           const stageId = trigger?.closest("section[id]")?.id;

@@ -1,5 +1,7 @@
 "use client";
 
+import { TutorContextBridge } from "@/features/ai/presentation/providers/TutorProvider";
+import { ExplainWithAI } from "@/features/ai/presentation/components/ExplainWithAI";
 import {
   useCallback,
   useEffect,
@@ -130,6 +132,7 @@ export const ThreeBodyJourney = ({
       data-three-body-journey
       data-active-stage={activeStage ?? "welcome"}
     >
+      <TutorContextBridge active={activeStage !== "experiment"} context={{ kind: "three-body", stage: activeStage }} />
       <div
         className={styles.view}
         data-introduction={activeStage === null}
@@ -139,7 +142,7 @@ export const ThreeBodyJourney = ({
         {activeStage === null ? (
           <header className={styles.hero}>
             <p className={styles.eyebrow}>{t("eyebrow")}</p>
-            <h1>{t("title")}</h1>
+            <h1>{t("title")} <ExplainWithAI topic="threeBody" /></h1>
             <p className={styles.description}>{t("description")}</p>
           </header>
         ) : (

@@ -12,7 +12,7 @@ npm run dev
 
 Abre http://localhost:3000. El inicio redirige al idioma correspondiente.
 
-Para las funciones de IA de la parte A (Gravedad), configura en `.env.local` `OPENAI_API_KEY` y `OPENAI_MODEL` con un modelo disponible en tu proyecto que admita Responses API. Reinicia el servidor después. No uses prefijos `NEXT_PUBLIC_` ni subas claves al repositorio. Las peticiones al proveedor pueden generar cargos. Sin estas variables, el laboratorio y los retos funcionan; el tutor informa de que no está disponible.
+Para el Tutor IA global y la evaluación adaptativa, configura en `.env.local` `OPENAI_API_KEY` y `OPENAI_MODEL` con un modelo disponible en tu proyecto que admita Responses API. Reinicia el servidor después. No uses prefijos `NEXT_PUBLIC_` ni subas claves al repositorio. Las peticiones al proveedor pueden generar cargos. Sin estas variables, los simuladores funcionan; el tutor y la evaluación adaptativa informan de que no están disponibles.
 
 ## Gravitación
 
@@ -56,7 +56,8 @@ Los retos muestran el escenario base antes de comprobar; al comprobar se aplican
 sus parámetros y aparecen feedback, comparación y explicación. Avanzar restaura
 la referencia sin borrar el borrador de la fórmula. Cambiar de etapa conserva el
 reto, la predicción y el resultado; al regresar se recupera el escenario de ese
-reto. El tutor recibe el reto y el intento únicamente en Comprobar.
+reto. La evaluación adaptativa utiliza su propio endpoint; el tutor no recibe
+sus enunciados, respuestas ni intentos y ofrece únicamente pistas conceptuales.
 
 El cálculo físico y las validaciones de los retos siguen siendo deterministas;
 el modelo de lenguaje no calcula ni modifica el experimento.
@@ -65,9 +66,13 @@ el modelo de lenguaje no calcula ni modifica el experimento.
 
 La parte B funciona exclusivamente con algoritmos físicos deterministas y métodos
 numéricos. La galería, sus seis detalles y las etapas Descubrir, Galería y
-Experimentar no ofrecen chatbot ni tutor IA. Las simulaciones, el detector de
-periodicidad y el buscador de órbitas no necesitan una API key de OpenAI ni
-servicios externos de IA.
+Experimentar comparten el tutor global. Los cálculos, simulaciones y el detector
+de periodicidad son deterministas y no necesitan una API key ni servicios de IA.
+
+En la etapa 03, el usuario configura manualmente masas, posiciones, velocidades,
+gravedad y duración. «Ejecutar simulación» calcula la trayectoria en un Web Worker
+y analiza posibles retornos aproximados de posiciones y velocidades dentro del
+intervalo simulado. Los resultados incluyen reproducción y análisis de periodicidad.
 
 `/[locale]/three-body` muestra las seis órbitas de Lagrange, figura de ocho,
 Butterfly I, Goggles, Moth I y Yin-Yang I. Las tarjetas animan los tres cuerpos;
@@ -89,60 +94,46 @@ Para Lagrange, un radio al baricentro R = 1 da un lado √3 y una aceleración r
 La animación empieza pausada cuando se prefiere movimiento reducido y puede
 activarse explícitamente. Se suspende fuera de pantalla y con la pestaña oculta.
 
-## Tutor IA de Gravedad
+## Tutor IA global
 
-La parte A utiliza OpenAI para la experiencia de aprendizaje: tutor, explicaciones
-de la fórmula y del experimento, propuestas de cambios con confirmación, práctica
-adaptativa, corrección e informes de aprendizaje. Conserva `/api/ai`, `/api/practice`
-y las variables `OPENAI_API_KEY` y `OPENAI_MODEL`.
+Un solo `TutorProvider` del layout de idiomas mantiene la conversación en Inicio,
+Gravedad (sus cuatro etapas), Tres Cuerpos y los seis detalles orbitales. La única
+interfaz es `GlobalTutor`: botón flotante MessageCircle, diálogo con teclado/Escape,
+scroll interno y adaptación al teclado virtual y safe areas. Los dos iconos Lucide
+se incluyen como SVG locales con su licencia; no se instala otra dependencia.
 
-El tutor está disponible únicamente en `/{locale}/gravity`. En 02 · Comprende,
-`InlineTutor` ocupa la pestaña «Tutor IA» de la tarjeta derecha; no se monta el diálogo
-ni el botón flotante. Sus acciones explican la fórmula, G, las masas y la distancia
-al cuadrado, además de simplificar y dar ejemplos. Los resaltados los decide la
-acción local, nunca la respuesta del modelo. Toda esta etapa es de solo lectura
-para el tutor: servidor y cliente descartan propuestas de cambios.
+Las tarjetas de las etapas 02 y 03 mantienen sus pestañas educativas y calculadora,
+sin un chat duplicado. `ExplainWithAI` muestra CircleHelp dorado y un tooltip
+traducido; cada tema envía una pregunta específica una sola vez al pulsarlo.
+Los resaltados de símbolos siguen siendo acciones locales. Abrir el tutor, mover
+controles, cambiar de ruta o restaurar historial no llama automáticamente a OpenAI.
 
-En 03 · Experimenta, el mismo `InlineTutor` ocupa su propia pestaña junto a
-«Experimento» y «Calculadora». Explica el contexto actual y los ejemplos hipotéticos calculados
-por el dominio; mover sliders no llama a la IA. Al cambiar los parámetros, una nota
-invita a solicitar otra explicación. La acción de configuración enfoca el campo y
-muestra instrucciones, sin enviar ninguna petición ni modificar valores.
+`useTutorConversation` conserva 30 mensajes en memoria y en
+`localStorage["gravity-lab:tutor:v1"]`. Restaura después de la hidratación y valida
+versión, roles, tamaño y texto; solo guarda mensajes e identificadores de contexto.
+No persiste propuestas, permisos, claves, peticiones ni borradores. «Borrar
+conversación» vacía el historial y aborta peticiones pendientes. Si el navegador
+bloquea el almacenamiento, la conversación continúa en memoria.
 
-`GravityContentTabs` mantiene montados los tres contenidos: Fórmula/Experimento,
-Calculadora y Tutor IA. Solo el seleccionado es visible y accesible. Las flechas,
-Inicio y Fin permiten navegar por las pestañas; los accesos externos al tutor
-activan su pestaña y muestran la tarjeta derecha también en móvil. Cambiar de
-pestaña conserva los borradores y conversaciones y no envía peticiones. La vista
-educativa comparte la ecuación interactiva con la calculadora existente; ambas
-calculadoras utilizan el mismo estado de `GravityParametersProvider`.
+Cada pregunta usa el contexto actual publicado por `TutorContextBridge`. Gravedad
+aporta parámetros reales; el servidor calcula fuerzas y ejemplos con el dominio.
+En las órbitas, el servidor obtiene condiciones y períodos del catálogo. En el
+experimento se acepta una instantánea numérica validada (configuración, estado y
+resumen de periodicidad), identificada como observación del navegador y no como
+resultado recalculado por el servidor. No se envían trayectorias completas. Los
+mensajes anteriores se identifican como históricos, nunca como valores actuales.
 
-Las instrucciones escritas pueden generar una `TutorProposalCard`. Aplicar utiliza
-`decideTutorProposal` y el `applyProposal` con revisión de `GravityParametersProvider`;
-ese único cambio de estado actualiza sliders, fórmula, fuerza y simulación. Cancelar,
-una revisión obsoleta o una propuesta fuera de rango conservan los valores. No hay
-botón flotante ni diálogo del tutor en las etapas 02 y 03.
+La fórmula, Inicio y Tres Cuerpos no autorizan cambios desde el tutor. Las
+propuestas de Gravedad siguen requiriendo «Aplicar» y superar la validación de
+rangos, contexto y revisión de parámetros. Las ayudas «Explícamelo» son de solo
+lectura. En Comprueba el tutor proporciona pistas conceptuales sin resolver ni
+calificar ejercicios; `/api/practice` conserva la evaluación, corrección e informes.
+El tutor no recibe los enunciados ni respuestas de esa evaluación independiente.
 
-`TutorChat` comparte presentación y `useTutorConversation` comparte el almacén del
-provider con el tutor flotante de Descubre y la presentación integrada de ambas etapas. Las sesiones
-`gravity-understanding` y `gravity-laboratory` tienen mensajes, borradores,
-peticiones y reintentos independientes. Ocultar paneles, restablecer la fórmula o
-cambiar de etapa conserva el historial de cada sesión. El diálogo restante admite
-Escape y devuelve el foco a su origen. Salir de Gravedad desmonta el almacén,
-cierra el diálogo y aborta las peticiones pendientes; no se guarda en disco.
-
-Las solicitudes parten únicamente de acciones explícitas del usuario y utilizan
-el contexto de Gravedad publicado por su provider. El servidor obtiene los valores
-físicos verificados del dominio existente. No admite contextos de Tres Cuerpos ni
-importa su catálogo para elaborar instrucciones del modelo.
-
-`POST /api/ai` valida el contexto y el historial y utiliza una sola integración
-servidor con [Responses API y estado de conversación](https://developers.openai.com/api/docs/guides/conversation-state).
-Usa exactamente `OPENAI_MODEL`, `store: false` y un máximo de 1.200 tokens de
-salida. Las claves permanecen exclusivamente en el servidor. La interfaz conserva
-hasta 48 mensajes por conversación y envía como máximo los 12 más recientes,
-con 1.200 caracteres por mensaje y 6.000 en total, terminando en una pregunta.
-No se envían muestras de trayectorias ni otros datos ajenos al contexto educativo.
+`POST /api/ai` conserva su única integración con OpenAI, `OPENAI_API_KEY`,
+`OPENAI_MODEL`, `store: false` y un máximo de 1.200 tokens de salida. Envía como
+máximo 12 mensajes recientes, con 1.200 caracteres por mensaje y 6.000 en total.
+Las claves permanecen en el servidor y no se necesita otra variable de entorno.
 
 El endpoint limita el cuerpo a 32 KiB mientras lo lee, comprueba el origen cuando
 se proporciona, admite solo JSON, corta la lectura a los 5 segundos y la llamada
@@ -187,25 +178,27 @@ npm start
 
 Las pruebas verifican unidades SI, simetría, proporcionalidad con las masas, ley
 del inverso del cuadrado, calculadora, retos, integrador y conservación física.
-Las del tutor cubren Gravedad, el rechazo de contextos de Tres Cuerpos, datos
+Las del tutor cubren los contextos de Inicio, Gravedad y Tres Cuerpos, datos
 inválidos, límites del historial y del cuerpo, consumo y concurrencia, y el contrato
-del adaptador. Las pruebas físicas cubren las seis órbitas, el simulador personalizado,
-el detector de periodicidad y el buscador determinista.
+del adaptador. Las pruebas físicas cubren las seis órbitas, el simulador personalizado
+y el detector de periodicidad.
 Interceptan `fetch` en la prueba del proveedor: no llaman a OpenAI ni consumen
 crédito. Una prueba real de credenciales y calidad de respuesta del modelo es una
 verificación separada; ejecutar estos tests no la sustituye.
 
-`node tests/browser/gravity-only-tutor.mjs` comprueba el provider y el diálogo reales
-en Chrome con un router aislado: visibilidad en los tres idiomas, cierre y aborto
-de peticiones al entrar en Tres Cuerpos, y reapertura al volver a Gravedad.
-No necesita un servidor Next ni credenciales; intercepta las respuestas de IA.
+`node tests/browser/global-tutor.mjs` comprueba el tutor y los componentes reales
+con Chrome, rutas aisladas y respuestas de IA interceptadas: conversación compartida
+entre Inicio, Gravedad y las seis órbitas, recarga exacta de los últimos 30 mensajes,
+propuestas confirmadas y obsoletas, preguntas de ayuda sin duplicados, reintento tras
+errores, borrado persistente y cancelación de peticiones, teclado y tamaños
+móvil/escritorio. Comprueba también la simulación y periodicidad reales de Tres
+Cuerpos y el endpoint independiente de evaluación. No necesita credenciales ni
+un servidor Next.
 
 ## Pendiente de la prueba técnica
 
 Todavía no está configurada una entrega desplegada ni Docker. La integración real de IA requiere las variables anteriores; no se simula con respuestas prefijadas.
 
-`node tests/browser/inline-tutor.mjs` comprueba los componentes reales de las etapas
-02, 03 y 04 con respuestas HTTP simuladas: fórmula y restablecimiento, preguntas,
-reintentos, resaltados, aislamiento de historiales, propuestas aplicadas/canceladas/obsoletas,
-límites, contexto actualizado sin peticiones automáticas, paneles y móvil.
-No requiere una clave OpenAI ni realiza llamadas al proveedor.
+Los antiguos comandos de navegador `inline-tutor.mjs`, `gravity-only-tutor.mjs`,
+`gravity-formula-tutor.mjs` y `gravity-experiment-tutor.mjs` delegan en
+`global-tutor.mjs` para conservar un único conjunto de comprobaciones del tutor.

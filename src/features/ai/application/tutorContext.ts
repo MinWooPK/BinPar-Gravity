@@ -1,3 +1,4 @@
+import { buildThreeBodyTutorContext } from "./threeBodyTutorContext";
 import {
   gravitationalForce,
   GRAVITATIONAL_CONSTANT,
@@ -50,6 +51,17 @@ const gravityDiscovery = {
 
 /** Gravity facts come exclusively from the project on the server. */
 export const buildTutorContext = (context: TutorContext) => {
+  if (context.kind === "home")
+    return {
+      kind: "home",
+      stage: null,
+      available: [
+        "Newtonian gravity laboratory",
+        "Three-body discovery, gallery and manual experiment",
+      ],
+      current: null,
+    };
+  if (context.kind === "three-body") return buildThreeBodyTutorContext(context);
   const baselineForce = gravitationalForce(initialParameters);
   const currentForce = gravitationalForce(context.parameters);
   // Educational what-ifs, relative to the current snapshot, never applied to the lab.

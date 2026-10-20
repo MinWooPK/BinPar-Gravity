@@ -1,10 +1,8 @@
 import {
   refineExperimentState,
-  SimulationStoppedError,
   validateExperimentState,
   type ExperimentState,
   type ExperimentTrajectory,
-  type SimulationControl,
 } from "./experiment-simulation";
 import { validateGravityParameters, type GravityParameters } from "./newtonian-physics";
 
@@ -95,23 +93,6 @@ export function measureReturnErrors(
   return returnErrors(initial, state, characteristicScales(initial, physics));
 }
 
-/** Signed full-state residuals for local least-squares optimization. */
-export function measureReturnResiduals(
-  initial: ExperimentState,
-  state: ExperimentState,
-  physics: GravityParameters,
-): readonly number[] {
-  validateGravityParameters(physics);
-  validateExperimentState(initial);
-  validateExperimentState(state);
-  const scales = characteristicScales(initial, physics);
-  const residuals = state.map((value, index) =>
-    (value - initial[index]) / (index % 4 < 2 ? scales.position : scales.velocity),
-  );
-  if (!residuals.every(Number.isFinite)) throw new RangeError("Invalid return residuals.");
-  return residuals;
-}
-
 /**
  * Pure, deterministic analysis of a finite Newtonian trajectory. Errors are
  * dimensionless maxima across all three bodies, not an integration error bound.
@@ -125,7 +106,6 @@ export function measureReturnResiduals(
 export function detectPeriodicity(
   trajectory: Pick<ExperimentTrajectory, "duration" | "stateSamples">,
   physics: GravityParameters,
-  control: SimulationControl = {},
 ): PeriodicityResult {
   validateGravityParameters(physics);
   const { duration, stateSamples } = trajectory;
@@ -137,7 +117,6 @@ export function detectPeriodicity(
     throw new RangeError("La trayectoria no contiene un intervalo de análisis válido.");
   }
   for (let index = 0; index < stateSamples.length; index++) {
-    if (control.shouldStop?.()) throw new SimulationStoppedError();
     const sample = stateSamples[index];
     if (!Number.isFinite(sample.time) || (index > 0 && sample.time <= stateSamples[index - 1].time)) {
       throw new RangeError("Los instantes de análisis deben ser finitos y crecientes.");
@@ -184,7 +163,7 @@ export function detectPeriodicity(
     let left = start.time;
     let right = stateSamples[last ? index : index + 1].time;
     const evaluate = (time: number) => {
-      const refined = refineExperimentState(start, time, duration, physics, remainingAttempts, control);
+      const refined = refineExperimentState(start, time, duration, physics, remainingAttempts);
       remainingAttempts -= refined.attempts;
       const candidate = { time, ...returnErrors(initial, refined.sample.state, scales) };
       if (candidate.combinedError < best.combinedError) best = candidate;

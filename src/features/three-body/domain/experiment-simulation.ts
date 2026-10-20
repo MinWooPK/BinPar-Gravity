@@ -45,19 +45,6 @@ const MIN_DISTANCE = 1e-3; // Corte numérico de seguridad, no radio físico.
 const RELATIVE_TOLERANCE = 1e-8;
 const ABSOLUTE_TOLERANCE = 1e-9;
 
-/** Optional execution budget; default simulation accuracy and limits are unchanged. */
-export type SimulationControl = Readonly<{
-  shouldStop?: () => boolean;
-  maxAttempts?: number;
-}>;
-
-export class SimulationStoppedError extends Error {
-  constructor() {
-    super("Simulation execution was stopped.");
-    this.name = "SimulationStoppedError";
-  }
-}
-
 const positions = (state: readonly number[]): number[] => [
   state[0], state[1], state[4], state[5], state[8], state[9],
 ];
@@ -85,7 +72,6 @@ function createIntegrator(
   initialStep: number,
   maxAttempts = MAX_ATTEMPTS,
   observe?: (sample: ExperimentStateSample) => void,
-  shouldStop?: () => boolean,
 ) {
   let state: ExperimentState = start.state;
   let time = start.time;
@@ -96,7 +82,6 @@ function createIntegrator(
 
   const advance = (target: number): ExperimentStateSample => {
     while (time < target) {
-      if (shouldStop?.()) throw new SimulationStoppedError();
       if (++attempts > maxAttempts) {
         throw new RangeError("El cálculo ha superado el límite de pasos; prueba con otros parámetros.");
       }
@@ -149,7 +134,6 @@ export function refineExperimentState(
   duration: number,
   physics: GravityParameters,
   maxAttempts = MAX_ATTEMPTS,
-  control: SimulationControl = {},
 ): { sample: ExperimentStateSample; attempts: number } {
   validateGravityParameters(physics);
   validateExperimentState(start.state);
@@ -161,7 +145,7 @@ export function refineExperimentState(
   ) {
     throw new RangeError("El intervalo de refinamiento no es válido.");
   }
-  const integrator = createIntegrator(start, duration, physics, (target - start.time) / 4, maxAttempts, undefined, control.shouldStop);
+  const integrator = createIntegrator(start, duration, physics, (target - start.time) / 4, maxAttempts);
   return { sample: integrator.advance(target), attempts: integrator.attempts() };
 }
 
@@ -169,7 +153,6 @@ export function refineExperimentState(
 export function simulateExperiment(
   config: ExperimentConfiguration,
   sampleCount = 601,
-  control: SimulationControl = {},
 ): ExperimentTrajectory {
   const { bodies, gravity: G, duration } = config;
 
@@ -182,11 +165,6 @@ export function simulateExperiment(
   if (!Number.isInteger(sampleCount) || sampleCount < 2 || sampleCount > 2000) {
     throw new RangeError("El número de muestras debe estar entre 2 y 2000.");
   }
-  const maxAttempts = control.maxAttempts ?? MAX_ATTEMPTS;
-  if (!Number.isInteger(maxAttempts) || maxAttempts < 1 || maxAttempts > MAX_ATTEMPTS) {
-    throw new RangeError("El límite de pasos no es válido.");
-  }
-
   const physics: GravityParameters = {
     G,
     masses: [bodies[0].mass, bodies[1].mass, bodies[2].mass],
@@ -201,7 +179,7 @@ export function simulateExperiment(
   const sampleInterval = duration / (sampleCount - 1);
   const integrator = createIntegrator(
     stateSamples[0], duration, physics, Math.min(sampleInterval, duration / 500),
-    maxAttempts, (sample) => stateSamples.push(sample), control.shouldStop,
+    MAX_ATTEMPTS, (sample) => stateSamples.push(sample),
   );
 
   for (let index = 1; index < sampleCount; index++) {

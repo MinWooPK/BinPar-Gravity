@@ -1,14 +1,15 @@
 "use client";
 
+import { TutorContextBridge } from "@/features/ai/presentation/providers/TutorProvider";
+import { ExplainWithAI } from "@/features/ai/presentation/components/ExplainWithAI";
+import { isTutorContext } from "@/features/ai/application/tutorRequest";
+import type { TutorContext } from "@/features/ai/types/tutor.types";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ExperimentConfiguration } from "../../../domain/experiment-simulation";
 import type { AnalyzedExperimentTrajectory } from "../../../domain/periodicity-detection";
 import { ExperimentAnimation } from "./ExperimentAnimation";
 import { PeriodicityAnalysis } from "./PeriodicityAnalysis";
-import { OrbitSearchPanel } from "./OrbitSearchPanel";
-import { applyOrbitSearchCandidate } from "../../../application/apply-orbit-search";
-import type { OrbitSearchCandidate } from "../../../types/orbit-search.types";
 
 type WorkerResponse =
   | { id: number; ok: true; result: AnalyzedExperimentTrajectory }
@@ -88,8 +89,6 @@ export const ThreeBodyExperiment = ({
   const [elapsed, setElapsed] = useState(0);
   const [speed, setSpeed] = useState(1);
   const [showTrails, setShowTrails] = useState(true);
-  const [searchApplied, setSearchApplied] = useState(false);
-  const [searchRevision, setSearchRevision] = useState(0);
   const [runError, setRunError] = useState<
     "tooClose" | "calculationFailed" | null
   >(null);
@@ -109,7 +108,6 @@ export const ThreeBodyExperiment = ({
 
   // Al editar los parámetros, invalidamos la simulación anterior.
   const invalidateSimulation = () => {
-    setSearchApplied(false);
     cancelCalculation();
     setSimulation(null);
     setPlaying(false);
@@ -160,23 +158,6 @@ export const ThreeBodyExperiment = ({
     }),
     [draft],
   );
-  // Editing any seed field remounts the search panel and terminates its Worker.
-  const searchKey = useMemo(() => JSON.stringify(draft), [draft]);
-  const applySearch = (candidate: OrbitSearchCandidate) => {
-    const proposed = applyOrbitSearchCandidate(parsed, candidate);
-    if (!proposed) return;
-    invalidateSimulation();
-    setSearchRevision((revision) => revision + 1);
-    setDraft((current) => ({
-      ...current,
-      duration: String(proposed.duration),
-      bodies: current.bodies.map((body, i) => ({ ...body,
-        vx: String(proposed.bodies[i].vx), vy: String(proposed.bodies[i].vy),
-      })),
-    }));
-    setSearchApplied(true);
-  };
-
   // Validar las condiciones de partida.
   const error = useMemo(() => {
     const values = [
@@ -345,7 +326,7 @@ export const ThreeBodyExperiment = ({
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
+      return () => cancelAnimationFrame(frame);
   }, [simulation, playing, speed, active]);
 
   const restartPlayback = () => {
@@ -362,22 +343,32 @@ export const ThreeBodyExperiment = ({
     if (next >= simulation.duration) setPlaying(false);
   };
 
+  const tutorContext = useMemo<TutorContext>(() => {
+    const snapshot: TutorContext = {
+      kind: "three-body", stage: "experiment",
+      status: error ? "invalid" : runError ?? (calculating ? "calculating" : simulation ? "complete" : "idle"),
+      ...(!error && { configuration: parsed }),
+      ...(simulation && !error && !calculating && { result: simulation.periodicity }),
+    };
+    return isTutorContext(snapshot) ? snapshot : { kind: "three-body", stage: "experiment", status: "invalid" };
+  }, [error, runError, calculating, simulation, parsed]);
+
   const selected = draft.bodies[selectedBody];
 
   return (
     <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+      <TutorContextBridge active={active} context={tutorContext} />
       {/* PANEL IZQUIERDO: CONFIGURACIÓN */}
       <section className="flex min-w-0 flex-col gap-4 rounded-2xl border border-[#303b59] bg-[#131724] p-4">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-lg font-semibold text-slate-100">
-            {t("settingsTitle")}
+            {t("settingsTitle")} <ExplainWithAI topic="simulation" />
           </h3>
 
           <button
             type="button"
             onClick={() => {
               invalidateSimulation();
-              setSearchRevision((revision) => revision + 1);
               setDraft(cloneInitial());
               setSelectedBody(0);
               setSpeed(1);
@@ -487,7 +478,6 @@ export const ThreeBodyExperiment = ({
           <p className="mt-2 text-center text-xs text-slate-400">
             {t("runHelp")}
           </p>
-          <OrbitSearchPanel key={`${searchRevision}:${searchKey}`} configuration={parsed} disabled={error !== null || calculating} onApply={applySearch} />
         </div>
       </section>
 
@@ -693,7 +683,7 @@ export const ThreeBodyExperiment = ({
                           ? "finished"
                           : "paused",
                     )
-                  : t(searchApplied ? "orbitSearch.applied" : "valid")}
+                  : t("valid")}
         </p>
       </section>
     </div>

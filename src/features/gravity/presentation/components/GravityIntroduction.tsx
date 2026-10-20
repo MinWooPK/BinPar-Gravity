@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl";
 
-import { GravityFormulaTutor } from "./understanding/GravityFormulaTutor";
 import { GravityFormula, GravityFormulaEducation } from "./understanding/GravityFormula";
 import { gravityStageById } from "../../application/gravityJourney";
 import { gravityJourneyStyles as journeyStyles } from "./GravityJourney.styles";
@@ -26,8 +25,7 @@ export const GravityIntroduction = () => {
               <summary className="min-h-11 cursor-pointer py-3 focus-visible:outline-2 focus-visible:outline-violet-300">{t("siConversionsTitle")}</summary>
               <p>{t("siConversionsText")}</p>
             </details>
-          } />}
-          tutor={panel => <GravityFormulaTutor {...panel} />}>
+          } />}>
           <GravityFormulaEducation />
         </GravityContentTabs>
       </GravityStageLayout>

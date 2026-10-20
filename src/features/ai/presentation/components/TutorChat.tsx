@@ -3,9 +3,10 @@
 import { useEffect, useRef, type RefObject } from "react";
 import { useTranslations } from "next-intl";
 import { TUTOR_MAX_MESSAGE_LENGTH } from "../../application/tutor";
-import type { TutorSessionId } from "../../application/tutorAvailability";
-import type { TutorContext, TutorRequest } from "../../types/tutor.types";
+import type { TutorRequest } from "../../types/tutor.types";
 import { useTutorConversation } from "../hooks/useTutorConversation";
+import { useTutorEnvironment } from "../providers/tutorEnvironment";
+import { tutorContextLabel } from "./tutorContextLabel";
 import { TutorProposalCard } from "./TutorProposalCard";
 import { tutorChatStyles as styles } from "./TutorChat.styles";
 import css from "./TutorChat.module.css";
@@ -20,29 +21,25 @@ export type TutorQuickAction = {
   compose?: boolean;
 };
 
-/** Presentation shared by the modal and inline tutors; the provider owns all state. */
-export const TutorChat = ({ id, sessionId, actions, inline = false, active = true, inputRef, configure = false, onSubmit, onConfigure, context, contextChangedMessage }: {
+/** Single chat presentation; the global provider owns history and requests. */
+export const TutorChat = ({ id, actions, active = true, inputRef, configure = false, onSubmit, onConfigure }: {
   id: string;
-  sessionId?: TutorSessionId;
   actions?: readonly TutorQuickAction[];
-  inline?: boolean;
   active?: boolean;
   inputRef?: RefObject<HTMLTextAreaElement | null>;
   configure?: boolean;
   onSubmit?: () => void;
   onConfigure?: () => void;
-  context?: TutorContext;
-  contextChangedMessage?: string;
 }) => {
   const t = useTranslations("Tutor");
-  const { current, key, session, update, performRequest, ask, decideProposal } = useTutorConversation(sessionId);
+  const { key, session, update, performRequest, ask, decideProposal } = useTutorConversation();
+  const { context } = useTutorEnvironment();
   const transcriptRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const transcript = transcriptRef.current;
     if (transcript) transcript.scrollTop = transcript.scrollHeight;
   }, [session.messages.length, session.pending, active]);
-  const page = current();
-  const latestContext = context ?? page?.context;
+  const latestContext = context;
   const contextChanged = !!session.snapshot && !!latestContext && session.snapshot !== JSON.stringify(latestContext);
   const quickActions: readonly TutorQuickAction[] = actions ?? [
     { id: "explain-experiment", label: t("explainExperiment"), question: t("experimentQuestion") },
@@ -51,12 +48,13 @@ export const TutorChat = ({ id, sessionId, actions, inline = false, active = tru
   ];
   return (
     <div className={`${css.chat} flex min-h-0 min-w-0 flex-1 flex-col`}>
-      <div ref={transcriptRef} className={`${styles.transcript} ${inline ? "max-h-80 min-h-24 lg:max-h-96" : ""}`}
+      <div ref={transcriptRef} className={styles.transcript}
         role="log" aria-label={t("conversation")} aria-live="polite" aria-relevant="additions" aria-atomic="false" aria-busy={session.pending}>
         {session.messages.length === 0 && <p className={styles.introduction}>{t("description")}</p>}
         {session.messages.map(message => (
           <div key={message.id} className={styles.message} data-role={message.role}>
             <span className="sr-only">{t(message.role === "user" ? "userLabel" : "assistantLabel")}: </span>
+            <small className="mb-1 block text-xs text-slate-400">{t("historicalMessage", { context: tutorContextLabel(message.contextId, t) })}</small>
             <p>{message.content}</p>
             {message.proposal && <TutorProposalCard proposal={message.proposal} onDecision={decision => decideProposal(message.id, decision)} />}
           </div>
@@ -66,11 +64,10 @@ export const TutorChat = ({ id, sessionId, actions, inline = false, active = tru
       {session.error && <div className={`${styles.error} px-4`}>
         <p role="alert">{t(session.error)}</p>
         {session.request && <button type="button" disabled={session.pending} onClick={() => {
-          const page = current();
-          if (session.request && page) void performRequest(key, { ...session.request, context: page.context });
+          if (session.request) void performRequest(key, session.request);
         }}>{t("retry")}</button>}
       </div>}
-      {contextChanged && <p data-tutor-context-changed className={`${styles.contextNote} px-4`}>{contextChangedMessage ?? t("contextChanged")}</p>}
+      {contextChanged && <p data-tutor-context-changed className={`${styles.contextNote} px-4`}>{t("contextChanged")}</p>}
       <div className={styles.quickActions} aria-label={t("quickActions")} role="group">
         {quickActions.map(action => <button key={action.id} type="button" disabled={session.pending}
           data-tutor-action={action.id} data-explain-experiment={action.id === "explain-experiment" || undefined}

@@ -1,34 +1,23 @@
 "use client";
 
-import { useCallback, useId, useRef, useState, type ReactNode } from "react";
+import { useId, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useGravityFormulaInteraction } from "../understanding/GravityFormulaInteraction";
-import { useRevealGravityContent } from "./GravitySplitPanels";
-
-type TutorPanel = { active: boolean; onActivate: () => void; embedded: true };
 
 /** Every panel stays mounted; switching tabs only changes visibility and focus. */
-export const GravityContentTabs = ({ primary, children, calculator, tutor }: {
+export const GravityContentTabs = ({ primary, children, calculator }: {
   primary: "formula" | "experiment";
   children: ReactNode;
   calculator: ReactNode;
-  tutor: (panel: TutorPanel) => ReactNode;
 }) => {
   const t = useTranslations("Gravity");
-  const tutorText = useTranslations("Tutor");
   const id = useId();
   const [selected, setSelected] = useState<string>(primary);
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
   const { hover, focus } = useGravityFormulaInteraction();
-  const reveal = useRevealGravityContent();
-  const activateTutor = useCallback(() => {
-    reveal?.();
-    setSelected("tutor");
-  }, [reveal]);
   const tabs = [
     { key: primary, label: t(`experimentViews.${primary}`) },
     { key: "calculator", label: t("calculatorTab") },
-    { key: "tutor", label: tutorText("shortLabel") },
   ];
   const select = (key: string) => {
     hover(null);
@@ -39,7 +28,7 @@ export const GravityContentTabs = ({ primary, children, calculator, tutor }: {
     <section data-gravity-content-tabs={primary}
       className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-lab-line bg-linear-to-br from-[#131724] to-[#0e121d] text-lab-text">
       <div role="tablist" aria-label={t("experimentViews.label")}
-        className="m-2.5 grid shrink-0 grid-cols-3 gap-1 rounded-xl border border-violet-300/25 bg-slate-950/30 p-1">
+        className="m-2.5 grid shrink-0 grid-cols-2 gap-1 rounded-xl border border-violet-300/25 bg-slate-950/30 p-1">
         {tabs.map((tab, index) => (
           <button key={tab.key} ref={element => { buttons.current[index] = element; }}
             type="button" role="tab" id={`${id}-tab-${tab.key}`} data-content-tab={tab.key}
@@ -63,8 +52,7 @@ export const GravityContentTabs = ({ primary, children, calculator, tutor }: {
           aria-labelledby={`${id}-tab-${tab.key}`} tabIndex={0}
           hidden={selected !== tab.key} inert={selected !== tab.key} aria-hidden={selected !== tab.key}
           className={selected === tab.key ? "flex min-h-0 min-w-0 flex-1 flex-col focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-violet-300" : "hidden"}>
-          {tab.key === primary ? children : tab.key === "calculator" ? calculator :
-            tutor({ active: selected === "tutor", onActivate: activateTutor, embedded: true })}
+          {tab.key === primary ? children : calculator}
         </div>
       ))}
     </section>

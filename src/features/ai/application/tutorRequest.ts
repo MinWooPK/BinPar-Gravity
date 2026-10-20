@@ -1,3 +1,4 @@
+import { isThreeBodyTutorContext } from "./threeBodyTutorContext";
 import { gravityStages } from "../../gravity/application/gravityJourney";
 import { laboratoryLimits } from "../../gravity/domain/gravitation";
 import { isTutorRequest as isLegacyTutorRequest } from "./legacyTutorRequest";
@@ -20,13 +21,12 @@ const inRange = (value: unknown, min: number, max: number) =>
   value <= max;
 export const isTutorContext = (value: unknown): value is TutorContext => {
   if (!isRecord(value)) return false;
+  if (value.kind === "home")
+    return value.stage === null && hasOnlyKeys(value, ["kind", "stage"]);
+  if (value.kind === "three-body") return isThreeBodyTutorContext(value);
   if (
     value.kind !== "gravity" ||
-    !hasOnlyKeys(value, [
-      "kind",
-      "stage",
-      "parameters",
-    ])
+    !hasOnlyKeys(value, ["kind", "stage", "parameters"])
   )
     return false;
   if (
@@ -72,7 +72,9 @@ export const isTutorRequest = (value: unknown): value is TutorRequest => {
     value.messages.length > TUTOR_MAX_MESSAGES
   )
     return false;
-  if (value.intent !== undefined) {
+  if (value.intent === "explain_context" && value.mode !== "explain")
+    return false;
+  if (value.intent !== undefined && value.intent !== "explain_context") {
     const stage =
       value.intent === "explain_formula"
         ? "gravity-understanding"
@@ -132,7 +134,6 @@ export const parseTutorRequest = (value: unknown): TutorRequest | null => {
         mass2: value.parameters.mass2,
         distance: value.parameters.distance,
       },
-
     },
     messages: [{ role: "user", content: legacyQuestions[value.locale] }],
   };

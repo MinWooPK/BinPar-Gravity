@@ -24,6 +24,7 @@ export const decideTutorProposal = (
   const fresh =
     target?.context.kind === "gravity" &&
     target.context.stage !== "gravity-understanding" &&
+    target.context.stage !== "gravity-challenges" &&
     target.gravity &&
     target.gravity.apply === proposal.source.apply &&
     target.gravity.revision === proposal.source.revision &&

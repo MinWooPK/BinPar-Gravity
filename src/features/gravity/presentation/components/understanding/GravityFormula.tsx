@@ -1,5 +1,7 @@
 "use client";
 
+import { ExplainWithAI } from "@/features/ai/presentation/components/ExplainWithAI";
+import { GravityFormulaTutor } from "./GravityFormulaTutor";
 import { useEffect, useId, useRef } from "react";
 import type { ReactNode, RefObject } from "react";
 import { useFormatter, useTranslations } from "next-intl";
@@ -10,6 +12,7 @@ import { laboratoryLimits } from "../../../domain/gravitation";
 import {
   useGravityControls,
   useGravityFormulaDraft,
+  useGravityParameters,
 } from "../../providers/GravityParametersProvider";
 import { useGravityFormulaInteraction } from "./GravityFormulaInteraction";
 import type { FormulaTerm } from "../../../types/formula.types";
@@ -105,6 +108,7 @@ const GravityFormulaContent = ({
   const t = useTranslations("Gravity");
   const format = useFormatter();
   const id = useId();
+  const { parameters } = useGravityParameters();
   const {
     values,
     unknown,
@@ -137,23 +141,15 @@ const GravityFormulaContent = ({
       values[key].trim() !== "" &&
       parseFormulaValue(values[key]) === null,
   );
-  const rangeError =
-    (result !== null && !isInLaboratoryRange(result)) ||
-    fields.some(({ key }) => {
-      if (key === "force" || key === unknown) return false;
-      const value = parseFormulaValue(values[key]);
-      return (
-        value !== null &&
-        (value < laboratoryLimits[key].min || value > laboratoryLimits[key].max)
-      );
-    });
+  const rangeError = result !== null && !numericalError &&
+    invalidFields.length === 0 && !isInLaboratoryRange(result);
   const status =
     invalidFields.length > 0
       ? t("invalidFormulaValue", { symbol: invalidFields[0].symbol })
       : numericalError
         ? t("numericalError")
         : rangeError
-          ? t("outsideLabRange")
+          ? `${t("outsideLabRange")} ${t("outsideLabRangeConsequence")}`
           : result && unknown
             ? t("automaticResult", {
                 symbol: fields.find(({ key }) => key === unknown)!.symbol,
@@ -174,7 +170,7 @@ const GravityFormulaContent = ({
       }}
     >
       <div className={styles.header}>
-        <h3 id={`${id}-heading`}>{t("introFormulaTitle")}</h3>
+        <h3 id={`${id}-heading`}>{t("introFormulaTitle")} <ExplainWithAI topic="formula" /></h3>
         <div className={styles.headerActions}>
           <button
             ref={resetButtonRef}
@@ -311,12 +307,57 @@ const GravityFormulaContent = ({
       </div>
 
       <GravityFormulaLegend id={id} />
+      {rangeError && (
+        <section data-formula-range-warning className={styles.rangeWarning}
+          aria-labelledby={`${id}-range-heading`}>
+          <div className="flex items-start gap-3">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+              className="mt-0.5 size-6 shrink-0 text-amber-300">
+              <path d="M10.3 3.9 2.1 18.1A2 2 0 0 0 3.8 21h16.4a2 2 0 0 0 1.7-2.9L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+              <path d="M12 9v4M12 17h.01" />
+            </svg>
+            <div className="min-w-0 space-y-2">
+              <h4 id={`${id}-range-heading`} className="text-base leading-snug font-semibold text-amber-100 sm:text-lg">
+                {t("outsideLabRange")}
+              </h4>
+              <p>{t("outsideLabRangeDescription")}</p>
+            </div>
+          </div>
+          <ul className="list-inside list-disc space-y-1 font-medium text-amber-100">
+            <li>{t("outsideLabMassLimits", {
+              min: format.number(laboratoryLimits.mass1.min),
+              max: format.number(laboratoryLimits.mass1.max),
+            })}</li>
+            <li>{t("outsideLabDistanceLimits", {
+              min: format.number(laboratoryLimits.distance.min),
+              max: format.number(laboratoryLimits.distance.max),
+            })}</li>
+          </ul>
+          <p className="border-t border-amber-300/20 pt-3">{t("outsideLabRangeConsequence")}</p>
+          <div className="rounded-lg bg-slate-950/30 p-3">
+            <p className="mb-2 font-medium text-amber-100">{t("outsideLabCurrentValues")}</p>
+            <dl className="flex flex-wrap gap-x-5 gap-y-2 tabular-nums">
+              {fields.map(field => field.key !== "force" && (
+                <div key={field.key} className="min-w-0">
+                  <dt className="text-xs text-amber-100/80">{t(field.label)}</dt>
+                  <dd className="font-semibold text-amber-50">
+                    {formatValue(parameters[field.key])} {field.unit}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </section>
+      )}
+      {/* Keep the announcement stable during out-of-range edits. Current laboratory
+          values remain readable above without becoming a second live region. */}
       <p
         id={`${id}-status`}
         role="status"
         aria-atomic="true"
         className={
-          invalidFields.length > 0 || numericalError || rangeError
+          rangeError ? "sr-only" : invalidFields.length > 0 || numericalError
             ? styles.error
             : styles.help
         }
@@ -437,9 +478,10 @@ export const GravityFormulaEducation = () => {
       }}
     >
       <div className={styles.header}>
-        <h3 id={`${id}-heading`}>{t("introFormulaTitle")}</h3>
+        <h3 id={`${id}-heading`}>{t("introFormulaTitle")} <ExplainWithAI topic="formula" /></h3>
       </div>
       <p className="sr-only">{t("formulaSpoken")}</p>
+      <GravityFormulaTutor />
       <GravityEquation id={id} />
       <div className="grid min-w-0 gap-3">
         {fields.map((field) => (

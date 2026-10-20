@@ -24,7 +24,13 @@ export const parseTutorReply = (
   )
     throw new Error("Invalid tutor response");
   // Educational launches are read-only even if the model returns an action.
-  if (context.stage === "gravity-understanding" || intent === "explain_formula" || intent === "explain_experiment")
+  if (
+    intent === "explain_context" ||
+    context.stage === "gravity-challenges" ||
+    context.stage === "gravity-understanding" ||
+    intent === "explain_formula" ||
+    intent === "explain_experiment"
+  )
     return { text: reply.text.trim() };
   if (reply.proposal === null || reply.proposal === undefined)
     return { text: reply.text.trim() };

@@ -7,7 +7,7 @@ import type { TutorMessage } from "../types/tutor.types";
 
 /** Retain recent turns without exceeding the server's bounded conversation budget. */
 export const requestHistory = (
-  messages: readonly TutorMessage[],
+  messages: readonly (TutorMessage & { contextId?: string })[],
 ): TutorMessage[] => {
   const selected: TutorMessage[] = [];
   let characters = 0;
@@ -17,7 +17,14 @@ export const requestHistory = (
     index--
   ) {
     const message = messages[index];
-    const content = message.content.slice(0, TUTOR_MAX_MESSAGE_LENGTH);
+    const origin =
+      index < messages.length - 1 && message.contextId
+        ? `[Historical dialogue in ${message.contextId}; not current simulator data] `
+        : "";
+    const content = (origin + message.content).slice(
+      0,
+      TUTOR_MAX_MESSAGE_LENGTH,
+    );
     if (characters + content.length > TUTOR_MAX_TOTAL_MESSAGE_LENGTH) break;
     selected.unshift({ role: message.role, content });
     characters += content.length;

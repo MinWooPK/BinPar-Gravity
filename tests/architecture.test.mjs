@@ -73,12 +73,12 @@ test("client entry points cannot reach server-only modules or infrastructure", (
   }
 });
 
-test("Three Body features have no dependency on the AI tutor", () => {
+test("Three Body numerical modules have no dependency on the AI tutor", () => {
   const visit = (file, visited = new Set()) => {
     if (visited.has(file)) return;
     visited.add(file);
     assert.ok(!file.startsWith("src/features/ai/"), file);
     for (const { target } of modules.get(file).dependencies) if (target) visit(target, visited);
   };
-  for (const file of files) if (file.startsWith("src/features/three-body/")) visit(file);
+  for (const file of files) if (/^src\/features\/three-body\/(domain|data|application)\//.test(file)) visit(file);
 });

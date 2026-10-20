@@ -6,6 +6,7 @@ import fs from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import assert from "node:assert/strict";
+import { checkGravityRangeWarning } from "./check-gravity-range-warning.mjs";
 const chromePath =
   process.env.CHROME_PATH ||
   [
@@ -141,7 +142,7 @@ const delay = (ms) => new Promise((r) => setTimeout(r, ms));
     source: `(()=>{window.aiCalls=0;const original=fetch;window.fetch=(url,...args)=>{if(String(url).includes('/api/ai')){window.aiCalls++;return Promise.resolve(Response.json({text:'Test reply'}));}return original(url,...args)}})()`,
   });
   const root = "#gravity-laboratory";
-  const tab = (view) => `${root} [data-experiment-view=${view}]`;
+  const tab = (view) => `${root} [data-content-tab=${view === "formula" ? "calculator" : view}]`;
   const values = () =>
     evaluate(
       `[...document.querySelectorAll('${root} input[type=range]')].map(e=>Number(e.value))`,
@@ -179,8 +180,8 @@ const delay = (ms) => new Promise((r) => setTimeout(r, ms));
     await evaluate(`document.querySelector('${tab("experiment")}').focus()`);
     await press("ArrowRight");
     assert.equal(
-      await evaluate(`document.activeElement.dataset.experimentView`),
-      "formula",
+      await evaluate(`document.activeElement.dataset.contentTab`),
+      "calculator",
     );
     assert.equal(
       await evaluate(`document.querySelectorAll('dialog[open]').length`),
@@ -213,6 +214,24 @@ const delay = (ms) => new Promise((r) => setTimeout(r, ms));
     );
     assert.deepEqual(await values(), [79, 40, 12]);
     await input("mass1", "80");
+    // A solved out-of-range edit preserves physics and announces a stable warning.
+    const warning = `${root} [data-formula-range-warning]`;
+    await input("mass1", "101");
+    assert.ok(await evaluate(`!!document.querySelector('${warning}')`));
+    assert.deepEqual(await values(), [80, 40, 12]);
+    assert.deepEqual(await evaluate(`[...document.querySelectorAll('${warning} dd')].map(e=>e.textContent.trim())`), ["80 kg", "40 kg", "12 m"]);
+    const rangeStatus = await evaluate(`document.getElementById(document.querySelector('${root} input[name=mass1]').getAttribute('aria-describedby').split(' ')[1]).textContent`);
+    await input("mass1", "102");
+    assert.equal(await evaluate(`document.getElementById(document.querySelector('${root} input[name=mass1]').getAttribute('aria-describedby').split(' ')[1]).textContent`), rangeStatus);
+    await input("mass2", "");
+    assert.equal(await evaluate(`!!document.querySelector('${warning}')`), false);
+    await input("mass2", "abc");
+    assert.equal(await evaluate(`!!document.querySelector('${warning}')`), false);
+    assert.equal(await evaluate(`document.querySelector('${root} input[name=mass2]').getAttribute('aria-invalid')`), "true");
+    await input("mass2", "40");
+    assert.ok(await evaluate(`!!document.querySelector('${warning}')`));
+    await input("mass1", "80");
+    assert.equal(await evaluate(`!!document.querySelector('${warning}')`), false);
     await click(`${root} [data-unknown-variable=mass2]`);
     await click(tab("experiment"));
     await click(tab("formula"));
@@ -275,8 +294,9 @@ const delay = (ms) => new Promise((r) => setTimeout(r, ms));
       deviceScaleFactor: 1,
       mobile: false,
     });
-    await click(`${root} [data-panel-toggle=right]`);
-    await click(`${root} [data-panel-toggle=right]`);
+    assert.equal(await evaluate(`document.querySelectorAll('${root} [data-panel-toggle=right]').length`), 0);
+    await click(`${root} [data-panel-toggle=left]`);
+    await click(`${root} [data-panel-toggle=left]`);
     assert.equal(
       await evaluate(
         `document.querySelector('${tab("formula")}').getAttribute('aria-selected')`,
@@ -292,7 +312,7 @@ const delay = (ms) => new Promise((r) => setTimeout(r, ms));
     );
     assert.ok(
       await evaluate(
-        `!!document.querySelector('#gravity-understanding [data-explain-formula]')`,
+        `!!document.querySelector('#gravity-understanding [data-explain-topic=formula]')`,
       ),
     );
     assert.equal(
@@ -308,6 +328,19 @@ const delay = (ms) => new Promise((r) => setTimeout(r, ms));
       ),
       "true",
     );
+    for (const stage of ["gravity-understanding", "gravity-laboratory"]) {
+      await click(`[data-stage-tag=${stage}]`);
+      await click(`#${stage} [data-content-tab=calculator]`);
+      await checkGravityRangeWarning({
+        call, evaluate, locale, root: `#${stage}`, presentation: stage,
+        physicalValues: values,
+        input: async (selector, text) => {
+          await evaluate(`document.querySelector(${q(selector)}).focus();document.querySelector(${q(selector)}).select()`);
+          await call("Input.insertText", { text });
+          await press("Tab");
+        },
+      });
+    }
     await click("[data-stage-tag=gravity-challenges]");
     assert.ok(await evaluate(`!!document.querySelector('[data-practice]')`));
     assert.equal(await evaluate("window.aiCalls"), 0);

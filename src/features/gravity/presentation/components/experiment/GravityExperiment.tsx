@@ -4,7 +4,7 @@ import { useId } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { compareGravitation } from "../../../domain/compareGravitation";
 import type { GravityParameters } from "../../../types/gravity.types";
-import { GravityExperimentTutor } from "./GravityExperimentTutor";
+import { ExplainWithAI } from "@/features/ai/presentation/components/ExplainWithAI";
 import { GravityForceComparison } from "./GravityForceComparison";
 import { GravitySlider, gravityControls } from "./GravitySlider";
 import { GravityFormula } from "../understanding/GravityFormula";
@@ -38,7 +38,6 @@ export const GravityExperiment = ({
     <GravityContentTabs
       primary="experiment"
       calculator={<GravityFormula variant="embedded" />}
-      tutor={(panel) => <GravityExperimentTutor {...panel} />}
     >
       <section
         aria-label={t("experimentHeading")}
@@ -46,7 +45,7 @@ export const GravityExperiment = ({
       >
         <div className={styles["lab-header"]}>
           <h3 id={`${id}-heading`} className={styles.heading}>
-            {t("experimentHeading")}
+            {t("experimentHeading")} <ExplainWithAI topic="simulation" />
           </h3>
           <div className={styles.headerActions}>
             <button

@@ -44,7 +44,9 @@ test("the gravity experiment has all its directly referenced messages", () => {
 });
 
 test("laboratory synchronization and reset instructions are translated using everyday SI units", () => {
-  const required = ["formulaAutomaticSync", "formulaPendingSync", "resetLaboratoryHint", "outsideLabRange"];
+  const required = ["formulaAutomaticSync", "formulaPendingSync", "resetLaboratoryHint", "outsideLabRange",
+    "outsideLabRangeDescription", "outsideLabMassLimits", "outsideLabDistanceLimits",
+    "outsideLabRangeConsequence", "outsideLabCurrentValues"];
   for (const { locale, messages } of dictionaries) {
     for (const key of required) {
       assert.equal(typeof messages.Gravity[key], "string", `${locale}: Gravity.${key}`);
@@ -52,8 +54,8 @@ test("laboratory synchronization and reset instructions are translated using eve
     }
     assert.match(messages.Gravity.baseline, /40 kg/);
     assert.match(messages.Gravity.baseline, /8 m/);
-    assert.match(messages.Gravity.outsideLabRange, /10–100 kg/);
-    assert.match(messages.Gravity.outsideLabRange, /5–20 m/);
+    assert.match(messages.Gravity.outsideLabMassLimits, /\{min\}.*\{max\} kg/);
+    assert.match(messages.Gravity.outsideLabDistanceLimits, /\{min\}.*\{max\} m/);
     assert.doesNotMatch(JSON.stringify(Object.fromEntries(Object.entries(messages.Gravity).filter(([key]) => !key.startsWith("siConversions")))), /10¹²|\bkm\b|kilom(?:et|èt)/);
   }
 });

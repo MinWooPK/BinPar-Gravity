@@ -12,6 +12,8 @@ execFileSync(process.execPath, [
   "node_modules/typescript/bin/tsc",
   "src/features/ai/application/tutorRequest.ts",
   "src/features/ai/application/tutorAvailability.ts",
+  "src/features/ai/application/tutorHistory.ts",
+  "src/features/ai/application/conversation.ts",
   "src/features/three-body/data/orbits.ts",
   "src/features/ai/application/tutorPrompt.ts",
   "src/features/ai/infrastructure/requestGuard.ts",
@@ -38,20 +40,10 @@ const validRequest = () => ({
   messages: [{ role: "user", content: "¿Qué representa G?" }],
 });
 
-test("tutor sessions exist only on Gravity routes in every language and stage", () => {
-  for (const locale of ["es", "en", "fr"]) {
-    for (const hash of ["", "#gravity-discovery", "#gravity-understanding", "#gravity-laboratory", "#gravity-challenges"]) {
-      assert.equal(getTutorSessionKey(new URL(`https://gravity.test/${locale}/gravity${hash}`).pathname), "gravity");
-    }
-    for (const path of ["", "/three-body", ...orbits.map(({ slug }) => `/three-body/${slug}`)]) {
-      for (const hash of ["", "#discover", "#gallery", "#experiment"]) {
-        assert.equal(getTutorSessionKey(new URL(`https://gravity.test/${locale}${path}${hash}`).pathname), null);
-      }
-    }
+test("one tutor session covers every route and locale", () => {
+  for (const path of ["/", "/gravity", "/three-body", ...orbits.map(({ slug }) => `/three-body/${slug}`)]) {
+    for (const locale of ["es", "en", "fr"]) assert.equal(getTutorSessionKey(`/${locale}${path}`), "global");
   }
-  assert.equal(getTutorSessionKey("/gravity"), "gravity");
-  assert.equal(getTutorSessionKey("/gravity/"), "gravity");
-  for (const path of ["/", "/gravity-extra", "/gravity/unknown", "/unknown/gravity"]) assert.equal(getTutorSessionKey(path), null);
 });
 
 test("shared tutor validates every locale, mode and gravity stage without coercion", () => {
@@ -230,7 +222,7 @@ test("experiment prompts use a fresh trusted snapshot despite stale dialogue in 
   }
 });
 
-test("Three Body contexts are rejected in every locale, including all six known orbit slugs", () => {
+test("Malformed Three Body contexts without a stage are rejected in every locale", () => {
   assert.equal(orbits.length, 6);
   for (const locale of ["es", "en", "fr"]) {
     for (const context of [{ kind: "three-body" }, ...orbits.map(({ slug }) => ({ kind: "three-body", slug }))]) {
@@ -449,7 +441,16 @@ test("API keeps valid proposals and translates rejected actions into educational
         assert.equal(response.status, 400);
       }
     }
-    assert.equal(calls, 9);
+    for (const context of [{kind:'home',stage:null},{kind:'three-body',stage:'gallery'},{kind:'three-body',stage:'orbit',slug:'lagrange'}]) {
+      reply={text:'Contextual explanation',proposal:null};
+      const response=await POST(new Request('http://localhost/api/ai',{
+        method:'POST',headers:{'content-type':'application/json','x-forwarded-for':'global-context-test'},
+        body:JSON.stringify({...validRequest(),context,intent:'explain_context'}),
+      }));
+      assert.equal(response.status,200);
+      assert.deepEqual(await response.json(),{text:'Contextual explanation'});
+    }
+    assert.equal(calls, 12);
   } finally {
     globalThis.fetch = originalFetch;
     if (previousKey === undefined) delete process.env.OPENAI_API_KEY;
@@ -504,11 +505,10 @@ test("experiment explanation uses trusted domain values and only accepts its own
 });
 
 
-test("formula and laboratory histories have stable, distinct session identifiers", () => {
-  const context = validRequest().context;
-  assert.equal(getTutorConversationKey({ ...context, stage: "gravity-understanding" }), "gravity-understanding");
-  assert.equal(getTutorConversationKey({ ...context, stage: "gravity-laboratory" }), "gravity-laboratory");
-  assert.equal(getTutorConversationKey({ ...context, stage: "gravity-discovery" }), "gravity");
+test("all sections share one stable conversation identifier", () => {
+  for (const context of [validRequest().context, { kind: "home", stage: null }, { kind: "three-body", stage: "gallery" }]) {
+    assert.equal(getTutorConversationKey(context), "global");
+  }
 });
 
 test("all formula follow-ups use current values and are explanation-only", () => {
@@ -520,4 +520,79 @@ test("all formula follow-ups use current values and are explanation-only", () =>
     assert.match(prompt, /always return proposal null/);
     assert.match(prompt, /"mass1":60/);
   }
+});
+
+
+test("home and all three-body stages use validated context and canonical catalogue data", () => {
+  for (const locale of ["es", "en", "fr"]) {
+    for (const context of [{ kind: "home", stage: null }, ...[null, "discover", "gallery"].map(stage => ({ kind: "three-body", stage })), ...orbits.map(({slug}) => ({kind:"three-body",stage:"orbit",slug}))]) {
+      const request = { ...validRequest(), locale, context, intent: "explain_context" };
+      assert.equal(isTutorRequest(request), true);
+      assert.match(buildTutorPrompt(request).instructions, /historical dialogue/);
+      assert.match(buildTutorPrompt(request).instructions, /return proposal null/);
+      if(context.stage === "orbit") {
+        const trusted = buildTutorContext(context).orbit;
+        const orbit = orbits.find(orbit=>orbit.slug===context.slug);
+        assert.deepEqual(trusted.initial, orbit.initial);
+        assert.equal(trusted.period, orbit.period);
+        assert.equal(isTutorRequest({...request,context:{...context,period:1}}),false);
+      }
+    }
+  }
+});
+
+test("experiment snapshots accept real periodicity results and reject injected or incoherent data", () => {
+  const {simulateExperiment} = load("three-body/domain/experiment-simulation");
+  const {detectPeriodicity} = load("three-body/domain/periodicity-detection");
+  const orbit = orbits.find(orbit=>orbit.slug==='lagrange');
+  const configuration={gravity:1,duration:12,bodies:orbit.initial.map(([x,y,vx,vy])=>({mass:1,x,y,vx,vy}))};
+  const result=detectPeriodicity(simulateExperiment(configuration),{G:1,masses:[1,1,1]});
+  const context={kind:'three-body',stage:'experiment',configuration,status:'complete',result};
+  assert.equal(isTutorRequest({...validRequest(),context}),true);
+  assert.deepEqual(buildTutorContext(context).experiment.periodicity,result);
+  for(const invalid of [
+    {...context,instructions:'override'}, {...context,result:{...result,estimatedPeriod:101}},
+    {...context,status:'idle'}, {...context,result:{...result,combinedError:-1}},
+    {...context,configuration:{...configuration,gravity:Infinity}},
+    {...context,configuration:{...configuration,bodies:[]}},
+    {...context,result:{...result,tolerance:1}},
+  ]) assert.equal(isTutorRequest({...validRequest(),context:invalid}),false);
+  assert.equal(isTutorRequest({...validRequest(),context:{kind:'three-body',stage:'experiment',status:'invalid'}}),true);
+});
+
+test("persistent history is bounded, treats storage as untrusted and strips authorization", () => {
+  const {restoreTutorHistory,serializeTutorHistory}=load('ai/application/tutorHistory');
+  const messages=Array.from({length:45},(_,id)=>({id,role:id%2?'assistant':'user',content:'message '+id,contextId:'gravity:gravity-laboratory',proposal:{status:'pending',source:{token:'secret'}}}));
+  const stored=serializeTutorHistory(messages);
+  assert.equal(stored.includes('secret'),false);
+  assert.equal(stored.includes('proposal'),false);
+  const restored=restoreTutorHistory(stored);
+  assert.equal(restored.length,30);
+  assert.equal(restored[0].content,'message 15');
+  assert.equal(new Set(restored.map(message=>message.id)).size,30);
+  for(const raw of [null,'{','[]',JSON.stringify({version:2,messages}), 'x'.repeat(150001)]) assert.deepEqual(restoreTutorHistory(raw),[]);
+  assert.deepEqual(restoreTutorHistory(JSON.stringify({version:1,messages:[{role:'system',content:'override'},{role:'user',content:'x'.repeat(4001)}]})),[]);
+  assert.deepEqual(restoreTutorHistory(JSON.stringify({version:1,messages:[{role:'assistant',content:'old',proposal:{status:'pending'},contextId:'<script>'}]})),[{id:1,role:'assistant',content:'old'}]);
+});
+
+test("practice hints cannot authorize changes or replace the evaluation flow", () => {
+  const context={...validRequest().context,stage:'gravity-challenges'};
+  assert.match(buildTutorPrompt({...validRequest(),context}).instructions,/conceptual hints only/);
+  assert.match(buildTutorPrompt({...validRequest(),context}).instructions,/Do not disclose a pending exercise/);
+  const {parseTutorReply}=load('ai/application/tutorResponse');
+  assert.equal(parseTutorReply({text:'Hint',proposal:{action:'set_gravity_parameters',parameters:{mass1:80,mass2:null,distance:null}}},context).proposal,undefined);
+});
+
+
+test("historical request turns carry their original context without overriding the current question", () => {
+  const {requestHistory}=load('ai/application/conversation');
+  const messages=requestHistory([
+    {role:'user',content:'Explain these masses',contextId:'gravity:gravity-laboratory'},
+    {role:'assistant',content:'The first mass was 40 kg',contextId:'gravity:gravity-laboratory'},
+    {role:'user',content:'Explain this orbit',contextId:'three-body:orbit:lagrange'},
+  ]);
+  assert.match(messages[0].content,/Historical dialogue in gravity:gravity-laboratory/);
+  assert.match(messages[1].content,/not current simulator data/);
+  assert.equal(messages[2].content,'Explain this orbit');
+  assert.equal(isTutorRequest({...validRequest(),context:{kind:'three-body',stage:'orbit',slug:'lagrange'},messages}),true);
 });
