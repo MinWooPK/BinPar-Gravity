@@ -388,6 +388,8 @@
     "explainFormula": "Explique-moi cette formule",
     "formulaQuestion": "Explique cette formule avec les valeurs actuelles de mon laboratoire. Que signifient F, G, m₁, m₂ et r, pourquoi la distance est-elle au carré et comment lire la notation scientifique ? Utilise un exemple simple sans modifier les paramètres.",
     "proposalRejected": "Je ne peux pas proposer de modification applicable avec ces valeurs. Le laboratoire accepte des masses de 10 à 100 kg par pas de 1 kg et des distances de 5 à 20 m par pas de 0,1 m. Rien n’a changé. Précisez une masse ou une distance dans ces limites ; nous pouvons expliquer d’autres cas sans modifier le simulateur.",
+    "proposalRejectedThreeBody": "Je ne peux pas appliquer cette configuration. Vérifie que G et les masses sont positifs, que la durée ne dépasse pas 100 et que les corps ne sont pas trop proches. Ton brouillon est conservé.",
+    "proposalThreeBodyNote": "Les valeurs sont sans dimension. Appliquer actualise l’aperçu et efface la simulation précédente. Appuie sur « Lancer la simulation » pour calculer la nouvelle trajectoire.",
     "proposalTitle": "Modifications proposées",
     "proposalTo": "à",
     "proposalForce": "Force prévue : {before} N → {after} N.",
@@ -514,6 +516,7 @@
     },
     "backToSolutions": "Retour aux solutions",
     "detail": {
+      "explainQuestion": "Explique-moi l’orbite {name} : comment les trois corps se déplacent, ce qui la caractérise et son lien avec ses conditions initiales.",
       "simulationTitle": "Simulation orbitale",
       "orbitIndex": "Orbite {number} / {total}",
       "period": "Période",

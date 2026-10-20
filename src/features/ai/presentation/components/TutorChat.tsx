@@ -4,6 +4,7 @@ import { useEffect, useRef, type RefObject } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowUp, Sparkles } from "@/components/icons";
 import { TUTOR_MAX_MESSAGE_LENGTH } from "../../application/tutor";
+import type { TutorProposal } from "../../types/proposal.types";
 import type { TutorRequest } from "../../types/tutor.types";
 import { useTutorConversation } from "../hooks/useTutorConversation";
 import { useTutorEnvironment } from "../providers/tutorEnvironment";
@@ -23,12 +24,13 @@ export type TutorQuickAction = {
 };
 
 /** Single chat presentation; the global provider owns history and requests. */
-export const TutorChat = ({ id, actions, active = true, inputRef, configure = false, onSubmit, onConfigure }: {
+export const TutorChat = ({ id, actions, active = true, inputRef, configure = false, onSubmit, onConfigure, onApplied }: {
   id: string;
   actions?: readonly TutorQuickAction[];
   active?: boolean;
   inputRef?: RefObject<HTMLTextAreaElement | null>;
   configure?: boolean;
+  onApplied?: (proposal: TutorProposal) => void;
   onSubmit?: () => void;
   onConfigure?: () => void;
 }) => {
@@ -63,7 +65,7 @@ export const TutorChat = ({ id, actions, active = true, inputRef, configure = fa
               <span className="sr-only">{t(message.role === "user" ? "userLabel" : "assistantLabel")}: </span>
               <small className="mb-1.5 block text-[11px] leading-snug text-slate-400">{t("historicalMessage", { context: tutorContextLabel(message.contextId, t) })}</small>
               <p>{message.content}</p>
-              {message.proposal && <TutorProposalCard proposal={message.proposal} onDecision={decision => decideProposal(message.id, decision)} />}
+              {message.proposal && <TutorProposalCard proposal={message.proposal} onDecision={decision => { if (decideProposal(message.id, decision) && message.proposal) onApplied?.(message.proposal); }} />}
             </div>
           ))}
         </div>

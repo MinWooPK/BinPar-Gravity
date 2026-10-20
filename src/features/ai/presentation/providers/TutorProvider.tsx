@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname } from "@/i18n/navigation";
+import type { ThreeBodyProposalPort } from "../../types/proposal.types";
 import type { TutorContext } from "../../types/tutor.types";
 import { routeTutorContext } from "../../application/tutorAvailability";
 import {
@@ -25,6 +26,13 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
   const [published, setPublished] = useState<PublishedContext | null>(null);
   const publishedRef = useRef<PublishedContext | null>(null);
+  const [threeBody, setThreeBody] = useState<ThreeBodyProposalPort | null>(null);
+  const threeBodyRef = useRef<ThreeBodyProposalPort | null>(null);
+  const registerThreeBody = useCallback((port: ThreeBodyProposalPort) => {
+    threeBodyRef.current = port;
+    setThreeBody(port);
+    return () => { if (threeBodyRef.current === port) { threeBodyRef.current = null; setThreeBody(null); } };
+  }, []);
   const highlightRef = useRef<
     ((term: "constant" | "masses" | "distance" | null) => void) | null
   >(null);
@@ -67,16 +75,21 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
   }, []);
   const current = useCallback((): PublishedContext => {
     const value = publishedRef.current;
-    return value?.pathname === pathname
-      ? value
-      : { pathname, context: routeTutorContext(pathname) };
+    const page = value?.pathname === pathname ? value : { pathname, context: routeTutorContext(pathname) };
+    const port = threeBodyRef.current;
+    return page.context.kind === "three-body" && port
+      ? { ...page, threeBody: port, context: { ...page.context, ...(port.configuration && { draftConfiguration: port.configuration }) } }
+      : page;
   }, [pathname]);
-  const context =
+  const pageContext =
     published?.pathname === pathname
       ? published.context
       : routeTutorContext(pathname);
+  const context = useMemo<TutorContext>(() => pageContext.kind === "three-body" && threeBody?.configuration
+    ? { ...pageContext, draftConfiguration: threeBody.configuration } : pageContext, [pageContext, threeBody]);
   const environment = useMemo(
     () => ({
+      registerThreeBody,
       sessionKey: "global" as const,
       activeSessionId: "global" as const,
       context,
@@ -95,6 +108,7 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
       registerLauncher,
       registerHighlight,
       highlight,
+      registerThreeBody,
     ],
   );
   return (

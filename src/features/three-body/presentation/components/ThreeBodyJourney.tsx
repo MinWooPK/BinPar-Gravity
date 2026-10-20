@@ -1,6 +1,7 @@
 "use client";
 
 import { TutorContextBridge } from "@/features/ai/presentation/providers/TutorProvider";
+import { useThreeBodyExperiment } from "../providers/ThreeBodyExperimentProvider";
 import { GalleryIntroduction } from "./gallery/GalleryIntroduction";
 // import { ExplainWithAI } from "@/features/ai/presentation/components/ExplainWithAI";
 import {
@@ -31,6 +32,7 @@ export const ThreeBodyJourney = ({
 }) => {
   const t = useTranslations("ThreeBody.journey");
   const { update } = useGalleryState();
+  const { registerNavigator } = useThreeBodyExperiment();
   // The server and first client render agree; hashes are read after hydration.
   const [activeStage, setActiveStage] = useState<ThreeBodyStageId | null>(null);
   const [leaving, setLeaving] = useState(false);
@@ -83,6 +85,8 @@ export const ThreeBodyJourney = ({
     },
     [activateStage],
   );
+
+  useLayoutEffect(() => registerNavigator(() => selectStage("experiment", true)), [registerNavigator, selectStage]);
 
   const returnToJourney = useCallback(() => {
     window.history.pushState(

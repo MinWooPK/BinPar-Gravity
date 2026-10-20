@@ -1,3 +1,4 @@
+import { isExperimentConfiguration } from "../../three-body/application/experimentConfiguration";
 import { orbits } from "../../three-body/data/orbits";
 import type { TutorContext } from "../types/tutor.types";
 
@@ -18,6 +19,7 @@ export function isThreeBodyTutorContext(
 ): value is ThreeBodyContext {
   if (
     !keys(value, [
+      "draftConfiguration",
       "kind",
       "stage",
       "slug",
@@ -25,11 +27,12 @@ export function isThreeBodyTutorContext(
       "result",
       "status",
     ]) ||
-    ![null, "discover", "gallery", "experiment", "orbit"].includes(
+    ![null, "discover", "understand", "gallery", "experiment", "orbit"].includes(
       value.stage as null,
     )
   )
     return false;
+  if (value.draftConfiguration !== undefined && !isExperimentConfiguration(value.draftConfiguration)) return false;
   if (value.stage === "orbit")
     return (
       typeof value.slug === "string" &&
@@ -129,6 +132,7 @@ export function buildThreeBodyTutorContext(context: ThreeBodyContext) {
   return {
     kind: context.kind,
     stage: context.stage,
+    freeExperimentDraft: context.draftConfiguration ?? null,
     model:
       "Three point masses interacting through Newtonian gravity, integrated with the existing adaptive RK4; dimensionless units.",
     gallery: orbits.map(({ slug, name, category, description }) => ({

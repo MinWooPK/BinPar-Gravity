@@ -35,13 +35,8 @@ export const OrbitGallery = ({
   animationData,
   active = true,
 }: OrbitGalleryProps) => {
-  const { state, update } = useGalleryState();
+  const { state, update, toggleOrbit } = useGalleryState();
   const t = useTranslations("ThreeBody");
-
-  // Estado de reproducción de cada órbita.
-  const [playingByOrbit, setPlayingByOrbit] = useState<Record<string, boolean>>(
-    {},
-  );
 
   // Número de tarjetas por página según el dispositivo.
   const [itemsPerPage, setItemsPerPage] = useState(1);
@@ -121,17 +116,6 @@ export const OrbitGallery = ({
     update({
       galleryPage: currentPage - 1,
     });
-  };
-
-  // ======================================
-  // REPRODUCCIÓN
-  // ======================================
-
-  const toggleOrbit = (slug: string) => {
-    setPlayingByOrbit((current) => ({
-      ...current,
-      [slug]: !current[slug],
-    }));
   };
 
   // ======================================
@@ -274,7 +258,7 @@ export const OrbitGallery = ({
           style={{ transform: trackTransform }}
         >
           {filteredOrbits.map((orbit, index) => {
-            const playing = playingByOrbit[orbit.slug] ?? false;
+            const playing = state.playingByOrbit[orbit.slug] ?? false;
 
             const isVisible = index >= firstVisible && index < lastVisible;
 

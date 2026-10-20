@@ -13,6 +13,38 @@ export const tutorResponseFormat = {
           {
             type: "object",
             properties: {
+              action: { type: "string", enum: ["set_three_body_parameters"] },
+              parameters: {
+                type: "object",
+                properties: {
+                  gravity: { type: ["number", "null"] },
+                  duration: { type: ["number", "null"] },
+                  bodies: {
+                    type: "array", minItems: 3, maxItems: 3,
+                    items: {
+                      type: "object",
+                      properties: {
+                        mass: { type: ["number", "null"] },
+                        x: { type: ["number", "null"] },
+                        y: { type: ["number", "null"] },
+                        vx: { type: ["number", "null"] },
+                        vy: { type: ["number", "null"] },
+                      },
+                      required: ["mass", "x", "y", "vx", "vy"],
+                      additionalProperties: false,
+                    },
+                  },
+                },
+                required: ["gravity", "duration", "bodies"],
+                additionalProperties: false,
+              },
+            },
+            required: ["action", "parameters"],
+            additionalProperties: false,
+          },
+          {
+            type: "object",
+            properties: {
               action: { type: "string", enum: ["set_gravity_parameters"] },
               parameters: {
                 type: "object",

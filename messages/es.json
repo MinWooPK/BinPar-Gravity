@@ -388,6 +388,8 @@
     "explainFormula": "Explícame esta fórmula",
     "formulaQuestion": "Explícame esta fórmula con los valores actuales de mi laboratorio. ¿Qué significan F, G, m₁, m₂ y r, por qué la distancia está al cuadrado y cómo leo la notación científica? Usa un ejemplo sencillo, sin modificar los parámetros.",
     "proposalRejected": "No puedo ofrecer un cambio aplicable con esos valores. El laboratorio admite masas de 10 a 100 kg en pasos de 1 kg y distancias de 5 a 20 m en pasos de 0,1 m. Nada ha cambiado. Indica qué masa o distancia quieres ajustar dentro de esos límites; podemos explicar otros casos sin modificar el simulador.",
+    "proposalRejectedThreeBody": "No puedo aplicar esa configuración. Comprueba que G y las masas sean positivos, la duración no supere 100 y los cuerpos no estén demasiado próximos. Se conserva tu borrador.",
+    "proposalThreeBodyNote": "Valores en unidades adimensionales. Al aplicar se actualizará la vista previa y se descartará la simulación anterior. Pulsa «Ejecutar simulación» cuando quieras calcular la nueva trayectoria.",
     "proposalTitle": "Cambios propuestos",
     "proposalTo": "a",
     "proposalForce": "Fuerza prevista: {before} N → {after} N.",
@@ -514,6 +516,7 @@
     },
     "backToSolutions": "Volver a las soluciones",
     "detail": {
+      "explainQuestion": "Explícame la órbita {name}: qué movimiento realizan los tres cuerpos, qué la caracteriza y cómo se relaciona con sus condiciones iniciales.",
       "simulationTitle": "Simulación orbital",
       "orbitIndex": "Órbita {number} / {total}",
       "period": "Período",

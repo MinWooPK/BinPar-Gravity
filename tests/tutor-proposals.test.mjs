@@ -34,7 +34,7 @@ const fixture = () => {
     return applied;
   };
   const target = () => ({ context: context(state.parameters), gravity: { revision: state.revision, apply } });
-  const proposal = { action: action(), baseline: { ...state.parameters }, source: target().gravity, contextSnapshot: JSON.stringify(target().context), status: 'pending' };
+  const proposal = { kind: "gravity", action: action(), baseline: { ...state.parameters }, source: target().gravity, contextSnapshot: JSON.stringify(target().context), status: 'pending' };
   return { proposal, target, state: () => state, calls: () => calls, dispatch: event => { state = reduce(state, event); } };
 };
 

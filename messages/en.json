@@ -388,6 +388,8 @@
     "explainFormula": "Explain this formula",
     "formulaQuestion": "Explain this formula using my current laboratory values. What do F, G, m₁, m₂ and r mean, why is distance squared, and how do I read scientific notation? Use a simple example without changing parameters.",
     "proposalRejected": "I cannot offer an applicable change with those values. The laboratory accepts masses from 10 to 100 kg in 1 kg steps and distances from 5 to 20 m in 0.1 m steps. Nothing has changed. Specify a mass or distance within those limits; we can discuss other cases without changing the simulator.",
+    "proposalRejectedThreeBody": "I cannot apply that configuration. Check that G and the masses are positive, the duration does not exceed 100, and the bodies are not too close. Your draft is preserved.",
+    "proposalThreeBodyNote": "Values use dimensionless units. Applying updates the preview and discards the previous simulation. Press “Run simulation” when you want to calculate the new trajectory.",
     "proposalTitle": "Proposed changes",
     "proposalTo": "to",
     "proposalForce": "Expected force: {before} N → {after} N.",
@@ -514,6 +516,7 @@
     },
     "backToSolutions": "Back to the solutions",
     "detail": {
+      "explainQuestion": "Explain the {name} orbit: how the three bodies move, what makes it distinctive, and how it relates to its initial conditions.",
       "simulationTitle": "Orbital simulation",
       "orbitIndex": "Orbit {number} / {total}",
       "period": "Period",

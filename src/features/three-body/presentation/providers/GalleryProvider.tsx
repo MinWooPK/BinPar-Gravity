@@ -15,6 +15,7 @@ const initial: GalleryState = {
   scroll: 0,
   categoryFilter: "all",
   galleryPlaying: false,
+  playingByOrbit: {},
   detailPlaying: false,
   galleryView: "intro",
   galleryPage: 0,
@@ -22,6 +23,7 @@ const initial: GalleryState = {
 const Context = createContext<{
   state: GalleryState;
   update: (patch: Partial<GalleryState>) => void;
+  toggleOrbit: (slug: string) => void;
 } | null>(null);
 
 export const GalleryProvider = ({ children }: { children: ReactNode }) => {
@@ -34,7 +36,20 @@ export const GalleryProvider = ({ children }: { children: ReactNode }) => {
     }));
   }, []);
 
-  const value = useMemo(() => ({ state, update }), [state, update]);
+  const toggleOrbit = useCallback((slug: string) => {
+    setState((current) => ({
+      ...current,
+      playingByOrbit: {
+        ...current.playingByOrbit,
+        [slug]: !current.playingByOrbit[slug],
+      },
+    }));
+  }, []);
+
+  const value = useMemo(
+    () => ({ state, update, toggleOrbit }),
+    [state, update, toggleOrbit],
+  );
 
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };

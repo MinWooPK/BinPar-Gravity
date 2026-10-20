@@ -23,7 +23,8 @@ try {
     let route='/es/gravity';const listeners=new Set();
     export const useRoute=()=>useSyncExternalStore(fn=>{listeners.add(fn);return()=>listeners.delete(fn)},()=>route);
     export const usePathname=()=>useRoute().split('#')[0].replace(/^\\/(es|en|fr)(?=\\/|$)/,'');
-    export const navigate=value=>{route=value;listeners.forEach(fn=>fn())};`);
+    export const navigate=value=>{route=value;listeners.forEach(fn=>fn())};
+    const router={push:navigate};export const useRouter=()=>router;`);
   const intlFile = join(directory, 'intl.js');
   writeFileSync(intlFile, `import {useRoute} from './router';
     import es from ${JSON.stringify(join(root, 'messages/es.json'))};
@@ -55,6 +56,7 @@ try {
     import {useRoute,navigate} from './router';
     import {TutorContextBridge} from '@/features/ai/presentation/providers/TutorProvider';
     import {ExplainWithAI} from '@/features/ai/presentation/components/ExplainWithAI';
+    import {ThreeBodyExperimentProvider} from '@/features/three-body/presentation/providers/ThreeBodyExperimentProvider';
     import {ThreeBodyExperiment} from '@/features/three-body/presentation/components/experiment/ThreeBodyExperiment';
     import {simulateExperiment} from '@/features/three-body/domain/experiment-simulation';
     import {detectPeriodicity} from '@/features/three-body/domain/periodicity-detection';
@@ -77,7 +79,7 @@ try {
         <GravityJourneyPanel stage={gravityStageById['gravity-understanding']}><GravityIntroduction/></GravityJourneyPanel>
         <GravityLab/>
       </GravityJourney>
-    </GravityFormulaAccess></GravityParametersProvider>}{route.endsWith('/three-body')&&<ThreeBody/>}{slug&&<><TutorContextBridge context={{kind:'three-body',stage:'orbit',slug}}/><ExplainWithAI topic="orbit"/></>}</main>}
+    </GravityFormulaAccess></GravityParametersProvider>}{route.endsWith('/three-body')&&<ThreeBodyExperimentProvider><ThreeBody/></ThreeBodyExperimentProvider>}{slug&&<><TutorContextBridge context={{kind:'three-body',stage:'orbit',slug}}/><ExplainWithAI topic="orbit"/></>}</main>}
     createRoot(document.getElementById('root')).render(<TutorProvider><Page/></TutorProvider>);
     window.navigate=route=>flushSync(()=>navigate(route));`);
   const {compile}=require('@tailwindcss/node');const {Scanner}=require('@tailwindcss/oxide');

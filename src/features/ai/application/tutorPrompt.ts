@@ -132,7 +132,15 @@ export const buildTutorPrompt = (request: TutorRequest) => {
             // 4. INICIO Y PROBLEMA DE LOS TRES CUERPOS
             // ============================================
 
-            "En esta página el Tutor IA solamente puede explicar información. Devuelve siempre proposal null.",
+            ...(request.context.kind === "three-body" && request.context.draftConfiguration
+              ? [
+                  "Devuelve JSON con text y proposal. Solo cuando la petición actual solicite explícitamente configurar el simulador libre, puedes proponer set_three_body_parameters. En cualquier otro caso devuelve proposal null. Una propuesta requiere confirmación humana; nunca afirmes haberla aplicado.",
+                  "parameters contiene gravity, duration y bodies: exactamente tres objetos en orden cuerpo 1, 2 y 3, cada uno con mass, x, y, vx, vy. Incluye todos los campos; usa null para conservar un valor. Debe existir un cambio real. No autorices otras acciones ni ejecutes simulaciones.",
+                  "Utiliza exclusivamente freeExperimentDraft como base de modificaciones y cambios relativos. Es el borrador actual del simulador libre, distinto de context.orbit. Nunca modifiques ni copies automáticamente las condiciones iniciales del catálogo. No interpretes el historial, ejemplos o hipótesis como una petición de cambio.",
+                  "G y masas deben ser positivos; duración mayor que 0 y como máximo 100. Todos los valores deben ser finitos y su magnitud no superar 1e12. La separación inicial entre cada par de cuerpos debe ser al menos 0.05. No recortes ni redondees valores fuera de límites; explica el problema y devuelve proposal null. Si la petición es ambigua, pide aclaración.",
+                  "Tras confirmar, la aplicación abrirá Tres Cuerpos → 04 · Experimenta con la vista previa actualizada. El usuario tendrá que pulsar Ejecutar simulación; no prometas periodicidad ni resultados sin calcularlos.",
+                ]
+              : ["En esta página el Tutor IA solamente puede explicar información. Devuelve siempre proposal null."]),
 
             "Explica de forma sencilla el contexto actual del problema de los tres cuerpos o el contenido educativo de la página de inicio.",
 
@@ -224,6 +232,17 @@ export const buildTutorPrompt = (request: TutorRequest) => {
             "El usuario ha pulsado un icono de ayuda educativo. Explica de manera breve y sencilla el concepto específico al que corresponde ese icono, utilizando el contexto actual.",
 
             "No propongas cambios en el laboratorio. Devuelve proposal null.",
+          ]
+        : []),
+
+      ...(request.context.kind === "three-body" &&
+      request.context.stage === "orbit"
+        ? [
+            "Estás en el detalle de una solución concreta del catálogo. Identifícala mediante context.orbit, en particular su slug y su name. Prioriza la pregunta actual y los datos verificados de esa órbita sobre las referencias a otras soluciones del historial. No mezcles datos de distintas órbitas.",
+
+            "Cuando el usuario pida explicar la órbita seleccionada, empieza directamente por esa solución, sin una introducción genérica al problema de los tres cuerpos. Describe brevemente la trayectoria de los cuerpos, qué la caracteriza y su relación con las posiciones y velocidades iniciales. Compárala con otras órbitas solo cuando sea relevante y esté respaldado por el catálogo.",
+
+            "Utiliza description, insight, initial, gravity, masses, period, convention y las fuentes disponibles de context.orbit. No presentes una explicación matemática especulativa, una prueba de periodicidad o una afirmación de estabilidad como hechos comprobados. Si los datos no justifican una propiedad o una explicación causal más precisa, reconoce ese límite. Mantén el idioma solicitado y el estilo breve y conversacional, normalmente entre 25 y 55 palabras; amplía solo si el usuario pide más detalles.",
           ]
         : []),
 

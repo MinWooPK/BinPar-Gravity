@@ -4,8 +4,11 @@ import { TutorContextBridge } from "@/features/ai/presentation/providers/TutorPr
 import { ExplainWithAI } from "@/features/ai/presentation/components/ExplainWithAI";
 import { isTutorContext } from "@/features/ai/application/tutorRequest";
 import type { TutorContext } from "@/features/ai/types/tutor.types";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { useThreeBodyExperiment } from "../../providers/ThreeBodyExperimentProvider";
+import { parseExperimentDraft } from "../../../application/experimentDraft";
+import { experimentConfigurationError } from "../../../application/experimentConfiguration";
 import type { ExperimentConfiguration } from "../../../domain/experiment-simulation";
 import type { AnalyzedExperimentTrajectory } from "../../../domain/periodicity-detection";
 import { ExperimentAnimation } from "./ExperimentAnimation";
@@ -26,37 +29,6 @@ type WorkerResponse =
 
 type BodyField = "mass" | "x" | "y" | "vx" | "vy";
 
-type BodyDraft = Record<BodyField, string>;
-
-type ExperimentDraft = {
-  gravity: string;
-  duration: string;
-  bodies: BodyDraft[];
-};
-
-const initialDraft: ExperimentDraft = {
-  gravity: "1",
-  duration: "12",
-  bodies: [
-    // Configuración inicial de Lagrange: al pulsar Ejecutar se ve una órbita estable.
-    { mass: "1", x: "1", y: "0", vx: "0", vy: "0.75983568565" },
-    {
-      mass: "1",
-      x: "-0.5",
-      y: "0.86602540378",
-      vx: "-0.65803700648",
-      vy: "-0.379917842825",
-    },
-    {
-      mass: "1",
-      x: "-0.5",
-      y: "-0.86602540378",
-      vx: "0.65803700648",
-      vy: "-0.379917842825",
-    },
-  ],
-};
-
 const bodyColors = ["#aa97ff", "#5ee7d5", "#f4c778"];
 
 const bodyFields = [
@@ -66,14 +38,6 @@ const bodyFields = [
   { key: "vx", label: "velocityX" },
   { key: "vy", label: "velocityY" },
 ] as const;
-
-const parseNumber = (value: string) =>
-  value.trim() === "" ? NaN : Number(value);
-
-const cloneInitial = (): ExperimentDraft => ({
-  ...initialDraft,
-  bodies: initialDraft.bodies.map((body) => ({ ...body })),
-});
 
 const inputStyles =
   "min-h-11 min-w-0 w-full bg-[#0d1320] " +
@@ -98,8 +62,8 @@ export const ThreeBodyExperiment = ({
 }) => {
   const t = useTranslations("ThreeBody.experiment");
 
-  const [draft, setDraft] = useState<ExperimentDraft>(cloneInitial);
-  const [selectedBody, setSelectedBody] = useState(0);
+  const { draft, selectedBody, dispatch, registerInvalidation } = useThreeBodyExperiment();
+  const setSelectedBody = (index: number) => dispatch({ type: "select", index });
   const [simulation, setSimulation] =
     useState<AnalyzedExperimentTrajectory | null>(null);
   const [calculating, setCalculating] = useState(false);
@@ -117,22 +81,24 @@ export const ThreeBodyExperiment = ({
   const markerId = useId();
 
   // Cancela trabajos antiguos. Las respuestas tardías no pueden sobrescribir datos nuevos.
-  const cancelCalculation = () => {
+  const cancelCalculation = useCallback(() => {
     requestIdRef.current += 1;
     workerRef.current?.terminate();
     workerRef.current = null;
     setCalculating(false);
-  };
+  }, []);
 
   // Al editar los parámetros, invalidamos la simulación anterior.
-  const invalidateSimulation = () => {
+  const invalidateSimulation = useCallback(() => {
     cancelCalculation();
     setSimulation(null);
     setPlaying(false);
     setElapsed(0);
     elapsedRef.current = 0;
     setRunError(null);
-  };
+  }, [cancelCalculation]);
+
+  useLayoutEffect(() => registerInvalidation(invalidateSimulation), [registerInvalidation, invalidateSimulation]);
 
   // Libera el Worker al desmontar el componente.
   useEffect(() => {
@@ -141,86 +107,10 @@ export const ThreeBodyExperiment = ({
     };
   }, []);
 
-  // Cambiar un parámetro común.
-  const updateCommon = (key: "gravity" | "duration", value: string) => {
-    invalidateSimulation();
-    setDraft((current) => ({
-      ...current,
-      [key]: value,
-    }));
-  };
-
-  // Cambiar un valor del cuerpo seleccionado.
-  const updateBody = (key: BodyField, value: string) => {
-    invalidateSimulation();
-    setDraft((current) => ({
-      ...current,
-      bodies: current.bodies.map((body, index) =>
-        index === selectedBody ? { ...body, [key]: value } : body,
-      ),
-    }));
-  };
-
-  // Convertir a números para validar y dibujar.
-  const parsed = useMemo(
-    () => ({
-      gravity: parseNumber(draft.gravity),
-      duration: parseNumber(draft.duration),
-      bodies: draft.bodies.map((body) => ({
-        mass: parseNumber(body.mass),
-        x: parseNumber(body.x),
-        y: parseNumber(body.y),
-        vx: parseNumber(body.vx),
-        vy: parseNumber(body.vy),
-      })),
-    }),
-    [draft],
-  );
-  // Validar las condiciones de partida.
-  const error = useMemo(() => {
-    const values = [
-      parsed.gravity,
-      parsed.duration,
-      ...parsed.bodies.flatMap((body) => [
-        body.mass,
-        body.x,
-        body.y,
-        body.vx,
-        body.vy,
-      ]),
-    ];
-
-    if (!values.every(Number.isFinite)) {
-      return "invalidNumber" as const;
-    }
-
-    if (parsed.gravity <= 0) {
-      return "invalidGravity" as const;
-    }
-
-    if (parsed.duration <= 0 || parsed.duration > 100) {
-      return "invalidDurationLimit" as const;
-    }
-
-    if (parsed.bodies.some((body) => body.mass <= 0)) {
-      return "invalidMass" as const;
-    }
-
-    // Evitar que dos cuerpos empiecen superpuestos
-    // o demasiado próximos para la futura simulación.
-    for (let i = 0; i < parsed.bodies.length; i++) {
-      for (let j = i + 1; j < parsed.bodies.length; j++) {
-        const a = parsed.bodies[i];
-        const b = parsed.bodies[j];
-
-        if (Math.hypot(a.x - b.x, a.y - b.y) < 0.05) {
-          return "tooClose" as const;
-        }
-      }
-    }
-
-    return null;
-  }, [parsed]);
+  const updateCommon = (key: "gravity" | "duration", value: string) => dispatch({ type: "common", key, value });
+  const updateBody = (key: BodyField, value: string) => dispatch({ type: "body", index: selectedBody, key, value });
+  const parsed = useMemo(() => parseExperimentDraft(draft), [draft]);
+  const error = useMemo(() => experimentConfigurationError(parsed), [parsed]);
 
   // Preparar las posiciones de la vista previa.
   const preview = useMemo(() => {
@@ -615,9 +505,7 @@ export const ThreeBodyExperiment = ({
             <button
               type="button"
               onClick={() => {
-                invalidateSimulation();
-                setDraft(cloneInitial());
-                setSelectedBody(0);
+                dispatch({ type: "reset" });
                 setSpeed(1);
                 setShowTrails(true);
               }}

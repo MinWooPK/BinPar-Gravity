@@ -102,7 +102,7 @@ test("orbit detail information and accessible labels are translated with consist
     "categoryClassical", "categoryChoreography", "categoryPeriodic",
     "animationPlay", "animationPause",
   ]) usedKeys.add(key);
-  const parameters = { orbitIndex: ["number", "total"], refinedConditions: ["publishedPeriod"] };
+  const parameters = { orbitIndex: ["number", "total"], refinedConditions: ["publishedPeriod"], explainQuestion: ["name"] };
 
   for (const { locale, messages } of dictionaries) {
     for (const key of usedKeys) {

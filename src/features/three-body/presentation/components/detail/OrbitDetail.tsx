@@ -80,7 +80,11 @@ export const OrbitDetail = async ({ orbit }: { orbit: OrbitDefinition }) => {
             </div>
             <div className={styles.titleRow}>
               <h2 id="orbit-solution-title" className={styles.title}>
-                {orbit.name} <ExplainWithAI topic="orbit" />
+                {orbit.name}{" "}
+                <ExplainWithAI
+                  topic="orbit"
+                  question={t("detail.explainQuestion", { name: orbit.name })}
+                />
               </h2>
               <dl className={`${styles.period} period-stat`}>
                 <dt>{t("detail.period")}</dt>

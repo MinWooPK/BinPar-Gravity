@@ -23,7 +23,7 @@ type JourneyContextValue = {
 };
 const JourneyContext = createContext<JourneyContextValue | null>(null);
 
-const useGravityJourney = () => {
+export const useGravityJourney = () => {
   const context = useContext(JourneyContext);
   if (!context)
     throw new Error("Gravity journey components require GravityJourney");

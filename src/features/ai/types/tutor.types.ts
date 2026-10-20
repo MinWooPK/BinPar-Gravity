@@ -25,6 +25,7 @@ export type TutorContext =
         | "orbit"
         | null;
       slug?: string;
+      draftConfiguration?: import("../../three-body/domain/experiment-simulation").ExperimentConfiguration;
       configuration?: import("../../three-body/domain/experiment-simulation").ExperimentConfiguration;
       result?: import("../../three-body/domain/periodicity-detection").PeriodicityResult;
       status?:
@@ -52,6 +53,6 @@ export type Tutor = {
 };
 export type TutorReply = {
   text: string;
-  proposal?: GravityParameterProposal;
+  proposal?: GravityParameterProposal | import("../../three-body/types/experiment-proposal.types").ThreeBodyParameterProposal;
   proposalRejected?: true;
 };

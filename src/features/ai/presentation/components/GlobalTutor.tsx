@@ -43,11 +43,13 @@ export const GlobalTutor = () => {
   const { openTutor, registerLauncher, context, highlight } =
     useTutorEnvironment();
 
+  const appliedRef = useRef(false);
   const returnFocusRef = useRef<HTMLElement | null>(null);
 
   useLayoutEffect(
     () =>
       registerLauncher((intent, trigger) => {
+        appliedRef.current = false;
         returnFocusRef.current = trigger ?? triggerRef.current;
 
         setOpen(true);
@@ -269,7 +271,7 @@ export const GlobalTutor = () => {
           setOpen(false);
         }}
         onClose={(event) => {
-          if (open || event.currentTarget.open) return;
+          if (open || event.currentTarget.open || appliedRef.current) return;
 
           const origin = returnFocusRef.current;
 
@@ -369,6 +371,13 @@ export const GlobalTutor = () => {
             inputRef.current?.focus();
           }}
           onSubmit={() => setConfigure(false)}
+          onApplied={(proposal) => {
+            appliedRef.current = true;
+            dialogRef.current?.close();
+            setOpen(false);
+            setConfigure(false);
+            proposal.source.reveal();
+          }}
         />
       </dialog>
     </>

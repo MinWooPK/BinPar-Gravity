@@ -550,6 +550,49 @@ test("home and all three-body stages use validated context and canonical catalog
   }
 });
 
+test("orbit help prioritizes each current catalogue solution over earlier dialogue in every locale", () => {
+  for (const locale of ["es", "en", "fr"]) {
+    const messages = JSON.parse(readFileSync(new URL(`../messages/${locale}.json`, import.meta.url), "utf8"));
+    for (const [index, orbit] of orbits.entries()) {
+      const previous = orbits[(index + orbits.length - 1) % orbits.length];
+      const question = messages.ThreeBody.detail.explainQuestion.replace("{name}", orbit.name);
+      assert.ok(question.includes(orbit.name));
+      assert.doesNotMatch(question, /\{name\}/);
+      const request = {
+        ...validRequest(), locale, intent: "explain_context",
+        context: { kind: "three-body", stage: "orbit", slug: orbit.slug },
+        messages: [
+          { role: "user", content: `Explain ${previous.name}` },
+          { role: "assistant", content: "HISTORY_ONLY: a previous answer about another orbit." },
+          { role: "user", content: question },
+        ],
+      };
+      assert.equal(isTutorRequest(request), true);
+      const prompt = buildTutorPrompt(request);
+      const trusted = readPromptContext(prompt);
+      const canonical = { ...orbit, gravity: 1, masses: [1, 1, 1] };
+      assert.deepEqual(buildTutorContext(request.context).orbit, canonical);
+      // JSON represents the catalogue's signed zero as zero on the model boundary.
+      assert.deepEqual(trusted.orbit, JSON.parse(JSON.stringify(canonical)));
+      assert.equal(trusted.stage, "orbit");
+      assert.deepEqual(prompt.input, request.messages);
+      assert.equal(prompt.input.at(-1).content, question);
+      assert.doesNotMatch(prompt.instructions, /HISTORY_ONLY/);
+      assert.match(prompt.instructions, /Identifícala mediante context\.orbit/);
+      assert.match(prompt.instructions, /Prioriza la pregunta actual y los datos verificados de esa órbita/);
+      assert.match(prompt.instructions, /No mezcles datos de distintas órbitas/);
+      assert.match(prompt.instructions, /sin una introducción genérica al problema de los tres cuerpos/);
+      assert.match(prompt.instructions, /posiciones y velocidades iniciales/);
+      assert.match(prompt.instructions, /No presentes una explicación matemática especulativa/);
+      assert.match(prompt.instructions, /normalmente entre 25 y 55 palabras/);
+      assert.match(prompt.instructions, new RegExp(`Responde en el idioma indicado por ${locale}:`));
+      assert.equal(isTutorRequest({ ...request, context: { ...request.context, initial: previous.initial } }), false);
+    }
+  }
+  const gallery = buildTutorPrompt({ ...validRequest(), context: { kind: "three-body", stage: "gallery" } });
+  assert.doesNotMatch(gallery.instructions, /Identifícala mediante context\.orbit/);
+});
+
 test("experiment snapshots accept real periodicity results and reject injected or incoherent data", () => {
   const {simulateExperiment} = load("three-body/domain/experiment-simulation");
   const {detectPeriodicity} = load("three-body/domain/periodicity-detection");

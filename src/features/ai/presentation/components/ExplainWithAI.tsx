@@ -15,9 +15,11 @@ export type ExplainTopic =
   | "threeBody";
 export const ExplainWithAI = ({
   topic,
+  question,
   onExplain,
 }: {
   topic: ExplainTopic;
+  question?: string;
   onExplain?: () => void;
 }) => {
   const t = useTranslations("Tutor");
@@ -37,7 +39,7 @@ export const ExplainWithAI = ({
           onExplain?.();
           openTutor(
             {
-              question: t(`helpQuestions.${topic}`),
+              question: question ?? t(`helpQuestions.${topic}`),
               intent: "explain_context",
             },
             event.currentTarget,

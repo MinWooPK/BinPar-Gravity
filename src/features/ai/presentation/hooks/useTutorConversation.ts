@@ -6,6 +6,7 @@ import { TUTOR_MAX_MESSAGE_LENGTH, TUTOR_TIMEOUT_MS } from "../../application/tu
 import { requestHistory } from "../../application/conversation";
 import { parseTutorReply } from "../../application/tutorResponse";
 import { decideTutorProposal } from "../../application/tutorProposal";
+import type { TutorProposal } from "../../types/proposal.types";
 import type { TutorRequest } from "../../types/tutor.types";
 import type { ChatMessage, TutorSession } from "../../types/conversation.types";
 import { tutorContextId, type TutorSessionId } from "../../application/tutorAvailability";
@@ -59,7 +60,7 @@ const useConversationStore = () => {
     const environment = current();
     if (!environment || inFlight.current.has(target)) return;
     const requestGeneration = generation.current;
-    const source = environment && JSON.stringify(environment.context) === JSON.stringify(request.context) ? environment.gravity : undefined;
+    const source = environment && JSON.stringify(environment.context) === JSON.stringify(request.context) ? environment : undefined;
     inFlight.current.add(target);
     update(target, { pending: true, error: "", request, snapshot: JSON.stringify(request.context) });
     const controller = new AbortController();
@@ -80,11 +81,16 @@ const useConversationStore = () => {
       } else {
         const reply = parseTutorReply(data, request.context, request.intent);
         const previous = sessionsRef.current[target] ?? emptySession();
+        let proposal: TutorProposal | undefined;
+        const common = { contextSnapshot: JSON.stringify(request.context), status: "pending" as const };
+        if (reply.proposal?.action === "set_gravity_parameters" && source?.gravity && request.context.kind === "gravity")
+          proposal = { ...common, kind: "gravity", action: reply.proposal, source: source.gravity, baseline: { ...request.context.parameters } };
+        if (reply.proposal?.action === "set_three_body_parameters" && source?.threeBody && request.context.kind === "three-body" && request.context.draftConfiguration)
+          proposal = { ...common, kind: "three-body", action: reply.proposal, source: source.threeBody, baseline: request.context.draftConfiguration };
         const message: ChatMessage = {
-          id: ++sequence.current, contextId: tutorContextId(request.context), role: "assistant", content: reply.proposalRejected ? t("proposalRejected") : reply.text,
-          ...(reply.proposal && source && request.context.kind === "gravity" && {
-            proposal: { action: reply.proposal, source, baseline: { ...request.context.parameters }, contextSnapshot: JSON.stringify(request.context), status: "pending" },
-          }),
+          id: ++sequence.current, contextId: tutorContextId(request.context), role: "assistant",
+          content: reply.proposalRejected ? t(request.context.kind === "three-body" ? "proposalRejectedThreeBody" : "proposalRejected") : reply.text,
+          ...(proposal && { proposal }),
         };
         update(target, { messages: [...previous.messages, message].slice(-30) });
       }
@@ -122,9 +128,10 @@ const useConversationStore = () => {
   const decideProposal = (key: TutorSessionId, messageId: number, decision: "apply" | "cancel") => {
     const previous = sessionsRef.current[key];
     const message = previous?.messages.find(message => message.id === messageId);
-    if (!message?.proposal || message.proposal.status !== "pending") return;
+    if (!message?.proposal || message.proposal.status !== "pending") return false;
     const proposal = decideTutorProposal(message.proposal, decision, current());
     update(key, { messages: previous.messages.map(item => item.id === messageId ? { ...item, proposal } : item) });
+    return proposal.status === "applied";
   };
 
   const clear = () => {

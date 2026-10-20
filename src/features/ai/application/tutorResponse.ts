@@ -1,3 +1,4 @@
+import { isThreeBodyParameterProposal, resolveThreeBodyProposal } from "../../three-body/application/experimentProposal";
 import {
   isGravityParameterProposal,
   resolveGravityProposal,
@@ -36,6 +37,11 @@ export const parseTutorReply = (
     return { text: reply.text.trim() };
   // Invalid actions never reach confirmation. The presentation supplies a localized
   // explanation instead of repeating potentially misleading model text.
+  if (context.kind === "three-body") {
+    if (!context.draftConfiguration || !isThreeBodyParameterProposal(reply.proposal) || !resolveThreeBodyProposal(context.draftConfiguration, reply.proposal))
+      return { text: "", proposalRejected: true };
+    return { text: reply.text.trim(), proposal: reply.proposal };
+  }
   if (
     context.kind !== "gravity" ||
     !isGravityParameterProposal(reply.proposal) ||
