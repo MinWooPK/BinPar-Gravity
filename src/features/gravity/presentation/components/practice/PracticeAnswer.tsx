@@ -45,7 +45,7 @@ export const PracticeAnswer = ({
         {optionsFor(question).map((option) => (
           <label
             key={option}
-            className={`flex min-h-11 items-center gap-3 rounded-lg border p-3 transition-colors focus-within:outline-2 focus-within:outline-violet-300 motion-reduce:transition-none ${
+            className={`flex min-h-10 items-center gap-3 rounded-lg border p-3 transition-colors focus-within:outline-2 focus-within:outline-violet-300 motion-reduce:transition-none ${
               answer.value === option
                 ? "border-violet-300 bg-violet-300/15"
                 : "border-slate-600 hover:border-violet-300/50"
