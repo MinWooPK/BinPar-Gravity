@@ -1,5 +1,6 @@
 "use client";
 
+import { MathText } from "@/components/ui/MathText";
 import type { Ref } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 
@@ -140,23 +141,25 @@ export const PracticeQuestionPanel = ({
             focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300"
           >
             {t(`scenes.${question.scene}`)}{" "}
-            {t(`questions.${question.concept}`, {
-              a: number(
-                question.concept === "power"
-                  ? question.a * 10 ** question.exponent
-                  : question.a,
-              ),
-              b: number(question.b),
-              r: number(question.r),
-              massUnit:
-                question.concept === "force" && question.difficulty === 3
-                  ? "t"
-                  : "kg",
-              distanceUnit:
-                question.concept === "force" && question.difficulty >= 2
-                  ? "km"
-                  : "m",
-            })}
+            <MathText>
+              {t(`questions.${question.concept}`, {
+                a: number(
+                  question.concept === "power"
+                    ? question.a * 10 ** question.exponent
+                    : question.a,
+                ),
+                b: number(question.b),
+                r: number(question.r),
+                massUnit:
+                  question.concept === "force" && question.difficulty === 3
+                    ? "t"
+                    : "kg",
+                distanceUnit:
+                  question.concept === "force" && question.difficulty >= 2
+                    ? "km"
+                    : "m",
+              })}
+            </MathText>
           </h4>
 
           {/* Indicaciones para respuestas numéricas. */}
@@ -183,7 +186,7 @@ export const PracticeQuestionPanel = ({
           >
             <div className="min-h-0 overflow-hidden">
               <p className="mt-3 max-w-prose rounded-xl border border-teal-300/25 bg-teal-950/50 p-3 text-sm leading-6 text-teal-100">
-                {t(`hints.${question.hint}`)}
+                <MathText>{t(`hints.${question.hint}`)}</MathText>
               </p>
             </div>
           </div>

@@ -85,7 +85,10 @@ export const GalleryIntroductionDiagram = () => {
                 fill="#e9edf6"
                 fontSize="14"
               >
-                {`m${index + 1}`}
+                m
+                <tspan baselineShift="sub" fontSize="65%">
+                  {index + 1}
+                </tspan>
               </text>
             </g>
           ))}
@@ -93,25 +96,43 @@ export const GalleryIntroductionDiagram = () => {
           {/* Distancias y velocidades. */}
           <g fontSize="13" fill="#acbad0">
             <text x="125" y="106">
-              r₁₂
+              r
+              <tspan baselineShift="sub" fontSize="65%">
+                12
+              </tspan>
             </text>
             <text x="265" y="106">
-              r₁₃
+              r
+              <tspan baselineShift="sub" fontSize="65%">
+                13
+              </tspan>
             </text>
             <text x="192" y="193">
-              r₂₃
+              r
+              <tspan baselineShift="sub" fontSize="65%">
+                23
+              </tspan>
             </text>
           </g>
 
           <g fontSize="12" fill="#5ee7d5">
             <text x="268" y="19">
-              v₁
+              v
+              <tspan baselineShift="sub" fontSize="65%">
+                1
+              </tspan>
             </text>
             <text x="148" y="216">
-              v₂
+              v
+              <tspan baselineShift="sub" fontSize="65%">
+                2
+              </tspan>
             </text>
             <text x="229" y="216">
-              v₃
+              v
+              <tspan baselineShift="sub" fontSize="65%">
+                3
+              </tspan>
             </text>
           </g>
         </svg>

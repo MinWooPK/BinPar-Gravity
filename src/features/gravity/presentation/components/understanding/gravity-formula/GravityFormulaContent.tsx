@@ -1,5 +1,6 @@
 "use client";
 
+import { MathText } from "@/components/ui/MathText";
 import { useId, useRef, useState, type ReactNode, type RefObject } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { ExplainWithAI } from "@/features/ai/presentation/components/ExplainWithAI";
@@ -149,7 +150,7 @@ export const GravityFormulaContent = ({
               : "[min-height:1.45em] [margin:6px_0] [color:#aeb8cb] [font-size:.875rem] [line-height:1.45] in-[#gravity-understanding]:my-0.5 [&_strong]:[color:#d8c9ff] [&_strong]:[font-weight:600]"
         }
       >
-        {status}
+        <MathText>{status}</MathText>
       </p>
     </section>
   );

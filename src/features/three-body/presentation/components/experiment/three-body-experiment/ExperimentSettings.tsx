@@ -1,5 +1,6 @@
 "use client";
 
+import { MathText } from "@/components/ui/MathText";
 import { useTranslations } from "next-intl";
 
 import { useThreeBodyExperiment } from "../../../providers/ThreeBodyExperimentProvider";
@@ -184,8 +185,10 @@ export const ExperimentSettings = ({ experiment }: ExperimentSettingsProps) => {
                 />
 
                 <span aria-hidden="true" className={symbolClassName}>
-                  {bodySymbols[key]}
-                  <sub>{selectedBody + 1}</sub>
+                  <span>
+                    <MathText>{bodySymbols[key]}</MathText>
+                    <sub>{selectedBody + 1}</sub>
+                  </span>
                 </span>
               </div>
             </label>

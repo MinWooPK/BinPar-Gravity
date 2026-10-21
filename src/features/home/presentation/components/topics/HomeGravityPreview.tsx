@@ -97,7 +97,7 @@ export const HomeGravityPreview = () => {
           textAnchor="middle"
           opacity="0.8"
         >
-          F = G m₁m₂ / r²
+          F = G m<tspan baselineShift="sub" fontSize="65%">1</tspan>m<tspan baselineShift="sub" fontSize="65%">2</tspan> / r²
         </text>
         {bodyColors.map((color, index) => (
           <g

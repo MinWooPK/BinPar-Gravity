@@ -1,5 +1,6 @@
 "use client";
 
+import { MathText } from "@/components/ui/MathText";
 import { useId } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 
@@ -62,7 +63,9 @@ export const GravityScienceCard = () => {
 
             <span className="inline-flex min-w-0 flex-col text-center">
               <span className="border-b border-[#a99bbf] px-1.25 py-0.5">
-                m₁ <span className="text-[.7em] text-[#a99bbf]">×</span> m₂
+                m<sub className="static align-sub text-[0.65em] leading-0">1</sub>{" "}
+                <span className="text-[.7em] text-[#a99bbf]">×</span>{" "}
+                m<sub className="static align-sub text-[0.65em] leading-0">2</sub>
               </span>
 
               <span className="px-1.25 py-0.5">
@@ -154,7 +157,7 @@ export const GravityScienceCard = () => {
                 scope="row"
                 className="w-[1%] py-1 pr-1.5 pl-0 text-left align-middle font-[Georgia,serif] text-base font-normal whitespace-nowrap text-[#d8c9ff] max-[520px]:pr-1"
               >
-                {variable.symbol}
+                <MathText>{variable.symbol}</MathText>
               </th>
 
               <td className="px-1.5 py-1 text-left align-middle max-[520px]:px-1">

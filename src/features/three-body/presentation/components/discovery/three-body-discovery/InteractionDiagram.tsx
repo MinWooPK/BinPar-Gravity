@@ -82,13 +82,22 @@ export const InteractionDiagram = ({ id }: { id: string }) => {
             dominantBaseline="central"
           >
             <text x="250" y="30">
-              m₁
+              m
+              <tspan baselineShift="sub" fontSize="65%">
+                1
+              </tspan>
             </text>
             <text x="90" y="100">
-              m₂
+              m
+              <tspan baselineShift="sub" fontSize="65%">
+                2
+              </tspan>
             </text>
             <text x="410" y="100">
-              m₃
+              m
+              <tspan baselineShift="sub" fontSize="65%">
+                3
+              </tspan>
             </text>
           </g>
           <g
@@ -98,13 +107,22 @@ export const InteractionDiagram = ({ id }: { id: string }) => {
             textAnchor="middle"
           >
             <text x="151" y="49">
-              r₁₂
+              r
+              <tspan baselineShift="sub" fontSize="65%">
+                12
+              </tspan>
             </text>
             <text x="349" y="49">
-              r₁₃
+              r
+              <tspan baselineShift="sub" fontSize="65%">
+                13
+              </tspan>
             </text>
             <text x="250" y="134">
-              r₂₃
+              r
+              <tspan baselineShift="sub" fontSize="65%">
+                23
+              </tspan>
             </text>
           </g>
         </g>

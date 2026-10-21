@@ -1,3 +1,4 @@
+import { MathText } from "@/components/ui/MathText";
 import { getTranslations } from "next-intl/server";
 import type { OrbitDefinition } from "../../../../types/orbit.types";
 
@@ -44,7 +45,7 @@ export const OrbitInitialConditions = async ({
                   scope="col"
                   className="border-b border-[#2d344a] px-2 py-1.75 text-right font-medium"
                 >
-                  {coordinate}
+                  <MathText>{coordinate}</MathText>
                 </th>
               ))}
             </tr>

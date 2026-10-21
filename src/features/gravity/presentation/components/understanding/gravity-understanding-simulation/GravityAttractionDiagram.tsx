@@ -112,7 +112,10 @@ export const GravityAttractionDiagram = ({
             fill="#fff"
             className="[font-size:18px] font-medium [@media(max-width:600px)]:[font-size:24px]"
           >
-            m₁
+            m
+            <tspan baselineShift="sub" fontSize="65%">
+              1
+            </tspan>
           </text>
 
           <g
@@ -159,7 +162,10 @@ export const GravityAttractionDiagram = ({
             fill="#fff"
             className="[font-size:18px] font-medium [@media(max-width:600px)]:[font-size:24px]"
           >
-            m₂
+            m
+            <tspan baselineShift="sub" fontSize="65%">
+              2
+            </tspan>
           </text>
 
           <g

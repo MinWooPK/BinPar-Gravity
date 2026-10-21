@@ -1,5 +1,6 @@
 "use client";
 
+import { MathText } from "@/components/ui/MathText";
 import type { Ref } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 
@@ -63,14 +64,14 @@ export const PracticeFeedback = ({
 
       {/* Explicación de la corrección. */}
       <p className="max-w-prose text-sm leading-7 whitespace-pre-wrap wrap-anywhere">
-        {feedback.explanation}
+        <MathText>{feedback.explanation}</MathText>
       </p>
 
       {/* Pasos de la solución. */}
       {feedback.steps.length > 0 && (
         <ol className="max-w-prose list-decimal space-y-2 pl-5 text-sm leading-7 whitespace-pre-wrap wrap-anywhere">
           {feedback.steps.map((step, i) => (
-            <li key={i}>{step}</li>
+            <li key={i}><MathText>{step}</MathText></li>
           ))}
         </ol>
       )}

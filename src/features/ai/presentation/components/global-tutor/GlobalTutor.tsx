@@ -57,7 +57,7 @@ export const GlobalTutor = () => {
            motion-reduce:transition-none
            "
       >
-        <AtomIcon className="size-6.75 shrink-0 text-[#88cfff] md:size-6" />-{" "}
+        <AtomIcon className="size-6.75 shrink-0 text-[#88cfff] md:size-6" />
         <span className="hidden md:inline">{traducir("shortLabel")}</span>
       </button>
 

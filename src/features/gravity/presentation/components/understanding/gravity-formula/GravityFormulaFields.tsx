@@ -1,5 +1,6 @@
 "use client";
 
+import { MathText } from "@/components/ui/MathText";
 import type { RefObject } from "react";
 import { useTranslations } from "next-intl";
 import type { GravityVariable } from "../../../../types/gravity.types";
@@ -35,7 +36,7 @@ export const GravityUnknownSelector = () => {
                 onFocus={() => focus(key)}
                 onBlur={() => focus(null)}
               >
-                {symbol}
+                <MathText>{symbol}</MathText>
               </button>
             ))}
           </div>
@@ -98,7 +99,7 @@ export const GravityFormulaFields = ({
                 htmlFor={`${id}-input-${field.key}`}
                 className="lab-gravity-formula-field-title flex items-baseline justify-between [gap:6px] [margin-bottom:4px] [color:#d6dbea] [font-size:.9375rem] font-semibold [line-height:1.3] [transition:color_140ms] [@media(max-width:520px)]:[font-size:1rem] in-[#gravity-understanding]:mb-0.5 [&_>_span]:[color:#b9a8ff] [&_>_span]:[font-family:Georgia,_serif] [&_>_span]:[font-size:1rem] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]"
               >
-                {t(field.label)} <span>{field.symbol}</span>
+                {t(field.label)} <MathText>{field.symbol}</MathText>
               </label>
               <div className="lab-gravity-formula-input-group flex items-center min-w-0 [min-height:44px] [border:1px_solid_#64748b] [border-radius:7px] [background:#070d1a] [transition:border-color_140ms,_box-shadow_140ms] [&_input]:[width:100%] [&_input]:[min-width:0] [&_input]:[min-height:40px] [&_input]:[padding:6px] [&_input]:[border:0] [&_input]:[border-radius:7px] [&_input]:[background:transparent] [&_input]:[color:#f8fafc] [&_input]:[font:inherit] [&&_input]:[font-size:0.875rem] [&&_input]:[line-height:1.5] [&_input]:[font-variant-numeric:tabular-nums] [&_input::placeholder]:[color:#8e9bb2] [&_input::placeholder]:[opacity:1] [&_input:focus-visible]:[outline:2px_solid_#c4b5fd] [&_input:focus-visible]:[outline-offset:3px] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]">
                 <input

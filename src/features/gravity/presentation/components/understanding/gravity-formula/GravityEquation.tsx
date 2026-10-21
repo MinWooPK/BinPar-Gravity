@@ -1,5 +1,6 @@
 "use client";
 
+import { MathText } from "@/components/ui/MathText";
 import { useFormatter, useTranslations } from "next-intl";
 import type { GravityVariable } from "../../../../types/gravity.types";
 import type { FormulaTerm } from "../../../../types/formula.types";
@@ -59,7 +60,7 @@ export const GravityEquation = ({
           onSelect?.(key);
         }}
       >
-        {field.symbol}
+        <MathText>{field.symbol}</MathText>
         {key === "distance" && <sup>2</sup>}
       </button>
     );

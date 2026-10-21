@@ -62,11 +62,13 @@ export const ThreeBodyScience = ({ id }: { id: string }) => {
           <div key={condition}>
             <dt>{t(`science.${condition}`)}</dt>
             <dd>
-              {condition === "masses"
-                ? "m₁, m₂, m₃"
-                : condition === "positions"
-                  ? "r₁, r₂, r₃"
-                  : "v₁, v₂, v₃"}
+              {[1, 2, 3].map((index) => (
+                <span key={index}>
+                  {index > 1 && ", "}
+                  {condition === "masses" ? "m" : condition === "positions" ? "r" : "v"}
+                  <sub className="static align-sub text-[0.65em] leading-0">{index}</sub>
+                </span>
+              ))}
             </dd>
           </div>
         ))}

@@ -362,7 +362,8 @@ body:has(
   .lab-gravity-journey-workspace:is(
     [data-active-stage="gravity-discovery"],
     [data-active-stage="gravity-understanding"],
-    [data-active-stage="gravity-laboratory"]
+    [data-active-stage="gravity-laboratory"],
+    [data-active-stage="gravity-challenges"]
   )
 ) {
   height: auto;
@@ -372,7 +373,8 @@ main:has(
   .lab-gravity-journey-workspace:is(
     [data-active-stage="gravity-discovery"],
     [data-active-stage="gravity-understanding"],
-    [data-active-stage="gravity-laboratory"]
+    [data-active-stage="gravity-laboratory"],
+
   )
 ) {
   flex: 1 0 auto;
