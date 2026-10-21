@@ -1,4 +1,4 @@
-import { buildTutorContext } from "./tutorContext";
+import { buildTutorContext } from "./tutor-context/tutorContext";
 import type { TutorRequest } from "../types/tutor.types";
 
 export const buildTutorPrompt = (request: TutorRequest) => {
@@ -49,80 +49,69 @@ export const buildTutorPrompt = (request: TutorRequest) => {
       // 3. INSTRUCCIONES PARA GRAVEDAD
       // ============================================
 
-      ...(request.context.kind === "gravity"
-        ? [
-            [
-              // Respuesta estructurada y propuestas.
-              "Devuelve un objeto JSON con las propiedades text y proposal. La propiedad text contiene una explicación educativa en texto sencillo. La propiedad proposal debe ser null, salvo cuando el usuario solicite explícitamente modificar los parámetros del laboratorio.",
+      [
+        // Respuesta estructurada y propuestas.
+        "Devuelve un objeto JSON con las propiedades text y proposal. La propiedad text contiene una explicación educativa en texto sencillo. La propiedad proposal debe ser null, salvo cuando el usuario solicite explícitamente modificar los parámetros del laboratorio.",
 
-              "La única acción permitida es set_gravity_parameters, utilizando los parámetros mass1, mass2 y distance. Utiliza null en los campos que no deban modificarse.",
+        "La única acción permitida es set_gravity_parameters, utilizando los parámetros mass1, mass2 y distance. Utiliza null en los campos que no deban modificarse.",
 
-              "Cuando el usuario solicite cambios relativos, interprétalos utilizando exclusivamente los parámetros actuales y verificados del laboratorio.",
+        "Cuando el usuario solicite cambios relativos, interprétalos utilizando exclusivamente los parámetros actuales y verificados del laboratorio.",
 
-              "Una propuesta es solamente una sugerencia pendiente de confirmación. Nunca afirmes que se ha aplicado hasta que la aplicación lo confirme.",
+        "Una propuesta es solamente una sugerencia pendiente de confirmación. Nunca afirmes que se ha aplicado hasta que la aplicación lo confirme.",
 
-              "No interpretes preguntas anteriores, ejemplos, ejercicios ni situaciones hipotéticas como una autorización para modificar parámetros.",
+        "No interpretes preguntas anteriores, ejemplos, ejercicios ni situaciones hipotéticas como una autorización para modificar parámetros.",
 
-              "No propongas cambios para resolver ejercicios pendientes, proporcionar respuestas de una evaluación o validar respuestas sin corregir.",
+        "No propongas cambios para resolver ejercicios pendientes, proporcionar respuestas de una evaluación o validar respuestas sin corregir.",
 
-              // Límites permitidos del laboratorio.
-              "Las masas propuestas deben estar entre 10 y 100 kg, con incrementos de 1 kg. La distancia propuesta debe estar entre 5 y 20 m, con incrementos de 0,1 m. Estos límites aparecen en laboratory.limits.",
+        // Límites permitidos del laboratorio.
+        "Las masas propuestas deben estar entre 10 y 100 kg, con incrementos de 1 kg. La distancia propuesta debe estar entre 5 y 20 m, con incrementos de 0,1 m. Estos límites aparecen en laboratory.limits.",
 
-              "Nunca recortes, ajustes ni redondees silenciosamente un valor solicitado que esté fuera de los límites. Si no puede representarse, explica brevemente el motivo y devuelve proposal null.",
+        "Nunca recortes, ajustes ni redondees silenciosamente un valor solicitado que esté fuera de los límites. Si no puede representarse, explica brevemente el motivo y devuelve proposal null.",
 
-              "Toda propuesta válida debe contener al menos un cambio real respecto a los valores actuales.",
+        "Toda propuesta válida debe contener al menos un cambio real respecto a los valores actuales.",
 
-              "No incluyas código, herramientas, comandos ni acciones diferentes de las permitidas.",
+        "No incluyas código, herramientas, comandos ni acciones diferentes de las permitidas.",
 
-              "Explica el efecto esperado de una propuesta de manera condicional, utilizando únicamente los resultados numéricos proporcionados por el servidor. La aplicación es la responsable de calcular las fuerzas.",
+        "Explica el efecto esperado de una propuesta de manera condicional, utilizando únicamente los resultados numéricos proporcionados por el servidor. La aplicación es la responsable de calcular las fuerzas.",
 
-              "Si una petición es ambigua, solicita una aclaración breve y devuelve proposal null.",
+        "Si una petición es ambigua, solicita una aclaración breve y devuelve proposal null.",
 
-              // Conceptos físicos.
-              "Explica los conceptos correspondientes a la etapa actual del aprendizaje de la gravedad de Newton.",
+        // Conceptos físicos.
+        "Explica los conceptos correspondientes a la etapa actual del aprendizaje de la gravedad de Newton.",
 
-              "Utiliza kilogramos para las masas, metros para las distancias y newtons para las fuerzas. La distancia se mide entre los centros de ambos cuerpos.",
+        "Utiliza kilogramos para las masas, metros para las distancias y newtons para las fuerzas. La distancia se mide entre los centros de ambos cuerpos.",
 
-              "El laboratorio utiliza masas cotidianas y la constante gravitacional G, que tiene un valor fijo y real.",
+        "El laboratorio utiliza masas cotidianas y la constante gravitacional G, que tiene un valor fijo y real.",
 
-              "Las fuerzas muy pequeñas se representan mediante notación científica. Nunca conviertas una fuerza distinta de cero en cero.",
+        "Las fuerzas muy pequeñas se representan mediante notación científica. Nunca conviertas una fuerza distinta de cero en cero.",
 
-              "La ilustración de la Tierra y la Luna es conceptual. El laboratorio representa la atracción entre dos cuerpos, pero no simula sus órbitas.",
+        "La ilustración de la Tierra y la Luna es conceptual. El laboratorio representa la atracción entre dos cuerpos, pero no simula sus órbitas.",
 
-              // Explicaciones sobre el experimento.
-              "Cuando el usuario pregunte qué está ocurriendo en el experimento o solicite una explicación general, indica explícitamente los valores actuales de current.mass1, current.mass2, current.distance y current.forceNewtons, con sus correspondientes unidades.",
+        // Explicaciones sobre el experimento.
+        "Cuando el usuario pregunte qué está ocurriendo en el experimento o solicite una explicación general, indica explícitamente los valores actuales de current.mass1, current.mass2, current.distance y current.forceNewtons, con sus correspondientes unidades.",
 
-              "Estos valores representan el estado del laboratorio en el momento de la pregunta. Tienen prioridad sobre cualquier número mencionado anteriormente en la conversación.",
+        "Estos valores representan el estado del laboratorio en el momento de la pregunta. Tienen prioridad sobre cualquier número mencionado anteriormente en la conversación.",
 
-              "Explica de forma sencilla que ambos cuerpos se atraen con fuerzas de la misma intensidad y sentidos opuestos.",
+        "Explica de forma sencilla que ambos cuerpos se atraen con fuerzas de la misma intensidad y sentidos opuestos.",
 
-              "No afirmes que la ilustración representa un movimiento real de los cuerpos.",
+        "No afirmes que la ilustración representa un movimiento real de los cuerpos.",
 
-              // Ley de gravitación universal.
-              "Explica de manera sencilla la ley de Newton: F = G · m1 · m2 / r².",
+        // Ley de gravitación universal.
+        "Explica de manera sencilla la ley de Newton: F = G · m1 · m2 / r².",
 
-              "Si se duplica una de las masas y todo lo demás permanece igual, la fuerza se duplica. Si se duplica la distancia, la fuerza se reduce a una cuarta parte.",
+        "Si se duplica una de las masas y todo lo demás permanece igual, la fuerza se duplica. Si se duplica la distancia, la fuerza se reduce a una cuarta parte.",
 
-              "Utiliza hypotheticalChanges para los ejemplos numéricos. No inventes cálculos ni resultados.",
+        "Utiliza hypotheticalChanges para los ejemplos numéricos. No inventes cálculos ni resultados.",
 
-              "Los cambios de hypotheticalChanges son situaciones imaginarias que no se han aplicado al laboratorio.",
+        "Los cambios de hypotheticalChanges son situaciones imaginarias que no se han aplicado al laboratorio.",
 
-              "Si withinLaboratoryRange es false, aclara que el ejemplo está fuera de los límites de los controles deslizantes.",
+        "Si withinLaboratoryRange es false, aclara que el ejemplo está fuera de los límites de los controles deslizantes.",
 
-              // Contexto específico de la etapa.
-              request.context.stage === "gravity-discovery"
-                ? "Esta es la etapa introductoria Descubre. Utiliza los datos educativos proporcionados para explicar qué es la gravedad, sus efectos, las aportaciones de Newton, Galileo y Kepler, la determinación experimental de G y las unidades N, kg y m. Explica únicamente los conceptos relacionados con la pregunta. No inventes acciones de calculadora ni ejercicios corregidos."
-                : "Distingue siempre los parámetros actuales del laboratorio de los valores iniciales de referencia.",
-            ].join(" "),
-          ]
-        : [
-            // ============================================
-            // 4. INICIO
-            // ============================================
-            "En esta página el Tutor IA solamente puede explicar información. Devuelve siempre proposal null.",
-            "Explica de forma sencilla el contenido educativo de la página de inicio. Si falta información necesaria, indica claramente que no está disponible.",
-            "Nunca afirmes haber ejecutado una simulación ni haber modificado sus parámetros.",
-          ]),
+        // Contexto específico de la etapa.
+        request.context.stage === "gravity-discovery"
+          ? "Esta es la etapa introductoria Descubre. Utiliza los datos educativos proporcionados para explicar qué es la gravedad, sus efectos, las aportaciones de Newton, Galileo y Kepler, la determinación experimental de G y las unidades N, kg y m. Explica únicamente los conceptos relacionados con la pregunta. No inventes acciones de calculadora ni ejercicios corregidos."
+          : "Distingue siempre los parámetros actuales del laboratorio de los valores iniciales de referencia.",
+      ].join(" "),
 
       // ============================================
       // 5. ETAPA 02: COMPRENDE

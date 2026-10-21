@@ -1,7 +1,6 @@
 import { useId, type CSSProperties } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { laboratoryLimits } from "../../../domain/gravitation";
-import { gravityExperimentStyles as styles } from "./GravityExperiment.styles";
 
 // Define los controles de masa y distancia, sus límites, unidades y colores.
 export const gravityControls = [
@@ -64,7 +63,7 @@ export const GravitySlider = ({
 
   return (
     <div
-      className={styles["slider-field"]}
+      className="min-w-0 [margin-bottom:0]"
       style={
         {
           "--slider-color": control.color,
@@ -72,16 +71,17 @@ export const GravitySlider = ({
         } as CSSProperties
       }
     >
-      <div>
-        <label htmlFor={id}>{t(control.label)}</label>
-        <output htmlFor={id} aria-live="off">
-          {format.number(value)} <span>{control.unit}</span>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 [font-size:16px]">
+        <label htmlFor={id} className="[flex:1_1_140px] text-[#b6bdd0]">{t(control.label)}</label>
+        <output htmlFor={id} aria-live="off" className="shrink-0 [color:var(--slider-color)] tabular-nums">
+          {format.number(value)} <span className="text-[#a8afc3] [font-size:.85em]">{control.unit}</span>
         </output>
       </div>
 
       <input
         id={id}
         type="range"
+        className="lab-gravity-slider block h-11 w-full m-0 appearance-none bg-transparent [accent-color:var(--slider-color)] cursor-pointer"
         min={control.min}
         max={control.max}
         step={aligned ? control.step : "any"}
@@ -126,7 +126,7 @@ export const GravitySlider = ({
         }}
       />
 
-      <div aria-hidden="true" className={styles["range-limits"]}>
+      <div aria-hidden="true" className="flex justify-between [gap:8px] [color:#a0a8bd] [font-size:13px] [line-height:1.2] [&>span]:min-w-0 [&>span]:[overflow-wrap:anywhere]">
         <span>
           {format.number(control.min)} {control.unit}
         </span>

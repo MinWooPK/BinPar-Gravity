@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { TutorContextBridge } from "@/features/ai/presentation/providers/TutorProvider";
 import type { TutorContext } from "@/features/ai/types/tutor.types";
 import { GravityExperiment } from "../experiment/GravityExperiment";
-import { GravityPractice } from "../practice/GravityPractice";
+import { GravityPractice } from "../practice/gravity-practice/GravityPractice";
 import { GravityJourneyPanel, useGravityJourney } from "../GravityJourneyTabs";
 import { GravityStageLayout } from "../shared/GravityStageLayout";
 import { gravityStageById } from "../../../application/gravityJourney";

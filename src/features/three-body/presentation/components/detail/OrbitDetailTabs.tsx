@@ -22,7 +22,11 @@ export const OrbitDetailTabs = ({
 
   return (
     <div className="min-w-0 [flex:1]">
-      <div role="tablist" aria-label={t("tabsLabel")} className="flex flex-wrap [gap:4px_8px] [padding-bottom:8px] border-b border-solid border-lab-line">
+      <div
+        role="tablist"
+        aria-label={t("tabsLabel")}
+        className="flex flex-wrap [gap:4px_8px] [padding-bottom:8px] border-b border-solid border-lab-line"
+      >
         {tabs.map((tab, index) => (
           <TabButton
             key={tab}

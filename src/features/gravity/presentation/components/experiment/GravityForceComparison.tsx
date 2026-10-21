@@ -1,6 +1,5 @@
 import { useFormatter, useTranslations } from "next-intl";
 import { getRelativeForceBars } from "../../gravityVisualization";
-import { gravityExperimentStyles as styles } from "./GravityExperiment.styles";
 
 // Define los valores y opciones necesarios para comparar dos fuerzas gravitatorias.
 type ForceComparisonProps = {
@@ -59,24 +58,24 @@ export const GravityForceComparison = ({
 
     return (
       <figure
-        className={styles.challengeComparison}
+        className="min-w-0 m-0 [color:#e2e8f0]"
         aria-labelledby={`${idPrefix}-title`}
         aria-describedby={`${idPrefix}-note`}
       >
-        <h4 id={`${idPrefix}-title`}>{t("challengeComparisonTitle")}</h4>
+        <h4 id={`${idPrefix}-title`} className="[margin:0_0_18px] [font-size:18px] font-semibold leading-normal">{t("challengeComparisonTitle")}</h4>
 
         {rows.map((row) => (
-          <div key={row.key} className={styles.comparisonRow}>
-            <div className={styles.comparisonLabel}>
+          <div key={row.key} className="min-w-0 mt-4">
+            <div className="flex justify-between flex-wrap [gap:6px_12px] [font-size:16px] [line-height:1.5]">
               <span>{row.label}</span>
-              <strong>{percentage(row.ratio)}</strong>
+              <strong className="text-[#95efde] tabular-nums">{percentage(row.ratio)}</strong>
             </div>
 
             <svg
               viewBox="0 0 360 12"
               preserveAspectRatio="none"
               aria-hidden="true"
-              className={styles.challengeBar}
+              className="block w-full [height:12px] [margin-top:4px]"
             >
               <rect width="360" height="12" rx="3" fill="#ffffff0c" />
               <rect
@@ -88,7 +87,7 @@ export const GravityForceComparison = ({
               />
             </svg>
 
-            <p className={styles.comparisonForce}>
+            <p className="[margin:6px_0_0] [color:#b6bdd0] [font-size:14px] [line-height:1.5] [font-variant-numeric:tabular-nums] [overflow-wrap:anywhere]">
               {format.number(row.force, {
                 notation: "scientific",
                 maximumSignificantDigits: 4,
@@ -98,7 +97,7 @@ export const GravityForceComparison = ({
           </div>
         ))}
 
-        <figcaption id={`${idPrefix}-note`}>
+        <figcaption id={`${idPrefix}-note`} className="max-w-[70ch] mt-[18px] text-[#b6bdd0] text-[14px] leading-[1.6] [overflow-wrap:anywhere]">
           {t("challengeComparisonScale", {
             percentage: percentage(
               (scaleForce ?? Math.max(currentForce, initialForce)) /
@@ -130,29 +129,29 @@ export const GravityForceComparison = ({
 
   return (
     <figure
-      className={styles.forceComparison}
+      className="min-w-0 m-0 [padding:6px_14px] [border-top:1px_solid_#ffffff10] [@media(max-width:600px)]:[padding-inline:14px]"
       aria-labelledby={`${idPrefix}-title`}
       aria-describedby={`${idPrefix}-description ${idPrefix}-note`}
     >
-      <h4 id={`${idPrefix}-title`}>{t("forceComparisonTitle")}</h4>
+      <h4 id={`${idPrefix}-title`} className="[margin:0_0_4px] text-[#d0d4e3] [font-size:15px] font-medium leading-normal">{t("forceComparisonTitle")}</h4>
 
       <p id={`${idPrefix}-description`} className="sr-only">
         {t("forceComparisonDescription", { ratio })}
       </p>
 
-      <div className={styles.labComparisonRows}>
+      <div className="grid [grid-template-columns:repeat(2,_minmax(0,_1fr))] [gap:12px] [@media(max-width:600px)]:[grid-template-columns:minmax(0,_1fr)] [@media(max-width:600px)]:[gap:10px]">
         {rows.map((row) => (
-          <div key={row.key} className={styles.comparisonRow}>
-            <div className={styles.comparisonLabel}>
+          <div key={row.key} className="min-w-0 mt-0">
+            <div className="flex justify-between flex-wrap [gap:6px_12px] [font-size:16px] [line-height:1.5]">
               <span>{row.label}</span>
-              <strong>{row.value}</strong>
+              <strong className="text-[#95efde] tabular-nums">{row.value}</strong>
             </div>
 
             <svg
               viewBox="0 0 360 12"
               preserveAspectRatio="none"
               aria-hidden="true"
-              className={styles.challengeBar}
+              className="block w-full [height:12px] [margin-top:4px]"
             >
               <rect width="360" height="12" rx="3" fill="#ffffff08" />
               <rect
@@ -167,7 +166,7 @@ export const GravityForceComparison = ({
         ))}
       </div>
 
-      <figcaption id={`${idPrefix}-note`}>
+      <figcaption id={`${idPrefix}-note`} className="max-w-[52ch] mt-1 text-[#a0a7be] text-[14px] leading-[1.4]">
         {t("forceComparisonScaleShort")}
       </figcaption>
     </figure>

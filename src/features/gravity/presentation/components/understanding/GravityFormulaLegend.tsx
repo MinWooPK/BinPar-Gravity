@@ -47,7 +47,10 @@ export const GravityFormulaLegend = ({ id }: { id: string }) => {
       <div className="flex flex-wrap items-baseline [gap:2px_10px] min-w-0 [&_h4]:[margin:0] [&_h4]:[color:#d6dbea] [&_h4]:[font-size:0.875rem] [&_h4]:[font-weight:600] [&_h4]:[line-height:1.3] [&_h4]:[transition:color_140ms] [@media_(prefers-reduced-motion:_reduce)]:[&_h4]:[transition:none]">
         <h4>{t("formulaConstantTitle")}</h4>
 
-        <p id={`${id}-constant-value`} className="m-0 [color:#e4d7ff] [font-size:1rem] font-semibold [line-height:1.7] in-[#gravity-understanding]:leading-[1.4] [&_sup]:[position:static] [&_sup]:[vertical-align:super] [&_sup]:[font-size:0.7em] [&_sup]:[line-height:0] [&_span]:[display:inline-block] [&_span]:[white-space:nowrap]">
+        <p
+          id={`${id}-constant-value`}
+          className="m-0 [color:#e4d7ff] [font-size:1rem] font-semibold [line-height:1.7] in-[#gravity-understanding]:leading-[1.4] [&_sup]:[position:static] [&_sup]:[vertical-align:super] [&_sup]:[font-size:0.7em] [&_sup]:[line-height:0] [&_span]:[display:inline-block] [&_span]:[white-space:nowrap]"
+        >
           {t.rich("formulaConstantValue", {
             value: format.number(Number(coefficient), {
               minimumFractionDigits: 5,

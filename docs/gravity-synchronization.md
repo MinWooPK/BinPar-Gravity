@@ -1,107 +1,90 @@
 # Sincronización del laboratorio de gravedad
 
-`GravityParametersProvider` conserva una única instancia de `gravityStateReducer`.
-La simulación, los sliders, el tutor y ambas presentaciones de la fórmula leen ese
-mismo estado. La fuerza visible se deriva mediante `gravitationalForce`; G sigue
-siendo 6,67430 × 10⁻¹¹ N·m²/kg². Tres Cuerpos conserva su modelo independiente.
+## ¿Para qué sirve?
 
-## Edición y precedencia
+En Gravity Lab, la fórmula, los controles deslizantes (_sliders_) y la simulación utilizan los mismos valores de masa y distancia.
 
-- Inicio: 40 kg, 40 kg, 8 m; F es la incógnita y ya aparece calculada.
-- Rangos compartidos: masas de 10–100 kg; distancia de 5–20 m. `laboratoryLimits` es la fuente
-  de límites para fórmula, sliders y validación del contexto del tutor.
-- Cada edición resuelve los tres campos conocidos con `solveGravity`. Solo un
-  resultado finito y dentro de rango actualiza los parámetros físicos, en la misma
-  transición del reducer. No hay efecto de sincronización ni botón Aplicar.
-- Se conserva literalmente el texto editado (incluidos coma decimal, exponente
-  incompleto y ceros finales). Una entrada inválida o fuera de rango no cambia
-  los últimos parámetros válidos. La interfaz indica el problema; no se recorta.
-- Un cambio externo —slider o escenario de reto— sustituye el texto pendiente por
-  los parámetros actuales y conserva la incógnita seleccionada. También actualiza
-  el drawer cerrado. Cambiar entre Comprender y Experimentar conserva el estado.
-- Elegir otra incógnita conserva la física ya conocida, evitando volver a invertir
-  los valores válidos y acumular errores de coma flotante en los límites.
-- Los despejes corrigen únicamente el ruido de coma flotante junto a un límite
-  (tolerancia de ocho épsilon de máquina): invertir el escenario 10 kg/10 kg/5,8 m
-  puede producir 9,999999999999998 kg. Los valores escritos no se corrigen ni se
-  recortan; las salidas fuera de rango por encima de esa tolerancia se rechazan.
-- La presentación de la incógnita usa hasta doce cifras significativas para
-  evitar ruido binario visible. El solver y el estado conservan la precisión
-  completa; el formato no se utiliza como entrada de nuevos cálculos.
-- El slider avanza 1 kg o 0,1 m. Si la fórmula aporta un decimal entre esos pasos, lo
-  representa exactamente; el ajuste al paso ocurre únicamente al arrastrarlo.
-  El teclado suma/resta el paso al valor actual.
+La idea es sencilla: **si el usuario cambia un valor en una parte de la aplicación, las demás muestran el resultado actualizado**. Así evitamos que la fórmula indique unos datos y el simulador utilice otros.
+
+## ¿Cómo funciona?
+
+Utilizo un **estado compartido de React** para guardar los parámetros del laboratorio:
+
+- `mass1`: masa del primer cuerpo.
+- `mass2`: masa del segundo cuerpo.
+- `distance`: distancia entre los cuerpos.
+
+`GravityParametersProvider` permite que los componentes consulten y modifiquen ese estado sin tener que pasar los valores manualmente de un componente a otro.
+
+Los cambios se gestionan con `gravityStateReducer`, una función que recibe el estado actual y una acción, y devuelve el nuevo estado.
+
+### Ejemplo: cambiar una masa
+
+1. El usuario cambia la primera masa de **40 kg** a **60 kg** desde un slider o desde la fórmula.
+2. La aplicación comprueba que los valores sean válidos.
+3. El reducer actualiza los parámetros compartidos.
+4. La simulación, los sliders y la fórmula muestran los valores actualizados.
+5. La fuerza gravitatoria se vuelve a calcular mediante `gravitationalForce`.
+
+**No hace falta pulsar «Aplicar» para sincronizar la fórmula:** cuando los valores introducidos son correctos y están dentro del rango permitido, el laboratorio se actualiza automáticamente.
+
+## Validación de los valores
+
+Para evitar resultados incorrectos, el laboratorio tiene unos límites:
+
+| Parámetro | Valores permitidos |
+| --------- | ------------------ |
+| Masa 1    | 10–100 kg          |
+| Masa 2    | 10–100 kg          |
+| Distancia | 5–20 m             |
+
+Si el usuario escribe un valor incorrecto, por ejemplo una masa de **150 kg**, el campo puede mostrar lo que ha escrito y avisar del problema, pero **la simulación conserva los últimos parámetros válidos**.
+
+También se permiten decimales. El texto de entrada se conserva mientras el usuario escribe, incluso si todavía está incompleto.
+
+## La fórmula interactiva
+
+La fórmula utiliza la ley de gravitación universal de Newton:
+
+**F = G · (m₁ · m₂) / r²**
+
+Con **G = 6,67430 × 10⁻¹¹ N·m²/kg²**.
+
+El usuario puede elegir qué valor quiere calcular: fuerza, primera masa, segunda masa o distancia. Los otros campos se utilizan para obtener el resultado.
+
+Si el resultado permite actualizar el laboratorio y está dentro de los límites, el cambio se refleja en la simulación. Si no es válido, se muestra el problema sin alterar los últimos valores correctos.
+
+La fórmula de la etapa «Comprende» y la que aparece en el panel lateral comparten el mismo estado. Por eso, cambiar de etapa o cerrar ese panel no borra los datos introducidos.
 
 ## Restablecer y retos
 
-Restablecer desde la fórmula (integrada o drawer) o Experimentar devuelve **todos**
-los parámetros a 40 kg/40 kg/8 m, elimina la edición pendiente y selecciona F. Esta acción
-no reinicia el progreso educativo de los retos. Entrar en un reto restaura su
-escenario base o su resultado ya comprobado, como antes; avanzar restaura la base.
-Los tres resultados siguen siendo 2×, 4× y ¼ de la fuerza inicial.
+Al pulsar **«Restablecer»**, los parámetros vuelven a sus valores iniciales:
 
-## Comprobaciones automatizadas
+- Masa 1: **40 kg**.
+- Masa 2: **40 kg**.
+- Distancia: **8 m**.
+- Incógnita de la fórmula: **fuerza (F)**.
 
-`tests/gravity-state.test.mjs` verifica las transiciones usadas por el proveedor:
-los cuatro despejes, sincronización en ambos sentidos, decimales, edición inválida,
-valores fuera de rango, restablecimiento y escenarios de los tres retos.
-`formula-input`, `gravitation`, `gravity-visualization` y los tests del tutor cubren
-la ley física, los límites SI, el SVG y el contexto validado en servidor.
+El restablecimiento del laboratorio no borra por sí solo el progreso de los retos educativos. Cada reto conserva su propia lógica de predicciones y resultados.
 
-## Archivos de esta actualización
+## Archivos principales
 
-| Archivo | Cambio |
-| --- | --- |
-| `docs/architecture-refactor.md` | Modificado |
-| `docs/gravity-synchronization.md` | Creado |
-| `messages/en.json` | Modificado |
-| `messages/es.json` | Modificado |
-| `messages/fr.json` | Modificado |
-| `src/features/ai/application/legacyTutorRequest.ts` | Modificado |
-| `src/features/ai/application/tutorContext.ts` | Modificado |
-| `src/features/ai/application/tutorPrompt.ts` | Modificado |
-| `src/features/ai/application/tutorRequest.ts` | Modificado |
-| `src/features/gravity/application/formulaInput.ts` | Modificado |
-| `src/features/gravity/application/gravityState.ts` | Creado |
-| `src/features/gravity/domain/gravitation.ts` | Modificado |
-| `src/features/gravity/presentation/components/GravityIntroduction.tsx` | Modificado |
-| `src/features/gravity/presentation/components/challenges/GravityLab.tsx` | Modificado |
-| `src/features/gravity/presentation/components/experiment/GravityExperiment.tsx` | Modificado |
-| `src/features/gravity/presentation/components/experiment/GravitySlider.tsx` | Modificado |
-| `src/features/gravity/presentation/components/understanding/GravityFormula.tsx` | Modificado |
-| `src/features/gravity/presentation/components/understanding/GravityFormulaAccess.tsx` | Modificado |
-| `src/features/gravity/presentation/components/understanding/GravityFormulaApplication.module.css` | Retirado: aplicación manual obsoleta |
-| `src/features/gravity/presentation/components/understanding/GravityFormulaApplication.tsx` | Retirado: aplicación manual obsoleta |
-| `src/features/gravity/presentation/components/understanding/GravityUnderstandingSimulation.module.css` | Modificado |
-| `src/features/gravity/presentation/components/understanding/GravityUnderstandingSimulation.tsx` | Modificado |
-| `src/features/gravity/presentation/gravityVisualization.ts` | Modificado |
-| `src/features/gravity/presentation/hooks/useGravityFormula.ts` | Retirado: aplicación manual obsoleta |
-| `src/features/gravity/presentation/providers/GravityParametersProvider.tsx` | Modificado |
-| `tests/compare-gravitation.test.mjs` | Modificado |
-| `tests/formula-input.test.mjs` | Modificado |
-| `tests/global-tutor.test.mjs` | Modificado |
-| `tests/gravitation.test.mjs` | Modificado |
-| `tests/gravity-state.test.mjs` | Creado |
-| `tests/gravity-visualization.test.mjs` | Modificado |
-| `tests/translations.test.mjs` | Modificado |
-| `tests/tutor-request.test.mjs` | Modificado |
+| Archivo                                                                         | Responsabilidad                                                              |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `src/features/gravity/presentation/providers/GravityParametersProvider.tsx`     | Comparte los parámetros y las funciones de actualización entre componentes.  |
+| `src/features/gravity/application/gravityState.ts`                              | Contiene el reducer que gestiona los cambios del laboratorio.                |
+| `src/features/gravity/application/formulaInput.ts`                              | Gestiona las entradas y los cálculos de la fórmula.                          |
+| `src/features/gravity/domain/gravitation.ts`                                    | Calcula la fuerza gravitatoria y define los límites físicos del laboratorio. |
+| `src/features/gravity/presentation/components/understanding/GravityFormula.tsx` | Muestra la fórmula y permite editar sus valores.                             |
+| `src/features/gravity/presentation/components/experiment/GravityExperiment.tsx` | Muestra los controles para experimentar con la gravedad.                     |
 
-## Validación de esta versión
+## Cómo comprobarlo
 
-- `npm test`: 117 tests correctos, incluidos 14 casos del reducer compartido.
-- `npm run lint`: correcto, sin avisos.
-- `npm run typecheck`: correcto.
-- `npm run build`: correcto; 30 páginas estáticas generadas.
-- Navegador Chrome sobre la build de producción: sincronización en ambos sentidos,
-  los cuatro despejes, decimales (incluidos valores entre pasos y próximos al paso),
-  edición incompleta/inválida/fuera de rango, foco/cursor, restablecimiento, drawer
-  cerrado/abierto, persistencia entre etapas y los tres retos con barras correctas.
-- Responsive: 90 estados (ES/EN/FR × 320/375/768/1280/1440 px × alturas de
-  600/900 px × Comprender/Experimentar/Retos) y 30 drawers, sin desbordamiento
-  horizontal ni errores de consola/hidratación. Teclado y reduced-motion comprobados.
-- Tutor: contexto enviado comprobado con respuestas simuladas; no se han hecho
-  llamadas al modelo real. Los tests de servidor validan también el contexto SI.
-- Inspección visual adicional: Comprender a 1440×900 y 375×812, con sus valores iniciales.
-- Entorno de la auditoría visual: Chrome con viewport emulado, sin dispositivos
-  físicos ni lector de pantalla real. Se observaron excepciones de runtime y
-  `console.error`; no fue una revisión exhaustiva de todos los logs del servidor.
+1. Abre **Gravedad → Comprende**.
+2. Cambia la masa 1 de 40 kg a 60 kg en la fórmula.
+3. Comprueba que la simulación refleja el cambio y recalcula la fuerza.
+4. Introduce una masa de 150 kg: debe aparecer la validación sin modificar los últimos valores válidos de la simulación.
+5. Entra en **Experimenta** y cambia un slider. Vuelve a **Comprende** para comprobar que la fórmula se ha actualizado.
+6. Pulsa **Restablecer** y verifica que reaparecen los valores iniciales.
+
+Las pruebas unitarias relacionadas están en `tests/gravity-state.test.ts`, `tests/formula-input.test.ts` y `tests/gravitation.test.ts`. Se pueden ejecutar con `npm test`.

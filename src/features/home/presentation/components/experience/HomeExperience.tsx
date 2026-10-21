@@ -13,7 +13,7 @@ import {
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import Earth3D from "../scene/Earth3D";
-import { SpaceBackground } from "@/components/ui/SpaceBackground/SpaceBackground";
+import { SpaceBackground } from "@/components/ui/SpaceBackground";
 
 type HomeView = "introduction" | "topics";
 type HomeContextValue = {

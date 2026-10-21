@@ -1,15 +1,14 @@
 import type { TutorContext } from "../types/tutor.types";
 
+// Define el identificador de la conversación global del Tutor IA.
 export type TutorSessionId = "global";
+
+// Devuelve la clave de la sesión del Tutor IA.
 export const getTutorSessionKey = (): TutorSessionId => "global";
+
+// Devuelve la clave utilizada para identificar la conversación.
 export const getTutorConversationKey = (): TutorSessionId => "global";
 
-/** Disabled throughout Three Body, including nested and localized routes. */
-export function routeTutorContext(pathname: string): TutorContext | null {
-  const path = pathname.replace(/^\/(es|en|fr)(?=\/|$)/, "").replace(/\/$/, "");
-  if (path === "/three-body" || path.startsWith("/three-body/")) return null;
-  // Gravity publishes its actual parameters through TutorContextBridge.
-  return { kind: "home", stage: null };
-}
+// Genera un identificador según la página y la etapa actual.
 export const tutorContextId = (context: TutorContext) =>
   `${context.kind}:${context.stage ?? "welcome"}`;

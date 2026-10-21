@@ -11,10 +11,7 @@ type Props = {
   label: string;
 };
 
-/**
- * Representación de una trayectoria LIBRE: el tiempo se limita a duration,
- * nunca usa un módulo ni supone que la órbita se repite.
- */
+//  Representación de una trayectoria LIBRE: el tiempo se limita a duration
 export const ExperimentAnimation = ({
   trajectory,
   elapsed,
@@ -36,21 +33,25 @@ export const ExperimentAnimation = ({
 
   // Usamos la misma escala en ambos ejes para no deformar la trayectoria.
   const scale = 108 / Math.max(bounds.radius, 1e-9);
-  const point = (x: number, y: number) => [
-    200 + (x - bounds.cx) * scale,
-    130 - (y - bounds.cy) * scale,
-  ] as const;
+  const point = (x: number, y: number) =>
+    [200 + (x - bounds.cx) * scale, 130 - (y - bounds.cy) * scale] as const;
 
-  const trails = !showTrails ? [] : colors.map((_, body) => {
-    const points = samples.slice(0, index + 1).map((sample) =>
-      point(sample[body * 2], sample[body * 2 + 1]).join(","),
-    );
-    // La estela llega a la posición actual, interpolada entre muestras.
-    points.push(
-      point(bodyCoordinates[body * 2], bodyCoordinates[body * 2 + 1]).join(","),
-    );
-    return points.join(" ");
-  });
+  const trails = !showTrails
+    ? []
+    : colors.map((_, body) => {
+        const points = samples
+          .slice(0, index + 1)
+          .map((sample) =>
+            point(sample[body * 2], sample[body * 2 + 1]).join(","),
+          );
+        // La estela llega a la posición actual, interpolada entre muestras.
+        points.push(
+          point(bodyCoordinates[body * 2], bodyCoordinates[body * 2 + 1]).join(
+            ",",
+          ),
+        );
+        return points.join(" ");
+      });
 
   return (
     <svg
@@ -96,4 +97,3 @@ export const ExperimentAnimation = ({
     </svg>
   );
 };
-

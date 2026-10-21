@@ -11,7 +11,7 @@ import {
 
 import { usePathname } from "@/i18n/navigation";
 import type { TutorContext } from "../../types/tutor.types";
-import { routeTutorContext } from "../../application/tutorAvailability";
+import { initialParameters } from "@/features/gravity/domain/gravitation";
 
 import {
   EnvironmentContext,
@@ -20,15 +20,14 @@ import {
   type TutorLauncher,
 } from "./tutorEnvironment";
 
-import { GlobalTutor } from "../components/GlobalTutor";
+import { GlobalTutor } from "../components/global-tutor/GlobalTutor";
 import { TutorConversationProvider } from "../hooks/useTutorConversation";
 
-// Gestiona el entorno global del Tutor IA, compartiendo
-// el contexto de las páginas y las acciones disponibles.
+// Comparte la conversación y las acciones entre las etapas de Gravedad.
+// Su layout monta este provider exclusivamente dentro de esa sección.
 export const TutorProvider = ({ children }: { children: ReactNode }) => {
   // Obtiene la ruta actual de la aplicación.
   const pathname = usePathname();
-  const available = routeTutorContext(pathname) !== null;
 
   // Almacena el contexto publicado por la página activa.
   const [published, setPublished] = useState<PublishedContext | null>(null);
@@ -66,9 +65,9 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
   // Permite abrir el Tutor IA desde cualquier componente.
   const openTutor = useCallback<TutorLauncher>(
     (intent, trigger) => {
-      if (available) launcherRef.current?.(intent, trigger);
+      launcherRef.current?.(intent, trigger);
     },
-    [available],
+    [],
   );
 
   // Registra la función que controla la apertura del Tutor IA.
@@ -100,19 +99,17 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
   // Obtiene el contexto actual y las acciones disponibles
   // para las peticiones y propuestas del Tutor IA.
   const current = useCallback((): PublishedContext | null => {
-    const fallback = routeTutorContext(pathname);
-    if (!fallback) return null;
     const value = publishedRef.current;
-    return value?.pathname === pathname
-      ? value
-      : { pathname, context: fallback };
+    // Solo se envían peticiones con el estado real publicado por Gravedad.
+    return value?.pathname === pathname ? value : null;
   }, [pathname]);
 
   const context = useMemo<TutorContext>(
-    () => available && published?.pathname === pathname
-      ? published.context
-      : { kind: "home", stage: null },
-    [available, published, pathname],
+    () =>
+      published?.pathname === pathname
+        ? published.context
+        : { kind: "gravity", stage: null, parameters: initialParameters },
+    [published, pathname],
   );
 
   // Agrupa el contexto global, la sesión y las funciones
@@ -144,7 +141,7 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
     <EnvironmentContext.Provider value={environment}>
       <TutorConversationProvider>
         {children}
-        {available && <GlobalTutor />}
+        <GlobalTutor />
       </TutorConversationProvider>
     </EnvironmentContext.Provider>
   );

@@ -1,5 +1,5 @@
 import { useTranslations } from "next-intl";
-import { GravityEducationalCard } from "./GravityEducationalCard";
+import { GravityEducationalCard } from "./gravity-educational-card/GravityEducationalCard";
 import { GravityScienceCard } from "./GravityScienceCard";
 import { GravitySplitPanels } from "../shared/GravitySplitPanels";
 

@@ -1,4 +1,4 @@
-import { parseTutorRequest } from "@/features/ai/application/tutorRequest";
+import { parseTutorRequest } from "@/features/ai/application/tutor-request/tutorRequest";
 import { openaiTutor } from "@/features/ai/infrastructure/openaiTutor";
 import { getTranslations } from "next-intl/server";
 import {

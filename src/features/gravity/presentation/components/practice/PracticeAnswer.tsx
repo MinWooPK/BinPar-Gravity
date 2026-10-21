@@ -10,10 +10,6 @@ import {
 } from "../../../domain/practice/input";
 
 import type { Answer, Question } from "../../../types/practice/practice.types";
-import { practiceStyles } from "./Practice.styles";
-
-// Reutiliza los estilos de los botones secundarios de la práctica.
-const practiceButton = practiceStyles.secondary;
 
 // Define los estilos de los campos para introducir respuestas numéricas.
 const inputClass =
@@ -134,7 +130,7 @@ export const PracticeAnswer = ({
                 <button
                   key={delta}
                   type="button"
-                  className={practiceButton}
+                  className="inline-flex min-h-11 scroll-mb-24 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-200 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none border border-slate-500/60 text-slate-200 enabled:cursor-pointer enabled:hover:border-violet-300/60 enabled:hover:bg-violet-300/10"
                   aria-label={t(delta < 0 ? "decrease" : "increase")}
                   onClick={() =>
                     onChange({

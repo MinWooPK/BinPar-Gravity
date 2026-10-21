@@ -5,9 +5,8 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 
 import { routing } from "@/i18n/routing";
-import { Header } from "@/components/layout/Header";
+import { Header } from "@/components/layout/Header/Header";
 import { Footer } from "@/components/layout/Footer";
-import { TutorProvider } from "@/features/ai/presentation/providers/TutorProvider";
 
 import "../globals.css";
 
@@ -30,14 +29,6 @@ export const metadata: Metadata = {
   // Mantiene el icono en la pestaña del navegador.
   icons: {
     icon: "/gravity-lab.ico",
-  },
-
-  // Información para compartir enlaces, sin imagen.
-  openGraph: {
-    title: "BinPar · Gravity Lab",
-    description: "Aprende física con simulaciones interactivas.",
-    type: "website",
-    images: [],
   },
 };
 
@@ -65,11 +56,9 @@ const RootLayout = async ({ children, params }: RootLayoutProps) => {
     >
       <body className="flex min-h-dvh min-w-0 flex-col">
         <NextIntlClientProvider>
-          <TutorProvider>
-            <Header />
-            <main className="min-w-0 flex-1">{children}</main>
-            <Footer />
-          </TutorProvider>
+          <Header />
+          <main className="min-w-0 flex-1">{children}</main>
+          <Footer />
         </NextIntlClientProvider>
       </body>
     </html>

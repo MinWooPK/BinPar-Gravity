@@ -9,12 +9,7 @@ export type GravityTutorContext = {
   stage: GravityStageId | null;
   parameters: GravityParameters;
 };
-export type TutorContext =
-  | GravityTutorContext
-  | {
-      kind: "home";
-      stage: null;
-    };
+export type TutorContext = GravityTutorContext;
 export type TutorMessage = { role: "user" | "assistant"; content: string };
 export type TutorIntent =
   | "explain_formula"

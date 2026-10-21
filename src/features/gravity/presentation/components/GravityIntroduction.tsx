@@ -2,13 +2,11 @@
 
 import { useTranslations } from "next-intl";
 
-import {
-  GravityFormula,
-  GravityFormulaEducation,
-} from "./understanding/GravityFormula";
+import { GravityFormula } from "./understanding/gravity-formula/GravityFormula";
 import { gravityStageById } from "../../application/gravityJourney";
 import { GravityContentTabs } from "./shared/GravityContentTabs";
 import { GravityStageLayout } from "./shared/GravityStageLayout";
+import { GravityFormulaEducation } from "./understanding/gravity-formula/GravityFormulaEducation";
 
 export const GravityIntroduction = () => {
   const t = useTranslations("Gravity");

@@ -1,0 +1,94 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+import {
+  restoreTutorHistory,
+  serializeTutorHistory,
+  TUTOR_HISTORY_KEY,
+} from "@/features/ai/application/tutorHistory";
+
+import type {
+  ChatMessage,
+  TutorSession,
+} from "@/features/ai/types/conversation.types";
+
+// Crea una sesión vacía.
+export const emptySession = (): TutorSession => ({
+  messages: [],
+  draft: "",
+  pending: false,
+  error: "",
+});
+
+// Gestiona las sesiones y su almacenamiento local.
+export const useTutorSessions = () => {
+  const [sessions, setSessions] = useState<Record<string, TutorSession>>({});
+
+  const sessionsRef = useRef(sessions);
+  const sequence = useRef(0);
+
+  // Genera un identificador único para cada mensaje.
+  const nextMessageId = () => ++sequence.current;
+
+  const restored = useRef(false);
+
+  // Actualiza la sesión y guarda sus mensajes.
+  const update = (target: string, patch: Partial<TutorSession>) => {
+    const next = {
+      ...sessionsRef.current,
+      [target]: {
+        ...(sessionsRef.current[target] ?? emptySession()),
+        ...patch,
+      },
+    };
+
+    sessionsRef.current = next;
+    setSessions(next);
+
+    if (restored.current && patch.messages) {
+      try {
+        localStorage.setItem(
+          TUTOR_HISTORY_KEY,
+          serializeTutorHistory(next[target].messages),
+        );
+      } catch {
+        // Mantiene el historial en memoria si falla localStorage.
+      }
+    }
+  };
+
+  // Recupera el historial guardado al montar el provider.
+  useEffect(() => {
+    if (restored.current) return;
+
+    restored.current = true;
+
+    let messages: ChatMessage[] = [];
+
+    try {
+      messages = restoreTutorHistory(localStorage.getItem(TUTOR_HISTORY_KEY));
+    } catch {
+      // Continúa con una conversación vacía.
+    }
+
+    sequence.current = Math.max(0, ...messages.map((message) => message.id));
+
+    const next = {
+      global: {
+        ...emptySession(),
+        messages,
+      },
+    };
+
+    sessionsRef.current = next;
+    setSessions(next);
+  }, []);
+
+  return {
+    sessions,
+    sessionsRef,
+    nextMessageId,
+    update,
+  };
+};
