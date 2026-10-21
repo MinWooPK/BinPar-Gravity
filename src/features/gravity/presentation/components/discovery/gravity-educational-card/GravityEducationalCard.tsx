@@ -62,13 +62,13 @@ export const GravityEducationalCard = () => {
                 {t("discoveryDefinition")}
               </h3>
 
-              <p className="text-[15px] leading-normal text-[#b2bad0]">
+              <p className="text-[1.0625rem] leading-normal text-[#b2bad0]">
                 {t("discoveryExplanation")}
               </p>
 
               <EarthMoonDiagram id={id} />
 
-              <p className="text-[15px] leading-normal text-[#b2bad0]">
+              <p className="text-[1.0625rem] leading-normal text-[#b2bad0]">
                 {t("discoveryPhenomena")}
               </p>
             </div>
@@ -93,11 +93,11 @@ export const GravityEducationalCard = () => {
                     key={scientist}
                     className="border-l-2 border-[#746392] pl-3"
                   >
-                    <h4 className="mb-0.75 text-[15px] leading-[1.4] font-semibold text-[#e4e8f2]">
+                    <h4 className="mb-0.75 text-[1.0625rem] leading-[1.4] font-semibold text-[#e4e8f2]">
                       {t(`discoveryHistory${scientist}Title`)}
                     </h4>
 
-                    <p className="text-[15px] leading-normal text-[#b2bad0]">
+                    <p className="text-[1.0625rem] leading-normal text-[#b2bad0]">
                       {t(`discoveryHistory${scientist}`)}
                     </p>
                   </li>

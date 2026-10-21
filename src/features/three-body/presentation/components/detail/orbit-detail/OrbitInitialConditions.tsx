@@ -78,7 +78,7 @@ export const OrbitInitialConditions = async ({
       {index >= 2 && (
         <p
           className="in-[.lab-three-body-detail-tab-panel]:border-l-2 in-[.lab-three-body-detail-tab-panel]:border-[#aa97ff80] 
-        in-[.lab-three-body-detail-tab-panel]:pl-2 in-[.lab-three-body-detail-tab-panel]:text-[0.8125rem]"
+        in-[.lab-three-body-detail-tab-panel]:pl-2 in-[.lab-three-body-detail-tab-panel]:text-[0.9375rem]"
         >
           {t("detail.refinedConditions", {
             publishedPeriod: originalPeriod.toFixed(8),

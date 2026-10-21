@@ -50,10 +50,10 @@ export const GravityFormulaEducation = () => {
                 (field.key === "mass1" || field.key === "mass2"))
             }
           >
-            <h4 className="lab-gravity-formula-field-title flex items-baseline justify-between [gap:6px] [margin-bottom:4px] [color:#d6dbea] [font-size:.9375rem] font-semibold [line-height:1.3] [transition:color_140ms] [@media(max-width:520px)]:[font-size:1rem] in-[#gravity-understanding]:mb-0.5 [&_>_span]:[color:#b9a8ff] [&_>_span]:[font-family:Georgia,_serif] [&_>_span]:[font-size:1rem] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]">
+            <h4 className="lab-gravity-formula-field-title flex items-baseline justify-between [gap:6px] [margin-bottom:4px] [color:#d6dbea] [font-size:1rem] font-semibold [line-height:1.3] [transition:color_140ms] [@media(max-width:520px)]:[font-size:1.0625rem] in-[#gravity-understanding]:mb-0.5 [&_>_span]:[color:#b9a8ff] [&_>_span]:[font-family:Georgia,_serif] [&_>_span]:[font-size:1rem] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]">
               {t(field.label)} <MathText>{field.symbol}</MathText>
             </h4>
-            <p id={`${id}-description-${field.key}`} className="[min-height:1.45em] [margin:6px_0] [color:#aeb8cb] [font-size:.875rem] [line-height:1.45] in-[#gravity-understanding]:my-0.5 [&_strong]:[color:#d8c9ff] [&_strong]:[font-weight:600]">
+            <p id={`${id}-description-${field.key}`} className="[min-height:1.45em] [margin:6px_0] [color:#aeb8cb] [font-size:1rem] [line-height:1.45] in-[#gravity-understanding]:my-0.5 [&_strong]:[color:#d8c9ff] [&_strong]:[font-weight:600]">
               {t.rich(field.description, {
                 highlight: (chunks) => <strong>{chunks}</strong>,
               })}

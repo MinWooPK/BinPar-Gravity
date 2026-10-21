@@ -45,17 +45,17 @@ export const OrbitDetailHeader = async ({
         </h2>
 
         <dl className="period-stat m-0 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <dt className="text-[0.8125rem] text-[#b6bdd0]">
+          <dt className="text-[0.9375rem] text-[#b6bdd0]">
             {t("detail.period")}
           </dt>
 
-          <dd className="m-0 text-[1.375rem] leading-[1.3] font-semibold text-[#b7f3e7] tabular-nums">
+          <dd className="m-0 text-[1.4375rem] leading-[1.3] font-semibold text-[#b7f3e7] tabular-nums">
             <data value={orbit.period} title={String(orbit.period)}>
               {orbit.period.toFixed(4)}
             </data>{" "}
             <abbr
               title={t("detail.periodUnitLabel")}
-              className="text-[0.8125rem] font-normal no-underline"
+              className="text-[0.9375rem] font-normal no-underline"
             >
               {t("detail.periodUnit")}
             </abbr>
@@ -64,7 +64,7 @@ export const OrbitDetailHeader = async ({
       </div>
 
       <p
-        className="m-0 text-[0.9375rem] leading-normal text-[#b6bdd0]"
+        className="m-0 text-[1.0625rem] leading-normal text-[#b6bdd0]"
         lang="es"
       >
         {orbit.description}

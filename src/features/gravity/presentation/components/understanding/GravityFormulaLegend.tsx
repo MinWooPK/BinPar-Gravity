@@ -44,7 +44,7 @@ export const GravityFormulaLegend = ({ id }: { id: string }) => {
         G
       </button>
 
-      <div className="flex flex-wrap items-baseline [gap:2px_10px] min-w-0 [&_h4]:[margin:0] [&_h4]:[color:#d6dbea] [&_h4]:[font-size:0.875rem] [&_h4]:[font-weight:600] [&_h4]:[line-height:1.3] [&_h4]:[transition:color_140ms] [@media_(prefers-reduced-motion:_reduce)]:[&_h4]:[transition:none]">
+      <div className="flex flex-wrap items-baseline [gap:2px_10px] min-w-0 [&_h4]:[margin:0] [&_h4]:[color:#d6dbea] [&_h4]:[font-size:0.9375rem] [&_h4]:[font-weight:600] [&_h4]:[line-height:1.3] [&_h4]:[transition:color_140ms] [@media_(prefers-reduced-motion:_reduce)]:[&_h4]:[transition:none]">
         <h4>{t("formulaConstantTitle")}</h4>
 
         <p
@@ -65,7 +65,7 @@ export const GravityFormulaLegend = ({ id }: { id: string }) => {
 
         <p
           id={`${id}-constant-description`}
-          className="[flex-basis:100%] m-0 [color:#aeb8cb] [font-size:.8125rem] [line-height:1.45]"
+          className="[flex-basis:100%] m-0 [color:#aeb8cb] [font-size:0.9375rem] [line-height:1.45]"
         >
           {t("formulaConstantDescription")}
         </p>

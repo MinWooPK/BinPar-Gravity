@@ -63,7 +63,7 @@ export const OrbitDetailTabs = ({
           hidden={selected !== tab}
           className="lab-three-body-detail-tab-panel min-h-37.5 min-w-0 rounded-sm pt-3 
           animate-[lab-three-body-detail-reveal_180ms_ease-out] [[hidden]]:hidden 
-          [&_h3]:mb-1.5 [&_h3]:text-base [&_h3]:leading-[1.4] [&_h3]:font-semibold [&_p]:mb-2 [&_p]:text-sm 
+          [&_h3]:mb-1.5 [&_h3]:text-base [&_h3]:leading-[1.4] [&_h3]:font-semibold [&_p]:mb-2 [&_p]:text-[1rem]
           [&_p]:leading-normal [&_p]:text-[#c4ccde] [&_p:last-child]:mb-0 motion-reduce:animate-none"
           data-orbit-detail-panel={tab}
         >

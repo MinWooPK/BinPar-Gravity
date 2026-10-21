@@ -23,13 +23,20 @@
   --color-lab-text: var(--lab-text);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* Un píxel más en la escala habitual, sin cambiar la unidad rem del diseño. */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.1875rem;
+  --text-xl: 1.3125rem;
+  --text-2xl: 1.5625rem;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
-  font-size: 1.125rem;
+  font-size: 1.1875rem;
   line-height: 1.7;
 }
 

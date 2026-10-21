@@ -35,7 +35,7 @@ export const OrbitDetailInformation = async ({
 
             <p lang="es">{orbit.insight}</p>
 
-            <p className="in-[.lab-three-body-detail-tab-panel]:text-[0.8125rem] in-[.lab-three-body-detail-tab-panel]:text-[#abb7cd]">
+            <p className="in-[.lab-three-body-detail-tab-panel]:text-[0.9375rem] in-[.lab-three-body-detail-tab-panel]:text-[#abb7cd]">
               {t("detail.idealBodies")}
             </p>
           </>
@@ -83,7 +83,7 @@ export const OrbitDetailInformation = async ({
         </h3>
 
         <p
-          className="m-0 text-[0.8125rem] leading-normal text-[#b6bdd0]"
+          className="m-0 text-[0.9375rem] leading-normal text-[#b6bdd0]"
           lang="es"
         >
           {orbit.sourceLabel}
@@ -93,7 +93,7 @@ export const OrbitDetailInformation = async ({
           href={orbit.source}
           target="_blank"
           rel="noopener noreferrer"
-          className="source-link inline-flex min-h-11 items-center gap-2 text-[0.8125rem] leading-normal text-[#d0c1ff] underline underline-offset-4 transition-colors duration-150 hover:text-[#eee7ff] motion-reduce:transition-none"
+          className="source-link inline-flex min-h-11 items-center gap-2 text-[0.9375rem] leading-normal text-[#d0c1ff] underline underline-offset-4 transition-colors duration-150 hover:text-[#eee7ff] motion-reduce:transition-none"
         >
           {t("detail.sourceLink")}
 

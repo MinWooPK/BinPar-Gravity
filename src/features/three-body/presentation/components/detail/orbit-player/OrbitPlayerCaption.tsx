@@ -31,7 +31,7 @@ export const OrbitPlayerCaption = ({ children }: OrbitPlayerCaptionProps) => {
         ))}
       </ul>
 
-      <p className="mx-auto mt-1.5 mb-0 max-w-208 text-center text-[0.8125rem] leading-normal text-[#b6bfd3]">
+      <p className="mx-auto mt-1.5 mb-0 max-w-208 text-center text-[0.9375rem] leading-normal text-[#b6bfd3]">
         {t("animationTiming")}
       </p>
 

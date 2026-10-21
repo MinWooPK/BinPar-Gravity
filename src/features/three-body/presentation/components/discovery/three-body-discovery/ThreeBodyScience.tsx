@@ -11,8 +11,8 @@ export const ThreeBodyScience = ({ id }: { id: string }) => {
     <section
       className="flex flex-col gap-3.5 min-w-0 p-4.5 border border-solid border-lab-line 
       rounded-[14px] [background:linear-gradient(145deg,#131724,#0e121d)] text-[#b2bad0]
-       text-[.9375rem] leading-normal wrap-anywhere [@media(max-width:600px)]:p-[16px_12px] 
-       lab-three-body-discovery-science [&&]:gap-2 [&&]:text-[0.875rem] [&&]:leading-[1.45] [&_p]:m-0"
+       text-[1rem] leading-normal wrap-anywhere [@media(max-width:600px)]:p-[16px_12px]
+       lab-three-body-discovery-science [&&]:gap-2 [&&]:text-[1rem] [&&]:leading-[1.45] [&_p]:m-0"
       aria-labelledby={`${id}-science`}
       data-three-body-science
     >
@@ -75,7 +75,7 @@ export const ThreeBodyScience = ({ id }: { id: string }) => {
       </dl>
       <aside
         className="p-[9px_11px] [border:1px_solid_#294543] rounded-lg [background:#5ee7d508] text-[#b8d3d2] 
-      [&_h3]:m-[0_0_4px] [&_h3]:text-[#c2e7e1] [&_h3]:text-[0.875rem] [&_h3]:font-semibold"
+      [&_h3]:m-[0_0_4px] [&_h3]:text-[#c2e7e1] [&_h3]:text-[1rem] [&_h3]:font-semibold"
       >
         <h3>{t("science.normalizedTitle")}</h3>
         <p>{t("science.normalized")}</p>

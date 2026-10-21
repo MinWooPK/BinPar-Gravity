@@ -31,7 +31,7 @@ export const OrbitDetailNavigation = async ({
       </Link>
 
       <div className="next-orbit flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="text-[0.8125rem] text-[#b6bdd0]">
+        <span className="text-[0.875rem] text-[#b6bdd0]">
           {t("detail.nextOrbit")}
         </span>
 
