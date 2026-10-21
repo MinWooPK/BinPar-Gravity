@@ -132,6 +132,7 @@ He utilizado IA de forma intensiva como apoyo para generar y refactorizar códig
 
 ## Documentación técnica
 
+- [Guía de demostración para el evaluador](docs/demo-guide.md)
 - [Arquitectura](ARCHITECTURE.md)
 - [Sincronización entre fórmula y laboratorio](docs/gravity-synchronization.md)
 - [Propuestas del Tutor IA](docs/gravity-tutor-proposal.md)
