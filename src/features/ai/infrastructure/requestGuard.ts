@@ -1,178 +1,164 @@
 import { TUTOR_MAX_BODY_BYTES } from "../application/tutor";
 
-// Define la duración de la ventana de limitación de peticiones: 60 segundos.
+// Límites de peticiones a la IA.
 export const TUTOR_RATE_WINDOW_MS = 60_000;
-
-// Establece el máximo de peticiones permitidas por cliente y ventana.
 export const TUTOR_REQUESTS_PER_CLIENT = 8;
-
-// Establece el máximo de peticiones permitidas por proceso y ventana.
 export const TUTOR_REQUESTS_PER_PROCESS = 40;
-
-// Limita el número de peticiones que pueden ejecutarse simultáneamente.
 export const TUTOR_MAX_CONCURRENT_REQUESTS = 4;
 
-// Define el número máximo de clientes que se pueden registrar en memoria.
 const MAX_TRACKED_CLIENTS = 1024;
 
-// Define los contadores de peticiones y actividad de cada cliente.
-type Bucket = { count: number; started: number; active: number };
+// Guarda las peticiones de cada cliente.
+type Registro = {
+  cantidad: number;
+  inicio: number;
+  activas: number;
+};
 
-// Define el resultado de solicitar permiso para realizar una petición.
-type Permit =
+// Resultado de comprobar si una petición está permitida.
+type Permiso =
   | { allowed: true; release: () => void }
   | { allowed: false; retryAfterSeconds: number };
 
-// Crea un limitador de peticiones para proteger la API del Tutor IA
-// frente a solicitudes excesivas y llamadas simultáneas.
-export const createTutorLimiter = (now: () => number = Date.now) => {
-  // Almacena los contadores de las peticiones de cada cliente.
-  const clients = new Map<string, Bucket>();
+// Controla cuántas peticiones pueden hacerse a la IA.
+export const createTutorLimiter = (ahora: () => number = Date.now) => {
+  const clientes = new Map<string, Registro>();
 
-  // Guarda el inicio de la ventana temporal del proceso.
-  let windowStarted = now();
-
-  // Cuenta las peticiones realizadas durante la ventana actual.
-  let processCount = 0;
-
-  // Cuenta las peticiones que se están ejecutando simultáneamente.
-  let active = 0;
+  let inicioVentana = ahora();
+  let totalPeticiones = 0;
+  let activas = 0;
 
   return {
-    // Comprueba si un cliente puede realizar una nueva petición.
-    acquire(client: string): Permit {
-      // Obtiene el instante actual.
-      const time = now();
+    acquire(cliente: string): Permiso {
+      const tiempo = ahora();
 
-      if (time - windowStarted >= TUTOR_RATE_WINDOW_MS) {
-        windowStarted = time;
-        processCount = 0;
+      // Reinicia el contador cada 60 segundos.
+      if (tiempo - inicioVentana >= TUTOR_RATE_WINDOW_MS) {
+        inicioVentana = tiempo;
+        totalPeticiones = 0;
       }
 
-      for (const [key, bucket] of clients) {
+      // Elimina los registros antiguos.
+      for (const [clave, registro] of clientes) {
         if (
-          time - bucket.started >= TUTOR_RATE_WINDOW_MS &&
-          bucket.active === 0
+          tiempo - registro.inicio >= TUTOR_RATE_WINDOW_MS &&
+          registro.activas === 0
         )
-          clients.delete(key);
+          clientes.delete(clave);
       }
 
-      // Recupera los contadores del cliente que solicita acceso.
-      let bucket = clients.get(client);
+      let registro = clientes.get(cliente);
 
-      if (bucket && time - bucket.started >= TUTOR_RATE_WINDOW_MS) {
-        bucket.count = 0;
-        bucket.started = time;
+      if (registro && tiempo - registro.inicio >= TUTOR_RATE_WINDOW_MS) {
+        registro.cantidad = 0;
+        registro.inicio = tiempo;
       }
 
+      // Comprueba si se ha superado algún límite.
       if (
-        (!bucket && clients.size >= MAX_TRACKED_CLIENTS) ||
-        processCount >= TUTOR_REQUESTS_PER_PROCESS ||
-        active >= TUTOR_MAX_CONCURRENT_REQUESTS ||
-        (bucket &&
-          (bucket.count >= TUTOR_REQUESTS_PER_CLIENT || bucket.active >= 1))
+        (!registro && clientes.size >= MAX_TRACKED_CLIENTS) ||
+        totalPeticiones >= TUTOR_REQUESTS_PER_PROCESS ||
+        activas >= TUTOR_MAX_CONCURRENT_REQUESTS ||
+        (registro &&
+          (registro.cantidad >= TUTOR_REQUESTS_PER_CLIENT ||
+            registro.activas >= 1))
       ) {
-        // Calcula cuándo podrá volver a intentar la petición.
-        const retryAt =
-          Math.max(windowStarted, bucket?.started ?? windowStarted) +
+        const proximoIntento =
+          Math.max(inicioVentana, registro?.inicio ?? inicioVentana) +
           TUTOR_RATE_WINDOW_MS;
 
         return {
           allowed: false,
-          retryAfterSeconds: Math.max(1, Math.ceil((retryAt - time) / 1000)),
+          retryAfterSeconds: Math.max(
+            1,
+            Math.ceil((proximoIntento - tiempo) / 1000),
+          ),
         };
       }
 
-      if (!bucket) {
-        bucket = { count: 0, started: time, active: 0 };
-        clients.set(client, bucket);
+      // Registra un cliente nuevo.
+      if (!registro) {
+        registro = { cantidad: 0, inicio: tiempo, activas: 0 };
+        clientes.set(cliente, registro);
       }
 
-      bucket.count++;
-      bucket.active++;
-      processCount++;
-      active++;
+      // Cuenta la nueva petición.
+      registro.cantidad++;
+      registro.activas++;
+      totalPeticiones++;
+      activas++;
 
-      // Conserva la referencia al contador del cliente autorizado.
-      const acquiredBucket = bucket;
-
-      // Evita liberar el mismo permiso más de una vez.
-      let released = false;
+      const registroAutorizado = registro;
+      let liberado = false;
 
       return {
         allowed: true,
-        release: () => {
-          if (released) return;
 
-          released = true;
-          acquiredBucket.active--;
-          active--;
+        // Libera el permiso al terminar la petición.
+        release: () => {
+          if (liberado) return;
+
+          liberado = true;
+          registroAutorizado.activas--;
+          activas--;
         },
       };
     },
   };
 };
 
-// Define el error utilizado cuando una petición supera
-// el tamaño máximo permitido.
+// Error cuando la petición es demasiado grande.
 export class TutorBodyTooLargeError extends Error {}
 
-// Lee el contenido de una petición HTTP controlando
-// su tamaño máximo y el tiempo disponible para recibirla.
-export const readTutorBody = async (request: Request): Promise<string> => {
-  // Obtiene el tamaño declarado de la petición, si existe.
-  const declared = request.headers.get("content-length");
+// Lee una petición y controla su tamaño y tiempo de espera.
+export const readTutorBody = async (peticion: Request): Promise<string> => {
+  const declarado = peticion.headers.get("content-length");
 
-  if (declared && Number(declared) > TUTOR_MAX_BODY_BYTES)
+  if (declarado && Number(declarado) > TUTOR_MAX_BODY_BYTES)
     throw new TutorBodyTooLargeError();
 
-  if (!request.body) return "";
+  if (!peticion.body) return "";
 
-  // Permite leer el contenido recibido por fragmentos.
-  const reader = request.body.getReader();
+  const lector = peticion.body.getReader();
+  const decodificador = new TextDecoder();
 
-  // Convierte los fragmentos de bytes en texto.
-  const decoder = new TextDecoder();
+  // Tiempo máximo de lectura: 5 segundos.
+  const plazo = AbortSignal.timeout(5000);
 
-  // Establece un tiempo máximo de lectura de cinco segundos.
-  const deadline = AbortSignal.timeout(5000);
-
-  // Acumula el tamaño total recibido en bytes.
   let bytes = 0;
+  let texto = "";
 
-  // Almacena el contenido de texto recibido.
-  let text = "";
-
-  // Cancela la lectura del contenido cuando sea necesario.
-  const cancel = () => {
-    void reader.cancel().catch(() => {});
+  // Cancela la lectura cuando sea necesario.
+  const cancelar = () => {
+    void lector.cancel().catch(() => {});
   };
 
-  deadline.addEventListener("abort", cancel, { once: true });
-  request.signal.addEventListener("abort", cancel, { once: true });
+  plazo.addEventListener("abort", cancelar, { once: true });
+  peticion.signal.addEventListener("abort", cancelar, { once: true });
 
   try {
     while (true) {
-      // Lee el siguiente fragmento de la petición.
-      const chunk = await reader.read();
+      const fragmento = await lector.read();
 
-      if (deadline.aborted || request.signal.aborted)
+      if (plazo.aborted || peticion.signal.aborted)
         throw new Error("Request body aborted");
 
-      if (chunk.done) break;
+      if (fragmento.done) break;
 
-      bytes += chunk.value.byteLength;
+      // Comprueba el tamaño recibido.
+      bytes += fragmento.value.byteLength;
 
       if (bytes > TUTOR_MAX_BODY_BYTES) throw new TutorBodyTooLargeError();
 
-      text += decoder.decode(chunk.value, { stream: true });
+      texto += decodificador.decode(fragmento.value, { stream: true });
     }
 
-    return text + decoder.decode();
+    return texto + decodificador.decode();
   } finally {
-    deadline.removeEventListener("abort", cancel);
-    request.signal.removeEventListener("abort", cancel);
-    cancel();
-    reader.releaseLock();
+    // Limpia los recursos al terminar.
+    plazo.removeEventListener("abort", cancelar);
+    peticion.signal.removeEventListener("abort", cancelar);
+    cancelar();
+    lector.releaseLock();
   }
 };

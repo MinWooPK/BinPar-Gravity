@@ -10,40 +10,40 @@ import type {
 
 import type { TutorContext } from "../types/tutor.types";
 
-// Define el contexto y las funciones disponibles para aplicar
-// propuestas del Tutor IA en Gravedad.
-type ProposalTarget = {
+// Datos necesarios para aplicar una propuesta.
+type DestinoPropuesta = {
   context: TutorContext;
   gravity?: GravityProposalPort;
 } | null;
 
-// Gestiona la confirmación o cancelación de las propuestas del Tutor IA,
-// comprobando que los parámetros y permisos sigan siendo válidos.
+// Confirma o cancela los cambios propuestos por la IA.
 export const decideTutorProposal = (
-  proposal: TutorProposal,
+  propuesta: TutorProposal,
   decision: "apply" | "cancel",
-  target: ProposalTarget,
+  destino: DestinoPropuesta,
 ): TutorProposal => {
-  if (proposal.status !== "pending") return proposal;
+  // Solo permite propuestas pendientes.
+  if (propuesta.status !== "pending") return propuesta;
 
-  if (decision === "cancel") return { ...proposal, status: "cancelled" };
+  // Cancela la propuesta.
+  if (decision === "cancel") return { ...propuesta, status: "cancelled" };
 
-  // Comprueba que la propuesta de gravedad siga siendo válida,
-  // esté autorizada en la etapa actual y no utilice datos antiguos.
-  const fresh =
-    target?.context.kind === "gravity" &&
-    target.context.stage !== "gravity-understanding" &&
-    target.context.stage !== "gravity-challenges" &&
-    target.gravity &&
-    target.gravity.apply === proposal.source.apply &&
-    target.gravity.revision === proposal.source.revision &&
-    JSON.stringify(target.context) === proposal.contextSnapshot &&
-    sameGravityParameters(target.context.parameters, proposal.baseline) &&
-    resolveGravityProposal(target.context.parameters, proposal.action);
+  // Comprueba que los datos siguen siendo válidos.
+  const valida =
+    destino?.context.kind === "gravity" &&
+    destino.context.stage !== "gravity-understanding" &&
+    destino.context.stage !== "gravity-challenges" &&
+    destino.gravity &&
+    destino.gravity.apply === propuesta.source.apply &&
+    destino.gravity.revision === propuesta.source.revision &&
+    JSON.stringify(destino.context) === propuesta.contextSnapshot &&
+    sameGravityParameters(destino.context.parameters, propuesta.baseline) &&
+    resolveGravityProposal(destino.context.parameters, propuesta.action);
 
-  // Intenta aplicar los parámetros de gravedad si la propuesta es válida.
-  const applied =
-    fresh && target.gravity?.apply(proposal.action, proposal.source.revision);
+  // Aplica los cambios si están permitidos.
+  const aplicada =
+    valida &&
+    destino.gravity?.apply(propuesta.action, propuesta.source.revision);
 
-  return { ...proposal, status: applied ? "applied" : "stale" };
+  return { ...propuesta, status: aplicada ? "applied" : "stale" };
 };

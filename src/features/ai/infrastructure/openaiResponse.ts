@@ -2,36 +2,33 @@ import "server-only";
 
 import { TUTOR_TIMEOUT_MS } from "../application/tutor";
 
-// Realiza una petición a la API de OpenAI desde el servidor
-// y devuelve el texto generado por el modelo.
+// Envía una petición a OpenAI desde el servidor.
 export const requestOpenAI = async (
-  payload: Record<string, unknown>,
-  signal?: AbortSignal,
+  peticion: Record<string, unknown>,
+  senal?: AbortSignal,
 ): Promise<string> => {
-  // Envía la petición a OpenAI con el modelo, la API Key
-  // y los límites de tiempo y tokens configurados.
-  const response = await fetch("https://api.openai.com/v1/responses", {
+  // Envía los datos al modelo.
+  const respuesta = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       "Content-Type": "application/json",
     },
-    signal: signal
-      ? AbortSignal.any([signal, AbortSignal.timeout(TUTOR_TIMEOUT_MS)])
+    signal: senal
+      ? AbortSignal.any([senal, AbortSignal.timeout(TUTOR_TIMEOUT_MS)])
       : AbortSignal.timeout(TUTOR_TIMEOUT_MS),
     body: JSON.stringify({
       model: process.env.OPENAI_MODEL,
       store: false,
       max_output_tokens: 2200,
-      ...payload,
+      ...peticion,
     }),
   });
 
-  if (!response.ok) throw new Error("Provider unavailable");
+  if (!respuesta.ok) throw new Error("Provider unavailable");
 
-  // Convierte la respuesta de OpenAI en un objeto
-  // que contiene el estado y los mensajes generados.
-  const data = (await response.json()) as {
+  // Obtiene la respuesta de OpenAI.
+  const datos = (await respuesta.json()) as {
     status?: string;
     output?: {
       type: string;
@@ -42,17 +39,17 @@ export const requestOpenAI = async (
     }[];
   };
 
-  // Extrae y combina los fragmentos de texto generados por el modelo.
-  const text = data.output
-    ?.filter((item) => item.type === "message")
-    .flatMap((item) => item.content ?? [])
-    .filter((item) => item.type === "output_text")
-    .map((item) => item.text ?? "")
+  // Extrae el texto generado.
+  const texto = datos.output
+    ?.filter((elemento) => elemento.type === "message")
+    .flatMap((elemento) => elemento.content ?? [])
+    .filter((elemento) => elemento.type === "output_text")
+    .map((elemento) => elemento.text ?? "")
     .join("\n")
     .trim();
 
-  if (!text || data.status !== "completed")
+  if (!texto || datos.status !== "completed")
     throw new Error("Incomplete provider response");
 
-  return text;
+  return texto;
 };

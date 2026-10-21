@@ -9,48 +9,51 @@ import type {
   TutorIntent,
 } from "../types/tutor.types";
 
-// Valida las respuestas generadas por el Tutor IA y comprueba
-// que las propuestas de modificación sean válidas y estén permitidas.
+// Comprueba la respuesta recibida de la IA.
 export const parseTutorReply = (
-  value: unknown,
-  context: TutorContext,
-  intent?: TutorIntent,
+  valor: unknown,
+  contexto: TutorContext,
+  intencion?: TutorIntent,
 ): TutorReply => {
-  if (typeof value !== "object" || value === null || Array.isArray(value))
-    throw new Error("Invalid tutor response");
+  // Comprueba que sea un objeto.
+  if (typeof valor !== "object" || valor === null || Array.isArray(valor))
+    throw new Error("Respuesta del tutor no válida");
 
-  // Convierte la respuesta recibida en un objeto para validar sus propiedades.
-  const reply = value as Record<string, unknown>;
+  const respuesta = valor as Record<string, unknown>;
 
+  // Comprueba que la respuesta tenga el formato correcto.
   if (
-    Object.keys(reply).some((key) => key !== "text" && key !== "proposal") ||
-    typeof reply.text !== "string" ||
-    !reply.text.trim()
+    Object.keys(respuesta).some(
+      (clave) => clave !== "text" && clave !== "proposal",
+    ) ||
+    typeof respuesta.text !== "string" ||
+    !respuesta.text.trim()
   )
-    throw new Error("Invalid tutor response");
+    throw new Error("Respuesta del tutor no válida");
 
-  // Impide las propuestas de modificación en acciones y etapas educativas.
+  const texto = respuesta.text.trim();
+
+  // En estas etapas la IA solo puede explicar.
   if (
-    intent === "explain_context" ||
-    context.stage === "gravity-challenges" ||
-    context.stage === "gravity-understanding" ||
-    intent === "explain_formula" ||
-    intent === "explain_experiment"
+    intencion === "explain_context" ||
+    contexto.stage === "gravity-challenges" ||
+    contexto.stage === "gravity-understanding" ||
+    intencion === "explain_formula" ||
+    intencion === "explain_experiment"
   )
-    return { text: reply.text.trim() };
+    return { text: texto };
 
-  // Devuelve únicamente la explicación cuando no existe ninguna propuesta.
-  if (reply.proposal === null || reply.proposal === undefined)
-    return { text: reply.text.trim() };
+  // Devuelve la explicación si no hay cambios propuestos.
+  if (respuesta.proposal === null || respuesta.proposal === undefined)
+    return { text: texto };
 
-  // Rechaza las propuestas de gravedad si el contexto,
-  // la estructura o los parámetros solicitados no son válidos.
+  // Comprueba que los cambios propuestos sean válidos.
   if (
-    context.kind !== "gravity" ||
-    !isGravityParameterProposal(reply.proposal) ||
-    !resolveGravityProposal(context.parameters, reply.proposal)
+    contexto.kind !== "gravity" ||
+    !isGravityParameterProposal(respuesta.proposal) ||
+    !resolveGravityProposal(contexto.parameters, respuesta.proposal)
   )
     return { text: "", proposalRejected: true };
 
-  return { text: reply.text.trim(), proposal: reply.proposal };
+  return { text: texto, proposal: respuesta.proposal };
 };

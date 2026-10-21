@@ -1,30 +1,28 @@
-// Define el formato JSON obligatorio de las respuestas del Tutor IA,
-// incluyendo explicaciones y propuestas para Gravedad.
+// Define el formato de respuesta del Tutor IA.
 export const tutorResponseFormat = {
   type: "json_schema",
   name: "gravity_tutor_reply",
   strict: true,
 
-  // Establece la estructura que debe cumplir la respuesta del modelo.
   schema: {
     type: "object",
     properties: {
-      // Contiene la explicación en texto generada por el Tutor IA.
+      // Texto generado por la IA.
       text: { type: "string" },
 
-      // Permite devolver una propuesta de modificación o null
-      // cuando el Tutor IA solamente debe responder.
+      // Cambios propuestos o null si solo explica.
       proposal: {
         anyOf: [
           { type: "null" },
-
-          // Define las propuestas para modificar el laboratorio de gravedad.
           {
             type: "object",
             properties: {
-              action: { type: "string", enum: ["set_gravity_parameters"] },
+              action: {
+                type: "string",
+                enum: ["set_gravity_parameters"],
+              },
 
-              // Permite proponer cambios en las dos masas y la distancia.
+              // Parámetros que puede modificar la IA.
               parameters: {
                 type: "object",
                 properties: {

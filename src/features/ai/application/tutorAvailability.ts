@@ -1,14 +1,14 @@
 import type { TutorContext } from "../types/tutor.types";
 
-// Define el identificador de la conversación global del Tutor IA.
+// Identificador de la conversación.
 export type TutorSessionId = "global";
 
-// Devuelve la clave de la sesión del Tutor IA.
+// Devuelve la sesión del Tutor IA.
 export const getTutorSessionKey = (): TutorSessionId => "global";
 
-// Devuelve la clave utilizada para identificar la conversación.
-export const getTutorConversationKey = (): TutorSessionId => "global";
+// Reutiliza la misma función.
+export const getTutorConversationKey = getTutorSessionKey;
 
-// Genera un identificador según la página y la etapa actual.
-export const tutorContextId = (context: TutorContext) =>
-  `${context.kind}:${context.stage ?? "welcome"}`;
+// Identifica la sección y etapa actual.
+export const tutorContextId = (contexto: TutorContext) =>
+  `${contexto.kind}:${contexto.stage ?? "welcome"}`;
