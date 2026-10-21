@@ -1,11 +1,12 @@
-//identifica el contexto del historial de conversaciones guardadas.
+// Identifica la sección de los mensajes guardados.
 export function tutorContextLabel(
   id: string | undefined,
-  t: (key: string) => string,
+  traducir: (clave: string) => string,
 ): string {
-  const [kind, stage, slug] = (id ?? "").split(":");
+  const [tipo, etapa, slug] = (id ?? "").split(":");
 
-  const known = [
+  // Etapas que puede reconocer el Tutor IA.
+  const etapas = [
     "gravity-discovery",
     "gravity-understanding",
     "gravity-laboratory",
@@ -16,9 +17,18 @@ export function tutorContextLabel(
     "orbit",
   ];
 
-  const label = t(
-    `contexts.${known.includes(stage) ? stage : kind === "gravity" ? "gravity" : kind === "three-body" ? "threeBody" : "home"}`,
-  );
+  // Busca la traducción correspondiente.
+  let clave = "home";
 
-  return slug ? `${label} · ${slug}` : label;
+  if (etapas.includes(etapa)) {
+    clave = etapa;
+  } else if (tipo === "gravity") {
+    clave = "gravity";
+  } else if (tipo === "three-body") {
+    clave = "threeBody";
+  }
+
+  const etiqueta = traducir(`contexts.${clave}`);
+
+  return slug ? `${etiqueta} · ${slug}` : etiqueta;
 }

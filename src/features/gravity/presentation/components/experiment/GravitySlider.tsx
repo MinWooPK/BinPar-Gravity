@@ -1,8 +1,9 @@
 import { useId, type CSSProperties } from "react";
 import { useFormatter, useTranslations } from "next-intl";
+
 import { laboratoryLimits } from "../../../domain/gravitation";
 
-// Define los controles de masa y distancia, sus límites, unidades y colores.
+// Controles de masa y distancia.
 export const gravityControls = [
   {
     key: "mass1",
@@ -27,8 +28,7 @@ export const gravityControls = [
   },
 ] as const;
 
-// Muestra un slider interactivo para modificar las masas o la distancia
-// del laboratorio, respetando sus límites e incrementos permitidos.
+// Permite modificar las masas y la distancia.
 export const GravitySlider = ({
   control,
   value,
@@ -40,16 +40,11 @@ export const GravitySlider = ({
   onChange: (value: number) => void;
   descriptionId: string;
 }) => {
-  // Genera un identificador único para relacionar el slider con su etiqueta.
   const id = useId();
-
-  // Obtiene las traducciones de los controles.
   const t = useTranslations("Gravity");
-
-  // Formatea los valores numéricos según el idioma.
   const format = useFormatter();
 
-  // Ajusta los valores al incremento permitido cuando el usuario mueve el slider.
+  // Ajusta el valor al incremento permitido.
   const roundSliderValue = (next: number) =>
     Number(
       (
@@ -58,12 +53,11 @@ export const GravitySlider = ({
       ).toFixed(10),
     );
 
-  // Comprueba si el valor actual coincide con un incremento del slider.
   const aligned = value === roundSliderValue(value);
 
   return (
     <div
-      className="min-w-0 [margin-bottom:0]"
+      className="min-w-0"
       style={
         {
           "--slider-color": control.color,
@@ -71,17 +65,27 @@ export const GravitySlider = ({
         } as CSSProperties
       }
     >
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 [font-size:16px]">
-        <label htmlFor={id} className="[flex:1_1_140px] text-[#b6bdd0]">{t(control.label)}</label>
-        <output htmlFor={id} aria-live="off" className="shrink-0 [color:var(--slider-color)] tabular-nums">
-          {format.number(value)} <span className="text-[#a8afc3] [font-size:.85em]">{control.unit}</span>
+      {/* Nombre y valor del control. */}
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-base">
+        <label htmlFor={id} className="min-w-0 flex-[1_1_140px] text-[#b6bdd0]">
+          {t(control.label)}
+        </label>
+
+        <output
+          htmlFor={id}
+          aria-live="off"
+          className="shrink-0 text-(--slider-color) tabular-nums"
+        >
+          {format.number(value)}{" "}
+          <span className="text-[.85em] text-[#a8afc3]">{control.unit}</span>
         </output>
       </div>
 
+      {/* Control deslizante. */}
       <input
         id={id}
         type="range"
-        className="lab-gravity-slider block h-11 w-full m-0 appearance-none bg-transparent [accent-color:var(--slider-color)] cursor-pointer"
+        className="lab-gravity-slider m-0 block h-11 w-full cursor-pointer appearance-none bg-transparent accent-(--slider-color)"
         min={control.min}
         max={control.max}
         step={aligned ? control.step : "any"}
@@ -92,7 +96,7 @@ export const GravitySlider = ({
           onChange(roundSliderValue(Number(event.target.value)))
         }
         onKeyDown={(event) => {
-          // Define los incrementos asociados a las teclas de dirección.
+          // Incrementos de cada tecla.
           const directions: Record<string, number> = {
             ArrowRight: 1,
             ArrowUp: 1,
@@ -102,7 +106,6 @@ export const GravitySlider = ({
             PageDown: -10,
           };
 
-          // Obtiene la dirección del movimiento según la tecla pulsada.
           const direction = directions[event.key];
 
           if (
@@ -114,7 +117,7 @@ export const GravitySlider = ({
 
           event.preventDefault();
 
-          // Calcula el nuevo valor del slider mediante el teclado.
+          // Calcula el valor según la tecla pulsada.
           const next =
             event.key === "Home"
               ? control.min
@@ -126,11 +129,16 @@ export const GravitySlider = ({
         }}
       />
 
-      <div aria-hidden="true" className="flex justify-between [gap:8px] [color:#a0a8bd] [font-size:13px] [line-height:1.2] [&>span]:min-w-0 [&>span]:[overflow-wrap:anywhere]">
-        <span>
+      {/* Valores mínimo y máximo. */}
+      <div
+        aria-hidden="true"
+        className="flex justify-between gap-2 text-[13px] leading-[1.2] text-[#a0a8bd]"
+      >
+        <span className="min-w-0 wrap-anywhere">
           {format.number(control.min)} {control.unit}
         </span>
-        <span>
+
+        <span className="min-w-0 wrap-anywhere">
           {format.number(control.max)} {control.unit}
         </span>
       </div>

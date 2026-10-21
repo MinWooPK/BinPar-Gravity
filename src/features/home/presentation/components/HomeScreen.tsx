@@ -14,7 +14,7 @@ export const HomeScreen = () => {
           </p>
           <h1
             id="home-title"
-            className="max-w-4xl text-[clamp(2rem,5.5vw,3.75rem)] leading-[1.15] break-words font-bold tracking-tight text-balance text-white"
+            className="max-w-4xl text-[clamp(2rem,5.5vw,3.75rem)] leading-[1.15] wrap-break-word font-bold tracking-tight text-balance text-white"
           >
             {t("title")}
           </h1>
@@ -22,7 +22,13 @@ export const HomeScreen = () => {
             {t("description")}
           </p>
           <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:flex lg:flex-wrap">
-            <HomeExploreButton className="inline-flex cursor-pointer min-h-8 items-center justify-center rounded-xl border border-slate-500 bg-[#111827] text-slate-100 px-4 py-3 text-center text-base sm:px-5 lg:text-lg font-semibold transition-[background-color,transform] duration-200 hover:-translate-y-0.5 hover:bg-slate-700 active:translate-y-0 motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500" />
+            <HomeExploreButton
+              className="inline-flex cursor-pointer min-h-8 items-center justify-center rounded-xl 
+            border border-slate-500 bg-[#111827] text-slate-100 px-4 py-3 text-center text-base sm:px-5
+            lg:text-lg font-semibold transition-[background-color,transform] duration-200 hover:-translate-y-0.5
+             hover:bg-slate-700 active:translate-y-0 motion-reduce:transform-none motion-reduce:transition-none
+             focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-blue-500"
+            />
           </div>
           <p className="mt-5 text-base text-slate-400">{t("welcomeNote")}</p>
         </section>

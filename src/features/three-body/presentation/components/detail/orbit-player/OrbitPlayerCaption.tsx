@@ -9,25 +9,31 @@ type OrbitPlayerCaptionProps = {
   children?: ReactNode;
 };
 
-// Muestra la leyenda de los tres cuerpos y conserva el contenido adicional.
+// Muestra los colores y nombres de los tres cuerpos.
 export const OrbitPlayerCaption = ({ children }: OrbitPlayerCaptionProps) => {
   const t = useTranslations("ThreeBody");
 
   return (
     <figcaption>
       <ul
-        className="[.lab-three-body-animation-player_&]:flex [.lab-three-body-animation-player_&]:justify-center [.lab-three-body-animation-player_&]:flex-wrap [.lab-three-body-animation-player_&]:[gap:0.5rem_1rem] [.lab-three-body-animation-player_&]:[margin:0.625rem_0_0] [.lab-three-body-animation-player_&]:p-0 [.lab-three-body-animation-player_&]:list-none [.lab-three-body-animation-player_&]:[color:#e3dafa] [.lab-three-body-animation-player_&]:[font-size:0.875rem] [.lab-three-body-animation-player_&_li]:inline-flex [.lab-three-body-animation-player_&_li]:items-center [.lab-three-body-animation-player_&_li]:[gap:0.5rem] [.lab-three-body-animation-player_&_span]:[width:0.55rem] [.lab-three-body-animation-player_&_span]:[height:0.55rem] [.lab-three-body-animation-player_&_span]:[border-radius:50%]"
+        className="mt-2.5 flex list-none flex-wrap justify-center gap-x-4 gap-y-2 p-0 text-sm text-[#e3dafa]"
         aria-label={t("animationBodies")}
       >
         {bodyColors.map((color, index) => (
-          <li key={color}>
-            <span style={{ backgroundColor: color }} aria-hidden="true" />
+          <li key={color} className="inline-flex items-center gap-2">
+            <span
+              className="size-[0.55rem] rounded-full"
+              style={{ backgroundColor: color }}
+              aria-hidden="true"
+            />
             {t("animationBody", { number: index + 1 })}
           </li>
         ))}
       </ul>
 
-      <p>{t("animationTiming")}</p>
+      <p className="mx-auto mt-1.5 mb-0 max-w-208 text-center text-[0.8125rem] leading-normal text-[#b6bfd3]">
+        {t("animationTiming")}
+      </p>
 
       {children}
     </figcaption>

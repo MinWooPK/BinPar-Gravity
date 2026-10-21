@@ -11,7 +11,9 @@ export const ThreeBodyDiscovery = () => {
 
   return (
     <div
-      className="grid [flex:1] [grid-template-columns:repeat(2,_minmax(0,_1fr))] items-stretch [gap:clamp(20px,_2.5vw,_32px)] min-w-0 [min-height:min-content] [@media(max-width:1023px)]:[flex:none] [@media(max-width:1023px)]:[grid-template-columns:minmax(0,_1fr)] [@media(max-width:1023px)]:[gap:20px]"
+      className="grid flex-1 grid-cols-2 items-stretch gap-[clamp(20px,2.5vw,32px)] 
+      min-w-0 min-h-min [@media(max-width:1023px)]:flex-none [@media(max-width:1023px)]:grid-cols-[minmax(0,1fr)]
+       [@media(max-width:1023px)]:gap-5"
       data-three-body-discovery
     >
       <ThreeBodyEducation id={id} />

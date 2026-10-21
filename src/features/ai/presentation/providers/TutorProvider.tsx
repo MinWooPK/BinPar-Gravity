@@ -10,8 +10,9 @@ import {
 } from "react";
 
 import { usePathname } from "@/i18n/navigation";
-import type { TutorContext } from "../../types/tutor.types";
 import { initialParameters } from "@/features/gravity/domain/gravitation";
+
+import type { TutorContext } from "../../types/tutor.types";
 
 import {
   EnvironmentContext,
@@ -23,64 +24,58 @@ import {
 import { GlobalTutor } from "../components/global-tutor/GlobalTutor";
 import { TutorConversationProvider } from "../hooks/useTutorConversation";
 
-// Comparte la conversación y las acciones entre las etapas de Gravedad.
-// Su layout monta este provider exclusivamente dentro de esa sección.
+// Comparte el Tutor IA entre las páginas.
 export const TutorProvider = ({ children }: { children: ReactNode }) => {
-  // Obtiene la ruta actual de la aplicación.
   const pathname = usePathname();
 
-  // Almacena el contexto publicado por la página activa.
   const [published, setPublished] = useState<PublishedContext | null>(null);
-
-  // Mantiene una referencia actualizada del contexto publicado.
   const publishedRef = useRef<PublishedContext | null>(null);
 
-  // Almacena la función que permite resaltar elementos de la fórmula.
   const highlightRef = useRef<
     ((term: "constant" | "masses" | "distance" | null) => void) | null
   >(null);
 
-  // Registra la función de resaltado visual de la fórmula gravitatoria.
+  // Registra los elementos que puede resaltar la IA.
   const registerHighlight = useCallback(
     (callback: NonNullable<typeof highlightRef.current>) => {
       highlightRef.current = callback;
 
       return () => {
-        if (highlightRef.current === callback) highlightRef.current = null;
+        if (highlightRef.current === callback) {
+          highlightRef.current = null;
+        }
       };
     },
     [],
   );
 
-  // Permite activar un resaltado visual desde el Tutor IA.
+  // Resalta un elemento de la fórmula.
   const highlight = useCallback(
     (term: "constant" | "masses" | "distance" | null) =>
       highlightRef.current?.(term),
     [],
   );
 
-  // Almacena la función encargada de abrir el chat global.
   const launcherRef = useRef<TutorLauncher | null>(null);
 
-  // Permite abrir el Tutor IA desde cualquier componente.
+  // Abre el chat del Tutor IA.
   const openTutor = useCallback<TutorLauncher>(
-    (intent, trigger) => {
-      launcherRef.current?.(intent, trigger);
-    },
+    (intent, trigger) => launcherRef.current?.(intent, trigger),
     [],
   );
 
-  // Registra la función que controla la apertura del Tutor IA.
+  // Registra la función que abre el chat.
   const registerLauncher = useCallback((launcher: TutorLauncher) => {
     launcherRef.current = launcher;
 
     return () => {
-      if (launcherRef.current === launcher) launcherRef.current = null;
+      if (launcherRef.current === launcher) {
+        launcherRef.current = null;
+      }
     };
   }, []);
 
-  // Publica el contexto actual de una página para que
-  // el Tutor IA conozca la etapa y sus datos.
+  // Guarda el contexto de la página.
   const publish = useCallback((value: PublishedContext) => {
     publishedRef.current = value;
 
@@ -92,18 +87,20 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
     );
 
     return () => {
-      if (publishedRef.current === value) publishedRef.current = null;
+      if (publishedRef.current === value) {
+        publishedRef.current = null;
+      }
     };
   }, []);
 
-  // Obtiene el contexto actual y las acciones disponibles
-  // para las peticiones y propuestas del Tutor IA.
+  // Obtiene el contexto de la página actual.
   const current = useCallback((): PublishedContext | null => {
     const value = publishedRef.current;
-    // Solo se envían peticiones con el estado real publicado por Gravedad.
+
     return value?.pathname === pathname ? value : null;
   }, [pathname]);
 
+  // Utiliza el contexto publicado o los valores iniciales.
   const context = useMemo<TutorContext>(
     () =>
       published?.pathname === pathname
@@ -112,8 +109,7 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
     [published, pathname],
   );
 
-  // Agrupa el contexto global, la sesión y las funciones
-  // que se compartirán con los componentes del Tutor IA.
+  // Comparte el contexto y las funciones del Tutor IA.
   const environment = useMemo(
     () => ({
       sessionKey: "global" as const,
@@ -147,8 +143,7 @@ export const TutorProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Comunica al Tutor IA el contexto de la página o etapa activa,
-// sin realizar peticiones directamente al modelo.
+// Comunica al Tutor IA la etapa y sus parámetros.
 export const TutorContextBridge = ({
   context,
   gravity,
@@ -158,16 +153,14 @@ export const TutorContextBridge = ({
   gravity?: PublishedContext["gravity"];
   active?: boolean;
 }) => {
-  // Obtiene la ruta actual de la aplicación.
   const pathname = usePathname();
-
-  // Obtiene la función que permite publicar el contexto.
   const { publish } = useTutorEnvironment();
 
-  // Registra el contexto de la página cuando está activa
-  // y lo desregistra cuando cambia o se desmonta el componente.
+  // Registra el contexto mientras la etapa está activa.
   useLayoutEffect(() => {
-    if (active) return publish({ pathname, context, gravity });
+    if (active) {
+      return publish({ pathname, context, gravity });
+    }
   }, [publish, pathname, context, gravity, active]);
 
   return null;

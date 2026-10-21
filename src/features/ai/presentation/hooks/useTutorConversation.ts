@@ -15,54 +15,56 @@ import { useTutorEnvironment } from "@/features/ai/presentation/providers/tutorE
 import { emptySession } from "./useTutorSessions";
 import { useConversationStore } from "./useConversatinStore";
 
-// Crea el contexto compartido de la conversación.
-const ConversationContext = createContext<ReturnType<
+// Guarda la conversación compartida.
+const ContextoConversacion = createContext<ReturnType<
   typeof useConversationStore
 > | null>(null);
 
-// Comparte una conversación entre las páginas de Gravity Lab.
+// Comparte la conversación entre los componentes.
 export const TutorConversationProvider = ({
   children,
 }: {
   children: ReactNode;
 }) => {
-  const store = useConversationStore();
+  const conversacion = useConversationStore();
 
   return createElement(
-    ConversationContext.Provider,
-    { value: store },
+    ContextoConversacion.Provider,
+    { value: conversacion },
     children,
   );
 };
 
-// Permite consultar la sesión y utilizar las funciones del Tutor IA.
-export const useTutorConversation = (sessionId?: TutorSessionId) => {
-  const store = useContext(ConversationContext);
+// Permite acceder a los mensajes y funciones del Tutor IA.
+export const useTutorConversation = (idSesion?: TutorSessionId) => {
+  const conversacion = useContext(ContextoConversacion);
 
   const { sessionKey, current, activeSessionId } = useTutorEnvironment();
 
-  if (!store) {
+  if (!conversacion) {
     throw new Error("Conversations require TutorConversationProvider");
   }
 
-  const key = sessionId ?? activeSessionId;
+  const clave = idSesion ?? activeSessionId;
 
   return {
     sessionKey,
     current,
-    key,
-    session: store.sessions[key] ?? emptySession(),
-    update: store.update,
-    clear: store.clear,
-    performRequest: store.performRequest,
+    key: clave,
+    session: conversacion.sessions[clave] ?? emptySession(),
+    update: conversacion.update,
+    clear: conversacion.clear,
+    performRequest: conversacion.performRequest,
 
+    // Envía preguntas al Tutor IA.
     ask: (
-      mode: TutorRequest["mode"],
-      question: string,
-      intent?: TutorRequest["intent"],
-    ) => store.ask(key, mode, question, intent),
+      modo: TutorRequest["mode"],
+      pregunta: string,
+      intencion?: TutorRequest["intent"],
+    ) => conversacion.ask(clave, modo, pregunta, intencion),
 
-    decideProposal: (messageId: number, decision: "apply" | "cancel") =>
-      store.decideProposal(key, messageId, decision),
+    // Acepta o cancela cambios propuestos.
+    decideProposal: (idMensaje: number, decision: "apply" | "cancel") =>
+      conversacion.decideProposal(clave, idMensaje, decision),
   };
 };

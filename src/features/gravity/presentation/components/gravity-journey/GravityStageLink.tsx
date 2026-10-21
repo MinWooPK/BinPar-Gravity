@@ -5,12 +5,11 @@ import type { AnchorHTMLAttributes } from "react";
 import type { GravityStageId } from "../../../types/journey.types";
 import { useGravityJourney } from "./GravityJourney";
 
-// Conserva las propiedades de un enlace, salvo el destino.
 type StageLinkProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   stageId: GravityStageId;
 };
 
-// Navega a una etapa y conserva la interacción nativa del enlace.
+// Enlace para navegar entre etapas.
 export const GravityStageLink = ({
   stageId,
   onClick,
@@ -23,9 +22,9 @@ export const GravityStageLink = ({
       {...props}
       href={`#${stageId}`}
       onClick={(event) => {
-        // Respeta los clics cancelados y las teclas modificadoras.
         onClick?.(event);
 
+        // Respeta los clics especiales del navegador.
         if (
           event.defaultPrevented ||
           event.button !== 0 ||

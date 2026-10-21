@@ -3,7 +3,7 @@ import { useTranslations } from "next-intl";
 
 import { Highlight } from "./Highlight";
 
-// Representa las posiciones, velocidades y distancias de tres cuerpos.
+// Muestra las posiciones, velocidades y distancias de los cuerpos.
 export const GalleryIntroductionDiagram = () => {
   const t = useTranslations("ThreeBody.galleryGuide");
   const id = useId();
@@ -44,7 +44,7 @@ export const GalleryIntroductionDiagram = () => {
             </marker>
           </defs>
 
-          {/* Distancias entre los cuerpos. */}
+          {/* Distancias entre cuerpos. */}
           <path
             d="M200 43L92 175L308 175Z"
             fill="none"
@@ -53,14 +53,14 @@ export const GalleryIntroductionDiagram = () => {
             strokeWidth="1.5"
           />
 
-          {/* Vectores de velocidad inicial. */}
+          {/* Velocidades iniciales. */}
           <g stroke="#5ee7d5" strokeWidth="2.5" markerEnd={`url(#${arrowId})`}>
             <path d="M215 37L260 21" />
             <path d="M106 186L145 208" />
             <path d="M292 186L254 208" />
           </g>
 
-          {/* Los tres cuerpos conservan las posiciones y colores originales. */}
+          {/* Posiciones de los tres cuerpos. */}
           {[
             { x: 200, y: 43, color: "#aa97ff" },
             { x: 92, y: 175, color: "#5ee7d5" },
@@ -75,7 +75,9 @@ export const GalleryIntroductionDiagram = () => {
                 fillOpacity="0.15"
                 stroke={body.color}
               />
+
               <circle cx={body.x} cy={body.y} r="7" fill={body.color} />
+
               <text
                 x={body.x}
                 y={body.y - 30}
@@ -88,6 +90,7 @@ export const GalleryIntroductionDiagram = () => {
             </g>
           ))}
 
+          {/* Distancias y velocidades. */}
           <g fontSize="13" fill="#acbad0">
             <text x="125" y="106">
               r₁₂
@@ -118,9 +121,10 @@ export const GalleryIntroductionDiagram = () => {
         {t("diagramCaption")}
       </figcaption>
 
-      {/* Conclusión de la explicación visual. */}
+      {/* Conclusión del diagrama. */}
       <div className="rounded-xl border border-[#60517f] bg-[#19172d] p-4">
         <h3 className="font-semibold text-[#d3c5ff]">{t("takeawayTitle")}</h3>
+
         <p className="mt-2 text-sm leading-7 text-slate-200">
           {t.rich("takeaway", {
             highlight: (children) => <Highlight>{children}</Highlight>,

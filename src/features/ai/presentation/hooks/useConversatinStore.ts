@@ -3,7 +3,6 @@
 import { useLocale } from "next-intl";
 
 import { TUTOR_MAX_MESSAGE_LENGTH } from "@/features/ai/application/tutor";
-
 import { requestHistory } from "@/features/ai/application/conversation";
 import { decideTutorProposal } from "@/features/ai/application/tutorProposal";
 
@@ -20,12 +19,11 @@ import type { ChatMessage } from "@/features/ai/types/conversation.types";
 import { useTutorEnvironment } from "@/features/ai/presentation/providers/tutorEnvironment";
 
 import { emptySession, useTutorSessions } from "./useTutorSessions";
-
 import { useTutorRequests } from "./useTutorRequests";
 
-// Coordina las preguntas y el estado global de la conversación.
+// Controla las conversaciones del Tutor IA.
 export const useConversationStore = () => {
-  const locale = useLocale() as TutorRequest["locale"];
+  const idioma = useLocale() as TutorRequest["locale"];
 
   const { sessionKey, current } = useTutorEnvironment();
 
@@ -38,104 +36,111 @@ export const useConversationStore = () => {
       update,
     });
 
-  // Prepara una pregunta y la envía al Tutor IA.
+  // Envía una pregunta al Tutor IA.
   const ask = (
-    key: TutorSessionId,
-    mode: TutorRequest["mode"],
-    question: string,
-    intent?: TutorRequest["intent"],
+    clave: TutorSessionId,
+    modo: TutorRequest["mode"],
+    pregunta: string,
+    intencion?: TutorRequest["intent"],
   ) => {
-    const content = question.trim();
+    const contenido = pregunta.trim();
 
+    // Comprueba que la pregunta sea válida.
     if (
       !sessionKey ||
-      !content ||
-      content.length > TUTOR_MAX_MESSAGE_LENGTH ||
-      isInFlight(key)
+      !contenido ||
+      contenido.length > TUTOR_MAX_MESSAGE_LENGTH ||
+      isInFlight(clave)
     ) {
       return;
     }
 
-    const page = current();
+    const pagina = current();
 
-    if (!page) {
-      update(key, { error: "contextUnavailable" });
+    if (!pagina) {
+      update(clave, { error: "contextUnavailable" });
       return;
     }
 
-    // Comprueba que la intención corresponda a la etapa.
-    if (intent && intent !== "explain_context") {
-      const stage =
-        intent === "explain_formula"
+    // Comprueba que la pregunta corresponda a la etapa.
+    if (intencion && intencion !== "explain_context") {
+      const etapa =
+        intencion === "explain_formula"
           ? "gravity-understanding"
           : "gravity-laboratory";
 
-      if (page.context.kind !== "gravity" || page.context.stage !== stage) {
+      if (pagina.context.kind !== "gravity" || pagina.context.stage !== etapa) {
         return;
       }
     }
 
-    // Evita el envío de preguntas duplicadas.
-    const signature = JSON.stringify([mode, content, page.context]);
+    // Evita enviar la misma pregunta dos veces.
+    const firma = JSON.stringify([modo, contenido, pagina.context]);
 
-    if (isDuplicateLaunch(signature)) return;
+    if (isDuplicateLaunch(firma)) return;
 
-    const previous = sessionsRef.current[key] ?? emptySession();
+    const anterior = sessionsRef.current[clave] ?? emptySession();
 
-    // Añade la pregunta al historial reciente.
-    // Añade la pregunta al historial reciente.
-    const messages: ChatMessage[] = [
-      ...previous.messages,
+    // Guarda la pregunta en el historial.
+    const mensajes: ChatMessage[] = [
+      ...anterior.messages,
       {
         id: nextMessageId(),
-        contextId: tutorContextId(page.context),
+        contextId: tutorContextId(pagina.context),
         role: "user" as const,
-        content,
+        content: contenido,
       },
     ].slice(-30);
 
-    update(key, {
-      messages,
+    update(clave, {
+      messages: mensajes,
       draft: "",
     });
 
-    void performRequest(key, {
-      locale,
-      mode,
-      ...(intent && { intent }),
-      context: page.context,
-      messages: requestHistory(messages),
+    // Envía la petición a la IA.
+    void performRequest(clave, {
+      locale: idioma,
+      mode: modo,
+      ...(intencion && { intent: intencion }),
+      context: pagina.context,
+      messages: requestHistory(mensajes),
     });
   };
 
-  // Acepta o cancela una propuesta de parámetros.
+  // Acepta o rechaza los cambios propuestos por la IA.
   const decideProposal = (
-    key: TutorSessionId,
-    messageId: number,
+    clave: TutorSessionId,
+    idMensaje: number,
     decision: "apply" | "cancel",
   ) => {
-    const previous = sessionsRef.current[key];
+    const anterior = sessionsRef.current[clave];
 
-    const message = previous?.messages.find(
-      (message) => message.id === messageId,
+    const mensaje = anterior?.messages.find(
+      (elemento) => elemento.id === idMensaje,
     );
 
-    if (!message?.proposal || message.proposal.status !== "pending") {
+    if (!mensaje?.proposal || mensaje.proposal.status !== "pending") {
       return false;
     }
 
-    const proposal = decideTutorProposal(message.proposal, decision, current());
+    const propuesta = decideTutorProposal(
+      mensaje.proposal,
+      decision,
+      current(),
+    );
 
-    update(key, {
-      messages: previous.messages.map((item) =>
-        item.id === messageId ? { ...item, proposal } : item,
+    update(clave, {
+      messages: anterior.messages.map((elemento) =>
+        elemento.id === idMensaje
+          ? { ...elemento, proposal: propuesta }
+          : elemento,
       ),
     });
 
-    return proposal.status === "applied";
+    return propuesta.status === "applied";
   };
 
-  // Borra el historial y cancela las peticiones pendientes.
+  // Borra la conversación y cancela las peticiones.
   const clear = () => {
     cancelRequests();
 
@@ -144,7 +149,7 @@ export const useConversationStore = () => {
     try {
       localStorage.removeItem(TUTOR_HISTORY_KEY);
     } catch {
-      // La conversación ya se ha borrado de la memoria.
+      // El almacenamiento puede no estar disponible.
     }
   };
 

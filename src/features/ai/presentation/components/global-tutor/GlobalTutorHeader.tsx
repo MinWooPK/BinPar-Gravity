@@ -16,7 +16,10 @@ type GlobalTutorHeaderProps = {
 };
 
 const headerButton =
-  "inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition-colors hover:bg-slate-400/10 hover:text-slate-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 motion-reduce:transition-none";
+  "inline-flex size-11 shrink-0 items-center justify-center rounded-xl " +
+  "cursor-pointer text-slate-400 transition-colors " +
+  "hover:bg-slate-400/10 hover:text-slate-100 " +
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200";
 
 // Muestra el título y los botones del chat.
 export const GlobalTutorHeader = ({

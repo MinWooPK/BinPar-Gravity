@@ -18,7 +18,7 @@ type PlaybackOptions = {
   setPlaying: Dispatch<SetStateAction<boolean>>;
 };
 
-// Avanza una simulación libre sin repetir el período ni modificar el estado físico.
+// Controla el tiempo de reproducción de la simulación.
 export const useExperimentPlayback = ({
   simulation,
   playing,
@@ -28,38 +28,47 @@ export const useExperimentPlayback = ({
   setElapsed,
   setPlaying,
 }: PlaybackOptions) => {
-  // Avanza el tiempo físico solo si la etapa está visible y se está reproduciendo.
-  // No hay módulo (%) ni bucle: una simulación libre puede NO ser periódica.
   useEffect(() => {
     if (!simulation || !playing || !active) return;
 
     let frame = 0;
     let previous: number | null = null;
+
     const tick = (now: number) => {
+      // Pausa el avance si la pestaña está oculta.
       if (document.hidden) {
         previous = null;
         frame = requestAnimationFrame(tick);
         return;
       }
+
       if (previous !== null) {
+        // Limita el salto temporal entre fotogramas.
         const deltaSeconds = Math.min(0.1, (now - previous) / 1000);
-        // Por defecto recorremos la duración configurada en 12 segundos reales.
+
+        // Reproduce la simulación en 12 segundos por defecto.
         const next = Math.min(
           simulation.duration,
           elapsedRef.current +
             deltaSeconds * (simulation.duration / 12) * speed,
         );
+
         elapsedRef.current = next;
         setElapsed(next);
+
+        // Detiene la reproducción al finalizar.
         if (next >= simulation.duration) {
           setPlaying(false);
           return;
         }
       }
+
       previous = now;
       frame = requestAnimationFrame(tick);
     };
+
     frame = requestAnimationFrame(tick);
+
     return () => cancelAnimationFrame(frame);
-  }, [simulation, playing, speed, active]);
+  }, [simulation, playing, speed, active, elapsedRef, setElapsed, setPlaying]);
 };

@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import type { GravityStage } from "../../../types/journey.types";
 import { useGravityJourney } from "./GravityJourney";
 
-// Muestra una etapa solo cuando está seleccionada y conserva su montaje.
+// Muestra la etapa seleccionada sin desmontar las demás.
 export const GravityJourneyPanel = ({
   stage,
   className,
@@ -19,13 +19,26 @@ export const GravityJourneyPanel = ({
   const { activeStage } = useGravityJourney();
   const t = useTranslations("Gravity");
 
+  const active = activeStage === stage.id;
+
   return (
     <section
       id={stage.id}
       aria-label={`${stage.number} — ${t(stage.title)}`}
       tabIndex={-1}
-      hidden={activeStage !== stage.id}
-      className={`lab-gravity-journey-panel min-w-0 [&[hidden]]:[display:none] [&:not([hidden])]:[display:flex] [&:not([hidden])]:[flex:1_0_auto] [&:not([hidden])]:[flex-direction:column] [&:not([hidden])]:[min-height:100%] [&:not([hidden])]:[animation:lab-gravity-panel-enter_220ms_ease-out_both] [&:focus-visible]:[outline:2px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:-3px] [&:focus-visible]:[border-radius:8px] [@media_(max-width:_1023px)]:[&:not([hidden])]:[min-height:0] [@media_(prefers-reduced-motion:_reduce)]:[&:not([hidden])]:[animation:none] ${className ?? ""}`}
+      hidden={!active}
+      className={`lab-gravity-journey-panel min-w-0
+        [[hidden]]:hidden
+        focus-visible:rounded-lg
+        focus-visible:outline-2
+        focus-visible:outline-offset-[-3px]
+        focus-visible:outline-[#c0b3ff]
+        ${
+          active
+            ? "flex min-h-full flex-[1_0_auto] flex-col animate-[lab-gravity-panel-enter_220ms_ease-out_both] max-[1023px]:min-h-0 motion-reduce:animate-none"
+            : ""
+        }
+        ${className ?? ""}`}
     >
       {children}
     </section>

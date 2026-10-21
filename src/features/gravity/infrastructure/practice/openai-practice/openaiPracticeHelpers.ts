@@ -2,7 +2,7 @@ import "server-only";
 
 import { requestOpenAI } from "@/features/ai/infrastructure/openaiResponse";
 
-// Construye un objeto para los esquemas JSON de OpenAI.
+// Crea un objeto para el esquema JSON.
 export const obj = (properties: Record<string, unknown>) => ({
   type: "object",
   properties,
@@ -10,7 +10,7 @@ export const obj = (properties: Record<string, unknown>) => ({
   additionalProperties: false,
 });
 
-// Tipos reutilizables para los esquemas JSON.
+// Tipos de datos del esquema JSON.
 export const str = { type: "string" };
 
 export const array = (items: unknown) => ({
@@ -18,7 +18,7 @@ export const array = (items: unknown) => ({
   items,
 });
 
-// Configura el formato de respuesta estructurada.
+// Define el formato de respuesta de OpenAI.
 const format = (name: string, schema: unknown) => ({
   type: "json_schema",
   name,
@@ -26,18 +26,18 @@ const format = (name: string, schema: unknown) => ({
   schema,
 });
 
-// Valida la longitud y el contenido del texto.
+// Comprueba que el texto sea válido.
 export const boundedText = (v: unknown): v is string =>
   typeof v === "string" &&
   v.trim().length > 0 &&
   v.length <= 1800 &&
   !/\b(?:OpenAI|AI|IA)\b/i.test(v);
 
-// Valida un máximo de ocho textos.
+// Comprueba que haya como máximo ocho textos válidos.
 export const texts = (v: unknown): v is string[] =>
   Array.isArray(v) && v.length <= 8 && v.every(boundedText);
 
-// Envía una petición a OpenAI y convierte el JSON recibido.
+// Envía la petición a OpenAI y devuelve el resultado JSON.
 export const call = async (
   name: string,
   schema: unknown,

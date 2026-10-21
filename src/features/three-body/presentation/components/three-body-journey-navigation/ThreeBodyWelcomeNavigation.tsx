@@ -6,24 +6,23 @@ import type { NavigationProps } from "./navigation.types";
 
 type Props = Pick<NavigationProps, "onSelectStage">;
 
-// Tarjetas de acceso a las cuatro etapas desde la pantalla de bienvenida.
-// Sus identificadores -entry siguen sirviendo para restaurar el foco.
+// Muestra las tarjetas de acceso a las cuatro etapas.
 export const ThreeBodyWelcomeNavigation = ({ onSelectStage }: Props) => {
   const t = useTranslations("ThreeBody.journey");
 
   return (
     <nav
       aria-labelledby="three-body-journey-title"
-      className="min-w-0 [margin-bottom:1rem] min-[1024px]:m-0"
+      className="mb-4 min-w-0 min-[1024px]:m-0"
     >
       <p
         id="three-body-journey-title"
-        className="[margin:0_0_1.25rem] [color:#b8b0d6] [font-size:.875rem] font-semibold [letter-spacing:.1em] uppercase"
+        className="mb-5 text-sm font-semibold tracking-widest text-[#b8b0d6] uppercase"
       >
         {t("navigationTitle")}
       </p>
 
-      <div className="grid [grid-template-columns:minmax(0,_1fr)] [gap:12px]">
+      <div className="grid grid-cols-1 gap-3">
         {threeBodyStages.map((stage) => (
           <button
             key={stage.id}
@@ -31,20 +30,34 @@ export const ThreeBodyWelcomeNavigation = ({ onSelectStage }: Props) => {
             type="button"
             aria-controls={`three-body-${stage.id}`}
             onClick={() => onSelectStage(stage.id, true)}
-            className="lab-three-body-journey-entry flex items-baseline [gap:12px] w-full min-w-0 [min-height:48px] [padding:14px_16px] [border:1px_solid_#30364b] [border-radius:10px] bg-lab-surface [color:#e4e8f2] [font-size:1rem] [line-height:1.5] text-left cursor-pointer [transition:background_180ms,_border-color_180ms] [@media(max-width:374px)]:[padding-inline:10px] [&:hover]:[border-color:#aa97ff80] [&:hover]:[background:#1b2032] [&_>_span:last-child]:min-w-0 [&_strong]:font-semibold [&:focus-visible]:[outline:3px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:3px] [@media_(prefers-reduced-motion:_reduce)]:[&&]:[transition:none]"
+            className="lab-three-body-journey-entry group flex min-h-12 w-full min-w-0 
+            cursor-pointer items-baseline gap-3 rounded-[10px] border border-[#30364b]
+             bg-lab-surface px-4 py-3.5 text-left text-base leading-normal text-[#e4e8f2] 
+             transition-[background-color,border-color] duration-180 hover:border-[#aa97ff80] 
+             hover:bg-[#1b2032] focus-visible:outline-[3px] focus-visible:outline-[#c0b3ff] focus-visible:outline-offset-[3px]
+              motion-reduce:transition-none max-[374px]:px-2.5"
           >
             <span
-              className="shrink-0 [color:#b9a8ff] [font-family:var(--font-geist-mono),_monospace] [font-size:.9375rem] font-normal [font-variant-numeric:tabular-nums]"
               aria-hidden="true"
+              className="shrink-0 font-mono text-[0.9375rem] font-normal text-[#b9a8ff] tabular-nums"
             >
               {stage.number}
             </span>
 
             <span className="min-w-0 flex-1">
-              <span className="flex w-full min-w-0 items-center gap-3 [&_>_strong]:min-w-0 [&_>_strong]:[overflow-wrap:anywhere] [&::after]:[content:''] [&::after]:[flex:0_0_8px] [&::after]:[height:8px] [&::after]:[margin-left:auto] [&::after]:[border-radius:50%] [&::after]:[background-color:#33483e] [&::after]:[opacity:0.4] [&::after]:[box-shadow:0_0_0_0_#4ade8000] [&::after]:[transition:background-color_250ms_ease,_opacity_250ms_ease,_box-shadow_250ms_ease] [.lab-three-body-journey-entry:is(:hover,_:focus-visible)_&::after]:[background-color:#4ade80] [.lab-three-body-journey-entry:is(:hover,_:focus-visible)_&::after]:[opacity:1] [.lab-three-body-journey-entry:is(:hover,_:focus-visible)_&::after]:[box-shadow:0_0_6px_2px_#4ade8059,_0_0_14px_3px_#4ade8026] [@media_(prefers-reduced-motion:_reduce)]:[&::after]:[transition:none]">
-                <strong>{t(stage.title)}</strong>
+              <span className="flex w-full min-w-0 items-center gap-3">
+                <strong className="min-w-0 font-semibold wrap-anywhere">
+                  {t(stage.title)}
+                </strong>
+
+                {/* Indicador que se ilumina al interactuar. */}
+                <span
+                  aria-hidden="true"
+                  className="ml-auto size-2 shrink-0 rounded-full bg-[#33483e] opacity-40 shadow-[0_0_0_0_#4ade8000] transition-[background-color,opacity,box-shadow] duration-250 ease-in-out group-hover:bg-[#4ade80] group-hover:opacity-100 group-hover:shadow-[0_0_6px_2px_#4ade8059,0_0_14px_3px_#4ade8026] group-focus-visible:bg-[#4ade80] group-focus-visible:opacity-100 group-focus-visible:shadow-[0_0_6px_2px_#4ade8059,0_0_14px_3px_#4ade8026] motion-reduce:transition-none"
+                />
               </span>
-              <span className="block [margin-top:6px] [color:#b2bad0] [font-size:.875rem] [line-height:1.5]">
+
+              <span className="mt-1.5 block text-sm leading-normal text-[#b2bad0]">
                 {t(stage.description)}
               </span>
             </span>
@@ -52,7 +65,7 @@ export const ThreeBodyWelcomeNavigation = ({ onSelectStage }: Props) => {
         ))}
       </div>
 
-      <p className="[margin:1.25rem_0_0] [color:#b2bad0] [font-size:.9375rem] [line-height:1.6]">
+      <p className="mt-5 text-[0.9375rem] leading-[1.6] text-[#b2bad0]">
         {t("freedomNote")}
       </p>
     </nav>

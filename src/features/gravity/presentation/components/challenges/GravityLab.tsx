@@ -1,22 +1,22 @@
 "use client";
 
 import { useMemo } from "react";
+
 import { TutorContextBridge } from "@/features/ai/presentation/providers/TutorProvider";
 import type { TutorContext } from "@/features/ai/types/tutor.types";
+
 import { GravityExperiment } from "../experiment/GravityExperiment";
 import { GravityPractice } from "../practice/gravity-practice/GravityPractice";
 import { GravityJourneyPanel, useGravityJourney } from "../GravityJourneyTabs";
 import { GravityStageLayout } from "../shared/GravityStageLayout";
+
 import { gravityStageById } from "../../../application/gravityJourney";
 import { useGravityParameters } from "../../providers/GravityParametersProvider";
 
-// Coordina las etapas de experimentación y práctica,
-// conectando el laboratorio con el Tutor IA.
+// Muestra las etapas 03 y 04 y las conecta con el Tutor IA.
 export const GravityLab = () => {
-  // Obtiene la etapa activa y la función para cambiar de etapa.
   const { activeStage, selectStage } = useGravityJourney();
 
-  // Obtiene los parámetros y las funciones de control del laboratorio.
   const {
     parameters,
     setParameters,
@@ -25,8 +25,7 @@ export const GravityLab = () => {
     applyProposal,
   } = useGravityParameters();
 
-  // Configura las acciones que permiten al Tutor IA
-  // aplicar propuestas y mostrar el laboratorio.
+  // Permite aplicar cambios de la IA en el laboratorio.
   const proposalPort = useMemo(
     () => ({
       revision,
@@ -36,8 +35,7 @@ export const GravityLab = () => {
     [revision, applyProposal, selectStage],
   );
 
-  // Prepara el contexto que recibe el Tutor IA
-  // con la etapa activa y los parámetros gravitatorios.
+  // Comparte la etapa y los parámetros con la IA.
   const tutorContext = useMemo<TutorContext>(
     () => ({ kind: "gravity", stage: activeStage, parameters }),
     [activeStage, parameters],
@@ -45,9 +43,10 @@ export const GravityLab = () => {
 
   return (
     <>
+      {/* Etapa 03: Experimenta. */}
       <GravityJourneyPanel
         stage={gravityStageById["gravity-laboratory"]}
-        className="min-w-0 [padding-block:.25rem] [scroll-margin-top:var(--gravity-stage-offset)]"
+        className="min-w-0 py-1 scroll-mt-(--gravity-stage-offset)"
       >
         <GravityStageLayout contentLabel="controls">
           <GravityExperiment
@@ -58,13 +57,15 @@ export const GravityLab = () => {
         </GravityStageLayout>
       </GravityJourneyPanel>
 
+      {/* Etapa 04: Comprueba. */}
       <GravityJourneyPanel
         stage={gravityStageById["gravity-challenges"]}
-        className="min-w-0 [padding-block:.25rem] [scroll-margin-top:var(--gravity-stage-offset)]"
+        className="min-w-0 py-1 scroll-mt-(--gravity-stage-offset)"
       >
         <GravityPractice />
       </GravityJourneyPanel>
 
+      {/* Conecta el laboratorio con el Tutor IA. */}
       <TutorContextBridge context={tutorContext} gravity={proposalPort} />
     </>
   );

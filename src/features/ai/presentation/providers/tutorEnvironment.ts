@@ -1,18 +1,19 @@
 "use client";
 
 import { createContext, useContext } from "react";
+
 import type { TutorContext, TutorIntent } from "../../types/tutor.types";
 import type { GravityProposalPort } from "../../types/proposal.types";
 import type { TutorSessionId } from "../../application/tutorAvailability";
 
-// Define el contexto que comparte cada página con el Tutor IA.
+// Información que recibe el Tutor IA de cada página.
 export type PublishedContext = {
   pathname: string;
   context: TutorContext;
   gravity?: GravityProposalPort;
 };
 
-// Define las acciones que pueden abrir el Tutor IA.
+// Formas de abrir el Tutor IA.
 export type TutorLaunch =
   | TutorIntent
   | "configure_experiment"
@@ -23,7 +24,7 @@ export type TutorLauncher = (
   trigger?: HTMLElement,
 ) => void;
 
-// Agrupa el estado y las funciones compartidas del Tutor IA.
+// Datos y funciones compartidos del Tutor IA.
 type TutorEnvironment = {
   activeSessionId: TutorSessionId;
   context: TutorContext;
@@ -40,7 +41,7 @@ type TutorEnvironment = {
 
 export const EnvironmentContext = createContext<TutorEnvironment | null>(null);
 
-// Permite acceder al contexto del Tutor IA.
+// Accede a los datos y funciones del Tutor IA.
 export const useTutorEnvironment = () => {
   const value = useContext(EnvironmentContext);
 
@@ -49,7 +50,7 @@ export const useTutorEnvironment = () => {
   return value;
 };
 
-// Permite abrir el Tutor IA desde otros componentes.
+// Permite abrir el Tutor IA desde cualquier componente.
 export const useTutorActions = () => {
   const { openTutor } = useTutorEnvironment();
 

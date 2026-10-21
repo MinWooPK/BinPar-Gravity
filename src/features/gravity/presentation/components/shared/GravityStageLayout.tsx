@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
+import { useTranslations } from "next-intl";
+
 import { GravityFormulaInteractionProvider } from "../understanding/GravityFormulaInteraction";
 import { GravityUnderstandingSimulation } from "../understanding/GravityUnderstandingSimulation";
-import { useTranslations } from "next-intl";
 import { GravitySplitPanels } from "./GravitySplitPanels";
 
-// Organiza la simulación gravitatoria y el contenido educativo
-// en dos paneles, compartiendo las interacciones de la fórmula.
+// Organiza la simulación y el contenido en dos paneles.
 export const GravityStageLayout = ({
   children,
   contentLabel,
@@ -15,7 +15,6 @@ export const GravityStageLayout = ({
   contentLabel: "formula" | "controls" | "challenges";
   compact?: boolean;
 }) => {
-  // Obtiene las traducciones de los títulos de los paneles.
   const t = useTranslations("Gravity.panels");
 
   return (

@@ -3,7 +3,7 @@
 import { useRef, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 
-// Define las cuatro pestañas educativas.
+// Pestañas de la etapa Descubre.
 export const topics = [
   { id: "what", label: "educationWhat" },
   { id: "principles", label: "educationPrinciples" },
@@ -19,17 +19,16 @@ type GravityEducationTabsProps = {
   onSelect: (topic: TopicId) => void;
 };
 
-// Muestra las pestañas y permite navegar mediante el teclado.
+// Muestra las pestañas y permite navegar con el teclado.
 export const GravityEducationTabs = ({
   id,
   selected,
   onSelect,
 }: GravityEducationTabsProps) => {
   const t = useTranslations("Gravity");
-
-  // Guarda las referencias de los botones para gestionar el foco.
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
+  // Cambia de pestaña utilizando las flechas, Home y End.
   const handleKeyDown = (
     event: KeyboardEvent<HTMLButtonElement>,
     index: number,
@@ -70,7 +69,7 @@ export const GravityEducationTabs = ({
     <div
       role="tablist"
       aria-labelledby={`${id}-heading`}
-      className="grid [grid-template-columns:repeat(4,_minmax(0,_1fr))] [gap:6px] [margin-bottom:12px] min-[1024px]:shrink-0 [@media(max-width:600px)]:[gap:5px] [@media(max-width:360px)]:[grid-template-columns:repeat(2,_minmax(0,_1fr))]"
+      className="mb-3 grid grid-cols-4 gap-1.5 min-[1024px]:shrink-0 max-[600px]:gap-1.25 max-[360px]:grid-cols-2"
     >
       {topics.map((topic, index) => (
         <button
@@ -84,7 +83,12 @@ export const GravityEducationTabs = ({
           aria-controls={`${id}-panel-${topic.id}`}
           aria-selected={selected === topic.id}
           tabIndex={selected === topic.id ? 0 : -1}
-          className="min-w-0 [min-height:44px] [padding:8px_5px] [border:1px_solid_#30364b] [border-radius:8px] bg-lab-surface [color:#bac2d6] [font-size:.875rem] font-medium [line-height:1.4] [overflow-wrap:anywhere] cursor-pointer [transition:color_160ms,_background_160ms,_border-color_160ms] [&:hover]:[color:#f2f2fa] [&:hover]:[border-color:#aa97ff70] [&:hover]:[background:#1b2032] [&[aria-selected=true]]:[color:#e4dcff] [&[aria-selected=true]]:[border-color:#aa97ff90] [&[aria-selected=true]]:[background:#aa97ff18] [&:focus-visible]:[outline:2px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:3px] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]"
+          className="min-h-11 min-w-0 cursor-pointer rounded-lg border border-[#30364b] 
+          bg-lab-surface px-1.25 py-2 text-sm leading-[1.4] font-medium text-[#bac2d6] wrap-anywhere 
+          transition-colors duration-160 hover:border-[#aa97ff70] hover:bg-[#1b2032]
+           hover:text-[#f2f2fa] aria-selected:border-[#aa97ff90] aria-selected:bg-[#aa97ff18]
+            aria-selected:text-[#e4dcff] focus-visible:outline-2 focus-visible:outline-offset-[3px]
+             focus-visible:outline-[#c0b3ff] motion-reduce:transition-none"
           onClick={() => onSelect(topic.id)}
           onKeyDown={(event) => handleKeyDown(event, index)}
         >

@@ -1,7 +1,5 @@
 "use client";
 
-import { ArrowLeft } from "@/components/icons";
-
 import {
   createContext,
   useContext,
@@ -9,19 +7,25 @@ import {
   useLayoutEffect,
   useRef,
   useState,
+  type ReactNode,
 } from "react";
-import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import Earth3D from "../scene/Earth3D";
+
+import { ArrowLeft } from "@/components/icons";
 import { SpaceBackground } from "@/components/ui/SpaceBackground";
 
+import Earth3D from "../scene/Earth3D";
+
 type HomeView = "introduction" | "topics";
+
 type HomeContextValue = {
   topicsVisible: boolean;
   showTopics: () => void;
 };
+
 const HomeContext = createContext<HomeContextValue | null>(null);
 
+// Controla la introducción y la exploración de temas.
 export const HomeExperience = ({
   introduction,
   topics,
@@ -30,34 +34,48 @@ export const HomeExperience = ({
   topics: ReactNode;
 }) => {
   const t = useTranslations("Home");
+
   const [view, setView] = useState<HomeView>("introduction");
+
   const viewportRef = useRef<HTMLDivElement>(null);
   const topicsRef = useRef<HTMLElement>(null);
   const restoreFocus = useRef(false);
 
+  // Cambia la vista y actualiza la URL.
   const changeView = (next: HomeView) => {
     restoreFocus.current = true;
+
     const url =
       next === "topics"
         ? "#explore"
         : window.location.pathname + window.location.search;
+
     window.history.replaceState(window.history.state, "", url);
     setView(next);
   };
 
+  // Sincroniza la vista con la URL.
   useEffect(() => {
-    const syncHash = () =>
+    const syncHash = () => {
       setView(window.location.hash === "#explore" ? "topics" : "introduction");
+    };
+
     const frame = requestAnimationFrame(syncHash);
+
     window.addEventListener("hashchange", syncHash);
+
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("hashchange", syncHash);
     };
   }, []);
 
+  // Restablece el scroll y el foco al cambiar de vista.
   useLayoutEffect(() => {
-    if (viewportRef.current) viewportRef.current.scrollTop = 0;
+    if (viewportRef.current) {
+      viewportRef.current.scrollTop = 0;
+    }
+
     if (restoreFocus.current) {
       const target =
         view === "topics"
@@ -65,6 +83,7 @@ export const HomeExperience = ({
           : viewportRef.current?.querySelector<HTMLButtonElement>(
               "[data-home-explore]",
             );
+
       target?.focus({ preventScroll: true });
       restoreFocus.current = false;
     }
@@ -78,7 +97,7 @@ export const HomeExperience = ({
       }}
     >
       <div
-        className="lab-home-screen relative [isolation:isolate] flex [flex:1] w-full min-w-0 min-h-0"
+        className="lab-home-screen relative isolate flex min-h-0 min-w-0 w-full flex-1"
         onKeyDown={(event) => {
           if (
             event.key === "Escape" &&
@@ -90,50 +109,79 @@ export const HomeExperience = ({
           }
         }}
       >
-        <div className="fixed [inset:0] [z-index:0] pointer-events-none">
+        {/* Fondo y Tierra 3D. */}
+        <div className="pointer-events-none fixed inset-0 z-0">
           <SpaceBackground />
-          {/* This layer stays mounted across views, preserving the scene and rotation. */}
-          <div className="absolute [inset:0] pointer-events-none [opacity:.3] min-[1024px]:[opacity:1]">
+
+          <div className="pointer-events-none absolute inset-0 opacity-30 min-[1024px]:opacity-100">
             <Earth3D />
           </div>
         </div>
+
+        {/* Contenedor de las vistas. */}
         <div
           ref={viewportRef}
-          className="[&::-webkit-scrollbar]:hidden relative [z-index:1] flex flex-col w-full [max-width:80rem] min-w-0 min-h-0 [margin-inline:auto] [padding:1.5rem_max(1rem,_env(safe-area-inset-right))_1.5rem_max(1rem,_env(safe-area-inset-left))] overflow-x-hidden overflow-y-auto [overscroll-behavior-y:contain] [scrollbar-width:none] [scroll-behavior:auto] pointer-events-none min-[640px]:[padding:2rem_1.5rem] min-[1024px]:[padding:2rem]"
+          className="pointer-events-none relative z-1 mx-auto flex min-h-0 min-w-0 w-full max-w-7xl flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain scroll-auto
+            [scrollbar-width:none] [&::-webkit-scrollbar]:hidden
+            pt-6 pr-[max(1rem,env(safe-area-inset-right))] pb-6 pl-[max(1rem,env(safe-area-inset-left))]
+            min-[640px]:p-8 min-[640px]:px-6
+            min-[1024px]:p-8"
         >
+          {/* Introducción. */}
           <div
             hidden={view !== "introduction"}
-            className="[&[hidden]]:hidden [&:not([hidden])]:animate-[lab-home-view-enter_240ms_ease-out_both] motion-reduce:[&:not([hidden])]:animate-none focus-visible:[outline:2px_solid_#c0b3ff] focus-visible:outline-offset-4 focus-visible:rounded-[8px] shrink-0 w-full min-w-0 [margin-block:auto] pointer-events-auto min-[1024px]:[max-width:52%] min-[1024px]:[text-shadow:0_2px_16px_#070b14]"
+            className="pointer-events-auto my-auto w-full min-w-0 shrink-0
+              [&[hidden]]:hidden
+              [&:not([hidden])]:animate-[lab-home-view-enter_240ms_ease-out_both]
+              motion-reduce:[&:not([hidden])]:animate-none
+              focus-visible:rounded-lg
+              focus-visible:outline-2
+              focus-visible:outline-offset-4
+              focus-visible:outline-[#c0b3ff]
+              min-[1024px]:max-w-[52%]
+              min-[1024px]:[text-shadow:0_2px_16px_#070b14]"
           >
             {introduction}
           </div>
+
+          {/* Exploración de temas. */}
           <section
             ref={topicsRef}
             id="explore"
             aria-labelledby="explore-title"
             tabIndex={-1}
             hidden={view !== "topics"}
-            className="[&[hidden]]:hidden [&:not([hidden])]:animate-[lab-home-view-enter_240ms_ease-out_both] motion-reduce:[&:not([hidden])]:animate-none focus-visible:[outline:2px_solid_#c0b3ff] focus-visible:outline-offset-4 focus-visible:rounded-[8px] shrink-0 w-full min-w-0 [margin-block:auto] pointer-events-auto [max-width:52rem]"
+            className="pointer-events-auto my-auto w-full max-w-[52rem] min-w-0 shrink-0
+              [&[hidden]]:hidden
+              [&:not([hidden])]:animate-[lab-home-view-enter_240ms_ease-out_both]
+              motion-reduce:[&:not([hidden])]:animate-none
+              focus-visible:rounded-lg
+              focus-visible:outline-2
+              focus-visible:outline-offset-4
+              focus-visible:outline-[#c0b3ff]"
           >
-            <div className="sticky [top:0] [z-index:2] grid [grid-template-columns:auto_minmax(0,_max-content)] items-center [gap:.75rem] max-w-full [width:fit-content] [border-radius:.75rem] [background:#070b14dd]">
+            {/* Regreso a la introducción. */}
+            <div className="sticky top-0 z-2 grid w-fit max-w-full grid-cols-[auto_minmax(0,max-content)] items-center gap-3 rounded-xl bg-[#070b14dd]">
               <button
                 type="button"
                 aria-label={t("backToHome")}
                 onClick={() => changeView("introduction")}
-                className="group/home-back [&:hover]:bg-[#1e293b] focus-visible:[outline:2px_solid_#38bdf8] focus-visible:outline-offset-[3px] motion-reduce:[transition:none] inline-flex shrink-0 items-center justify-center [min-width:44px] [min-height:44px] [padding:.25rem_.5rem] [border:0] [border-radius:.75rem] [background:transparent] [color:#a2f3fd] [line-height:1] cursor-pointer [transition:background_180ms]"
+                className="group/home-back inline-flex min-h-11 min-w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-transparent px-2 py-1 text-[#a2f3fd] transition-colors duration-[180ms] hover:bg-[#1e293b] focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#38bdf8] motion-reduce:transition-none"
               >
                 <ArrowLeft
-                  className="motion-safe:group-hover/home-back:animate-[lab-home-back-nudge_800ms_ease-in-out_infinite] block [width:1.5rem] [height:1.5rem]"
+                  className="block size-6 motion-safe:group-hover/home-back:animate-[lab-home-back-nudge_800ms_ease-in-out_infinite]"
                   strokeWidth="2"
                 />
               </button>
+
               <h2
                 id="explore-title"
-                className="block [width:fit-content] min-w-0 m-0 [color:#a2f3fd] [font-family:var(--font-geist-sans),_Arial,_Helvetica,_sans-serif] [font-size:clamp(1rem,_2vw,_1.25rem)] font-bold [line-height:1.3] [letter-spacing:.05em] uppercase [overflow-wrap:anywhere]"
+                className="block w-fit min-w-0 text-[clamp(1rem,2vw,1.25rem)] leading-[1.3] font-bold tracking-[.05em] text-[#a2f3fd] uppercase wrap-anywhere [font-family:var(--font-geist-sans),Arial,Helvetica,sans-serif]"
               >
                 {t("exploreEyebrow")}
               </h2>
             </div>
+
             {topics}
           </section>
         </div>
@@ -142,10 +190,15 @@ export const HomeExperience = ({
   );
 };
 
+// Botón para acceder a la exploración de temas.
 export const HomeExploreButton = ({ className }: { className: string }) => {
   const t = useTranslations("Home");
   const context = useContext(HomeContext);
-  if (!context) throw new Error("HomeExploreButton requires HomeExperience");
+
+  if (!context) {
+    throw new Error("HomeExploreButton requires HomeExperience");
+  }
+
   return (
     <button
       data-home-explore

@@ -3,7 +3,7 @@ import type { OrbitDefinition } from "../../../../types/orbit.types";
 
 const coordinates = ["x", "y", "vₓ", "vᵧ"] as const;
 
-// Muestra las condiciones iniciales y el período original publicado.
+// Muestra las condiciones iniciales y el período publicado.
 export const OrbitInitialConditions = async ({
   orbit,
   index,
@@ -19,30 +19,52 @@ export const OrbitInitialConditions = async ({
     <div className="conditions" data-orbit-detail-conditions>
       <h3>{t("detail.conditionsTitle")}</h3>
       <p>{t("detail.conditionsDescription")}</p>
+
       <div
-        className="max-w-full [margin-block:10px_8px] overflow-x-auto [border:1px_solid_#394057] [border-radius:7px] [scrollbar-color:#9687be_#111624] [&_table]:w-full [&_table]:[border-collapse:collapse] [&_table]:[color:#d5dbeb] [&_table]:[font-size:0.75rem] [&_table]:[line-height:1.5] [&_table]:tabular-nums [&_table]:[white-space:nowrap] [&_:is(th,_td)]:[padding:7px_8px] [&_:is(th,_td)]:[border-bottom:1px_solid_#2d344a] [&_:is(th,_td)]:text-right [&_thead]:[background:#1e2134] [&_thead]:[color:#e1d7ff] [&_th]:font-medium [&_tbody_tr:last-child_>_*]:[border-bottom:0] [&_tbody_th]:[color:#b7f3e7]"
+        className="my-2.5 mb-2 max-w-full overflow-x-auto rounded-[7px] border border-[#394057] [scrollbar-color:#9687be_#111624]"
         role="region"
         aria-label={t("detail.tableCaption")}
         tabIndex={0}
       >
-        <table>
+        <table className="w-full border-collapse text-xs leading-normal text-[#d5dbeb] tabular-nums whitespace-nowrap">
           <caption className="sr-only">{t("detail.tableCaption")}</caption>
-          <thead>
+
+          <thead className="bg-[#1e2134] text-[#e1d7ff]">
             <tr>
-              <th scope="col">{t("detail.body")}</th>
+              <th
+                scope="col"
+                className="border-b border-[#2d344a] px-2 py-1.75 text-right font-medium"
+              >
+                {t("detail.body")}
+              </th>
+
               {coordinates.map((coordinate) => (
-                <th key={coordinate} scope="col">
+                <th
+                  key={coordinate}
+                  scope="col"
+                  className="border-b border-[#2d344a] px-2 py-1.75 text-right font-medium"
+                >
                   {coordinate}
                 </th>
               ))}
             </tr>
           </thead>
+
           <tbody>
             {orbit.initial.map((body, bodyIndex) => (
-              <tr key={bodyIndex}>
-                <th scope="row">{bodyIndex + 1}</th>
+              <tr key={bodyIndex} className="[&:last-child>*]:border-b-0">
+                <th
+                  scope="row"
+                  className="border-b border-[#2d344a] px-2 py-1.75 text-right font-medium text-[#b7f3e7]"
+                >
+                  {bodyIndex + 1}
+                </th>
+
                 {body.map((value, coordinateIndex) => (
-                  <td key={coordinateIndex}>
+                  <td
+                    key={coordinateIndex}
+                    className="border-b border-[#2d344a] px-2 py-1.75 text-right"
+                  >
                     <data value={value}>{value.toFixed(8)}</data>
                   </td>
                 ))}
@@ -53,7 +75,10 @@ export const OrbitInitialConditions = async ({
       </div>
 
       {index >= 2 && (
-        <p className="[.lab-three-body-detail-tab-panel_&]:[padding-left:8px] [.lab-three-body-detail-tab-panel_&]:[border-left:2px_solid_#aa97ff80] [.lab-three-body-detail-tab-panel_&]:[font-size:0.8125rem]">
+        <p
+          className="in-[.lab-three-body-detail-tab-panel]:border-l-2 in-[.lab-three-body-detail-tab-panel]:border-[#aa97ff80] 
+        in-[.lab-three-body-detail-tab-panel]:pl-2 in-[.lab-three-body-detail-tab-panel]:text-[0.8125rem]"
+        >
           {t("detail.refinedConditions", {
             publishedPeriod: originalPeriod.toFixed(8),
           })}

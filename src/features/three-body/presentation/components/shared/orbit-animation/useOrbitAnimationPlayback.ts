@@ -12,41 +12,33 @@ type PlaybackOptions = {
   resetKey: number;
 };
 
-// Mantiene el tiempo físico y las referencias DOM de la animación orbital.
+// Controla la reproducción de los tres cuerpos.
 export const useOrbitAnimationPlayback = ({
   data,
   playing,
   speed,
   resetKey,
 }: PlaybackOptions) => {
-  // Referencia al SVG que se observa para activar o pausar la animación.
   const stage = useRef<SVGSVGElement>(null);
-
-  // Referencias a los tres elementos SVG que se desplazan.
   const bodies = useRef<(SVGGElement | null)[]>([]);
-
-  // El tiempo se conserva al pausar y al cambiar la visibilidad.
   const elapsed = useRef(0);
-
-  // Permite reiniciar cuando cambia la versión de reinicio.
   const previousReset = useRef(resetKey);
 
   useEffect(() => {
     const element = stage.current;
     if (!element) return;
 
+    // Reinicia el tiempo cuando se solicita.
     if (previousReset.current !== resetKey) {
       elapsed.current = 0;
       previousReset.current = resetKey;
     }
 
-    // Guarda el fotograma pendiente y el instante anterior.
     let frame = 0;
     let lastTime: number | null = null;
-
-    // Solo reproduce cuando la órbita está dentro de la pantalla.
     let inView = false;
 
+    // Actualiza las posiciones de los cuerpos.
     const draw = () => {
       const positions = getOrbitFrame(data, elapsed.current);
 
@@ -58,6 +50,7 @@ export const useOrbitAnimationPlayback = ({
       });
     };
 
+    // Avanza el tiempo y dibuja el siguiente fotograma.
     const tick = (now: number) => {
       if (lastTime !== null) {
         elapsed.current =
@@ -69,18 +62,19 @@ export const useOrbitAnimationPlayback = ({
       frame = requestAnimationFrame(tick);
     };
 
-    // Cancela fotogramas y reanuda desde el tiempo guardado cuando proceda.
+    // Pausa o reanuda según la visibilidad.
     const sync = () => {
       cancelAnimationFrame(frame);
       lastTime = null;
 
-      if (playing && inView && !document.hidden)
+      if (playing && inView && !document.hidden) {
         frame = requestAnimationFrame(tick);
+      }
     };
 
     draw();
 
-    // Detiene la reproducción al salir de pantalla o al ocultar la pestaña.
+    // Observa si la animación está visible.
     const observer = new IntersectionObserver(([entry]) => {
       inView = entry.isIntersecting;
       sync();

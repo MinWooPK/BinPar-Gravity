@@ -1,7 +1,8 @@
 "use client";
 
-import { ArrowLeft } from "@/components/icons";
 import { useTranslations } from "next-intl";
+
+import { ArrowLeft } from "@/components/icons";
 
 import {
   gravityStageById,
@@ -9,10 +10,9 @@ import {
 } from "../../../application/gravityJourney";
 
 import type { GravityStageId } from "../../../types/journey.types";
-
 import { GravityStageHeading } from "../shared/GravityStageHeading";
 
-// Define los títulos cortos de las cuatro etapas.
+// Títulos cortos de las etapas.
 const shortTitles = {
   "gravity-discovery": "stageTags.discover",
   "gravity-understanding": "stageTags.understand",
@@ -20,9 +20,10 @@ const shortTitles = {
   "gravity-challenges": "stageTags.check",
 } as const;
 
-// Estilos del botón para regresar al recorrido.
+// Estilos del botón de regreso.
 const compactButton =
-  "inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg px-3 text-sm text-slate-200 transition-colors hover:bg-violet-300/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 motion-reduce:transition-none";
+  "inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg px-3 text-sm text-slate-200 transition-colors" +
+  "hover:bg-violet-300/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 motion-reduce:transition-none";
 
 type GravityStageNavigationProps = {
   activeStage: GravityStageId;
@@ -30,7 +31,7 @@ type GravityStageNavigationProps = {
   onReturnToJourney: () => void;
 };
 
-// Muestra la navegación compacta de la etapa seleccionada.
+// Muestra la navegación entre etapas.
 export const GravityStageNavigation = ({
   activeStage,
   onSelectStage,
@@ -38,10 +39,7 @@ export const GravityStageNavigation = ({
 }: GravityStageNavigationProps) => {
   const t = useTranslations("Gravity");
 
-  // Obtiene la información de la etapa actual.
   const stage = gravityStageById[activeStage];
-
-  // La primera etapa utiliza una distribución distinta.
   const isDiscovery = activeStage === "gravity-discovery";
 
   return (
@@ -51,7 +49,7 @@ export const GravityStageNavigation = ({
         isDiscovery ? "" : "lg:grid-cols-[auto_minmax(0,1fr)_auto]"
       }`}
     >
-      {/* Botón para regresar al recorrido inicial. */}
+      {/* Regresa al recorrido inicial. */}
       <button
         type="button"
         onClick={onReturnToJourney}
@@ -62,15 +60,12 @@ export const GravityStageNavigation = ({
         <ArrowLeft className="size-6" />
       </button>
 
-      {/* Encabezado de la etapa seleccionada. */}
       <GravityStageHeading stage={stage} visuallyHidden={isDiscovery} />
 
-      {/* Tags para cambiar entre las cuatro etapas. */}
+      {/* Permite cambiar entre las cuatro etapas. */}
       <div
-        className={`grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4 ${
-          isDiscovery
-            ? "col-span-2 lg:col-span-1 lg:justify-self-end"
-            : "col-span-2 lg:col-span-1"
+        className={`col-span-2 grid min-w-0 grid-cols-2 gap-2 sm:grid-cols-4 lg:col-span-1 ${
+          isDiscovery ? "lg:justify-self-end" : ""
         }`}
         data-gravity-stage-tags
       >
@@ -82,7 +77,9 @@ export const GravityStageNavigation = ({
             aria-current={activeStage === item.id ? "step" : undefined}
             aria-controls={item.id}
             onClick={() => onSelectStage(item.id)}
-            className={`min-h-11 min-w-0 rounded-xl border px-3 py-2 text-center text-sm font-semibold transition-colors hover:border-violet-300 hover:bg-violet-300/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-200 motion-reduce:transition-none ${
+            className={`min-h-11 min-w-0 rounded-xl border px-3 py-2 text-center text-sm font-semibold transition-colors
+               hover:border-violet-300 hover:bg-violet-300/10 focus-visible:outline-2 focus-visible:outline-offset-2
+                focus-visible:outline-cyan-200 motion-reduce:transition-none ${
               activeStage === item.id
                 ? "border-violet-300 bg-violet-300/15 text-cyan-100"
                 : "border-slate-600 bg-slate-950/40 text-slate-300"

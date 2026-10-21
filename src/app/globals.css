@@ -353,6 +353,10 @@ html:has(.lab-gravity-journey-screen)::-webkit-scrollbar {
 }
 
 /* Las etapas 01–03 crecen con el contenido; la introducción y Comprueba conservan su viewport. */
+body:has(.lab-gravity-journey-workspace[data-active-stage="gravity-challenges"])
+  > footer {
+  display: none;
+}
 
 body:has(
   .lab-gravity-journey-workspace:is(
@@ -387,7 +391,8 @@ main:has(.lab-three-body-journey-screen) {
 .lab-gravity-journey-workspace:is(
     [data-active-stage="gravity-discovery"],
     [data-active-stage="gravity-understanding"],
-    [data-active-stage="gravity-laboratory"]
+    [data-active-stage="gravity-laboratory"],
+
   )
   > .lab-gravity-journey-viewport {
   flex: 1 0 auto;
@@ -398,7 +403,8 @@ main:has(.lab-three-body-journey-screen) {
 .lab-gravity-journey-workspace:is(
     [data-active-stage="gravity-discovery"],
     [data-active-stage="gravity-understanding"],
-    [data-active-stage="gravity-laboratory"]
+    [data-active-stage="gravity-laboratory"],
+
   )
   .lab-gravity-journey-panel:not([hidden]) {
   min-height: 0;

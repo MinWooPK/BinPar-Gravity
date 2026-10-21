@@ -3,12 +3,13 @@
 import { useId, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
+
 import { Icon } from "@/components/icons";
 
-// Define los tres ejemplos de gravedad disponibles.
+// Ejemplos cotidianos de gravedad.
 const examples = ["fall", "moon", "objects"] as const;
 
-// Define las ilustraciones SVG de la caída y la atracción entre objetos.
+// Dibujos de los ejemplos.
 const illustrations = {
   fall: (
     <>
@@ -25,41 +26,45 @@ const illustrations = {
   ),
 };
 
-// Muestra ejemplos cotidianos de gravedad mediante pestañas interactivas.
-export const GravityEveryday = () => {
-  // Obtiene las traducciones de la sección.
-  const t = useTranslations("Gravity");
+// Colores de las ilustraciones.
+const illustrationStyles = {
+  fall: "text-[#b9a8ff] bg-[#aa97ff10]",
+  moon: "text-[#5ee7d5] bg-[#5ee7d510]",
+  objects: "text-[#f7bd79] bg-[#f7bd7910]",
+};
 
-  // Genera identificadores únicos para relacionar las pestañas y sus paneles.
+// Muestra ejemplos cotidianos de gravedad.
+export const GravityEveryday = () => {
+  const t = useTranslations("Gravity");
   const id = useId();
 
-  // Guarda el índice del ejemplo seleccionado.
   const [selectedIndex, setSelectedIndex] = useState(0);
-
-  // Almacena las referencias de los botones para gestionar el foco.
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  // Gestiona la navegación entre ejemplos mediante el teclado.
+  // Permite cambiar de pestaña con el teclado.
   const handleKeyDown = (
     event: KeyboardEvent<HTMLButtonElement>,
     index: number,
   ) => {
-    // Determina el índice de la siguiente pestaña.
     let nextIndex: number;
 
     switch (event.key) {
       case "ArrowRight":
         nextIndex = (index + 1) % examples.length;
         break;
+
       case "ArrowLeft":
         nextIndex = (index - 1 + examples.length) % examples.length;
         break;
+
       case "Home":
         nextIndex = 0;
         break;
+
       case "End":
         nextIndex = examples.length - 1;
         break;
+
       default:
         return;
     }
@@ -70,17 +75,33 @@ export const GravityEveryday = () => {
   };
 
   return (
-    <section aria-labelledby={`${id}-heading`} className="min-w-0 [padding-top:14px] [border-top:1px_solid_#30364b]">
-      <div className="[margin-bottom:12px] [&_h3]:[margin:0] [&_h3]:[color:#f2f2fa] [&_h3]:[font-size:1rem] [&_h3]:[font-weight:600] [&_h3]:[line-height:1.4] [&_h3]:[overflow-wrap:anywhere]">
-        <p className="[margin:0_0_4px] [color:#b8b0d6] [font-size:.75rem] font-semibold [line-height:1.5] [letter-spacing:.1em] uppercase">{t("everydayEyebrow")}</p>
-        <h3 id={`${id}-heading`}>{t("everydayTitle")}</h3>
-        <p className="[margin:6px_0_0] [color:#b2bad0] [font-size:1rem] [line-height:1.5] [@media_(max-width:_600px)]:[&]:[font-size:1rem]">{t("everydayDescription")}</p>
+    <section
+      aria-labelledby={`${id}-heading`}
+      className="border-t border-[#30364b] pt-3.5"
+    >
+      {/* Título y descripción. */}
+      <div className="mb-3">
+        <p className="mb-1 text-xs leading-normal font-semibold tracking-widest text-[#b8b0d6] uppercase">
+          {t("everydayEyebrow")}
+        </p>
+
+        <h3
+          id={`${id}-heading`}
+          className="text-base leading-[1.4] font-semibold text-[#f2f2fa] wrap-anywhere"
+        >
+          {t("everydayTitle")}
+        </h3>
+
+        <p className="mt-1.5 text-base leading-normal text-[#b2bad0]">
+          {t("everydayDescription")}
+        </p>
       </div>
 
+      {/* Pestañas de los ejemplos. */}
       <div
         role="tablist"
         aria-labelledby={`${id}-heading`}
-        className="grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] [gap:6px] [margin-bottom:10px]"
+        className="mb-2.5 grid grid-cols-3 gap-1.5"
       >
         {examples.map((example, index) => (
           <button
@@ -94,7 +115,12 @@ export const GravityEveryday = () => {
             aria-controls={`${id}-panel-${example}`}
             aria-selected={selectedIndex === index}
             tabIndex={selectedIndex === index ? 0 : -1}
-            className="min-w-0 [min-height:44px] [padding:8px] [border:1px_solid_#30364b] [border-radius:8px] bg-lab-surface [color:#bac2d6] [font-size:1rem] font-medium [line-height:1.4] [overflow-wrap:anywhere] cursor-pointer [transition:color_160ms,_background_160ms,_border-color_160ms] [@media(max-width:600px)]:[padding-inline:6px] [&:hover]:[color:#f2f2fa] [&:hover]:[border-color:#aa97ff70] [&:hover]:[background:#1b2032] [&[aria-selected=true]]:[color:#e4dcff] [&[aria-selected=true]]:[border-color:#aa97ff90] [&[aria-selected=true]]:[background:#aa97ff18] [&:focus-visible]:[outline:2px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:3px] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]"
+            className="min-h-11 min-w-0 cursor-pointer rounded-lg border border-[#30364b] bg-lab-surface
+             p-2 text-base leading-[1.4] font-medium text-[#bac2d6] wrap-anywhere transition-colors 
+             duration-160 hover:border-[#aa97ff70] hover:bg-[#1b2032] hover:text-[#f2f2fa]
+              aria-selected:border-[#aa97ff90] aria-selected:bg-[#aa97ff18] aria-selected:text-[#e4dcff] 
+              focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#c0b3ff] 
+              max-[600px]:px-1.5 motion-reduce:transition-none"
             onClick={() => setSelectedIndex(index)}
             onKeyDown={(event) => handleKeyDown(event, index)}
           >
@@ -103,6 +129,7 @@ export const GravityEveryday = () => {
         ))}
       </div>
 
+      {/* Contenido del ejemplo seleccionado. */}
       {examples.map((example, index) => (
         <div
           key={example}
@@ -111,10 +138,20 @@ export const GravityEveryday = () => {
           aria-labelledby={`${id}-tab-${example}`}
           tabIndex={0}
           hidden={selectedIndex !== index}
-          className="grid [grid-template-columns:40px_minmax(0,_1fr)] [align-items:start] [gap:12px] min-w-0 [min-height:108px] [padding:14px] [border:1px_solid_#30364b] [border-radius:10px] bg-lab-surface [@media(max-width:600px)]:min-h-0 [@media(max-width:360px)]:[gap:10px] [@media(max-width:360px)]:[padding:12px] [&:focus-visible]:[outline:2px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:3px] [&[hidden]]:[display:none] [&:not([hidden])]:[animation:lab-gravity-example-enter_180ms_ease-out_both] [&_>_div]:[min-width:0] [&_h4]:[margin:0_0_5px] [&_h4]:[color:#e9e7f4] [&_h4]:[font-size:1rem] [&_h4]:[font-weight:600] [&_h4]:[line-height:1.4] [&_h4]:[overflow-wrap:anywhere] [&_p]:[margin:0] [&_p]:[color:#b2bad0] [&_p]:[font-size:1rem] [&_p]:[line-height:1.5] [&_p]:[overflow-wrap:anywhere] [&[data-tone=moon]_.lab-gravity-everyday-illustration]:[color:#5ee7d5] [&[data-tone=moon]_.lab-gravity-everyday-illustration]:[background:#5ee7d510] [&[data-tone=objects]_.lab-gravity-everyday-illustration]:[color:#f7bd79] [&[data-tone=objects]_.lab-gravity-everyday-illustration]:[background:#f7bd7910] [@media_(max-width:_600px)]:[&_p]:[font-size:1rem] [@media_(prefers-reduced-motion:_reduce)]:[&:not([hidden])]:[animation:none]"
           data-tone={example}
+          className={`min-h-27 min-w-0 grid-cols-[40px_minmax(0,1fr)] items-start gap-3 rounded-[10px] border border-[#30364b] 
+            bg-lab-surface p-3.5 focus-visible:outline-2 focus-visible:outline-offset-[3px] focus-visible:outline-[#c0b3ff] 
+            max-[600px]:min-h-0 max-[360px]:gap-2.5 max-[360px]:p-3 ${
+            selectedIndex === index
+              ? "grid animate-[lab-gravity-example-enter_180ms_ease-out_both] motion-reduce:animate-none"
+              : "hidden"
+          }`}
         >
-          <span className="lab-gravity-everyday-illustration grid [place-items:center] [width:40px] [height:40px] [border-radius:9px] [color:#b9a8ff] [background:#aa97ff10] [&_svg]:[display:block] [&_svg]:[width:30px] [&_svg]:[height:30px]" aria-hidden="true">
+          {/* Ilustración. */}
+          <span
+            className={`grid size-10 place-items-center rounded-[9px] [&_svg]:block [&_svg]:size-7.5 ${illustrationStyles[example]}`}
+            aria-hidden="true"
+          >
             {example === "moon" ? (
               <Icon name="orbit" />
             ) : (
@@ -131,9 +168,16 @@ export const GravityEveryday = () => {
               </svg>
             )}
           </span>
-          <div>
-            <h4>{t(`everyday_${example}_title`)}</h4>
-            <p>{t(`everyday_${example}_description`)}</p>
+
+          {/* Explicación del ejemplo. */}
+          <div className="min-w-0">
+            <h4 className="mb-1.25 text-base leading-[1.4] font-semibold text-[#e9e7f4] wrap-anywhere">
+              {t(`everyday_${example}_title`)}
+            </h4>
+
+            <p className="text-base leading-normal text-[#b2bad0] wrap-anywhere">
+              {t(`everyday_${example}_description`)}
+            </p>
           </div>
         </div>
       ))}

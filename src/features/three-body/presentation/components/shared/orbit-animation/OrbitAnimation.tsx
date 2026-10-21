@@ -9,7 +9,6 @@ import { getOrbitViewBox } from "./orbitAnimation.helpers";
 import { useOrbitAnimationPlayback } from "./useOrbitAnimationPlayback";
 import { OrbitAnimationSvg } from "./OrbitAnimationSvg";
 
-// Define las propiedades originales del reproductor orbital.
 type OrbitAnimationProps = {
   data: OrbitPlayback;
   name: string;
@@ -19,7 +18,7 @@ type OrbitAnimationProps = {
   fitToTrajectory?: boolean;
 };
 
-// Coordina los cálculos visuales, la reproducción y la representación SVG.
+// Controla la reproducción y la visualización de la órbita.
 export const OrbitAnimation = ({
   data,
   name,
@@ -28,16 +27,15 @@ export const OrbitAnimation = ({
   resetKey = 0,
   fitToTrajectory = false,
 }: OrbitAnimationProps) => {
-  // Genera las trayectorias visuales sin recalcularlas en cada render.
+  // Prepara las trayectorias y el encuadre SVG.
   const trails = useMemo(() => getOrbitTrails(data), [data]);
 
-  // Ajusta opcionalmente el encuadre a la trayectoria completa.
   const viewBox = useMemo(
     () => getOrbitViewBox(data, fitToTrajectory),
     [data, fitToTrajectory],
   );
 
-  // Gestiona la animación manteniendo el tiempo entre pausas y cambios de vista.
+  // Gestiona las posiciones durante la reproducción.
   const { stage, bodies } = useOrbitAnimationPlayback({
     data,
     playing,

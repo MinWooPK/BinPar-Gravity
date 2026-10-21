@@ -3,14 +3,13 @@
 import { useTranslations } from "next-intl";
 
 import { gravityStages } from "../../../application/gravityJourney";
-
 import type { GravityStageId } from "../../../types/journey.types";
 
 type GravityJourneyOverviewProps = {
   onSelectStage: (stage: GravityStageId, focusPanel?: boolean) => void;
 };
 
-// Muestra las cuatro tarjetas del recorrido de aprendizaje.
+// Muestra las cuatro etapas del recorrido.
 export const GravityJourneyOverview = ({
   onSelectStage,
 }: GravityJourneyOverviewProps) => {
@@ -19,43 +18,56 @@ export const GravityJourneyOverview = ({
   return (
     <nav
       aria-labelledby="gravity-journey-title"
-      className="shrink-0 [margin:0_0_.5rem] [@media_(min-width:_64rem)]:[.lab-gravity-journey-workspace[data-introduction=true]_&]:[min-width:0] [@media_(min-width:_64rem)]:[.lab-gravity-journey-workspace[data-introduction=true]_&]:[margin:0]"
+      className="mb-2 shrink-0 lg:mb-0 lg:min-w-0"
     >
-      {/* Título del recorrido educativo. */}
       <p
         id="gravity-journey-title"
-        className="[margin:0_0_10px] [color:#b8b0d6] [font-size:14px] font-semibold [letter-spacing:.1em] uppercase [@media(max-width:600px)]:[font-size:12px] [@media_(min-width:_64rem)]:[.lab-gravity-journey-workspace[data-introduction=true]_&]:[margin-bottom:1.25rem] [@media_(max-height:_500px)]:[&&]:[display:none]"
+        className="mb-2.5 text-sm font-semibold tracking-widest text-[#b8b0d6] uppercase max-[600px]:text-xs lg:mb-5 [@media(max-height:500px)]:hidden"
       >
         {t("learningNavigationTitle")}
       </p>
 
-      {/* Tarjetas para seleccionar la etapa educativa. */}
-      <div className="grid [grid-template-columns:repeat(2,_minmax(0,_1fr))] [gap:12px] [@media(max-width:600px)]:[gap:6px] [@media_(min-width:_64rem)]:[.lab-gravity-journey-workspace[data-introduction=true]_&]:[grid-template-columns:minmax(0,_1fr)]">
+      {/* Tarjetas de las etapas. */}
+      <div className="grid grid-cols-2 gap-3 max-[600px]:gap-1.5 lg:grid-cols-1">
         {gravityStages.map((stage) => (
           <button
             key={stage.id}
             id={`${stage.id}-entry`}
             type="button"
             aria-controls={stage.id}
-            className="flex items-baseline [gap:12px] w-full min-w-0 [min-height:48px] [padding:14px_16px] [border:1px_solid_#30364b] [border-radius:10px] bg-lab-surface [color:#e4e8f2] [font-size:16px] [line-height:1.5] text-left [overflow-wrap:anywhere] cursor-pointer [transition:background_180ms,_border-color_180ms,_color_180ms] [@media(max-width:600px)]:flex-col [@media(max-width:600px)]:[align-items:flex-start] [@media(max-width:600px)]:[gap:4px] [@media(max-width:600px)]:[padding:10px_8px] [@media(max-width:600px)]:[font-size:13px] [&:hover]:[border-color:#aa97ff80] [&:hover]:[background:#1b2032] [&:is(:hover,_:focus-visible)_.lab-gravity-journey-title-row::after]:[background-color:#4ade80] [&:is(:hover,_:focus-visible)_.lab-gravity-journey-title-row::after]:[opacity:1] [&:is(:hover,_:focus-visible)_.lab-gravity-journey-title-row::after]:[box-shadow:0_0_6px_2px_#4ade8059,_0_0_14px_3px_#4ade8026] [&:focus-visible]:[outline:3px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:3px] [@media_(max-height:_500px)]:[&&]:[min-height:44px] [@media_(max-height:_500px)]:[&&]:[padding:8px] [@media_(max-height:_500px)]:[&&]:[gap:6px] [@media_(max-height:_500px)]:[&&]:[font-size:13px] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]"
+            className="group flex min-h-12 w-full min-w-0 cursor-pointer items-baseline gap-3 rounded-[10px] border 
+            border-[#30364b] bg-lab-surface px-4 py-3.5 text-left text-base leading-normal text-[#e4e8f2] 
+            wrap-anywhere transition-colors duration-180 hover:border-[#aa97ff80] hover:bg-[#1b2032] focus-visible:outline-3 
+            focus-visible:outline-offset-[3px] focus-visible:outline-[#c0b3ff] max-[600px]:flex-col max-[600px]:items-start 
+            max-[600px]:gap-1 max-[600px]:px-2 max-[600px]:py-2.5 max-[600px]:text-[13px] [@media(max-height:500px)]:min-h-11 
+            [@media(max-height:500px)]:gap-1.5 [@media(max-height:500px)]:p-2 [@media(max-height:500px)]:text-[13px] motion-reduce:transition-none"
             onClick={() => onSelectStage(stage.id, true)}
           >
-            {/* Número de la etapa. */}
+            {/* Número de etapa. */}
             <span
               aria-hidden="true"
-              className="shrink-0 [color:#b9a8ff] [font-family:var(--font-geist-mono),_monospace] [font-size:15px] [font-variant-numeric:tabular-nums] [@media(max-width:600px)]:[font-size:12px]"
+              className="shrink-0 text-[15px] text-[#b9a8ff] tabular-nums [font-family:var(--font-geist-mono),monospace] max-[600px]:text-xs"
             >
               {stage.number}
             </span>
 
             <span className="w-full min-w-0 flex-1">
-              {/* Nombre de la etapa e indicador verde animado. */}
-              <span className="lab-gravity-journey-title-row flex w-full min-w-0 items-center gap-3 [&_>_span]:[min-width:0] [&_>_span]:[overflow-wrap:anywhere] [&::after]:[content:''] [&::after]:[flex:0_0_8px] [&::after]:[height:8px] [&::after]:[margin-left:auto] [&::after]:[border-radius:50%] [&::after]:[background-color:#33483e] [&::after]:[opacity:0.4] [&::after]:[box-shadow:0_0_0_0_#4ade8000] [&::after]:[transition:background-color_250ms_ease,_opacity_250ms_ease,_box-shadow_250ms_ease] [@media_(prefers-reduced-motion:_reduce)]:[&::after]:[transition:none]">
-                <span>{t(stage.title)}</span>
+              {/* Título e indicador verde. */}
+              <span className="lab-gravity-journey-title-row flex w-full min-w-0 items-center gap-3">
+                <span className="min-w-0 wrap-anywhere">{t(stage.title)}</span>
+
+                <span
+                  aria-hidden="true"
+                  className="ml-auto size-2 shrink-0 rounded-full bg-[#33483e]
+                   opacity-40 shadow-[0_0_0_0_#4ade8000] transition-[background-color,opacity,box-shadow]
+                    duration-250 ease-in group-hover:bg-[#4ade80] group-hover:opacity-100 group-hover:shadow-[0_0_6px_2px_#4ade8059,0_0_14px_3px_#4ade8026] 
+                    group-focus-visible:bg-[#4ade80] group-focus-visible:opacity-100 group-focus-visible:shadow-[0_0_6px_2px_#4ade8059,0_0_14px_3px_#4ade8026]
+                     motion-reduce:transition-none"
+                />
               </span>
 
-              {/* Breve descripción de la etapa. */}
-              <span className="block [margin-top:6px] [color:#b2bad0] [font-size:.875rem] [line-height:1.5]">
+              {/* Descripción de la etapa. */}
+              <span className="mt-1.5 block text-sm leading-normal text-[#b2bad0]">
                 {t(stage.description)}
               </span>
             </span>
@@ -63,8 +75,8 @@ export const GravityJourneyOverview = ({
         ))}
       </div>
 
-      {/* Información sobre la libertad de navegación. */}
-      <p className="[margin:10px_0_0] [color:#b2bad0] [font-size:15px] [line-height:1.6] [@media(max-width:600px)]:[font-size:13px] [@media_(min-width:_64rem)]:[.lab-gravity-journey-workspace[data-introduction=true]_&]:[margin-top:1.25rem] [@media_(max-height:_500px)]:[&&]:[display:none]">
+      {/* Información del recorrido. */}
+      <p className="mt-2.5 text-[15px] leading-[1.6] text-[#b2bad0] max-[600px]:text-[13px] lg:mt-5 [@media(max-height:500px)]:hidden">
         {t("learningFreedom")}
       </p>
     </nav>

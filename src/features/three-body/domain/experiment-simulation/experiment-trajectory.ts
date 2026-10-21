@@ -2,23 +2,24 @@ import {
   validateGravityParameters,
   type GravityParameters,
 } from "../newtonian-physics";
+
 import type {
   ExperimentConfiguration,
   ExperimentTrajectory,
   ExperimentStateSample,
 } from "./experiment.types";
+
 import { positions, validateExperimentState } from "./experiment-state";
 import { createIntegrator, MAX_ATTEMPTS } from "./adaptive-integrator";
 
-// Simula el movimiento gravitatorio de tres cuerpos durante
-// un intervalo de tiempo mediante integración RK4 adaptativa.
+// Simula tres cuerpos mediante RK4 adaptativo.
 export function simulateExperiment(
   config: ExperimentConfiguration,
   sampleCount = 601,
 ): ExperimentTrajectory {
-  // Obtiene los cuerpos, la constante gravitatoria y la duración.
   const { bodies, gravity: G, duration } = config;
 
+  // Comprueba los cuerpos, la duración y las muestras.
   if (!Array.isArray(bodies) || bodies.length !== 3) {
     throw new RangeError("La simulación necesita exactamente tres cuerpos.");
   }
@@ -33,7 +34,7 @@ export function simulateExperiment(
     throw new RangeError("El número de muestras debe estar entre 2 y 2000.");
   }
 
-  // Prepara los parámetros físicos utilizados por el motor Newtoniano.
+  // Prepara los parámetros físicos.
   const physics: GravityParameters = {
     G,
     masses: [bodies[0].mass, bodies[1].mass, bodies[2].mass],
@@ -41,21 +42,19 @@ export function simulateExperiment(
 
   validateGravityParameters(physics);
 
-  // Convierte las condiciones iniciales en el estado físico de 12 componentes.
+  // Prepara y valida el estado inicial.
   const initial = bodies.flatMap(({ x, y, vx, vy }) => [x, y, vx, vy]);
 
   validateExperimentState(initial);
 
-  // Guarda las posiciones iniciales para representar la trayectoria.
+  // Guarda las posiciones y los estados físicos.
   const samples = [positions(initial)];
 
-  // Guarda los estados físicos aceptados durante la integración.
   const stateSamples: ExperimentStateSample[] = [{ time: 0, state: initial }];
 
-  // Calcula el intervalo temporal entre las muestras visuales.
   const sampleInterval = duration / (sampleCount - 1);
 
-  // Prepara el integrador y registra los estados físicos calculados.
+  // Crea el integrador RK4 adaptativo.
   const integrator = createIntegrator(
     stateSamples[0],
     duration,
@@ -65,15 +64,15 @@ export function simulateExperiment(
     (sample) => stateSamples.push(sample),
   );
 
+  // Calcula las muestras de la trayectoria.
   for (let index = 1; index < sampleCount; index++) {
-    // Determina el instante correspondiente a cada muestra visual.
     const target =
       index === sampleCount - 1 ? duration : index * sampleInterval;
 
     samples.push(positions(integrator.advance(target).state));
   }
 
-  // Inicializa los límites espaciales de la trayectoria.
+  // Busca los límites de la trayectoria.
   let minX = Infinity;
   let maxX = -Infinity;
   let minY = Infinity;
@@ -81,7 +80,6 @@ export function simulateExperiment(
 
   for (const sample of samples) {
     for (let body = 0; body < 3; body++) {
-      // Obtiene las coordenadas del cuerpo en la muestra actual.
       const x = sample[body * 2];
       const y = sample[body * 2 + 1];
 
@@ -92,13 +90,11 @@ export function simulateExperiment(
     }
   }
 
-  // Calcula el centro horizontal de toda la trayectoria.
+  // Calcula el centro de la trayectoria.
   const cx = (minX + maxX) / 2;
-
-  // Calcula el centro vertical de toda la trayectoria.
   const cy = (minY + maxY) / 2;
 
-  // Calcula el radio necesario para encajar la trayectoria en una vista SVG.
+  // Calcula el radio necesario para visualizarla.
   const radius = Math.max(
     1e-9,
     ...samples.flatMap((sample) => [
@@ -108,5 +104,10 @@ export function simulateExperiment(
     ]),
   );
 
-  return { duration, samples, stateSamples, bounds: { cx, cy, radius } };
+  return {
+    duration,
+    samples,
+    stateSamples,
+    bounds: { cx, cy, radius },
+  };
 }

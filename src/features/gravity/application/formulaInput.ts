@@ -15,10 +15,10 @@ import type {
 
 import { parseFormulaValue } from "./parseFormulaValue";
 
-// Define las cuatro variables de la fórmula gravitatoria.
+// Variables de la fórmula.
 const variables = ["force", "mass1", "mass2", "distance"] as const;
 
-// Establece el estado inicial de la calculadora con los campos vacíos.
+// Estado inicial de la calculadora.
 export const initialFormulaInput: FormulaInputState = {
   values: { force: "", mass1: "", mass2: "", distance: "" },
   unknown: null,
@@ -26,24 +26,23 @@ export const initialFormulaInput: FormulaInputState = {
   numericalError: false,
 };
 
-// Calcula la variable desconocida a partir de los valores introducidos.
+// Calcula la variable desconocida.
 const calculateFormulaInput = (state: FormulaInputState): FormulaInputState => {
   const { values } = state;
 
-  // Prepara el estado para un nuevo cálculo.
   const next = { ...state, result: null, numericalError: false };
 
-  // Identifica las variables que no tienen un valor numérico válido.
+  // Busca los campos sin un número válido.
   const missing = variables.filter(
     (variable) => parseFormulaValue(values[variable]) === null,
   );
 
-  // Determina qué variable debe calcularse.
+  // Selecciona la incógnita.
   const target = state.unknown ?? (missing.length === 1 ? missing[0] : null);
 
   if (!target) return next;
 
-  // Recoge los valores conocidos necesarios para resolver la fórmula.
+  // Recoge los valores conocidos.
   const known: Partial<GravityValues> = {};
 
   for (const variable of variables) {
@@ -57,9 +56,10 @@ const calculateFormulaInput = (state: FormulaInputState): FormulaInputState => {
   }
 
   try {
-    // Resuelve la fórmula y corrige pequeñas imprecisiones numéricas en los límites.
+    // Resuelve la fórmula.
     const result = solveGravity(target, known);
 
+    // Corrige pequeñas diferencias decimales en los límites.
     if (target !== "force") {
       const { min, max } = laboratoryLimits[target];
 
@@ -80,12 +80,11 @@ const calculateFormulaInput = (state: FormulaInputState): FormulaInputState => {
   }
 };
 
-// Inicializa la calculadora con los parámetros actuales del laboratorio.
+// Carga los valores actuales del laboratorio.
 export const formulaInputFromParameters = (
   parameters: GravityParameters,
   unknown: GravityVariable = "force",
 ): FormulaInputState => {
-  // Calcula la fuerza correspondiente a los parámetros actuales.
   const result = { ...parameters, force: gravitationalForce(parameters) };
 
   return {
@@ -102,7 +101,7 @@ export const formulaInputFromParameters = (
   };
 };
 
-// Actualiza el texto de un campo y recalcula la fórmula si es posible.
+// Actualiza un campo y recalcula la fórmula.
 export const changeFormulaInput = (
   state: FormulaInputState,
   key: GravityVariable,
@@ -116,16 +115,16 @@ export const changeFormulaInput = (
   });
 };
 
-// Cambia la incógnita de la fórmula conservando los resultados anteriores.
+// Cambia la incógnita de la fórmula.
 export const selectFormulaUnknown = (
   state: FormulaInputState,
   unknown: GravityVariable,
 ): FormulaInputState => {
   if (unknown === state.unknown) return state;
 
-  // Prepara los valores para calcular la nueva incógnita.
   const values = { ...state.values, [unknown]: "" };
 
+  // Conserva el resultado de la incógnita anterior.
   if (state.unknown && state.result) {
     values[state.unknown] = String(state.result[state.unknown]);
   }
@@ -133,5 +132,5 @@ export const selectFormulaUnknown = (
   return calculateFormulaInput({ ...state, values, unknown });
 };
 
-// Reutiliza la validación de los límites permitidos en el laboratorio.
+// Comprueba los límites del laboratorio.
 export const isInLaboratoryRange = isWithinLaboratoryRange;

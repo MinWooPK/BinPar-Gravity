@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-
 import type { KeyboardEvent, SyntheticEvent } from "react";
 import { useTranslations } from "next-intl";
 
@@ -10,9 +9,9 @@ import { useTutorEnvironment } from "../../providers/tutorEnvironment";
 
 import type { TutorProposal } from "../../../types/proposal.types";
 
-// Controla la apertura, el foco y el comportamiento del diálogo.
+// Controla la ventana del Tutor IA.
 export const useGlobalTutorDialog = () => {
-  const t = useTranslations("Tutor");
+  const traducir = useTranslations("Tutor");
 
   const { session, ask } = useTutorConversation();
 
@@ -26,86 +25,86 @@ export const useGlobalTutorDialog = () => {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  const appliedRef = useRef(false);
-  const returnFocusRef = useRef<HTMLElement | null>(null);
+  const propuestaAplicadaRef = useRef(false);
+  const focoAnteriorRef = useRef<HTMLElement | null>(null);
 
-  // Permite abrir el Tutor IA desde otras secciones.
+  // Permite abrir el chat desde otros componentes.
   useLayoutEffect(
     () =>
-      registerLauncher((intent, trigger) => {
-        appliedRef.current = false;
-        returnFocusRef.current = trigger ?? triggerRef.current;
+      registerLauncher((intencion, boton) => {
+        propuestaAplicadaRef.current = false;
+        focoAnteriorRef.current = boton ?? triggerRef.current;
 
         setOpen(true);
-        setConfigure(intent === "configure_experiment");
+        setConfigure(intencion === "configure_experiment");
 
-        if (typeof intent === "object") {
-          ask("explain", intent.question, intent.intent);
+        if (typeof intencion === "object") {
+          ask("explain", intencion.question, intencion.intent);
         }
 
-        if (intent === "explain_experiment") {
-          ask("explain", t("experimentQuestion"), intent);
+        if (intencion === "explain_experiment") {
+          ask("explain", traducir("experimentQuestion"), intencion);
         }
 
-        if (intent === "explain_formula") {
+        if (intencion === "explain_formula") {
           highlight(null);
-          ask("explain", t("formulaQuestion"), intent);
+          ask("explain", traducir("formulaQuestion"), intencion);
         }
       }),
-    [registerLauncher, ask, t, highlight],
+    [registerLauncher, ask, traducir, highlight],
   );
 
-  // Sincroniza el estado de React con el diálogo nativo.
+  // Abre o cierra la ventana.
   useEffect(() => {
-    const dialog = dialogRef.current;
+    const dialogo = dialogRef.current;
 
-    if (!dialog) return;
+    if (!dialogo) return;
 
-    if (open && !dialog.open) {
-      dialog.showModal();
+    if (open && !dialogo.open) {
+      dialogo.showModal();
       inputRef.current?.focus({ preventScroll: true });
     }
 
-    if (!open && dialog.open) {
-      dialog.close();
+    if (!open && dialogo.open) {
+      dialogo.close();
     }
   }, [open]);
 
-  // Ajusta el diálogo al teclado virtual del móvil.
+  // Ajusta la ventana cuando aparece el teclado del móvil.
   useEffect(() => {
     if (!open) return;
 
-    const viewport = window.visualViewport;
+    const vista = window.visualViewport;
 
-    const updateViewport = () => {
-      const height = viewport?.height ?? window.innerHeight;
+    const actualizarVista = () => {
+      const alto = vista?.height ?? window.innerHeight;
 
-      const keyboardOffset = Math.max(
+      const espacioTeclado = Math.max(
         0,
-        window.innerHeight - height - (viewport?.offsetTop ?? 0),
+        window.innerHeight - alto - (vista?.offsetTop ?? 0),
       );
 
       dialogRef.current?.style.setProperty(
         "--tutor-available-height",
-        `${Math.floor(height)}px`,
+        `${Math.floor(alto)}px`,
       );
 
       dialogRef.current?.style.setProperty(
         "--tutor-keyboard-offset",
-        `${Math.floor(keyboardOffset)}px`,
+        `${Math.floor(espacioTeclado)}px`,
       );
     };
 
-    updateViewport();
+    actualizarVista();
 
-    viewport?.addEventListener("resize", updateViewport);
-    viewport?.addEventListener("scroll", updateViewport);
-    window.addEventListener("resize", updateViewport);
+    vista?.addEventListener("resize", actualizarVista);
+    vista?.addEventListener("scroll", actualizarVista);
+    window.addEventListener("resize", actualizarVista);
 
     return () => {
-      viewport?.removeEventListener("resize", updateViewport);
-      viewport?.removeEventListener("scroll", updateViewport);
-      window.removeEventListener("resize", updateViewport);
+      vista?.removeEventListener("resize", actualizarVista);
+      vista?.removeEventListener("scroll", actualizarVista);
+      window.removeEventListener("resize", actualizarVista);
     };
   }, [open]);
 
@@ -119,58 +118,59 @@ export const useGlobalTutorDialog = () => {
     }
   }, [showConfigure, session.pending]);
 
-  // Cierra el diálogo mediante Escape.
-  const handleCancel = (event: SyntheticEvent<HTMLDialogElement>) => {
-    event.preventDefault();
-    event.stopPropagation();
+  // Cierra el chat con Escape.
+  const handleCancel = (evento: SyntheticEvent<HTMLDialogElement>) => {
+    evento.preventDefault();
+    evento.stopPropagation();
     setOpen(false);
   };
 
-  // Devuelve el foco al elemento que abrió el Tutor IA.
-  const handleClose = (event: SyntheticEvent<HTMLDialogElement>) => {
-    if (open || event.currentTarget.open || appliedRef.current) return;
+  // Devuelve el foco al botón que abrió el chat.
+  const handleClose = (evento: SyntheticEvent<HTMLDialogElement>) => {
+    if (open || evento.currentTarget.open || propuestaAplicadaRef.current)
+      return;
 
-    const origin = returnFocusRef.current;
+    const origen = focoAnteriorRef.current;
 
-    (origin?.isConnected &&
-    !origin.closest("[inert]") &&
-    origin.getClientRects().length
-      ? origin
+    (origen?.isConnected &&
+    !origen.closest("[inert]") &&
+    origen.getClientRects().length
+      ? origen
       : triggerRef.current
     )?.focus({ preventScroll: true });
   };
 
-  // Mantiene la navegación con Tab dentro del diálogo.
-  const handleKeyDown = (event: KeyboardEvent<HTMLDialogElement>) => {
-    if (event.key !== "Tab") return;
+  // Mantiene la navegación con Tab dentro del chat.
+  const handleKeyDown = (evento: KeyboardEvent<HTMLDialogElement>) => {
+    if (evento.key !== "Tab") return;
 
-    const controls = [
-      ...event.currentTarget.querySelectorAll<HTMLElement>(
+    const controles = [
+      ...evento.currentTarget.querySelectorAll<HTMLElement>(
         "button:not(:disabled), textarea:not(:disabled)",
       ),
-    ].filter((element) => element.getClientRects().length > 0);
+    ].filter((elemento) => elemento.getClientRects().length > 0);
 
-    const first = controls[0];
-    const last = controls[controls.length - 1];
+    const primero = controles[0];
+    const ultimo = controles[controles.length - 1];
 
-    if (event.shiftKey && document.activeElement === first) {
-      event.preventDefault();
-      last?.focus();
-    } else if (!event.shiftKey && document.activeElement === last) {
-      event.preventDefault();
-      first?.focus();
+    if (evento.shiftKey && document.activeElement === primero) {
+      evento.preventDefault();
+      ultimo?.focus();
+    } else if (!evento.shiftKey && document.activeElement === ultimo) {
+      evento.preventDefault();
+      primero?.focus();
     }
   };
 
-  // Cierra el chat y muestra el laboratorio tras aplicar una propuesta.
-  const handleApplied = (proposal: TutorProposal) => {
-    appliedRef.current = true;
+  // Cierra el chat después de aplicar los cambios.
+  const handleApplied = (propuesta: TutorProposal) => {
+    propuestaAplicadaRef.current = true;
 
     dialogRef.current?.close();
     setOpen(false);
     setConfigure(false);
 
-    proposal.source.reveal();
+    propuesta.source.reveal();
   };
 
   return {

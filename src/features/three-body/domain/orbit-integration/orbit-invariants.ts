@@ -1,31 +1,17 @@
 import type { OrbitData } from "../../types/orbit.types";
 
-// Calcula las magnitudes físicas del sistema para comprobar
-// la estabilidad y precisión de la integración.
+// Calcula las magnitudes físicas de los tres cuerpos.
 function invariants(state: readonly number[]) {
-  // Acumula la energía mecánica total del sistema.
   let energy = 0;
-
-  // Acumula el momento lineal en el eje X.
   let px = 0;
-
-  // Acumula el momento lineal en el eje Y.
   let py = 0;
-
-  // Acumula el momento angular del sistema.
   let angularMomentum = 0;
-
-  // Acumula la coordenada X del centro de masas.
   let cx = 0;
-
-  // Acumula la coordenada Y del centro de masas.
   let cy = 0;
-
-  // Guarda la menor distancia encontrada entre dos cuerpos.
   let minSeparation = Infinity;
 
+  // Calcula la energía, los momentos y el centro de masas.
   for (let body = 0; body < 3; body++) {
-    // Obtiene la posición y velocidad del cuerpo actual.
     const [x, y, vx, vy] = state.slice(body * 4, body * 4 + 4);
 
     energy += (vx * vx + vy * vy) / 2;
@@ -35,8 +21,8 @@ function invariants(state: readonly number[]) {
     cx += x / 3;
     cy += y / 3;
 
+    // Calcula la distancia entre cada pareja de cuerpos.
     for (let other = body + 1; other < 3; other++) {
-      // Calcula la distancia entre los dos cuerpos.
       const distance = Math.hypot(
         x - state[other * 4],
         y - state[other * 4 + 1],
@@ -44,7 +30,7 @@ function invariants(state: readonly number[]) {
 
       if (!Number.isFinite(distance) || distance <= 1e-12) {
         throw new RangeError(
-          "The orbit contains a collision or an unrepresentable separation.",
+          "La órbita contiene una colisión o una distancia que no se puede representar.",
         );
       }
 
@@ -53,19 +39,20 @@ function invariants(state: readonly number[]) {
     }
   }
 
+  // Comprueba que las magnitudes físicas sean válidas.
   if (![energy, px, py, angularMomentum, cx, cy].every(Number.isFinite)) {
-    throw new RangeError("The orbit's physical quantities must remain finite.");
+    throw new RangeError(
+      "Las magnitudes físicas de la órbita deben ser números finitos.",
+    );
   }
 
   return { energy, px, py, angularMomentum, cx, cy, minSeparation };
 }
 
-// Crea los diagnósticos y el observador que se actualiza con cada paso aceptado.
+// Prepara los indicadores de precisión de la órbita.
 export const createOrbitDiagnostics = (initial: readonly number[]) => {
-  // Calcula las magnitudes físicas iniciales que servirán de referencia.
   const reference = invariants(initial);
 
-  // Almacena los indicadores de precisión y estabilidad de la órbita.
   const diagnostics: OrbitData["diagnostics"] = {
     closure: 0,
     positionClosure: 0,
@@ -78,9 +65,8 @@ export const createOrbitDiagnostics = (initial: readonly number[]) => {
     rejectedSteps: 0,
   };
 
-  // Actualiza los diagnósticos físicos después de cada paso aceptado.
+  // Actualiza los indicadores después de cada paso aceptado.
   const observe = (accepted: readonly number[]) => {
-    // Calcula las magnitudes físicas del estado aceptado.
     const current = invariants(accepted);
 
     diagnostics.maxEnergyDrift = Math.max(
@@ -113,17 +99,16 @@ export const createOrbitDiagnostics = (initial: readonly number[]) => {
   return { diagnostics, observe };
 };
 
-// Calcula las diferencias entre el estado final y el inicial.
+// Calcula el error de cierre de la órbita.
 export const finishOrbitDiagnostics = (
   diagnostics: OrbitData["diagnostics"],
   initial: readonly number[],
   state: readonly number[],
   samples: readonly number[][],
 ) => {
-  // Define la dimensión total del estado de los tres cuerpos.
   const DIMENSIONS = 12;
 
-  // Calcula cuánto difiere el estado final del estado inicial.
+  // Compara los estados físicos inicial y final.
   diagnostics.closure = Math.sqrt(
     state.reduce(
       (total, value, index) => total + (value - initial[index]) ** 2,
@@ -131,10 +116,9 @@ export const finishOrbitDiagnostics = (
     ) / DIMENSIONS,
   );
 
-  // Obtiene las posiciones iniciales de los tres cuerpos.
+  // Compara las posiciones iniciales y finales.
   const firstPositions = samples[0];
 
-  // Calcula la diferencia entre las posiciones finales e iniciales.
   diagnostics.positionClosure = Math.sqrt(
     samples[samples.length - 1].reduce(
       (total, value, index) => total + (value - firstPositions[index]) ** 2,

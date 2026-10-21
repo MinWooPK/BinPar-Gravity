@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+
 import { useThreeBodyExperiment } from "../../../providers/ThreeBodyExperimentProvider";
 import {
   bodyColors,
@@ -10,46 +11,59 @@ import {
 } from "./experiment.constants";
 import type { ExperimentController } from "./useExperimentSimulation";
 
-// Configura la gravedad, duración y los parámetros de cada cuerpo.
-export const ExperimentSettings = ({
-  experiment,
-}: {
+type ExperimentSettingsProps = {
   experiment: ExperimentController;
-}) => {
+};
+
+// Estilos compartidos de los campos.
+const fieldClassName =
+  "mt-1 flex min-w-0 overflow-hidden rounded-lg border border-[#48516b] bg-[#0d1320] transition-colors focus-within:border-[#aa97ff] focus-within:ring-2 focus-within:ring-[#aa97ff]/30";
+
+const symbolClassName =
+  "flex min-w-11 shrink-0 items-center justify-center border-l border-[#48516b] bg-[#302748] px-2 font-mono text-sm font-semibold text-[#b9a8ff]";
+
+// Configura los parámetros de los tres cuerpos.
+export const ExperimentSettings = ({ experiment }: ExperimentSettingsProps) => {
   const t = useTranslations("ThreeBody.experiment");
   const { draft, selectedBody, dispatch } = useThreeBodyExperiment();
+
   const { error, runError, calculating, simulation, playing, elapsed } =
     experiment;
 
   const selected = draft.bodies[selectedBody];
-  const setSelectedBody = (index: number) =>
-    dispatch({ type: "select", index });
-  const updateCommon = (key: "gravity" | "duration", value: string) =>
-    dispatch({ type: "common", key, value });
-  const updateBody = (key: (typeof bodyFields)[number]["key"], value: string) =>
-    dispatch({ type: "body", index: selectedBody, key, value });
+
+  // Obtiene el mensaje del estado actual.
+  const status = error
+    ? error
+    : runError
+      ? runError
+      : calculating
+        ? "calculating"
+        : simulation
+          ? playing
+            ? "running"
+            : elapsed >= simulation.duration
+              ? "finished"
+              : "paused"
+          : "valid";
 
   return (
     <section className="flex min-w-0 flex-col gap-2.5 rounded-2xl border border-[#39455f] bg-linear-to-b from-[#151a2a] to-[#101421] p-3">
-      {/* ENCABEZADO */}
-      <div className="flex min-w-0 items-center gap-2">
-        <h3 className="min-w-0 text-base font-semibold text-slate-100">
-          {t("settingsTitle")}
-        </h3>
-      </div>
+      <h3 className="min-w-0 text-base font-semibold text-slate-100">
+        {t("settingsTitle")}
+      </h3>
 
-      {/* PARÁMETROS GENERALES */}
+      {/* Parámetros generales. */}
       <div className="space-y-2">
-        <h4 className="text-xs font-semibold uppercase tracking-wider text-[#b9a8ff]">
+        <h4 className="text-xs font-semibold tracking-wider text-[#b9a8ff] uppercase">
           {t("commonParameters")}
         </h4>
 
         <div className="grid min-w-0 grid-cols-2 gap-2">
-          {/* GRAVEDAD */}
           <label className="block min-w-0">
             <span className="text-xs text-slate-300">{t("gravity")}</span>
 
-            <div className="mt-1 flex min-w-0 overflow-hidden rounded-lg border border-[#48516b] bg-[#0d1320] transition-colors focus-within:border-[#aa97ff] focus-within:ring-2 focus-within:ring-[#aa97ff]/30">
+            <div className={fieldClassName}>
               <input
                 type="number"
                 inputMode="decimal"
@@ -57,25 +71,25 @@ export const ExperimentSettings = ({
                 min="0"
                 value={draft.gravity}
                 onChange={(event) =>
-                  updateCommon("gravity", event.target.value)
+                  dispatch({
+                    type: "common",
+                    key: "gravity",
+                    value: event.target.value,
+                  })
                 }
                 className={inputStyles}
               />
 
-              <span
-                aria-hidden="true"
-                className="flex min-w-11 shrink-0 items-center justify-center border-l border-[#48516b] bg-[#302748] px-2 font-mono text-sm font-semibold text-[#b9a8ff]"
-              >
+              <span aria-hidden="true" className={symbolClassName}>
                 G
               </span>
             </div>
           </label>
 
-          {/* DURACIÓN */}
           <label className="block min-w-0">
             <span className="text-xs text-slate-300">{t("duration")}</span>
 
-            <div className="mt-1 flex min-w-0 overflow-hidden rounded-lg border border-[#48516b] bg-[#0d1320] transition-colors focus-within:border-[#aa97ff] focus-within:ring-2 focus-within:ring-[#aa97ff]/30">
+            <div className={fieldClassName}>
               <input
                 type="number"
                 inputMode="decimal"
@@ -83,15 +97,16 @@ export const ExperimentSettings = ({
                 min="0"
                 value={draft.duration}
                 onChange={(event) =>
-                  updateCommon("duration", event.target.value)
+                  dispatch({
+                    type: "common",
+                    key: "duration",
+                    value: event.target.value,
+                  })
                 }
                 className={inputStyles}
               />
 
-              <span
-                aria-hidden="true"
-                className="flex min-w-11 shrink-0 items-center justify-center border-l border-[#48516b] bg-[#302748] px-2 font-mono text-sm font-semibold text-[#b9a8ff]"
-              >
+              <span aria-hidden="true" className={symbolClassName}>
                 t<sub>max</sub>
               </span>
             </div>
@@ -99,10 +114,10 @@ export const ExperimentSettings = ({
         </div>
       </div>
 
-      {/* SELECCIÓN DEL CUERPO */}
+      {/* Selección del cuerpo. */}
       <div className="space-y-2 border-t border-[#30364b] pt-2.5">
         <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-[#b9a8ff]">
+          <h4 className="text-xs font-semibold tracking-wider text-[#b9a8ff] uppercase">
             {t("chooseBody")}
           </h4>
 
@@ -119,13 +134,9 @@ export const ExperimentSettings = ({
                   key={index}
                   type="button"
                   aria-pressed={isSelected}
-                  aria-label={t("body", {
-                    number: index + 1,
-                  })}
-                  title={t("body", {
-                    number: index + 1,
-                  })}
-                  onClick={() => setSelectedBody(index)}
+                  aria-label={t("body", { number: index + 1 })}
+                  title={t("body", { number: index + 1 })}
+                  onClick={() => dispatch({ type: "select", index })}
                   style={{
                     borderColor: isSelected ? bodyColors[index] : undefined,
                   }}
@@ -137,10 +148,10 @@ export const ExperimentSettings = ({
                 >
                   <span
                     className="size-2 shrink-0 rounded-full"
-                    style={{
-                      backgroundColor: bodyColors[index],
-                    }}
+                    style={{ backgroundColor: bodyColors[index] }}
+                    aria-hidden="true"
                   />
+
                   {t("body", { number: index + 1 })}
                 </button>
               );
@@ -148,30 +159,31 @@ export const ExperimentSettings = ({
           </div>
         </div>
 
-        {/* INPUTS DEL CUERPO SELECCIONADO */}
+        {/* Parámetros del cuerpo seleccionado. */}
         <div className="grid min-w-0 grid-cols-2 gap-2 min-[520px]:grid-cols-3">
           {bodyFields.map(({ key, label }) => (
             <label key={key} className="block min-w-0">
-              {/* NOMBRE DEL PARÁMETRO */}
               <span className="text-xs text-slate-300">{t(label)}</span>
 
-              {/* INPUT + VARIABLE */}
-              <div className="mt-1 flex min-w-0 overflow-hidden rounded-lg border border-[#48516b] bg-[#0d1320] transition-colors focus-within:border-[#aa97ff] focus-within:ring-2 focus-within:ring-[#aa97ff]/30">
+              <div className={fieldClassName}>
                 <input
                   type="number"
                   inputMode="decimal"
                   step="any"
                   min={key === "mass" ? "0" : undefined}
                   value={selected[key]}
-                  onChange={(event) => updateBody(key, event.target.value)}
+                  onChange={(event) =>
+                    dispatch({
+                      type: "body",
+                      index: selectedBody,
+                      key,
+                      value: event.target.value,
+                    })
+                  }
                   className={inputStyles}
                 />
 
-                {/* SÍMBOLO FÍSICO */}
-                <span
-                  aria-hidden="true"
-                  className="flex min-w-11 shrink-0 items-center justify-center border-l border-[#48516b] bg-[#302748] px-2 font-mono text-sm font-semibold text-[#b9a8ff]"
-                >
+                <span aria-hidden="true" className={symbolClassName}>
                   {bodySymbols[key]}
                   <sub>{selectedBody + 1}</sub>
                 </span>
@@ -181,10 +193,9 @@ export const ExperimentSettings = ({
         </div>
       </div>
 
-      {/* NOTA SOBRE LAS UNIDADES */}
       <p className="text-xs leading-4 text-slate-400">{t("unitsNote")}</p>
 
-      {/* VALIDACIÓN */}
+      {/* Estado de la simulación. */}
       <p
         role="status"
         aria-live="polite"
@@ -194,21 +205,7 @@ export const ExperimentSettings = ({
             : "border-[#315c5b] bg-[#10242a] text-[#a7f3e5]"
         }`}
       >
-        {error
-          ? t(error)
-          : runError
-            ? t(runError)
-            : calculating
-              ? t("calculating")
-              : simulation
-                ? t(
-                    playing
-                      ? "running"
-                      : elapsed >= simulation.duration
-                        ? "finished"
-                        : "paused",
-                  )
-                : t("valid")}
+        {t(status)}
       </p>
     </section>
   );

@@ -4,7 +4,7 @@ import { ExperimentSettings } from "./ExperimentSettings";
 import { ExperimentViewport } from "./ExperimentViewport";
 import { useExperimentSimulation } from "./useExperimentSimulation";
 
-// Coordina la configuración y el reproductor del experimento libre.
+// Muestra la configuración y la simulación de los tres cuerpos.
 export const ThreeBodyExperiment = ({
   active = true,
 }: {

@@ -1,12 +1,11 @@
 import { useTranslations } from "next-intl";
+
 import { GravityEducationalCard } from "./gravity-educational-card/GravityEducationalCard";
 import { GravityScienceCard } from "./GravityScienceCard";
 import { GravitySplitPanels } from "../shared/GravitySplitPanels";
 
-// Muestra la etapa 01 · Descubre, organizando el contenido
-// educativo y científico en dos paneles.
+// Muestra los dos paneles de la etapa 01 · Descubre.
 export const GravityDiscovery = () => {
-  // Obtiene las traducciones de los títulos de los paneles.
   const t = useTranslations("Gravity.panels");
 
   return (

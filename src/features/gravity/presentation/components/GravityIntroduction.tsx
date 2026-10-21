@@ -2,12 +2,14 @@
 
 import { useTranslations } from "next-intl";
 
-import { GravityFormula } from "./understanding/gravity-formula/GravityFormula";
 import { gravityStageById } from "../../application/gravityJourney";
+
+import { GravityFormula } from "./understanding/gravity-formula/GravityFormula";
+import { GravityFormulaEducation } from "./understanding/gravity-formula/GravityFormulaEducation";
 import { GravityContentTabs } from "./shared/GravityContentTabs";
 import { GravityStageLayout } from "./shared/GravityStageLayout";
-import { GravityFormulaEducation } from "./understanding/gravity-formula/GravityFormulaEducation";
 
+// Muestra la etapa 02 · Comprende.
 export const GravityIntroduction = () => {
   const t = useTranslations("Gravity");
   const stage = gravityStageById["gravity-understanding"];
@@ -15,7 +17,7 @@ export const GravityIntroduction = () => {
   return (
     <section
       aria-label={t(stage.title)}
-      className="flex [flex:1] flex-col min-w-0 [min-height:min-content] text-lab-text min-w-0 [padding-block:.25rem] [scroll-margin-top:var(--gravity-stage-offset)]"
+      className="flex min-w-0 min-h-min flex-1 flex-col py-1 scroll-mt-(--gravity-stage-offset) text-lab-text"
     >
       <GravityStageLayout contentLabel="formula" compact={false}>
         <GravityContentTabs
@@ -28,6 +30,7 @@ export const GravityIntroduction = () => {
                   <summary className="min-h-11 cursor-pointer py-3 focus-visible:outline-2 focus-visible:outline-violet-300">
                     {t("siConversionsTitle")}
                   </summary>
+
                   <p>{t("siConversionsText")}</p>
                 </details>
               }

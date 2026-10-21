@@ -10,7 +10,7 @@ import type {
   GravityVariable,
 } from "../../../types/gravity.types";
 
-// Define las operaciones que controlan los parámetros del laboratorio.
+// Acciones del laboratorio.
 export type GravityControls = {
   setParameters: Dispatch<SetStateAction<GravityParameters>>;
   resetParameters: () => void;
@@ -22,51 +22,54 @@ export type GravityControls = {
   ) => boolean;
 };
 
-// Define el estado editable y las acciones de la calculadora.
+// Estado y acciones de la calculadora.
 export type GravityFormulaState = FormulaInputState & {
   changeValue: (key: GravityVariable, text: string) => void;
   selectUnknown: (key: GravityVariable) => void;
 };
 
-// Comparte las magnitudes físicas y la fuerza gravitatoria calculada.
+// Comparte los parámetros y la fuerza.
 export const ParametersContext = createContext<{
   parameters: GravityParameters;
   force: number;
 } | null>(null);
 
-// Comparte los controles y la versión del estado del laboratorio.
+// Comparte los controles del laboratorio.
 export const ControlsContext = createContext<GravityControls | null>(null);
 
-// Comparte los valores y las acciones de la calculadora.
+// Comparte el estado de la calculadora.
 export const FormulaContext = createContext<GravityFormulaState | null>(null);
 
-// Permite acceder a las acciones del laboratorio.
+// Accede a los controles del laboratorio.
 export const useGravityControls = () => {
   const context = useContext(ControlsContext);
 
-  if (!context)
+  if (!context) {
     throw new Error("Gravity parameters require GravityParametersProvider");
+  }
 
   return context;
 };
 
-// Devuelve los parámetros, la fuerza y las acciones del laboratorio.
+// Accede a los parámetros, la fuerza y los controles.
 export const useGravityParameters = () => {
   const physical = useContext(ParametersContext);
   const controls = useGravityControls();
 
-  if (!physical)
+  if (!physical) {
     throw new Error("Gravity parameters require GravityParametersProvider");
+  }
 
   return { ...physical, ...controls };
 };
 
-// Permite editar la calculadora integrada y la del panel lateral.
+// Accede al estado editable de la calculadora.
 export const useGravityFormulaDraft = () => {
   const context = useContext(FormulaContext);
 
-  if (!context)
+  if (!context) {
     throw new Error("Formula inputs require GravityParametersProvider");
+  }
 
   return context;
 };

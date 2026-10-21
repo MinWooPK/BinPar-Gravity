@@ -30,7 +30,14 @@ type PracticeQuestionPanelProps = {
   headingRef: Ref<HTMLHeadingElement>;
 };
 
-// Presenta la pregunta actual y permite responderla.
+// Estilos compartidos de los botones principales.
+const primaryButtonClassName =
+  "inline-flex min-h-11 w-full scroll-mb-24 items-center justify-center gap-2 rounded-xl border border-violet-300 " +
+  "bg-violet-300 px-4 py-2 text-sm font-semibold text-slate-950 transition-colors enabled:cursor-pointer " +
+  "enabled:hover:bg-violet-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-200  " +
+  "disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none sm:w-auto sm:min-w-40";
+
+// Muestra la pregunta, las pistas y su corrección.
 export const PracticeQuestionPanel = ({
   id,
   view,
@@ -46,17 +53,16 @@ export const PracticeQuestionPanel = ({
   const t = useTranslations("Practice");
   const format = useFormatter();
 
-  // Obtiene la pregunta y su tipo de respuesta.
   const question = view.question;
   const kind = answerKind(question);
 
-  // Comprueba que la respuesta pueda enviarse.
+  // Comprueba si la respuesta es válida.
   const valid =
     kind === "choice"
       ? !!answer.value
       : numericAnswer(answer, kind === "scientific") !== null;
 
-  // Formatea los números del enunciado.
+  // Formatea los números de la pregunta.
   const number = (value: number) =>
     format.number(value, {
       maximumSignificantDigits: 8,
@@ -75,7 +81,7 @@ export const PracticeQuestionPanel = ({
 
       <progress
         aria-labelledby={`${id}-progress`}
-        className="lab-gravity-practice-progress block h-2 w-full overflow-hidden rounded-full appearance-none border-0 bg-[#94a3b830]"
+        className="lab-gravity-practice-progress block h-2 w-full overflow-hidden rounded-full border-0 bg-[#94a3b830] appearance-none"
         max={PRACTICE_QUESTION_COUNT}
         value={view.count}
       />
@@ -87,7 +93,7 @@ export const PracticeQuestionPanel = ({
       >
         <div className="min-w-0 space-y-4">
           {/* Tipo de pregunta, dificultad y pista. */}
-          <div className="flex flex-wrap justify-between items-center gap-2 text-xs font-medium">
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-medium">
             <div className="flex min-w-0 flex-wrap gap-2">
               <span className="rounded-full border border-violet-300/20 bg-violet-300/10 px-3 py-1.5">
                 {t(`kinds.${kind}`)}
@@ -110,10 +116,13 @@ export const PracticeQuestionPanel = ({
               <div data-practice-help>
                 <button
                   type="button"
-                  className="inline-flex min-h-11 scroll-mb-24 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-200 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none border border-teal-300/25 bg-teal-300/5 text-teal-100 hover:bg-teal-300/10"
                   aria-expanded={hintOpen}
                   aria-controls={`${id}-hint`}
                   onClick={onToggleHint}
+                  className="inline-flex min-h-11 scroll-mb-24 items-center justify-center gap-2 rounded-xl border
+                   border-teal-300/25 bg-teal-300/5 px-4 py-2 text-sm font-semibold text-teal-100 transition-colors
+                    hover:bg-teal-300/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-200 
+                    disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none"
                 >
                   <Lightbulb className="size-4 shrink-0" />
                   {t(hintOpen ? "hideHint" : "hint")}
@@ -127,7 +136,8 @@ export const PracticeQuestionPanel = ({
             ref={view.feedback ? undefined : headingRef}
             tabIndex={-1}
             data-practice-question
-            className="scroll-mt-6 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300 max-w-prose text-lg font-semibold leading-relaxed text-slate-50"
+            className="max-w-prose scroll-mt-6 rounded-md text-lg leading-relaxed font-semibold text-slate-50 
+            focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300"
           >
             {t(`scenes.${question.scene}`)}{" "}
             {t(`questions.${question.concept}`, {
@@ -149,7 +159,7 @@ export const PracticeQuestionPanel = ({
             })}
           </h4>
 
-          {/* Instrucciones para las respuestas numéricas. */}
+          {/* Indicaciones para respuestas numéricas. */}
           {kind !== "choice" && (
             <p className="max-w-prose text-sm leading-6 text-slate-400">
               {t("rounding")}
@@ -164,10 +174,12 @@ export const PracticeQuestionPanel = ({
           {/* Pista de ayuda. */}
           <div
             id={`${id}-hint`}
-            className="grid grid-rows-[0fr] opacity-0 invisible [transition:grid-template-rows_220ms_ease,_opacity_220ms_ease,_visibility_220ms] data-[open=true]:grid-rows-[1fr] data-[open=true]:opacity-100 data-[open=true]:visible motion-reduce:[transition:none]"
             data-open={hintOpen}
             aria-hidden={!hintOpen}
             inert={!hintOpen}
+            className="invisible grid grid-rows-[0fr] opacity-0 transition-[grid-template-rows,opacity,visibility] 
+            duration-220 ease-in data-[open=true]:visible data-[open=true]:grid-rows-[1fr] data-[open=true]:opacity-100 
+            motion-reduce:transition-none"
           >
             <div className="min-h-0 overflow-hidden">
               <p className="mt-3 max-w-prose rounded-xl border border-teal-300/25 bg-teal-950/50 p-3 text-sm leading-6 text-teal-100">
@@ -176,7 +188,7 @@ export const PracticeQuestionPanel = ({
             </div>
           </div>
 
-          {/* Campos para introducir la respuesta. */}
+          {/* Campo de respuesta. */}
           <PracticeAnswer
             question={question}
             answer={answer}
@@ -184,13 +196,13 @@ export const PracticeQuestionPanel = ({
             disabled={pending || !!view.feedback}
           />
 
-          {/* Botones para corregir o avanzar. */}
+          {/* Comprobar o pasar a la siguiente pregunta. */}
           <div className="flex flex-wrap items-center gap-2">
             {!view.feedback ? (
               <button
                 type="button"
                 data-practice-check
-                className="inline-flex min-h-11 scroll-mb-24 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-200 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none border border-violet-300 bg-violet-300 text-slate-950 enabled:cursor-pointer enabled:hover:bg-violet-200 w-full sm:min-w-40 sm:w-auto"
+                className={primaryButtonClassName}
                 disabled={!valid || pending}
                 onClick={onCheck}
               >
@@ -199,7 +211,7 @@ export const PracticeQuestionPanel = ({
             ) : (
               <button
                 type="button"
-                className="inline-flex min-h-11 scroll-mb-24 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-200 disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none border border-violet-300 bg-violet-300 text-slate-950 enabled:cursor-pointer enabled:hover:bg-violet-200 w-full sm:min-w-40 sm:w-auto"
+                className={primaryButtonClassName}
                 disabled={pending}
                 onClick={onNext}
               >
@@ -211,23 +223,15 @@ export const PracticeQuestionPanel = ({
           </div>
         </div>
 
-        {/* Corrección educativa de la pregunta. */}
+        {/* Corrección de la pregunta. */}
         {view.feedback && (
           <div className="min-w-0 lg:relative lg:min-h-0">
             <div
               tabIndex={0}
               aria-label={t(view.feedback.correct ? "correct" : "incorrect")}
-              className="
-                min-w-0
-                lg:absolute lg:inset-0
-                lg:overflow-y-auto
-                lg:overscroll-contain
-                [scrollbar-width:none]
-                [-ms-overflow-style:none]
-                [&::-webkit-scrollbar]:hidden
-                focus-visible:outline-2
-                focus-visible:outline-violet-300
-              "
+              className="min-w-0 scrollbar-none [-ms-overflow-style:none] focus-visible:outline-2
+               focus-visible:outline-violet-300 lg:absolute lg:inset-0 lg:overflow-y-auto lg:overscroll-contain 
+               [&::-webkit-scrollbar]:hidden"
             >
               <PracticeFeedback
                 feedback={view.feedback}

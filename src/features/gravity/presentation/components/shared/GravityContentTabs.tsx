@@ -2,10 +2,10 @@
 
 import { useId, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
+
 import { useGravityFormulaInteraction } from "../understanding/GravityFormulaInteraction";
 
-// Muestra las pestañas de contenido y calculadora, manteniendo
-// ambos paneles montados para conservar su estado al cambiar.
+// Muestra las pestañas de contenido y calculadora.
 export const GravityContentTabs = ({
   primary,
   children,
@@ -15,28 +15,21 @@ export const GravityContentTabs = ({
   children: ReactNode;
   calculator: ReactNode;
 }) => {
-  // Obtiene las traducciones de las pestañas.
   const t = useTranslations("Gravity");
-
-  // Genera identificadores únicos para relacionar pestañas y paneles.
   const id = useId();
 
-  // Guarda la pestaña seleccionada, inicialmente la principal.
   const [selected, setSelected] = useState<string>(primary);
+  const buttons = useRef<(HTMLButtonElement | null)[]>([]);
 
-  // Almacena las referencias de los botones para gestionar el foco.
-  const buttons = useRef<Array<HTMLButtonElement | null>>([]);
-
-  // Obtiene las funciones para controlar las interacciones con la fórmula.
   const { hover, focus } = useGravityFormulaInteraction();
 
-  // Define las dos pestañas disponibles: contenido principal y calculadora.
+  // Pestañas disponibles.
   const tabs = [
     { key: primary, label: t(`experimentViews.${primary}`) },
     { key: "calculator", label: t("calculatorTab") },
   ];
 
-  // Cambia la pestaña activa y restablece las interacciones de la fórmula.
+  // Cambia de pestaña y limpia las interacciones.
   const select = (key: string) => {
     hover(null);
     focus(null);
@@ -46,8 +39,10 @@ export const GravityContentTabs = ({
   return (
     <section
       data-gravity-content-tabs={primary}
-      className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-lab-line bg-linear-to-br from-[#131724] to-[#0e121d] text-lab-text"
+      className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-[14px] border border-lab-line bg-linear-to-br from-[#131724] to-[#0e121d] 
+      text-lab-text"
     >
+      {/* Navegación entre pestañas. */}
       <div
         role="tablist"
         aria-label={t("experimentViews.label")}
@@ -66,17 +61,21 @@ export const GravityContentTabs = ({
             aria-selected={selected === tab.key}
             aria-controls={`${id}-panel-${tab.key}`}
             tabIndex={selected === tab.key ? 0 : -1}
-            className="min-h-11 min-w-0 rounded-lg border border-transparent px-1 py-2 text-xs font-semibold text-slate-300 transition-colors duration-200 hover:bg-violet-300/10 aria-selected:border-violet-300/60 aria-selected:bg-violet-300/15 aria-selected:text-cyan-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 motion-reduce:transition-none sm:px-2 sm:text-sm"
+            className="min-h-11 min-w-0 rounded-lg border border-transparent px-1 py-2 text-xs font-semibold text-slate-300 
+            transition-colors duration-200 hover:bg-violet-300/10 aria-selected:border-violet-300/60 aria-selected:bg-violet-300/15
+             aria-selected:text-cyan-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-300 
+             motion-reduce:transition-none sm:px-2 sm:text-sm"
             onClick={() => select(tab.key)}
             onKeyDown={(event) => {
               if (
                 !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)
-              )
+              ) {
                 return;
+              }
 
               event.preventDefault();
 
-              // Calcula la siguiente pestaña según la tecla pulsada.
+              // Calcula la siguiente pestaña.
               const next =
                 event.key === "Home"
                   ? 0
@@ -96,6 +95,7 @@ export const GravityContentTabs = ({
         ))}
       </div>
 
+      {/* Mantiene los paneles montados al cambiar de pestaña. */}
       {tabs.map((tab) => (
         <div
           key={tab.key}

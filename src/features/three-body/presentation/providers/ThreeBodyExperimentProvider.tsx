@@ -15,41 +15,31 @@ import {
   type ExperimentDraftAction,
 } from "../../application/experimentDraft";
 
-// Gestiona el estado compartido del experimento de los tres cuerpos,
-// y cancela cálculos pendientes cuando se editan sus parámetros.
+// Gestiona el estado y las cancelaciones del experimento.
 const useExperimentStore = () => {
-  // Almacena el estado actual del formulario del experimento.
   const [state, setState] = useState(createExperimentDraftState);
 
-  // Mantiene una referencia actualizada del estado para procesar cambios.
   const stateRef = useRef(state);
-
-  // Almacena las funciones que cancelan simulaciones pendientes.
   const invalidators = useRef(new Set<() => void>());
 
-  // Ejecuta las acciones del reducer y cancela cálculos pendientes
-  // cuando se modifica la configuración del experimento.
+  // Actualiza el estado y cancela simulaciones anteriores.
   const dispatch = useCallback((action: ExperimentDraftAction) => {
-    // Obtiene el estado anterior del experimento.
     const previous = stateRef.current;
-
-    // Calcula el nuevo estado mediante el reducer.
     const next = experimentDraftReducer(previous, action);
 
     if (next === previous) return false;
 
     stateRef.current = next;
 
-    // Cancela los cálculos pendientes antes de actualizar React.
-    if (next.revision !== previous.revision)
+    if (next.revision !== previous.revision) {
       invalidators.current.forEach((invalidate) => invalidate());
+    }
 
     setState(next);
-
     return true;
   }, []);
 
-  // Registra funciones para cancelar simulaciones cuando cambian los parámetros.
+  // Registra las funciones de cancelación.
   const registerInvalidation = useCallback((invalidate: () => void) => {
     invalidators.current.add(invalidate);
 
@@ -58,26 +48,19 @@ const useExperimentStore = () => {
     };
   }, []);
 
-  return {
-    ...state,
-    dispatch,
-    registerInvalidation,
-  };
+  return { ...state, dispatch, registerInvalidation };
 };
 
-// Crea el contexto para compartir el estado y las funciones del experimento.
+// Comparte el estado del experimento.
 const ExperimentContext = createContext<ReturnType<
   typeof useExperimentStore
 > | null>(null);
 
-// Comparte el estado del experimento entre los componentes
-// incluso al visitar los detalles de las órbitas.
 export const ThreeBodyExperimentProvider = ({
   children,
 }: {
   children: ReactNode;
 }) => {
-  // Obtiene el estado y las funciones del experimento.
   const store = useExperimentStore();
 
   return (
@@ -87,11 +70,13 @@ export const ThreeBodyExperimentProvider = ({
   );
 };
 
+// Permite acceder al estado compartido.
 export const useThreeBodyExperiment = () => {
   const value = useContext(ExperimentContext);
 
-  if (!value)
-    throw new Error("Experiments require ThreeBodyExperimentProvider");
+  if (!value) {
+    throw new Error("El experimento necesita ThreeBodyExperimentProvider.");
+  }
 
   return value;
 };

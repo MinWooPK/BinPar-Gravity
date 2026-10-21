@@ -13,7 +13,7 @@ import type {
   TutorSession,
 } from "@/features/ai/types/conversation.types";
 
-// Crea una sesión vacía.
+// Crea una conversación vacía.
 export const emptySession = (): TutorSession => ({
   messages: [],
   draft: "",
@@ -21,19 +21,18 @@ export const emptySession = (): TutorSession => ({
   error: "",
 });
 
-// Gestiona las sesiones y su almacenamiento local.
+// Gestiona las conversaciones y su historial.
 export const useTutorSessions = () => {
   const [sessions, setSessions] = useState<Record<string, TutorSession>>({});
 
   const sessionsRef = useRef(sessions);
   const sequence = useRef(0);
-
-  // Genera un identificador único para cada mensaje.
-  const nextMessageId = () => ++sequence.current;
-
   const restored = useRef(false);
 
-  // Actualiza la sesión y guarda sus mensajes.
+  // Genera el ID de cada mensaje.
+  const nextMessageId = () => ++sequence.current;
+
+  // Actualiza la conversación y guarda los mensajes.
   const update = (target: string, patch: Partial<TutorSession>) => {
     const next = {
       ...sessionsRef.current,
@@ -53,12 +52,12 @@ export const useTutorSessions = () => {
           serializeTutorHistory(next[target].messages),
         );
       } catch {
-        // Mantiene el historial en memoria si falla localStorage.
+        // Si falla, conserva los mensajes en memoria.
       }
     }
   };
 
-  // Recupera el historial guardado al montar el provider.
+  // Recupera los mensajes guardados.
   useEffect(() => {
     if (restored.current) return;
 

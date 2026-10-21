@@ -1,8 +1,7 @@
 import type { OrbitPlayback } from "../types/animation.types";
 import type { OrbitData } from "../types/orbit.types";
 
-// Comprueba que una órbita tenga un identificador, un período válido
-// y suficientes muestras para reproducir su animación.
+// Valida los datos necesarios para reproducir una órbita.
 const validatePlayback = (data: OrbitPlayback) => {
   if (
     !data ||
@@ -14,31 +13,25 @@ const validatePlayback = (data: OrbitPlayback) => {
     data.samples.length < 2
   ) {
     throw new RangeError(
-      "An orbit needs a slug, a positive finite period and at least two samples.",
+      "La órbita necesita un identificador, un período positivo y al menos dos muestras.",
     );
   }
 };
 
-// Comprueba que cada muestra contenga las seis coordenadas
-// correspondientes a las posiciones de los tres cuerpos.
+// Comprueba las seis coordenadas de una muestra.
 const validateSample = (sample: readonly number[]) => {
-  if (!Array.isArray(sample) || sample.length !== 6) {
+  if (
+    !Array.isArray(sample) ||
+    sample.length !== 6 ||
+    !sample.every(Number.isFinite)
+  ) {
     throw new RangeError(
-      "Each orbit sample must contain three finite x/y pairs.",
+      "Cada muestra debe contener tres pares de coordenadas X/Y válidas.",
     );
-  }
-
-  for (let coordinate = 0; coordinate < 6; coordinate++) {
-    if (!Number.isFinite(sample[coordinate])) {
-      throw new RangeError(
-        "Each orbit sample must contain three finite x/y pairs.",
-      );
-    }
   }
 };
 
-// Convierte las coordenadas físicas de una órbita en posiciones
-// adaptadas a un SVG de 320 × 200, sin modificar los datos originales.
+// Adapta las órbitas al SVG de 320 × 200.
 export const prepareOrbitPlayback = (data: OrbitData): OrbitPlayback => {
   validatePlayback(data);
 
@@ -50,19 +43,17 @@ export const prepareOrbitPlayback = (data: OrbitData): OrbitPlayback => {
     data.bounds.radius <= 0
   ) {
     throw new RangeError(
-      "Orbit bounds must have a finite center and a positive finite radius.",
+      "Los límites de la órbita necesitan un centro válido y un radio positivo.",
     );
   }
 
-  // Obtiene el centro y el radio utilizados para escalar la órbita.
   const { cx, cy, radius } = data.bounds;
 
-  // Transforma todas las muestras físicas en coordenadas visuales.
+  // Convierte las coordenadas físicas en visuales.
   const samples = Array.from(data.samples, (sample) => {
     validateSample(sample);
 
     return sample.map((coordinate, index) => {
-      // Calcula la posición visual de cada coordenada X o Y.
       const position =
         index % 2 === 0
           ? 160 + ((coordinate - cx) / radius) * 80
@@ -70,11 +61,11 @@ export const prepareOrbitPlayback = (data: OrbitData): OrbitPlayback => {
 
       if (!Number.isFinite(position)) {
         throw new RangeError(
-          "Orbit coordinates cannot be represented within these bounds.",
+          "Las coordenadas de la órbita no se pueden representar con estos límites.",
         );
       }
 
-      // Redondea únicamente las coordenadas utilizadas para dibujar.
+      // Redondea solo los valores del dibujo.
       return Number(position.toFixed(3));
     });
   });
@@ -82,53 +73,44 @@ export const prepareOrbitPlayback = (data: OrbitData): OrbitPlayback => {
   return { slug: data.slug, period: data.period, samples };
 };
 
-// Calcula las posiciones de los tres cuerpos en un instante
-// de la animación mediante interpolación entre muestras.
+// Calcula las posiciones de los cuerpos en un instante.
 export const getOrbitFrame = (
   data: OrbitPlayback,
   time: number,
 ): readonly number[] => {
   validatePlayback(data);
 
-  if (!Number.isFinite(time))
-    throw new RangeError("Playback time must be finite.");
+  if (!Number.isFinite(time)) {
+    throw new RangeError(
+      "El tiempo de reproducción debe ser un número finito.",
+    );
+  }
 
-  // Obtiene el tiempo dentro del período actual de la órbita.
+  // Ajusta el tiempo al período de la órbita.
   const remainder = time % data.period;
-
-  // Ajusta el tiempo para que siempre sea positivo.
   const wrapped = remainder < 0 ? remainder + data.period : remainder;
 
-  // Calcula la posición correspondiente dentro de las muestras.
+  // Localiza las dos muestras entre las que interpolar.
   const position = (wrapped / data.period) * (data.samples.length - 1);
-
-  // Identifica la muestra anterior al instante solicitado.
   const index = Math.min(Math.floor(position), data.samples.length - 2);
-
-  // Calcula la proporción entre las dos muestras.
   const fraction = position - index;
 
-  // Obtiene las posiciones de la muestra anterior.
   const before = data.samples[index];
-
-  // Obtiene las posiciones de la muestra siguiente.
   const after = data.samples[index + 1];
 
-  // Valida únicamente las muestras necesarias para este fotograma.
   validateSample(before);
   validateSample(after);
 
+  // Interpola las posiciones de los tres cuerpos.
   return before.map(
     (coordinate, axis) => coordinate * (1 - fraction) + after[axis] * fraction,
   );
 };
 
-// Genera las trayectorias visuales de los tres cuerpos
-// en formato de puntos para dibujarlas mediante SVG.
+// Genera las trayectorias SVG de los tres cuerpos.
 export const getOrbitTrails = (data: OrbitPlayback): readonly string[] => {
   validatePlayback(data);
 
-  // Prepara una lista independiente de puntos para cada cuerpo.
   const trails: string[][] = [[], [], []];
 
   for (const sample of data.samples) {

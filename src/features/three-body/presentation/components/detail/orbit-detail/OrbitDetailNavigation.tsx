@@ -3,7 +3,7 @@ import { Icon } from "@/components/icons";
 import { getTranslations } from "next-intl/server";
 import type { OrbitDefinition } from "../../../../types/orbit.types";
 
-// Permite volver a la galería o visitar la siguiente solución orbital.
+// Permite volver a la galería o visitar la siguiente órbita.
 export const OrbitDetailNavigation = async ({
   next,
 }: {
@@ -13,21 +13,36 @@ export const OrbitDetailNavigation = async ({
 
   return (
     <nav
-      className="flex items-center justify-between flex-wrap [gap:4px_20px] [margin-bottom:12px]"
+      className="mb-3 flex flex-wrap items-center justify-between gap-x-5 gap-y-1"
       aria-label={t("detail.navigationLabel")}
     >
       <Link
         href="/three-body#gallery"
         scroll={false}
-        className="[&&]:inline-flex [&&]:items-center [&&]:[gap:8px] [&&]:[min-height:44px] [&&]:[color:#d0c1ff] [&&]:[font-size:0.875rem] [&&]:[line-height:1.5] [&&]:underline [&&]:[text-underline-offset:4px] [&&]:[transition:color_160ms] [&:hover]:[color:#eee7ff] [&_svg]:[transform:rotate(180deg)] [@media_(prefers-reduced-motion:_reduce)]:[&&]:[transition:none] back-link"
+        className="back-link inline-flex min-h-11 items-center gap-2 text-sm leading-normal
+         text-[#d0c1ff] underline underline-offset-4 transition-colors duration-160
+          hover:text-[#eee7ff] motion-reduce:transition-none"
       >
-        <Icon name="arrow" />
+        <span className="inline-flex rotate-180">
+          <Icon name="arrow" />
+        </span>
+
         {t("backToSolutions")}
       </Link>
-      <div className="flex flex-wrap items-center [gap:4px_12px] [&_a]:inline-flex [&_a]:items-center [&_a]:[gap:8px] [&_a]:[min-height:44px] [&_a]:[color:#d0c1ff] [&_a]:[font-size:0.875rem] [&_a]:[line-height:1.5] [&_a]:underline [&_a]:[text-underline-offset:4px] [&_a]:[transition:color_160ms] [&_a:hover]:[color:#eee7ff] [&_>_span]:[color:#b6bdd0] [&_>_span]:[font-size:0.8125rem] [@media_(prefers-reduced-motion:_reduce)]:[&_a]:[transition:none] next-orbit">
-        <span>{t("detail.nextOrbit")}</span>
-        <Link href={`/three-body/${next.slug}`}>
-          {next.name} <Icon name="arrow" />
+
+      <div className="next-orbit flex flex-wrap items-center gap-x-3 gap-y-1">
+        <span className="text-[0.8125rem] text-[#b6bdd0]">
+          {t("detail.nextOrbit")}
+        </span>
+
+        <Link
+          href={`/three-body/${next.slug}`}
+          className="inline-flex min-h-11 items-center gap-2 text-sm leading-normal text-[#d0c1ff] 
+          underline underline-offset-4 transition-colors duration-160 hover:text-[#eee7ff] 
+          motion-reduce:transition-none"
+        >
+          {next.name}
+          <Icon name="arrow" />
         </Link>
       </div>
     </nav>

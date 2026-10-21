@@ -6,13 +6,12 @@ import { useTranslations } from "next-intl";
 import { useTutorConversation } from "@/features/ai/presentation/hooks/useTutorConversation";
 
 import type { TutorProposal } from "@/features/ai/types/proposal.types";
-import type { TutorQuickAction } from "./TutorChatTranscript";
+import type { TutorQuickAction } from "./tutor-chat-transcript/TutorChatTranscript";
 
-import { TutorChatTranscript } from "./TutorChatTranscript";
+import { TutorChatTranscript } from "./tutor-chat-transcript/TutorChatTranscript";
 import { TutorChatComposer } from "./TutorChatComposer";
 
-// Mantiene disponible el tipo para los componentes que lo importan.
-export type { TutorQuickAction } from "./TutorChatTranscript";
+export type { TutorQuickAction } from "./tutor-chat-transcript/TutorChatTranscript";
 
 type TutorChatProps = {
   id: string;
@@ -25,7 +24,7 @@ type TutorChatProps = {
   onConfigure?: () => void;
 };
 
-// Integra los mensajes y el formulario del Tutor IA.
+// Muestra los mensajes y el formulario del Tutor IA.
 export const TutorChat = ({
   id,
   actions,
@@ -36,14 +35,20 @@ export const TutorChat = ({
   onConfigure,
   onApplied,
 }: TutorChatProps) => {
-  const t = useTranslations("Tutor");
+  const traducir = useTranslations("Tutor");
   const { session } = useTutorConversation();
 
   return (
     <div
-      className="lab-tutor-chat flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden [&_button:focus-visible]:[outline:2px_solid_#a5f3fc] [&_button:focus-visible]:outline-offset-2 [&_textarea:focus-visible]:[outline:2px_solid_#a5f3fc] [&_textarea:focus-visible]:outline-offset-2 [&_button:disabled]:cursor-not-allowed [&_button:disabled]:opacity-45 [&_textarea:disabled]:cursor-not-allowed [&_textarea:disabled]:opacity-45"
+      className="lab-tutor-chat flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden
+        [&_:is(button,textarea):focus-visible]:outline-2
+        [&_:is(button,textarea):focus-visible]:outline-offset-2
+        [&_:is(button,textarea):focus-visible]:outline-cyan-200
+        [&_:is(button,textarea):disabled]:cursor-not-allowed
+        [&_:is(button,textarea):disabled]:opacity-45"
       data-long-conversation={session.messages.length >= 8}
     >
+      {/* Mensajes del chat. */}
       <TutorChatTranscript
         id={id}
         active={active}
@@ -53,6 +58,7 @@ export const TutorChat = ({
         onApplied={onApplied}
       />
 
+      {/* Campo para enviar preguntas. */}
       <TutorChatComposer
         id={id}
         configure={configure}
@@ -60,7 +66,10 @@ export const TutorChat = ({
         onSubmit={onSubmit}
       />
 
-      <p className="lab-tutor-disclaimer mx-4 mt-2 mb-3 shrink-0 text-center text-[11px] leading-snug text-slate-400">{t("disclaimer")}</p>
+      {/* Aviso del Tutor IA. */}
+      <p className="lab-tutor-disclaimer mx-4 mt-2 mb-3 shrink-0 text-center text-[11px] leading-snug text-slate-400">
+        {traducir("disclaimer")}
+      </p>
     </div>
   );
 };

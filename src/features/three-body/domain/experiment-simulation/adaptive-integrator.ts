@@ -3,23 +3,22 @@ import {
   validateGravityParameters,
   type GravityParameters,
 } from "../newtonian-physics";
+
 import type {
   ExperimentState,
   ExperimentStateSample,
 } from "./experiment.types";
+
 import { validateExperimentState } from "./experiment-state";
 
-// Establece el número máximo de intentos permitidos durante la integración.
+// Límite de intentos de integración.
 export const MAX_ATTEMPTS = 150_000;
 
-// Define la tolerancia relativa del error numérico.
+// Tolerancias del cálculo.
 const RELATIVE_TOLERANCE = 1e-8;
-
-// Define la tolerancia absoluta del error numérico.
 const ABSOLUTE_TOLERANCE = 1e-9;
 
-// Crea un integrador RK4 adaptativo que ajusta el paso temporal
-// según el error numérico y las condiciones del sistema.
+// Crea un integrador RK4 con paso adaptativo.
 export function createIntegrator(
   start: ExperimentStateSample,
   duration: number,
@@ -28,26 +27,16 @@ export function createIntegrator(
   maxAttempts = MAX_ATTEMPTS,
   observe?: (sample: ExperimentStateSample) => void,
 ) {
-  // Guarda el estado físico actual de los tres cuerpos.
   let state: ExperimentState = start.state;
-
-  // Guarda el instante actual de la simulación.
   let time = start.time;
-
-  // Cuenta los intentos realizados por el integrador.
   let attempts = 0;
-
-  // Guarda el tamaño del siguiente paso temporal.
   let step = initialStep;
 
-  // Establece el tamaño mínimo permitido para cada paso.
+  // Límites del paso temporal.
   const minimumStep = Math.max(duration * 1e-12, Number.MIN_VALUE);
-
-  // Establece el tamaño máximo permitido para cada paso.
   const maximumStep = duration / 50;
 
-  // Avanza la simulación hasta un instante concreto,
-  // adaptando el paso según la precisión del cálculo.
+  // Avanza la simulación hasta el tiempo indicado.
   const advance = (target: number): ExperimentStateSample => {
     while (time < target) {
       if (++attempts > maxAttempts) {
@@ -56,10 +45,8 @@ export function createIntegrator(
         );
       }
 
-      // Calcula el tamaño del paso que se intentará ejecutar.
+      // Calcula el siguiente paso.
       const h = Math.min(step, target - time, maximumStep);
-
-      // Comprueba si el paso termina exactamente en el instante solicitado.
       const clippedToTarget = h === target - time;
 
       if (
@@ -71,24 +58,17 @@ export function createIntegrator(
         );
       }
 
-      // Calcula el resultado utilizando un único paso RK4.
+      // Compara un paso completo con dos medios pasos RK4.
       const full = rk4Step(state, h, physics);
-
-      // Calcula la primera mitad del mismo intervalo temporal.
       const firstHalf = rk4Step(state, h / 2, physics);
-
-      // Completa el intervalo utilizando dos medios pasos RK4.
       const twoHalves = rk4Step(firstHalf, h / 2, physics);
 
-      // Guarda el mayor error numérico normalizado del paso.
       let error = 0;
 
-      // Calcula un estado corregido comparando ambos resultados RK4.
+      // Corrige el resultado y calcula el error.
       const candidate = twoHalves.map((value, component) => {
-        // Estima la corrección numérica del componente.
         const correction = (value - full[component]) / 15;
 
-        // Calcula la escala de tolerancia del componente.
         const scale =
           ABSOLUTE_TOLERANCE +
           RELATIVE_TOLERANCE *
@@ -99,19 +79,22 @@ export function createIntegrator(
         return value + correction;
       });
 
+      // Evita resultados numéricos inválidos.
       if (!Number.isFinite(error) || !candidate.every(Number.isFinite)) {
         throw new RangeError("El cálculo produjo valores no finitos.");
       }
 
+      // Acepta el paso si el error está dentro de la tolerancia.
       if (error <= 1) {
         validateExperimentState(candidate);
+
         state = candidate;
         time = h === target - time ? target : time + h;
+
         observe?.({ time, state });
       }
 
-      // Ajusta el siguiente paso según el error, evitando que
-      // un pequeño resto de redondeo provoque un rechazo incorrecto.
+      // Ajusta el siguiente paso según el error.
       if (!(clippedToTarget && h < minimumStep)) {
         step =
           h * Math.max(0.2, Math.min(4, error === 0 ? 4 : 0.9 * error ** -0.2));
@@ -124,8 +107,7 @@ export function createIntegrator(
   return { advance, attempts: () => attempts };
 }
 
-// Recalcula el estado físico desde una muestra real hasta un instante
-// determinado, utilizando el mismo integrador RK4 adaptativo.
+// Recalcula el estado físico hasta un instante concreto.
 export function refineExperimentState(
   start: ExperimentStateSample,
   target: number,
@@ -136,6 +118,7 @@ export function refineExperimentState(
   validateGravityParameters(physics);
   validateExperimentState(start.state);
 
+  // Comprueba los límites del intervalo.
   if (
     !Number.isFinite(duration) ||
     duration <= 0 ||
@@ -152,7 +135,7 @@ export function refineExperimentState(
     throw new RangeError("El intervalo de refinamiento no es válido.");
   }
 
-  // Crea un integrador para recalcular el intervalo solicitado.
+  // Recalcula el intervalo con RK4 adaptativo.
   const integrator = createIntegrator(
     start,
     duration,

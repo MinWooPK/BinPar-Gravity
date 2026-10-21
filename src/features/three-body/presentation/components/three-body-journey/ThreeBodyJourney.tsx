@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+
 import type { OrbitPlayback } from "../../../types/animation.types";
 import { ThreeBodyJourneyNavigation } from "../ThreeBodyJourneyNavigation";
 import { ThreeBodyJourneyWelcome } from "./ThreeBodyJourneyWelcome";
@@ -13,7 +14,7 @@ type Props = {
   animationData: Readonly<Record<string, OrbitPlayback>>;
 };
 
-// Compone la bienvenida, la navegación y los paneles sin mezclar los efectos.
+// Organiza la bienvenida y las etapas educativas.
 export const ThreeBodyJourney = ({ discovery, animationData }: Props) => {
   const t = useTranslations("ThreeBody.journey");
   const { activeStage, leaving, selectStage, returnToJourney } =
@@ -21,13 +22,17 @@ export const ThreeBodyJourney = ({ discovery, animationData }: Props) => {
 
   return (
     <div
-      className="lab-three-body-journey-screen relative [z-index:1] flex [flex:1] flex-col w-full [max-width:80rem] min-w-0 [min-height:calc(100dvh_-_var(--site-header-height,_64px)_-_84px)] [margin-inline:auto] [padding:clamp(.5rem,_1svh,_1rem)_1rem_1rem] min-[640px]:[padding-inline:1.5rem] min-[1100px]:[padding-inline:2rem]"
+      className="lab-three-body-journey-screen relative z-1 mx-auto flex min-h-[calc(100dvh-var(--site-header-height,64px)-84px)]
+       w-full max-w-7xl min-w-0 flex-1 flex-col px-4 pt-[clamp(.5rem,1svh,1rem)] pb-4 min-[640px]:px-6 min-[1100px]:px-8"
       data-three-body-journey
       data-active-stage={activeStage ?? "welcome"}
     >
-
       <div
-        className="flex [flex:1] flex-col min-w-0 [&&]:[animation:lab-three-body-journey-enter_200ms_ease-out_both] [&[data-leaving=true]]:[animation:lab-three-body-journey-exit_100ms_ease-in_both] [&[data-leaving=true]]:pointer-events-none min-[1024px]:[&[data-introduction=true]]:grid min-[1024px]:[&[data-introduction=true]]:[grid-template-columns:minmax(0,_1.6fr)_minmax(0,_1fr)] min-[1024px]:[&[data-introduction=true]]:items-center min-[1024px]:[&[data-introduction=true]]:[gap:clamp(2rem,_5vw,_5rem)] [@media_(prefers-reduced-motion:_reduce)]:[&&]:animate-none [@media_(prefers-reduced-motion:_reduce)]:[&[data-leaving=true]]:animate-none"
+        className="flex min-w-0 flex-1 flex-col animate-[lab-three-body-journey-enter_200ms_ease-out_both]
+         data-[leaving=true]:animate-[lab-three-body-journey-exit_100ms_ease-in_both] data-[leaving=true]:pointer-events-none
+          min-[1024px]:data-[introduction=true]:grid min-[1024px]:data-[introduction=true]:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]
+           min-[1024px]:data-[introduction=true]:items-center min-[1024px]:data-[introduction=true]:gap-[clamp(2rem,5vw,5rem)] 
+           motion-reduce:animate-none"
         data-introduction={activeStage === null}
         data-leaving={leaving}
         aria-busy={leaving}

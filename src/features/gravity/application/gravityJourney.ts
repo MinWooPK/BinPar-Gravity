@@ -1,5 +1,4 @@
-// Define la información de las cuatro etapas educativas de Gravity Lab.
-// Cada etapa tiene un identificador, número, título y descripción.
+// Información de las cuatro etapas de Gravedad.
 export const gravityStageById = {
   "gravity-discovery": {
     id: "gravity-discovery",
@@ -27,8 +26,7 @@ export const gravityStageById = {
   },
 } as const;
 
-// Establece el orden en el que aparecen las etapas
-// dentro del recorrido de aprendizaje.
+// Orden de las etapas de aprendizaje.
 export const gravityStages = [
   gravityStageById["gravity-discovery"],
   gravityStageById["gravity-understanding"],

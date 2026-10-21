@@ -6,7 +6,12 @@ import { useTranslations } from "next-intl";
 export const InteractionDiagram = ({ id }: { id: string }) => {
   const t = useTranslations("ThreeBody.discovery.science");
   return (
-    <figure className="flex [flex:1] flex-col justify-center min-w-0 m-0 [padding:6px_8px_8px] [border:1px_solid_#29344b] [border-radius:10px] [background:#0b1120] [&_svg]:block [&_svg]:w-full [&_svg]:[height:clamp(100px,_13vh,_132px)] [&_figcaption]:[color:#aab6cd] [&_figcaption]:text-center [@media_(max-width:_1023px)]:[&_svg]:[height:150px]">
+    <figure
+      className="flex flex-1 flex-col justify-center min-w-0 m-0 p-[6px_8px_8px] [border:1px_solid_#29344b]
+     rounded-[10px] [background:#0b1120] [&_svg]:block [&_svg]:w-full
+     [&_svg]:h-[clamp(100px,13vh,132px)] [&_figcaption]:text-[#aab6cd] [&_figcaption]:text-center
+     [@media_(max-width:_1023px)]:[&_svg]:h-37.5"
+    >
       <svg
         viewBox="45 0 410 145"
         role="img"

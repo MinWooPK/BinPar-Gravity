@@ -1,4 +1,4 @@
-// Define la masa, posición y velocidad de cada cuerpo en dos dimensiones.
+// Masa, posición y velocidad de cada cuerpo.
 export type ExperimentBody = Readonly<{
   mass: number;
   x: number;
@@ -7,15 +7,14 @@ export type ExperimentBody = Readonly<{
   vy: number;
 }>;
 
-// Define la configuración física y duración del experimento.
+// Configuración del experimento.
 export type ExperimentConfiguration = Readonly<{
   gravity: number;
   duration: number;
   bodies: readonly ExperimentBody[];
 }>;
 
-// Representa el estado completo de los tres cuerpos,
-// incluyendo las posiciones y velocidades de cada uno.
+// Posiciones y velocidades de los tres cuerpos.
 export type ExperimentState = readonly [
   number,
   number,
@@ -31,18 +30,16 @@ export type ExperimentState = readonly [
   number,
 ];
 
-// Representa el estado físico del sistema en un instante determinado.
+// Estado físico en un instante.
 export type ExperimentStateSample = Readonly<{
   time: number;
   state: ExperimentState;
 }>;
 
-// Define los datos de la trayectoria calculada,
-// incluyendo las muestras y los límites para visualizarla.
+// Trayectoria y datos para visualizarla.
 export type ExperimentTrajectory = {
   duration: number;
-  samples: number[][]; // [x1, y1, x2, y2, x3, y3] por instante
-  // Conserva los pasos aceptados del integrador para análisis más precisos.
-  stateSamples: ExperimentStateSample[];
+  samples: number[][]; // [x1, y1, x2, y2, x3, y3]
+  stateSamples: ExperimentStateSample[]; // Estados aceptados por el integrador.
   bounds: { cx: number; cy: number; radius: number };
 };

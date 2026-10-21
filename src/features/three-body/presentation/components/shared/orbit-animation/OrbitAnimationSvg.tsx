@@ -15,7 +15,7 @@ type OrbitAnimationSvgProps = {
   bodyRefs: RefObject<(SVGGElement | null)[]>;
 };
 
-// Dibuja las trayectorias y los cuerpos manteniendo el SVG accesible.
+// Dibuja las trayectorias y los tres cuerpos.
 export const OrbitAnimationSvg = ({
   data,
   name,
@@ -26,14 +26,12 @@ export const OrbitAnimationSvg = ({
 }: OrbitAnimationSvgProps) => {
   const t = useTranslations("ThreeBody");
   const locale = useLocale();
-
-  // Genera identificadores únicos para el título y la descripción del SVG.
   const id = useId();
 
   return (
     <svg
       ref={stageRef}
-      className="block w-full [height:auto] max-w-full overflow-hidden [border-radius:inherit] [.lab-three-body-animation-player_&]:[max-height:clamp(14rem,_48vh,_30rem)] [.lab-three-body-animation-player_&]:[margin-inline:auto]"
+      className="mx-auto block h-auto max-h-[clamp(14rem,48vh,30rem)] w-full max-w-full overflow-hidden rounded-[inherit]"
       viewBox={viewBox}
       width="320"
       height="200"
@@ -47,6 +45,7 @@ export const OrbitAnimationSvg = ({
 
       <desc id={`${id}-description`}>{t("animationDescription")}</desc>
 
+      {/* Trayectorias de los tres cuerpos. */}
       {trails.map((points, index) => (
         <polyline
           key={index}
@@ -58,6 +57,7 @@ export const OrbitAnimationSvg = ({
         />
       ))}
 
+      {/* Cuerpos animados. */}
       {bodyColors.map((color, index) => (
         <g
           key={color}

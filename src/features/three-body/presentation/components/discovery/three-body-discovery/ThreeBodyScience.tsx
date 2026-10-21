@@ -9,34 +9,38 @@ export const ThreeBodyScience = ({ id }: { id: string }) => {
 
   return (
     <section
-      className="flex flex-col [gap:14px] min-w-0 [padding:18px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [color:#b2bad0] [font-size:.9375rem] [line-height:1.5] [overflow-wrap:anywhere] [@media(max-width:600px)]:[padding:16px_12px] lab-three-body-discovery-science [&&]:[gap:8px] [&&]:[font-size:0.875rem] [&&]:[line-height:1.45] [&_p]:m-0"
+      className="flex flex-col gap-3.5 min-w-0 p-4.5 border border-solid border-lab-line 
+      rounded-[14px] [background:linear-gradient(145deg,#131724,#0e121d)] text-[#b2bad0]
+       text-[.9375rem] leading-normal wrap-anywhere [@media(max-width:600px)]:p-[16px_12px] 
+       lab-three-body-discovery-science [&&]:gap-2 [&&]:text-[0.875rem] [&&]:leading-[1.45] [&_p]:m-0"
       aria-labelledby={`${id}-science`}
       data-three-body-science
     >
       <h2
         id={`${id}-science`}
-        className="m-0 text-lab-text [font-size:clamp(1.25rem,_2vw,_1.5rem)] font-semibold [line-height:1.25] [letter-spacing:-.025em]"
+        className="m-0 text-lab-text text-[clamp(1.25rem,2vw,1.5rem)] font-semibold leading-tight tracking-tight"
       >
         {t("science.title")}
       </h2>
       <InteractionDiagram id={id} />
       <div>
         <div
-          className="flex justify-center [padding-block:0_7px] [color:#e4dfff] [font-family:Georgia,_serif] [font-size:1.875rem] [line-height:1.1]"
+          className="flex justify-center py-[0_7px] text-[#e4dfff] font-[Georgia,serif] text-[1.875rem] leading-[1.1]"
           role="img"
           aria-label={t("science.lawSpoken")}
         >
           <span
             aria-hidden="true"
-            className="inline-flex items-center [gap:8px] [&_sub]:[position:static] [&_sub]:[vertical-align:sub] [&_sub]:[font-size:0.6em] [&_sub]:[line-height:0] [&_sup]:[position:static] [&_sup]:[vertical-align:super] [&_sup]:[font-size:0.6em] [&_sup]:[line-height:0]"
+            className="inline-flex items-center gap-2 [&_sub]:static [&_sub]:align-sub [&_sub]:text-[0.6em] 
+            [&_sub]:leading-0 [&_sup]:static [&_sup]:align-super [&_sup]:text-[0.6em] [&_sup]:leading-0"
           >
             <span>
               F<sub>ij</sub>
             </span>
-            <span className="[color:#a99bbf] [font-size:.7em]">=</span>
+            <span className="text-[#a99bbf] text-[.7em]">=</span>
             <span>G</span>
-            <span className="[color:#a99bbf] [font-size:.7em]">·</span>
-            <span className="inline-flex flex-col [font-size:.8em] text-center [&_>_span]:[padding:2px_6px] [&_>_span:first-child]:[border-bottom:1px_solid_#a99bbf]">
+            <span className="text-[#a99bbf] text-[.7em]">·</span>
+            <span className="inline-flex flex-col text-[.8em] text-center [&_>_span]:p-[2px_6px] [&_>_span:first-child]:[border-bottom:1px_solid_#a99bbf]">
               <span>
                 m<sub>i</sub> m<sub>j</sub>
               </span>
@@ -50,7 +54,8 @@ export const ThreeBodyScience = ({ id }: { id: string }) => {
         <p>{t("science.lawDescription")}</p>
       </div>
       <dl
-        className="grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] [gap:8px] m-0 [padding-top:10px] [border-top:1px_solid_#30364b] [&_dt]:[margin-bottom:4px] [&_dt]:[color:#b9c4d8] [&_dd]:m-0 [&_dd]:[color:#d8c9ff] [&_dd]:[font-family:Georgia,_serif] [&_dd]:[font-size:1rem]"
+        className="grid grid-cols-3 gap-2 m-0 pt-2.5 [border-top:1px_solid_#30364b] [&_dt]:mb-1 [&_dt]:text-[#b9c4d8]
+         [&_dd]:m-0 [&_dd]:text-[#d8c9ff] [&_dd]:font-[Georgia,serif] [&_dd]:text-[1rem]"
         aria-label={t("science.conditionsTitle")}
       >
         {(["masses", "positions", "velocities"] as const).map((condition) => (
@@ -66,11 +71,14 @@ export const ThreeBodyScience = ({ id }: { id: string }) => {
           </div>
         ))}
       </dl>
-      <aside className="[padding:9px_11px] [border:1px_solid_#294543] [border-radius:8px] [background:#5ee7d508] [color:#b8d3d2] [&_h3]:[margin:0_0_4px] [&_h3]:[color:#c2e7e1] [&_h3]:[font-size:0.875rem] [&_h3]:font-semibold">
+      <aside
+        className="p-[9px_11px] [border:1px_solid_#294543] rounded-lg [background:#5ee7d508] text-[#b8d3d2] 
+      [&_h3]:m-[0_0_4px] [&_h3]:text-[#c2e7e1] [&_h3]:text-[0.875rem] [&_h3]:font-semibold"
+      >
         <h3>{t("science.normalizedTitle")}</h3>
         <p>{t("science.normalized")}</p>
       </aside>
-      <p className="[.lab-three-body-discovery-science_&]:[color:#b9c4d8]">
+      <p className="in-[.lab-three-body-discovery-science]:text-[#b9c4d8]">
         {t("science.periodic")}
       </p>
     </section>

@@ -10,14 +10,14 @@ import type {
   Report,
 } from "../../types/practice/practice.types";
 
-// Define las funciones necesarias para generar preguntas,
-// explicaciones e informes mediante el proveedor de IA.
+// Funciones de IA para generar preguntas y resultados.
 export type PracticeGenerator = {
   question: (
     history: Attempt[],
     locale: Locale,
     signal?: AbortSignal,
   ) => Promise<Question>;
+
   explanation: (
     attempt: Attempt,
     locale: Locale,
@@ -26,6 +26,7 @@ export type PracticeGenerator = {
     explanation: string;
     steps: string[];
   }>;
+
   report: (
     history: Attempt[],
     locale: Locale,
@@ -33,8 +34,7 @@ export type PracticeGenerator = {
   ) => Promise<Report>;
 };
 
-// Inicia una nueva práctica con el historial vacío,
-// genera la primera pregunta y establece una sesión de 24 horas.
+// Inicia una práctica con una duración de 24 horas.
 export const startPractice = async (
   locale: Locale,
   generator: PracticeGenerator,
@@ -48,13 +48,13 @@ export const startPractice = async (
     phase: "question",
   }) satisfies PracticeSession;
 
-// Genera la siguiente pregunta manteniendo el historial
-// y comprobando que la sesión puede continuar.
+// Genera la siguiente pregunta.
 export const nextQuestion = async (
   session: PracticeSession,
   generator: PracticeGenerator,
   signal?: AbortSignal,
 ): Promise<PracticeSession> => {
+  // Comprueba si se puede continuar.
   if (
     session.phase !== "checked" ||
     session.history.length >= PRACTICE_QUESTION_COUNT
@@ -68,8 +68,7 @@ export const nextQuestion = async (
   };
 };
 
-// Corrige la respuesta, actualiza el historial y obtiene
-// la explicación o el informe final cuando termina la práctica.
+// Corrige la respuesta y actualiza la práctica.
 export const checkQuestion = async (
   session: PracticeSession,
   answer: Answer,
@@ -77,26 +76,27 @@ export const checkQuestion = async (
   generator: PracticeGenerator,
   signal?: AbortSignal,
 ) => {
+  // Comprueba si se puede responder.
   if (
     session.phase !== "question" ||
     session.history.length >= PRACTICE_QUESTION_COUNT
   )
     throw new Error("invalid_phase");
 
-  // Evalúa la respuesta y registra el resultado del intento.
+  // Corrige la respuesta.
   const attempt = evaluateAnswer(session.question, answer, usedHint);
 
-  // Añade el nuevo intento al historial de la práctica.
+  // Guarda el intento.
   const history = [...session.history, attempt];
 
-  // Obtiene la explicación de la respuesta evaluada.
+  // Genera la explicación.
   const explanation = await generator.explanation(
     attempt,
     session.locale,
     signal,
   );
 
-  // Genera el informe final cuando se completan las cinco preguntas.
+  // Genera el informe al terminar las cinco preguntas.
   const report =
     history.length === PRACTICE_QUESTION_COUNT
       ? await generator.report(history, session.locale, signal)

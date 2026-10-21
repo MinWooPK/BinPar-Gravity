@@ -7,13 +7,12 @@ import { Lightbulb, Sparkles } from "@/components/icons";
 
 import type { PracticeView } from "../../../../types/practice/practice.types";
 
-
 type PracticeReportScoreProps = {
   view: PracticeView;
   headingRef: Ref<HTMLHeadingElement>;
 };
 
-// Muestra la puntuación final y el progreso de la evaluación.
+// Muestra la puntuación y el porcentaje de aciertos.
 export const PracticeReportScore = ({
   view,
   headingRef,
@@ -21,7 +20,7 @@ export const PracticeReportScore = ({
   const t = useTranslations("Practice");
   const format = useFormatter();
 
-  // Calcula el porcentaje de respuestas correctas.
+  // Calcula el porcentaje de aciertos.
   const ratio = view.count > 0 ? view.score / view.count : 0;
 
   const percentage = format.number(ratio, {
@@ -37,7 +36,8 @@ export const PracticeReportScore = ({
         <h4
           ref={headingRef}
           tabIndex={-1}
-          className="scroll-mt-6 rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-300 text-xl font-semibold text-slate-50 sm:text-2xl"
+          className="scroll-mt-6 rounded-md text-xl font-semibold text-slate-50 focus-visible:outline-2 focus-visible:outline-offset-4
+           focus-visible:outline-violet-300 sm:text-2xl"
         >
           {t("finished")}
         </h4>
@@ -49,7 +49,7 @@ export const PracticeReportScore = ({
       </div>
 
       <div className="min-w-0 sm:min-w-40">
-        {/* Puntuación obtenida. */}
+        {/* Puntuación final. */}
         <p
           data-practice-score
           className="text-3xl font-semibold tracking-tight text-violet-100 sm:text-4xl"
@@ -65,7 +65,7 @@ export const PracticeReportScore = ({
           {t("percentage", { percentage })}
         </p>
 
-        {/* Representación visual de los resultados. */}
+        {/* Barra visual de resultados. */}
         <div
           role="progressbar"
           aria-label={t("scoreValue", {

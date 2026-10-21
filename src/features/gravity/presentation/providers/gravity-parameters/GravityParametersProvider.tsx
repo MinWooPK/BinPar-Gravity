@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  useCallback,
-  useMemo,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { gravitationalForce } from "../../../domain/gravitation";
 import {
@@ -14,6 +8,7 @@ import {
   gravityStateReducer,
   type GravityAction,
 } from "../../../application/gravityState";
+
 import type {
   GravityParameterProposal,
   GravityVariable,
@@ -26,20 +21,16 @@ import {
   type GravityControls,
 } from "./GravityParametersContext";
 
-// Gestiona el estado compartido del laboratorio y la calculadora
-// utilizando las mismas acciones y el mismo reducer de la aplicación.
+// Comparte el estado del laboratorio y la calculadora.
 export const GravityParametersProvider = ({
   children,
 }: {
   children: ReactNode;
 }) => {
-  // Guarda el estado único de los parámetros y de la fórmula.
   const [state, setState] = useState(createGravityState);
-
-  // Mantiene el estado más reciente para procesar acciones consecutivas.
   const stateRef = useRef(state);
 
-  // Ejecuta las acciones y actualiza el estado compartido.
+  // Procesa las acciones y actualiza el estado.
   const dispatch = useCallback((action: GravityAction) => {
     const previous = stateRef.current;
     const next = gravityStateReducer(previous, action);
@@ -50,7 +41,7 @@ export const GravityParametersProvider = ({
     return next !== previous;
   }, []);
 
-  // Modifica los parámetros físicos del laboratorio.
+  // Actualiza los parámetros del laboratorio.
   const setParameters: GravityControls["setParameters"] = useCallback(
     (update) => {
       dispatch({ type: "parameters", update });
@@ -58,19 +49,19 @@ export const GravityParametersProvider = ({
     [dispatch],
   );
 
-  // Restablece los parámetros y los campos de la calculadora.
+  // Restablece el laboratorio y la fórmula.
   const resetParameters = useCallback(() => {
     dispatch({ type: "reset" });
   }, [dispatch]);
 
-  // Aplica una propuesta validada del Tutor IA.
+  // Aplica los parámetros propuestos por el Tutor IA.
   const applyProposal = useCallback(
     (proposal: GravityParameterProposal, expectedRevision: number) =>
       dispatch({ type: "proposal", proposal, expectedRevision }),
     [dispatch],
   );
 
-  // Actualiza el texto de un campo de la fórmula.
+  // Modifica un campo de la fórmula.
   const changeValue = useCallback(
     (key: GravityVariable, text: string) => {
       dispatch({ type: "formula", key, text });
@@ -78,7 +69,7 @@ export const GravityParametersProvider = ({
     [dispatch],
   );
 
-  // Selecciona la variable desconocida que debe calcularse.
+  // Selecciona la variable que se calculará.
   const selectUnknown = useCallback(
     (key: GravityVariable) => {
       dispatch({ type: "unknown", key });
@@ -86,7 +77,7 @@ export const GravityParametersProvider = ({
     [dispatch],
   );
 
-  // Agrupa los controles y los metadatos de la sesión.
+  // Comparte las acciones del laboratorio.
   const controls = useMemo(
     () => ({
       setParameters,
@@ -104,7 +95,7 @@ export const GravityParametersProvider = ({
     ],
   );
 
-  // Calcula la fuerza a partir de los parámetros actuales.
+  // Calcula y comparte la fuerza gravitatoria.
   const physical = useMemo(
     () => ({
       parameters: state.parameters,
@@ -113,9 +104,13 @@ export const GravityParametersProvider = ({
     [state.parameters],
   );
 
-  // Comparte los valores y los controladores de la fórmula.
+  // Comparte el estado y las acciones de la fórmula.
   const formula = useMemo(
-    () => ({ ...state.formula, changeValue, selectUnknown }),
+    () => ({
+      ...state.formula,
+      changeValue,
+      selectUnknown,
+    }),
     [state.formula, changeValue, selectUnknown],
   );
 

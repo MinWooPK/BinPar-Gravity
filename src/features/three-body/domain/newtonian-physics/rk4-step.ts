@@ -1,35 +1,34 @@
 import type { GravityParameters } from "./physics-parameters";
 import { derivative } from "./newtonian-derivative";
 
-// Calcula el siguiente estado del sistema mediante
-// el método de integración Runge-Kutta de cuarto orden (RK4).
+// Calcula el siguiente estado mediante RK4.
 export const rk4Step = (
   state: readonly number[],
   step: number,
   physics: GravityParameters,
 ): number[] => {
-  // Calcula la primera estimación de las derivadas.
+  // Primera estimación.
   const k1 = derivative(state, physics);
 
-  // Calcula la segunda estimación a mitad del paso temporal.
+  // Segunda estimación a mitad del paso.
   const k2 = derivative(
     state.map((value, index) => value + (step * k1[index]) / 2),
     physics,
   );
 
-  // Calcula la tercera estimación utilizando el resultado de k2.
+  // Tercera estimación a mitad del paso.
   const k3 = derivative(
     state.map((value, index) => value + (step * k2[index]) / 2),
     physics,
   );
 
-  // Calcula la cuarta estimación al final del paso temporal.
+  // Cuarta estimación al final del paso.
   const k4 = derivative(
     state.map((value, index) => value + step * k3[index]),
     physics,
   );
 
-  // Combina las cuatro estimaciones para obtener el siguiente estado.
+  // Combina las cuatro estimaciones.
   return state.map(
     (value, index) =>
       value +

@@ -4,19 +4,19 @@ import {
   type PracticeRequest,
 } from "../../types/practice/practice.types";
 
-// Comprueba si un valor es un objeto válido y no es null ni un array.
+// Comprueba que sea un objeto.
 export const record = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
-// Comprueba que un objeto contiene exactamente las propiedades permitidas.
+// Comprueba que tenga las propiedades permitidas.
 export const onlyKeys = (v: Record<string, unknown>, keys: string[]) =>
   Object.keys(v).length === keys.length && keys.every((key) => key in v);
 
-// Valida las peticiones de la práctica según la acción:
-// iniciar, avanzar a la siguiente pregunta o enviar una respuesta.
+// Valida las peticiones de la práctica.
 export const parsePracticeRequest = (v: unknown): PracticeRequest | null => {
   if (!record(v)) return null;
 
+  // Iniciar la práctica.
   if (
     v.action === "start" &&
     onlyKeys(v, ["action", "locale"]) &&
@@ -25,12 +25,15 @@ export const parsePracticeRequest = (v: unknown): PracticeRequest | null => {
   )
     return v as PracticeRequest;
 
-  if (typeof v.token !== "string" || v.token.length > 30000 || !v.token)
+  // Comprueba el token de la sesión.
+  if (typeof v.token !== "string" || !v.token || v.token.length > 30000)
     return null;
 
+  // Pasar a la siguiente pregunta.
   if (v.action === "next" && onlyKeys(v, ["action", "token"]))
     return v as PracticeRequest;
 
+  // Enviar una respuesta.
   if (
     v.action === "answer" &&
     onlyKeys(v, ["action", "token", "answer", "usedHint"]) &&
@@ -46,8 +49,7 @@ export const parsePracticeRequest = (v: unknown): PracticeRequest | null => {
   return null;
 };
 
-// Comprueba que la definición de una pregunta contiene
-// conceptos, dificultad y valores numéricos dentro de los límites permitidos.
+// Valida los datos de una pregunta.
 export const isDefinition = (v: unknown): v is Definition => {
   if (
     !record(v) ||
@@ -56,17 +58,21 @@ export const isDefinition = (v: unknown): v is Definition => {
     return false;
 
   return (
+    // Concepto y dificultad.
     concepts.some((c) => c === v.concept) &&
-    [1, 2, 3].includes(Number(v.difficulty)) &&
     typeof v.difficulty === "number" &&
+    [1, 2, 3].includes(v.difficulty) &&
+    // Valores numéricos permitidos.
     [v.a, v.b, v.r].every(
       (n) =>
         typeof n === "number" && Number.isFinite(n) && n >= 0.001 && n <= 2000,
     ) &&
+    // Exponente permitido.
     typeof v.exponent === "number" &&
     Number.isInteger(v.exponent) &&
     v.exponent >= -12 &&
     v.exponent <= 6 &&
+    // Escenario permitido.
     typeof v.scene === "string" &&
     ["objects", "laboratory", "workshop"].includes(v.scene)
   );

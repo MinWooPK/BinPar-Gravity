@@ -1,51 +1,84 @@
 import { useTranslations } from "next-intl";
+
+import { SpaceStarfield } from "@/components/layout/SpaceStarfield/SpaceStarfield";
+
+import { gravityStageById } from "../../application/gravityJourney";
+import { GravityParametersProvider } from "../providers/GravityParametersProvider";
+
 import { GravityIntroduction } from "./GravityIntroduction";
 import { GravityDiscovery } from "./discovery/GravityDiscovery";
 import { GravityLab } from "./challenges/GravityLab";
-import { GravityParametersProvider } from "../providers/GravityParametersProvider";
 import { GravityFormulaAccess } from "./understanding/GravityFormulaAccess";
 import { GravityJourney, GravityJourneyPanel } from "./GravityJourneyTabs";
-import { gravityStageById } from "../../application/gravityJourney";
-import { SpaceStarfield } from "@/components/layout/SpaceStarfield/SpaceStarfield";
 
+// Muestra el recorrido educativo de Gravedad.
 export const GravityScreen = () => {
   const t = useTranslations("Gravity");
 
   return (
-    <div
-      className="relative isolate w-full overflow-hidden bg-[#020713] flex [flex:1] min-w-0 min-h-0"
-    >
+    <div className="relative isolate flex min-h-0 min-w-0 w-full flex-1  bg-[#020713]">
       <SpaceStarfield />
 
-      <div className="animate-[lab-page-enter_450ms_ease-out_both] motion-reduce:animate-none relative z-10 lab-gravity-journey-screen [--gravity-stage-offset:1rem] flex [flex:1] flex-col w-full [max-width:80rem] min-h-0 [margin-inline:auto] [padding-block:clamp(.5rem,_1svh,_1rem)_max(.5rem,_env(safe-area-inset-bottom))] [padding-left:max(1rem,_env(safe-area-inset-left))] [padding-right:max(1rem,_env(safe-area-inset-right))] [@media(max-width:1023px)]:[flex:none] [@media_(min-width:_40rem)]:[&]:[padding-left:max(1.5rem,_env(safe-area-inset-left))] [@media_(min-width:_40rem)]:[&]:[padding-right:max(1.5rem,_env(safe-area-inset-right))] [@media_(min-width:_68.75rem)]:[&]:[padding-left:max(2rem,_env(safe-area-inset-left))] [@media_(min-width:_68.75rem)]:[&]:[padding-right:max(2rem,_env(safe-area-inset-right))] [@media_(max-height:_500px)]:[&&]:[padding-block:0.5rem]">
+      <div
+        className="lab-gravity-journey-screen relative z-10 mx-auto flex min-h-0 w-full max-w-7xl flex-1 flex-col
+          [--gravity-stage-offset:1rem]
+          animate-[lab-page-enter_450ms_ease-out_both]
+          px-[max(1rem,env(safe-area-inset-left))]
+          pt-[clamp(.5rem,1svh,1rem)]
+          pb-[max(.5rem,env(safe-area-inset-bottom))]
+          sm:pl-[max(1.5rem,env(safe-area-inset-left))]
+          sm:pr-[max(1.5rem,env(safe-area-inset-right))]
+          min-[68.75rem]:pl-[max(2rem,env(safe-area-inset-left))]
+          min-[68.75rem]:pr-[max(2rem,env(safe-area-inset-right))]
+          max-[1023px]:flex-none
+          [@media(max-height:500px)]:py-2
+          motion-reduce:animate-none"
+      >
         <GravityParametersProvider>
           <GravityFormulaAccess>
             <GravityJourney
               introduction={
-                <header className="shrink-0 [margin-block:auto] [padding-block:clamp(2rem,_6vh,_5rem)] [@media_(min-width:_64rem)]:[.lab-gravity-journey-workspace[data-introduction=true]_&]:[min-width:0] [@media_(min-width:_64rem)]:[.lab-gravity-journey-workspace[data-introduction=true]_&]:[margin-block:0]">
-                  <p className="[margin:0_0_clamp(1.5rem,_4vh,_3rem)] [color:#b8b0d6] [font-size:clamp(.75rem,_1.7vw,_1.25rem)] font-bold [letter-spacing:.23em] uppercase [@media_(min-width:_64rem)]:[.lab-gravity-journey-workspace[data-introduction=true]_&]:[font-size:clamp(0.75rem,_1.1vw,_0.95rem)]">{t("heroEyebrow")}</p>
-                  <h1 className="m-0 [color:#f8fafc] [font-size:clamp(3.25rem,_9vw,_8rem)] font-extrabold [line-height:1.05] [letter-spacing:-.065em] [&_span]:[display:block] [@media_(min-width:_64rem)]:[.lab-gravity-journey-workspace[data-introduction=true]_&]:[font-size:clamp(3.5rem,_6.5vw,_6rem)]">
-                    <span>{t("heroLead")}</span> <span>{t("heroSubject")}</span>
+                <header className="my-auto shrink-0 py-[clamp(2rem,6vh,5rem)] lg:my-0 lg:min-w-0">
+                  <p
+                    className="mb-[clamp(1.5rem,4vh,3rem)] text-[clamp(.75rem,1.7vw,1.25rem)] font-bold tracking-[.23em] text-[#b8b0d6] 
+                  uppercase lg:text-[clamp(.75rem,1.1vw,.95rem)]"
+                  >
+                    {t("heroEyebrow")}
+                  </p>
+
+                  <h1
+                    className="text-[clamp(3.25rem,9vw,8rem)] leading-[1.05] font-extrabold tracking-[-.065em] text-[#f8fafc]
+                   lg:text-[clamp(3.5rem,6.5vw,6rem)] [&_span]:block"
+                  >
+                    <span>{t("heroLead")}</span>
+                    <span>{t("heroSubject")}</span>
                   </h1>
-                  <p className="[max-width:65rem] [margin:clamp(1.5rem,_4vh,_3rem)_0_0] [color:#cbd5e1] [font-size:clamp(1rem,_2.4vw,_1.75rem)] [line-height:1.7] [@media_(min-width:_64rem)]:[.lab-gravity-journey-workspace[data-introduction=true]_&]:[font-size:clamp(1rem,_1.5vw,_1.25rem)]">
+
+                  <p
+                    className="mt-[clamp(1.5rem,4vh,3rem)] max-w-5xl text-[clamp(1rem,2.4vw,1.75rem)] leading-[1.7] text-[#cbd5e1] 
+                  lg:text-[clamp(1rem,1.5vw,1.25rem)]"
+                  >
                     {t("heroDescription")}
                   </p>
                 </header>
               }
             >
+              {/* Etapa 01 · Descubre. */}
               <GravityJourneyPanel
                 stage={gravityStageById["gravity-discovery"]}
-                className="min-w-0 [padding-block:.25rem] [scroll-margin-top:var(--gravity-stage-offset)]"
+                className="min-w-0 py-1 scroll-mt-(--gravity-stage-offset)"
               >
                 <GravityDiscovery />
               </GravityJourneyPanel>
 
+              {/* Etapa 02 · Comprende. */}
               <GravityJourneyPanel
                 stage={gravityStageById["gravity-understanding"]}
               >
                 <GravityIntroduction />
               </GravityJourneyPanel>
 
+              {/* Etapas 03 · Experimenta y 04 · Comprueba. */}
               <GravityLab />
             </GravityJourney>
           </GravityFormulaAccess>

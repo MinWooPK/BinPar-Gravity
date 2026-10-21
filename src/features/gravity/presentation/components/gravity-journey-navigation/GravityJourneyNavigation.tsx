@@ -11,19 +11,16 @@ type GravityJourneyNavigationProps = {
   onReturnToJourney: () => void;
 };
 
-// Coordina la navegación del recorrido educativo.
-// Muestra las tarjetas iniciales o la navegación de una etapa.
+// Muestra el recorrido inicial o la navegación entre etapas.
 export const GravityJourneyNavigation = ({
   activeStage,
   onSelectStage,
   onReturnToJourney,
 }: GravityJourneyNavigationProps) => {
-  // Sin una etapa activa, muestra el recorrido de aprendizaje.
   if (activeStage === null) {
     return <GravityJourneyOverview onSelectStage={onSelectStage} />;
   }
 
-  // Con una etapa activa, muestra los tags y el regreso.
   return (
     <GravityStageNavigation
       activeStage={activeStage}

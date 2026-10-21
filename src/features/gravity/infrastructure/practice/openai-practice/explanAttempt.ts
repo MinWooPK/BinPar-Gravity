@@ -21,7 +21,7 @@ import {
   texts,
 } from "./openaiPracticeHelpers";
 
-// Explica una respuesta utilizando la corrección del servidor.
+// Genera una explicación de la respuesta del usuario.
 export const explainAttempt = async (
   attempt: Attempt,
   locale: Locale,
@@ -41,7 +41,7 @@ export const explainAttempt = async (
     signal,
   );
 
-  // Valida la explicación y sus pasos.
+  // Comprueba que la respuesta de la IA sea válida.
   if (
     !record(raw) ||
     !onlyKeys(raw, ["explanation", "steps"]) ||

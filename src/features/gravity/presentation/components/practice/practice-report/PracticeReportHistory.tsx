@@ -13,13 +13,13 @@ type PracticeReportHistoryProps = {
   view: PracticeView;
 };
 
-// Muestra el historial de respuestas y la última corrección.
+// Muestra el historial y la última corrección.
 export const PracticeReportHistory = ({ view }: PracticeReportHistoryProps) => {
   const t = useTranslations("Practice");
 
   return (
     <>
-      {/* Historial de las cinco preguntas. */}
+      {/* Historial de respuestas. */}
       <PracticeDisclosure label={t("history")}>
         <ol data-practice-history className="space-y-3">
           {view.history.map((attempt, i) => {
@@ -62,7 +62,7 @@ export const PracticeReportHistory = ({ view }: PracticeReportHistoryProps) => {
         </ol>
       </PracticeDisclosure>
 
-      {/* Última explicación recibida durante la evaluación. */}
+      {/* Última corrección. */}
       {view.feedback && (
         <PracticeDisclosure label={t("lastFeedback")}>
           <PracticeFeedback feedback={view.feedback} />

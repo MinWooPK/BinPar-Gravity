@@ -23,17 +23,18 @@ import {
   texts,
 } from "./openaiPracticeHelpers";
 
-// Genera el informe final a partir de las cinco respuestas.
+// Genera el informe final de la práctica.
 export const generateReport = async (
   history: Attempt[],
   locale: Locale,
   signal?: AbortSignal,
 ): Promise<Report> => {
+  // Comprueba que estén las cinco respuestas.
   if (history.length !== PRACTICE_QUESTION_COUNT) {
     throw new Error("incomplete");
   }
 
-  // Solicita las fortalezas, dificultades y recomendaciones.
+  // Solicita el informe a OpenAI.
   const raw = await call(
     "gravity_report",
     obj({
@@ -59,7 +60,7 @@ export const generateReport = async (
     signal,
   );
 
-  // Comprueba la estructura y el contenido del informe.
+  // Comprueba que el informe sea válido.
   if (
     !record(raw) ||
     !onlyKeys(raw, ["summary", "strengths", "review", "recommendations"]) ||

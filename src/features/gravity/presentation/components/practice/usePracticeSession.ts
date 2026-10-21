@@ -10,39 +10,29 @@ import type {
   PracticeView,
 } from "../../../types/practice/practice.types";
 
-// Gestiona el estado y las peticiones de la práctica educativa,
-// manteniendo la sesión al cambiar entre las etapas de Gravity Lab.
+// Gestiona las preguntas y respuestas de la práctica.
 export const usePracticeSession = () => {
-  // Obtiene el idioma actual de la aplicación.
   const locale = useLocale() as Locale;
 
-  // Almacena la pregunta, corrección e informe de la sesión.
   const [view, setView] = useState<PracticeView | null>(null);
-
-  // Guarda la respuesta introducida por el usuario.
   const [answer, setAnswer] = useState<Answer>({
     value: "",
     exponent: "",
   });
 
-  // Controla la visibilidad de las pistas y si el usuario las ha utilizado.
-  const [hintOpen, setHintOpen] = useState(false),
-    [usedHint, setUsedHint] = useState(false);
+  const [hintOpen, setHintOpen] = useState(false);
+  const [usedHint, setUsedHint] = useState(false);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Controla el estado de las peticiones y los posibles errores.
-  const [pending, setPending] = useState(false),
-    [error, setError] = useState<string | null>(null);
+  const lock = useRef(false);
+  const abort = useRef<AbortController | null>(null);
+  const last = useRef<PracticeRequest | null>(null);
 
-  // Guarda el bloqueo de peticiones, su controlador y la última solicitud.
-  const lock = useRef(false),
-    abort = useRef<AbortController | null>(null),
-    last = useRef<PracticeRequest | null>(null);
-
-  // Cancela cualquier petición pendiente cuando se desmonta el componente.
+  // Cancela la petición al desmontar el componente.
   useEffect(() => () => abort.current?.abort(), []);
 
-  // Envía peticiones a la API de práctica y actualiza
-  // el estado de la sesión con la respuesta recibida.
+  // Envía peticiones y actualiza la sesión.
   const request = async (body: PracticeRequest) => {
     if (lock.current) return;
 
@@ -51,15 +41,13 @@ export const usePracticeSession = () => {
     setError(null);
     last.current = body;
 
-    // Crea un controlador para cancelar la petición.
+    // Cancela la petición si supera los 65 segundos.
     const controller = new AbortController();
     abort.current = controller;
 
-    // Establece un tiempo máximo de espera de 65 segundos.
     const timeout = setTimeout(() => controller.abort(), 65000);
 
     try {
-      // Envía la solicitud al endpoint de la práctica.
       const response = await fetch("/api/practice", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -67,9 +55,9 @@ export const usePracticeSession = () => {
         signal: controller.signal,
       });
 
-      // Obtiene los datos devueltos por la API.
       const data = await response.json();
 
+      // Gestiona los errores de la API.
       if (!response.ok) {
         setError(
           [
@@ -86,6 +74,7 @@ export const usePracticeSession = () => {
 
       setView(data as PracticeView);
 
+      // Limpia la respuesta al comenzar o avanzar.
       if (body.action !== "answer") {
         setAnswer({ value: "", exponent: "" });
         setHintOpen(false);
@@ -102,8 +91,7 @@ export const usePracticeSession = () => {
     }
   };
 
-  // Expone el estado de la práctica y las funciones para
-  // iniciar, corregir, avanzar, mostrar pistas y reintentar.
+  // Estado y acciones de la práctica.
   return {
     view,
     answer,
@@ -120,21 +108,26 @@ export const usePracticeSession = () => {
     start: () => void request({ action: "start", locale }),
 
     check: () => {
-      if (view)
+      if (view) {
         void request({
           action: "answer",
           token: view.token,
           answer,
           usedHint,
         });
+      }
     },
 
     next: () => {
-      if (view) void request({ action: "next", token: view.token });
+      if (view) {
+        void request({ action: "next", token: view.token });
+      }
     },
 
     retry: () => {
-      if (last.current) void request(last.current);
+      if (last.current) {
+        void request(last.current);
+      }
     },
   };
 };

@@ -11,7 +11,14 @@ export const EarthMoonDiagram = ({ id }: EarthMoonDiagramProps) => {
   const t = useTranslations("Gravity");
 
   return (
-    <figure className="[margin:12px_0] [padding:6px_0_8px] [border:1px_solid_#29344b] [border-radius:10px] [background:#0b1120] min-[1024px]:flex min-[1024px]:[flex:1] min-[1024px]:flex-col [&_svg]:[display:block] [&_svg]:[width:100%] [&_svg]:[height:clamp(104px,_15vh,_132px)] [&_figcaption]:[margin:0] [&_figcaption]:[padding:0_10px] [&_figcaption]:[color:#a4b0c7] [&_figcaption]:[font-size:.875rem] [&_figcaption]:[line-height:1.4] [&_figcaption]:[text-align:center] [@media_(min-width:_1024px)]:[&_svg]:[flex:1_1_0] [@media_(min-width:_1024px)]:[&_svg]:[height:clamp(104px,_18dvh,_180px)] [@media_(min-width:_1024px)]:[&_svg]:[min-height:104px]">
+    <figure
+      className="m-[12px_0] p-[6px_0_8px] [border:1px_solid_#29344b] rounded-[10px] 
+    [background:#0b1120] min-[1024px]:flex min-[1024px]:flex-1 min-[1024px]:flex-col
+     [&_svg]:block [&_svg]:w-full [&_svg]:h-[clamp(104px,15vh,132px)] [&_figcaption]:m-0
+     [&_figcaption]:p-[0_10px] [&_figcaption]:text-[#a4b0c7] [&_figcaption]:text-[.875rem]
+     [&_figcaption]:leading-[1.4] [&_figcaption]:text-center [@media_(min-width:_1024px)]:[&_svg]:flex-[1_1_0]
+      [@media_(min-width:_1024px)]:[&_svg]:h-[clamp(104px,18dvh,180px)] [@media_(min-width:_1024px)]:[&_svg]:min-h-26"
+    >
       <svg
         viewBox="0 0 460 150"
         role="img"

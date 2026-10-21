@@ -4,7 +4,7 @@ import {
   type ExperimentTrajectory,
 } from "../../../domain/experiment-simulation";
 
-// Solo enviamos los datos que necesita la animación.
+// Datos necesarios para la animación.
 type SimulationResult = Pick<
   ExperimentTrajectory,
   "duration" | "samples" | "bounds"
@@ -17,32 +17,20 @@ type RunRequest = {
 
 type RunResponse =
   | { id: number; ok: true; result: SimulationResult }
-  | {
-      id: number;
-      ok: false;
-      error: "tooClose" | "calculationFailed";
-    };
+  | { id: number; ok: false; error: "tooClose" | "calculationFailed" };
 
+// Recibe los parámetros y calcula la simulación.
 self.onmessage = (event: MessageEvent<RunRequest>) => {
   const { id, config } = event.data;
 
   try {
-    // Calcula únicamente la trayectoria gravitatoria.
-    const trajectory = simulateExperiment(config);
+    const { duration, samples, bounds } = simulateExperiment(config);
 
-    // Evita enviar el historial completo de pasos RK4.
-    const { duration, samples, bounds } = trajectory;
-
-    const result: SimulationResult = {
-      duration,
-      samples,
-      bounds,
-    };
-
+    // Envía solo los datos necesarios.
     self.postMessage({
       id,
       ok: true,
-      result,
+      result: { duration, samples, bounds },
     } satisfies RunResponse);
   } catch (error) {
     const message = error instanceof Error ? error.message : "";

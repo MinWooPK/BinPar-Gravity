@@ -11,8 +11,7 @@ import {
 
 import type { GalleryState } from "../../types/gallery.types";
 
-// Define el estado inicial de la galería, incluyendo filtros,
-// reproducción de órbitas, navegación y desplazamiento.
+// Estado inicial de la galería.
 const initial: GalleryState = {
   scroll: 0,
   categoryFilter: "all",
@@ -23,29 +22,23 @@ const initial: GalleryState = {
   galleryPage: 0,
 };
 
-// Crea el contexto para compartir el estado de la galería
-// y las funciones que permiten modificarlo.
+// Comparte el estado y las acciones de la galería.
 const Context = createContext<{
   state: GalleryState;
   update: (patch: Partial<GalleryState>) => void;
   toggleOrbit: (slug: string) => void;
 } | null>(null);
 
-// Gestiona el estado compartido de la galería de órbitas,
-// conservando los filtros, la reproducción y la navegación.
+// Gestiona el estado compartido de la galería.
 export const GalleryProvider = ({ children }: { children: ReactNode }) => {
-  // Almacena el estado actual de la galería.
   const [state, setState] = useState<GalleryState>(initial);
 
-  // Actualiza únicamente las propiedades indicadas del estado.
+  // Actualiza las propiedades indicadas.
   const update = useCallback((patch: Partial<GalleryState>) => {
-    setState((current) => ({
-      ...current,
-      ...patch,
-    }));
+    setState((current) => ({ ...current, ...patch }));
   }, []);
 
-  // Alterna entre reproducir y pausar una órbita concreta.
+  // Reproduce o pausa una órbita.
   const toggleOrbit = useCallback((slug: string) => {
     setState((current) => ({
       ...current,
@@ -56,7 +49,6 @@ export const GalleryProvider = ({ children }: { children: ReactNode }) => {
     }));
   }, []);
 
-  // Agrupa el estado y las funciones que se comparten mediante el contexto.
   const value = useMemo(
     () => ({ state, update, toggleOrbit }),
     [state, update, toggleOrbit],
@@ -65,10 +57,8 @@ export const GalleryProvider = ({ children }: { children: ReactNode }) => {
   return <Context.Provider value={value}>{children}</Context.Provider>;
 };
 
-// Permite acceder al estado compartido de la galería
-// y a sus funciones desde cualquier componente incluido en el Provider.
+// Permite acceder al estado de la galería.
 export const useGalleryState = () => {
-  // Obtiene el contexto compartido de la galería.
   const value = useContext(Context);
 
   if (!value) {

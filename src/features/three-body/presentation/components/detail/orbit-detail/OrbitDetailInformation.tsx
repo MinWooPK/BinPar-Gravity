@@ -6,7 +6,7 @@ import { OrbitDetailTabs } from "../OrbitDetailTabs";
 import { OrbitDetailHeader } from "./OrbitDetailHeader";
 import { OrbitInitialConditions } from "./OrbitInitialConditions";
 
-// Reúne la ficha científica, sus pestañas y las referencias de la órbita.
+// Muestra la información científica de la órbita.
 export const OrbitDetailInformation = async ({
   orbit,
   index,
@@ -22,17 +22,20 @@ export const OrbitDetailInformation = async ({
 
   return (
     <article
-      className="flex flex-col [gap:12px] min-w-0 [padding:16px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [@media(max-width:374px)]:[padding:12px]"
+      className="flex min-w-0 flex-col gap-3 rounded-[14px] border border-lab-line bg-[linear-gradient(145deg,#131724,#0e121d)] p-4 max-[374px]:p-3"
       aria-labelledby="orbit-solution-title"
       data-orbit-detail-information
     >
       <OrbitDetailHeader orbit={orbit} index={index} total={total} />
+
       <OrbitDetailTabs
         explanation={
           <>
             <h3>{t("detail.explanationTitle")}</h3>
+
             <p lang="es">{orbit.insight}</p>
-            <p className="[.lab-three-body-detail-tab-panel_&]:[color:#abb7cd] [.lab-three-body-detail-tab-panel_&]:[font-size:0.8125rem]">
+
+            <p className="in-[.lab-three-body-detail-tab-panel]:text-[0.8125rem] in-[.lab-three-body-detail-tab-panel]:text-[#abb7cd]">
               {t("detail.idealBodies")}
             </p>
           </>
@@ -45,30 +48,57 @@ export const OrbitDetailInformation = async ({
           />
         }
       />
+
       <h3 id="orbit-physical-model-title">{t("detail.physicalModel")}</h3>
-      <ul className="flex flex-wrap [gap:6px] [margin:0_0_6px] p-0 [list-style:none] [&_li]:[padding:5px_8px] [&_li]:[border:1px_solid_#7965af] [&_li]:[border-radius:6px] [&_li]:[background:#aa97ff18] [&_li]:[color:#e4dcff] [&_li]:text-center [&_strong]:[font-size:0.75rem] [&_strong]:font-bold [&_strong]:[line-height:1.5] [&_strong]:[letter-spacing:0.025em] [&_li:nth-child(2)]:[border-color:#48998e] [&_li:nth-child(2)]:[background:#5ee7d515] [&_li:nth-child(2)]:[color:#a7f3e5]">
+
+      <ul className="m-0 mb-1.5 flex list-none flex-wrap gap-1.5 p-0">
         {(["equalMasses", "constant", "normalizedUnits"] as const).map(
-          (concept) => (
-            <li key={concept}>
-              <strong>{t(`galleryScience.${concept}`)}</strong>
+          (concept, index) => (
+            <li
+              key={concept}
+              className={`rounded-md border px-2 py-1.25 text-center ${
+                index === 1
+                  ? "border-[#48998e] bg-[#5ee7d515] text-[#a7f3e5]"
+                  : "border-[#7965af] bg-[#aa97ff18] text-[#e4dcff]"
+              }`}
+            >
+              <strong className="text-xs leading-normal font-bold tracking-wide">
+                {t(`galleryScience.${concept}`)}
+              </strong>
             </li>
           ),
         )}
       </ul>
+
       <section
-        className="min-w-0 [padding-top:10px] border-t border-solid border-lab-line [&_h3]:[margin:0_0_6px] [&_h3]:[color:#e3e6f2] [&_h3]:[font-size:0.875rem] [&_h3]:font-semibold [&_h3]:[line-height:1.4] [&_p]:m-0 [&_p]:[color:#b6bdd0] [&_p]:[font-size:0.8125rem] [&_p]:[line-height:1.5]"
+        className="min-w-0 border-t border-lab-line pt-2.5"
         aria-labelledby="orbit-source-title"
         data-orbit-detail-source
       >
-        <h3 id="orbit-source-title">{t("detail.sourceTitle")}</h3>
-        <p lang="es">{orbit.sourceLabel}</p>
+        <h3
+          id="orbit-source-title"
+          className="m-0 mb-1.5 text-sm leading-[1.4] font-semibold text-[#e3e6f2]"
+        >
+          {t("detail.sourceTitle")}
+        </h3>
+
+        <p
+          className="m-0 text-[0.8125rem] leading-normal text-[#b6bdd0]"
+          lang="es"
+        >
+          {orbit.sourceLabel}
+        </p>
+
         <a
           href={orbit.source}
           target="_blank"
           rel="noopener noreferrer"
-          className="[&&]:inline-flex [&&]:items-center [&&]:[gap:8px] [&&]:[min-height:44px] [&&]:[color:#d0c1ff] [&&]:[font-size:0.8125rem] [&&]:[line-height:1.5] [&&]:underline [&&]:[text-underline-offset:4px] [&&]:[transition:color_160ms] [&:hover]:[color:#eee7ff] [@media_(prefers-reduced-motion:_reduce)]:[&&]:[transition:none] source-link"
+          className="source-link inline-flex min-h-11 items-center gap-2 text-[0.8125rem] leading-normal text-[#d0c1ff] underline underline-offset-4 transition-colors duration-150 hover:text-[#eee7ff] motion-reduce:transition-none"
         >
-          {t("detail.sourceLink")} <Icon name="external" />
+          {t("detail.sourceLink")}
+
+          <Icon name="external" />
+
           <span className="sr-only">{t("detail.sourceNewTab")}</span>
         </a>
       </section>

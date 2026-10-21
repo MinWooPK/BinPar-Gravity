@@ -5,8 +5,7 @@ import { useTranslations } from "next-intl";
 import type { ExperimentConfiguration } from "../../../../domain/experiment-simulation";
 import { bodyColors } from "./experiment.constants";
 
-// Muestra las posiciones iniciales y sus vectores de velocidad,
-// antes de ejecutar la simulación en el Worker.
+// Muestra las posiciones y velocidades iniciales.
 export const ExperimentPreview = ({
   parsed,
 }: {
@@ -15,7 +14,7 @@ export const ExperimentPreview = ({
   const t = useTranslations("ThreeBody.experiment");
   const markerId = useId();
 
-  // Preparar las posiciones de la vista previa.
+  // Calcula las posiciones y flechas de la vista previa.
   const preview = useMemo(() => {
     const valid = parsed.bodies.every((body) =>
       [body.x, body.y, body.vx, body.vy].every(Number.isFinite),
@@ -82,7 +81,7 @@ export const ExperimentPreview = ({
         </marker>
       </defs>
 
-      {/* EJES DE REFERENCIA */}
+      {/* Ejes de referencia. */}
       <path
         d="M20 130H380 M200 15V245"
         stroke="#526079"
@@ -91,7 +90,7 @@ export const ExperimentPreview = ({
         opacity="0.55"
       />
 
-      {/* FLECHAS Y CUERPOS */}
+      {/* Velocidades y cuerpos. */}
       {preview.map((body) => (
         <g key={body.index}>
           {body.speed > 0 && (

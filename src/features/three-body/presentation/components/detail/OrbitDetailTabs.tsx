@@ -15,17 +15,18 @@ export const OrbitDetailTabs = ({
 }) => {
   const t = useTranslations("ThreeBody.detail");
   const id = useId();
+
   const { selected, setSelected, tabRefs, handleTabKeyDown } = useTabs(
     tabs,
     "explanation",
   );
 
   return (
-    <div className="min-w-0 [flex:1]">
+    <div className="min-w-0 flex-1">
       <div
         role="tablist"
         aria-label={t("tabsLabel")}
-        className="flex flex-wrap [gap:4px_8px] [padding-bottom:8px] border-b border-solid border-lab-line"
+        className="flex flex-wrap gap-x-2 gap-y-1 border-b border-lab-line pb-2"
       >
         {tabs.map((tab, index) => (
           <TabButton
@@ -36,15 +37,22 @@ export const OrbitDetailTabs = ({
             id={`${id}-tab-${tab}`}
             aria-controls={`${id}-panel-${tab}`}
             selected={selected === tab}
-            className="inline-flex [flex:1_1_auto] items-center justify-center [gap:8px] min-w-0 [padding:8px_10px] [border:1px_solid_transparent] [border-radius:8px] [background:transparent] [color:#b6bdd0] [font-size:.875rem] [line-height:1.4] [transition:color_160ms,_background_160ms,_border-color_160ms] [&_>_span]:[color:#b9a8f5] [&_>_span]:[font-size:0.75rem] [&:hover]:[background:#aa97ff12] [&:hover]:[color:#eee7ff] [&[aria-selected=true]]:[border-color:#706091] [&[aria-selected=true]]:[background:#aa97ff20] [&[aria-selected=true]]:[color:#eee7ff] [@media_(prefers-reduced-motion:_reduce)]:[&&]:[transition:none]"
+            className="inline-flex min-w-0 flex-[1_1_auto] items-center justify-center gap-2 rounded-lg border border-transparent 
+            bg-transparent px-2.5 py-2 text-sm leading-[1.4] text-[#b6bdd0] transition-[color,background,border-color] 
+            duration-160 hover:bg-[#aa97ff12] hover:text-[#eee7ff] aria-selected:border-[#706091]
+             aria-selected:bg-[#aa97ff20] aria-selected:text-[#eee7ff] motion-reduce:transition-none"
             onClick={() => setSelected(tab)}
             onKeyDown={(event) => handleTabKeyDown(event, index)}
           >
-            <span aria-hidden="true">{index === 0 ? "01" : "02"}</span>
+            <span aria-hidden="true" className="text-xs text-[#b9a8f5]">
+              {index === 0 ? "01" : "02"}
+            </span>
+
             {t(tab === "explanation" ? "explanationTab" : "conditionsTab")}
           </TabButton>
         ))}
       </div>
+
       {tabs.map((tab) => (
         <div
           key={tab}
@@ -53,7 +61,10 @@ export const OrbitDetailTabs = ({
           aria-labelledby={`${id}-tab-${tab}`}
           tabIndex={0}
           hidden={selected !== tab}
-          className="lab-three-body-detail-tab-panel min-w-0 [min-height:150px] [padding-top:12px] [border-radius:4px] [&&]:[animation:lab-three-body-detail-reveal_180ms_ease-out] [&[hidden]]:hidden [&_h3]:[margin:0_0_6px] [&_h3]:[font-size:1rem] [&_h3]:font-semibold [&_h3]:[line-height:1.4] [&_p]:[margin:0_0_8px] [&_p]:[color:#c4ccde] [&_p]:[font-size:0.875rem] [&_p]:[line-height:1.5] [&_p:last-child]:[margin-bottom:0] [@media_(prefers-reduced-motion:_reduce)]:[&&]:animate-none"
+          className="lab-three-body-detail-tab-panel min-h-37.5 min-w-0 rounded-sm pt-3 
+          animate-[lab-three-body-detail-reveal_180ms_ease-out] [[hidden]]:hidden 
+          [&_h3]:mb-1.5 [&_h3]:text-base [&_h3]:leading-[1.4] [&_h3]:font-semibold [&_p]:mb-2 [&_p]:text-sm 
+          [&_p]:leading-normal [&_p]:text-[#c4ccde] [&_p:last-child]:mb-0 motion-reduce:animate-none"
           data-orbit-detail-panel={tab}
         >
           {tab === "explanation" ? explanation : conditions}

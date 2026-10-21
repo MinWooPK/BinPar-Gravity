@@ -6,28 +6,31 @@ import {
 } from "./orbit-invariants";
 import { orbitBounds } from "./orbit-trajectory";
 
-// Conserva el límite original de muestras de las órbitas del catálogo.
+// Número máximo de muestras permitidas.
 const MAX_SAMPLES = 20_000;
 
-// Calcula una órbita completa y sus indicadores de precisión.
+// Calcula una órbita y sus indicadores de precisión.
 export const integrateOrbit = (
   orbit: OrbitDefinition,
   sampleCount = 1200,
 ): OrbitData => {
+  // Valida el período de la órbita.
   if (!Number.isFinite(orbit.period) || orbit.period <= 0) {
-    throw new RangeError("The period must be a positive finite number.");
+    throw new RangeError("El período debe ser un número positivo y finito.");
   }
 
+  // Comprueba el número de muestras.
   if (
     !Number.isInteger(sampleCount) ||
     sampleCount < 2 ||
     sampleCount > MAX_SAMPLES
   ) {
     throw new RangeError(
-      `The sample count must be an integer between 2 and ${MAX_SAMPLES}.`,
+      `El número de muestras debe ser un entero entre 2 y ${MAX_SAMPLES}.`,
     );
   }
 
+  // Valida las posiciones y velocidades iniciales.
   if (
     !Array.isArray(orbit.initial) ||
     orbit.initial.length !== 3 ||
@@ -38,16 +41,18 @@ export const integrateOrbit = (
         !body.every(Number.isFinite),
     )
   ) {
-    throw new RangeError("An orbit needs three finite [x, y, vx, vy] states.");
+    throw new RangeError(
+      "La órbita necesita tres cuerpos con posiciones y velocidades válidas [x, y, vx, vy].",
+    );
   }
 
-  // Convierte las condiciones iniciales en un array de 12 componentes.
+  // Prepara los 12 valores del estado inicial.
   const initial = orbit.initial.flat();
 
-  // Crea los diagnósticos físicos y su observador de pasos aceptados.
+  // Prepara los indicadores físicos.
   const { diagnostics, observe } = createOrbitDiagnostics(initial);
 
-  // Integra los estados hasta cada tiempo de muestreo solicitado.
+  // Calcula las muestras de la órbita.
   const { samples, state } = integrateOrbitSamples(
     initial,
     orbit.period,
@@ -56,10 +61,10 @@ export const integrateOrbit = (
     observe,
   );
 
-  // Determina el error de cierre real, sin cerrar artificialmente la órbita.
+  // Calcula el error de cierre real.
   finishOrbitDiagnostics(diagnostics, initial, state, samples);
 
-  // Calcula el encuadre espacial a partir de todas las posiciones.
+  // Calcula los límites para visualizar la órbita.
   const bounds = orbitBounds(samples);
 
   return {

@@ -22,7 +22,7 @@ import {
   sameGravityParameters,
 } from "./gravityProposal";
 
-// Define el estado global del laboratorio y la calculadora.
+// Estado del laboratorio y la calculadora.
 export type GravityState = {
   parameters: GravityParameters;
   formula: FormulaInputState;
@@ -30,12 +30,12 @@ export type GravityState = {
   revision: number;
 };
 
-// Define las formas permitidas de actualizar los parámetros gravitatorios.
+// Formas de actualizar los parámetros.
 export type GravityParameterUpdate =
   | GravityParameters
   | ((current: GravityParameters) => GravityParameters);
 
-// Define las acciones que pueden modificar el estado del laboratorio.
+// Acciones disponibles en el laboratorio.
 export type GravityAction =
   | { type: "parameters"; update: GravityParameterUpdate }
   | { type: "formula"; key: GravityVariable; text: string }
@@ -43,7 +43,7 @@ export type GravityAction =
   | { type: "reset" }
   | { type: "proposal"; proposal: unknown; expectedRevision: number };
 
-// Crea el estado inicial del laboratorio con los parámetros predeterminados.
+// Crea el estado inicial.
 export const createGravityState = (): GravityState => ({
   parameters: { ...initialParameters },
   formula: formulaInputFromParameters(initialParameters),
@@ -51,15 +51,14 @@ export const createGravityState = (): GravityState => ({
   revision: 0,
 });
 
-// Gestiona las acciones del laboratorio y mantiene sincronizados
-// los parámetros físicos, la calculadora y las propuestas de la IA.
+// Actualiza el estado del laboratorio.
 export const gravityStateReducer = (
   state: GravityState,
   action: GravityAction,
 ): GravityState => {
   switch (action.type) {
+    // Actualiza los parámetros de gravedad.
     case "parameters": {
-      // Obtiene los nuevos parámetros gravitatorios.
       const parameters =
         typeof action.update === "function"
           ? action.update(state.parameters)
@@ -80,8 +79,8 @@ export const gravityStateReducer = (
       };
     }
 
+    // Actualiza los valores de la fórmula.
     case "formula": {
-      // Actualiza los valores introducidos en la calculadora.
       const formula = changeFormulaInput(
         state.formula,
         action.key,
@@ -90,10 +89,9 @@ export const gravityStateReducer = (
 
       if (formula === state.formula) return state;
 
-      // Obtiene el resultado calculado, si existe.
       const result = formula.result;
 
-      // Sincroniza los parámetros físicos cuando el resultado es válido.
+      // Sincroniza los parámetros si el resultado es válido.
       const parameters =
         result && isWithinLaboratoryRange(result)
           ? {
@@ -113,16 +111,14 @@ export const gravityStateReducer = (
       };
     }
 
+    // Cambia la incógnita de la fórmula.
     case "unknown": {
       if (action.key === state.formula.unknown) return state;
 
-      // Cambia la variable desconocida de la fórmula.
       const formula = selectFormulaUnknown(state.formula, action.key);
-
-      // Recupera el último resultado disponible.
       const result = state.formula.result;
 
-      // Comprueba si el resultado coincide con los parámetros del laboratorio.
+      // Comprueba si los valores siguen sincronizados.
       const synchronized =
         result &&
         result.mass1 === state.parameters.mass1 &&
@@ -143,6 +139,7 @@ export const gravityStateReducer = (
       };
     }
 
+    // Restablece el laboratorio.
     case "reset":
       return {
         ...createGravityState(),
@@ -150,17 +147,20 @@ export const gravityStateReducer = (
         revision: state.revision + 1,
       };
 
+    // Aplica los cambios aceptados del Tutor IA.
     case "proposal": {
       if (action.expectedRevision !== state.revision) return state;
 
-      // Valida y resuelve los nuevos parámetros propuestos por la IA.
       const parameters = resolveGravityProposal(
         state.parameters,
         action.proposal,
       );
 
       return parameters
-        ? gravityStateReducer(state, { type: "parameters", update: parameters })
+        ? gravityStateReducer(state, {
+            type: "parameters",
+            update: parameters,
+          })
         : state;
     }
   }

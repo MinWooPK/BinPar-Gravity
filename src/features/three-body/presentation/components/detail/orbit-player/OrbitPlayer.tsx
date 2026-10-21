@@ -16,36 +16,34 @@ type OrbitPlayerProps = {
   children?: ReactNode;
 };
 
-// Coordina la animación de detalle, sus controles y la información de los cuerpos.
+// Controla la animación, la velocidad y la reproducción.
 export const OrbitPlayer = ({ data, name, children }: OrbitPlayerProps) => {
   const t = useTranslations("ThreeBody");
   const locale = useLocale();
-
-  // La reproducción del detalle sigue compartiéndose mediante GalleryProvider.
   const { state, update } = useGalleryState();
-  const playing = state.detailPlaying;
 
-  // La velocidad y el reinicio son exclusivos de este reproductor.
   const [speed, setSpeed] = useState(1);
   const [resetKey, setResetKey] = useState(0);
-
   const titleId = useId();
+
+  const playing = state.detailPlaying;
 
   return (
     <figure
-      className="lab-three-body-animation-player flex flex-col min-w-0 m-0 [padding:14px_16px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#14192aeb,_#0e1321f2)] [box-shadow:0_12px_32px_#03061126] [@media(max-width:374px)]:[padding-inline:12px] [&_figcaption_>_p]:[max-width:52rem] [&_figcaption_>_p]:[margin:0.375rem_auto_0] [&_figcaption_>_p]:[color:#b6bfd3] [&_figcaption_>_p]:[font-size:0.8125rem] [&_figcaption_>_p]:[line-height:1.5] [&_figcaption_>_p]:text-center"
+      className="lab-three-body-animation-player m-0 flex min-w-0 flex-col rounded-[14px] 
+      border border-lab-line bg-[linear-gradient(145deg,#14192aeb,#0e1321f2)] 
+      px-4 py-3.5 shadow-[0_12px_32px_#03061126] max-[374px]:px-3"
       lang={locale}
       aria-labelledby={titleId}
     >
       <h2
         id={titleId}
-        className="[.lab-three-body-animation-player_&]:m-0 [.lab-three-body-animation-player_&]:[color:#e8edf7] [.lab-three-body-animation-player_&]:[font-size:1.125rem] [.lab-three-body-animation-player_&]:font-semibold [.lab-three-body-animation-player_&]:[line-height:1.4]"
+        className="m-0 text-lg leading-[1.4] font-semibold text-[#e8edf7]"
       >
         {t("detail.simulationTitle")}
       </h2>
 
-      {/* El SVG permanece montado cuando cambia la velocidad o la pausa. */}
-      <div className="[.lab-three-body-animation-player_&]:grid [.lab-three-body-animation-player_&]:[flex:1] [.lab-three-body-animation-player_&]:min-w-0 [.lab-three-body-animation-player_&]:place-items-center [.lab-three-body-animation-player_&]:[padding-block:8px]">
+      <div className="grid min-w-0 flex-1 place-items-center py-2">
         <OrbitAnimation
           data={data}
           name={name}

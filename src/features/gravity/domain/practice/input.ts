@@ -1,7 +1,6 @@
 import type { Answer, Definition } from "../../types/practice/practice.types";
 
-// Determina si una pregunta requiere una opción,
-// un número o una respuesta en notación científica.
+// Identifica el tipo de respuesta.
 export const answerKind = (q: Definition) =>
   ["attraction", "mass", "distance", "mutual", "reasoning"].includes(q.concept)
     ? "choice"
@@ -9,7 +8,7 @@ export const answerKind = (q: Definition) =>
       ? "scientific"
       : "number";
 
-// Devuelve las opciones disponibles para las preguntas de selección múltiple.
+// Devuelve las opciones de respuesta.
 export const optionsFor = (q: Definition) =>
   q.concept === "attraction"
     ? ["attract", "repel", "contact", "earthOnly"]
@@ -17,34 +16,31 @@ export const optionsFor = (q: Definition) =>
       ? ["equal", "heavier", "lighter", "stationary"]
       : ["same", "double", "four", "half", "quarter"];
 
-// Convierte el texto introducido por el usuario en un número válido.
-// Admite decimales con punto o coma y notación científica.
+// Convierte un texto en un número válido.
 export const parsePracticeNumber = (text: string): number | null => {
-  // Normaliza el formato decimal del valor introducido.
+  // Permite decimales con coma o punto.
   const normalized = text.trim().replace(",", ".");
 
+  // Comprueba el formato del número.
   if (!/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(normalized))
     return null;
 
-  // Convierte el texto a número y comprueba que sea finito.
   const value = Number(normalized);
 
   return Number.isFinite(value) ? value : null;
 };
 
-// Obtiene el valor numérico de una respuesta, calculando
-// el exponente cuando se utiliza notación científica.
+// Calcula una respuesta numérica, con o sin exponente.
 export const numericAnswer = (
   answer: Answer,
   scientific: boolean,
 ): number | null => {
-  // Obtiene el valor principal o coeficiente de la respuesta.
   const coefficient = parsePracticeNumber(answer.value);
 
   if (coefficient === null) return null;
   if (!scientific) return coefficient;
 
-  // Obtiene el exponente de la notación científica.
+  // Comprueba el exponente.
   const exponent = parsePracticeNumber(answer.exponent);
 
   if (
@@ -54,7 +50,7 @@ export const numericAnswer = (
   )
     return null;
 
-  // Calcula el resultado numérico aplicando el exponente.
+  // Calcula el resultado.
   const value = coefficient * 10 ** exponent;
 
   return Number.isFinite(value) ? value : null;

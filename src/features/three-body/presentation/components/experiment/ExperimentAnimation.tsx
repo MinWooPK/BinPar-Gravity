@@ -11,7 +11,7 @@ type Props = {
   label: string;
 };
 
-//  Representación de una trayectoria LIBRE: el tiempo se limita a duration
+// Dibuja las posiciones y trayectorias de los tres cuerpos.
 export const ExperimentAnimation = ({
   trajectory,
   elapsed,
@@ -19,39 +19,46 @@ export const ExperimentAnimation = ({
   label,
 }: Props) => {
   const { samples, duration, bounds } = trajectory;
+
+  // Calcula la posición actual entre dos muestras.
   const samplePosition = Math.max(
     0,
     Math.min(samples.length - 1, (elapsed / duration) * (samples.length - 1)),
   );
+
   const index = Math.min(Math.floor(samplePosition), samples.length - 2);
   const factor = samplePosition - index;
 
+  // Interpola las posiciones de los tres cuerpos.
   const bodyCoordinates = samples[index].map(
     (value, component) =>
       value + (samples[index + 1][component] - value) * factor,
   );
 
-  // Usamos la misma escala en ambos ejes para no deformar la trayectoria.
+  // Adapta las coordenadas físicas al SVG.
   const scale = 108 / Math.max(bounds.radius, 1e-9);
+
   const point = (x: number, y: number) =>
     [200 + (x - bounds.cx) * scale, 130 - (y - bounds.cy) * scale] as const;
 
-  const trails = !showTrails
-    ? []
-    : colors.map((_, body) => {
+  // Genera las estelas hasta la posición actual.
+  const trails = showTrails
+    ? colors.map((_, body) => {
         const points = samples
           .slice(0, index + 1)
           .map((sample) =>
             point(sample[body * 2], sample[body * 2 + 1]).join(","),
           );
-        // La estela llega a la posición actual, interpolada entre muestras.
+
         points.push(
           point(bodyCoordinates[body * 2], bodyCoordinates[body * 2 + 1]).join(
             ",",
           ),
         );
+
         return points.join(" ");
-      });
+      })
+    : [];
 
   return (
     <svg
@@ -60,6 +67,7 @@ export const ExperimentAnimation = ({
       role="img"
       aria-label={label}
     >
+      {/* Ejes de referencia. */}
       <path
         d="M20 130H380 M200 15V245"
         fill="none"
@@ -69,6 +77,7 @@ export const ExperimentAnimation = ({
         opacity="0.45"
       />
 
+      {/* Trayectorias de los cuerpos. */}
       {trails.map((points, body) => (
         <polyline
           key={body}
@@ -82,11 +91,13 @@ export const ExperimentAnimation = ({
         />
       ))}
 
+      {/* Posiciones actuales. */}
       {colors.map((color, body) => {
         const [x, y] = point(
           bodyCoordinates[body * 2],
           bodyCoordinates[body * 2 + 1],
         );
+
         return (
           <g key={color} transform={`translate(${x} ${y})`}>
             <circle r="18" fill={color} fillOpacity="0.14" />

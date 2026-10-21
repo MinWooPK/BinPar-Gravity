@@ -12,7 +12,7 @@ import {
   type PracticeSession,
 } from "../../types/practice/practice.types";
 
-// Genera una clave de cifrado a partir de la API Key de OpenAI.
+// Genera la clave de cifrado.
 const key = () => {
   if (!process.env.OPENAI_API_KEY) throw new Error("not_configured");
 
@@ -21,13 +21,13 @@ const key = () => {
     .digest();
 };
 
-// Cifra los datos de la sesión y genera un token seguro para conservar su estado.
+// Cifra la sesión y genera un token.
 export const sealSession = (session: PracticeSession): string => {
-  // Genera un vector de inicialización aleatorio y configura el cifrado AES-256-GCM.
-  const iv = randomBytes(12),
-    cipher = createCipheriv("aes-256-gcm", key(), iv);
+  // Prepara el cifrado.
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", key(), iv);
 
-  // Cifra los datos de la sesión convertidos a JSON.
+  // Cifra los datos de la sesión.
   const data = Buffer.concat([
     cipher.update(JSON.stringify(session)),
     cipher.final(),
@@ -36,19 +36,18 @@ export const sealSession = (session: PracticeSession): string => {
   return Buffer.concat([iv, cipher.getAuthTag(), data]).toString("base64url");
 };
 
-// Descifra y recupera una sesión a partir de su token,
-// comprobando que no haya caducado y que respete el límite de preguntas.
+// Recupera la sesión a partir de su token.
 export const openSession = (token: string): PracticeSession => {
   try {
-    // Convierte el token recibido en datos binarios.
+    // Convierte el token en datos binarios.
     const data = Buffer.from(token, "base64url");
 
-    // Configura el descifrado utilizando la clave y el vector de inicialización.
+    // Prepara el descifrado.
     const cipher = createDecipheriv("aes-256-gcm", key(), data.subarray(0, 12));
 
     cipher.setAuthTag(data.subarray(12, 28));
 
-    // Recupera los datos originales de la sesión.
+    // Recupera los datos de la sesión.
     const session = JSON.parse(
       Buffer.concat([
         cipher.update(data.subarray(28)),
@@ -56,6 +55,7 @@ export const openSession = (token: string): PracticeSession => {
       ]).toString(),
     ) as PracticeSession;
 
+    // Comprueba la caducidad y el límite de preguntas.
     if (
       session.expires < Date.now() ||
       session.history.length > PRACTICE_QUESTION_COUNT

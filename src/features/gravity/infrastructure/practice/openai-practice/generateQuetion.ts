@@ -20,21 +20,36 @@ import type {
 
 import { call, obj } from "./openaiPracticeHelpers";
 
-// Define las pistas disponibles según el concepto.
-export const hintsFor = (concept: string) =>
-  ["km", "cm", "tonnes"].includes(concept)
-    ? ["units", "conversion"]
-    : ["distance", "square", "reasoning"].includes(concept)
-      ? ["square", "denominator"]
-      : concept === "force"
-        ? ["formula", "units"]
-        : concept === "power"
-          ? ["exponent", "decimal"]
-          : ["mass", "mutual", "attraction"].includes(concept)
-            ? [concept]
-            : ["formula"];
+// Devuelve las pistas según el concepto.
+export const hintsFor = (concept: string) => {
+  switch (concept) {
+    case "km":
+    case "cm":
+    case "tonnes":
+      return ["units", "conversion"];
 
-// Genera una pregunta adaptada al historial del usuario.
+    case "distance":
+    case "square":
+    case "reasoning":
+      return ["square", "denominator"];
+
+    case "force":
+      return ["formula", "units"];
+
+    case "power":
+      return ["exponent", "decimal"];
+
+    case "mass":
+    case "mutual":
+    case "attraction":
+      return [concept];
+
+    default:
+      return ["formula"];
+  }
+};
+
+// Genera una pregunta según el historial del usuario.
 export const generateQuestion = async (
   history: Attempt[],
   locale: Locale,
@@ -42,7 +57,7 @@ export const generateQuestion = async (
 ): Promise<Question> => {
   const plan = nextPlan(history);
 
-  // Define el esquema de respuesta permitido.
+  // Define el formato de la pregunta.
   const schema = obj({
     definition: obj({
       concept: { enum: plan.allowed, type: "string" },
@@ -62,7 +77,7 @@ export const generateQuestion = async (
     },
   });
 
-  // Solicita una pregunta adaptada al plan y al historial.
+  // Pide una pregunta a OpenAI.
   const raw = await call(
     "gravity_question",
     schema,
@@ -79,7 +94,7 @@ export const generateQuestion = async (
     signal,
   );
 
-  // Comprueba que OpenAI ha respetado las condiciones.
+  // Comprueba que la pregunta sea válida.
   if (
     !record(raw) ||
     !onlyKeys(raw, ["definition", "hint"]) ||
@@ -94,7 +109,7 @@ export const generateQuestion = async (
 
   const definition = raw.definition;
 
-  // Identifica preguntas repetidas por su contenido.
+  // Identifica preguntas repetidas.
   const signature = (q: typeof definition) =>
     JSON.stringify([
       q.concept,
@@ -122,7 +137,7 @@ export const generateQuestion = async (
     throw new Error("repeated_question");
   }
 
-  // Calcula la respuesta correcta en el servidor.
+  // Calcula la respuesta correcta.
   const expected = expectedAnswer(definition);
 
   if (
@@ -132,6 +147,7 @@ export const generateQuestion = async (
     throw new Error("invalid_model_response");
   }
 
+  // Devuelve la nueva pregunta.
   return {
     ...definition,
     hint: raw.hint,

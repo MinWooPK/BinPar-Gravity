@@ -4,33 +4,34 @@ import type {
   GravityValues,
 } from "../types/gravity.types";
 
-// Define la constante de gravitación universal de Newton (G).
+// Constante de gravitación universal.
 export const GRAVITATIONAL_CONSTANT = 6.6743e-11;
 
-// Establece los valores mínimos, máximos e incrementos de los controles del laboratorio.
+// Límites de los controles del laboratorio.
 export const laboratoryLimits = {
   mass1: { min: 10, max: 100, step: 1 },
   mass2: { min: 10, max: 100, step: 1 },
   distance: { min: 5, max: 20, step: 0.1 },
 } as const;
 
-// Comprueba que las masas y la distancia estén dentro de los límites del laboratorio.
+// Comprueba los límites del laboratorio.
 export const isWithinLaboratoryRange = (parameters: GravityParameters) =>
   (Object.keys(laboratoryLimits) as (keyof GravityParameters)[]).every(
     (key) => {
       const value = parameters[key];
       const { min, max } = laboratoryLimits[key];
+
       return Number.isFinite(value) && value >= min && value <= max;
     },
   );
 
-// Calcula la fuerza de atracción gravitatoria entre dos cuerpos
-// utilizando sus masas en kilogramos y su distancia en metros.
+// Calcula la fuerza gravitatoria entre dos cuerpos.
 export const gravitationalForce = ({
   mass1,
   mass2,
   distance,
 }: GravityParameters) => {
+  // Comprueba que los valores sean positivos y válidos.
   if (
     ![mass1, mass2, distance].every(
       (value) => Number.isFinite(value) && value > 0,
@@ -42,15 +43,14 @@ export const gravitationalForce = ({
   return (GRAVITATIONAL_CONSTANT * mass1 * mass2) / distance ** 2;
 };
 
-// Define las masas y la distancia iniciales del laboratorio.
+// Valores iniciales del laboratorio.
 export const initialParameters: GravityParameters = {
   mass1: 40,
   mass2: 40,
   distance: 8,
 };
 
-// Define tres ejercicios preestablecidos para comprobar
-// cómo afectan los cambios de masa y distancia a la fuerza gravitatoria.
+// Ejercicios sobre los cambios en la fuerza gravitatoria.
 export const challenges = [
   {
     id: "oneMass",
@@ -69,12 +69,12 @@ export const challenges = [
   },
 ] as const;
 
-// Despeja y calcula cualquiera de las cuatro variables de la ley
-// de gravitación universal a partir de las otras tres conocidas.
+// Calcula la variable desconocida de la fórmula.
 export const solveGravity = (
   unknown: GravityVariable,
   known: Partial<GravityValues>,
 ): GravityValues => {
+  // Comprueba que los tres valores conocidos sean válidos.
   for (const key of ["force", "mass1", "mass2", "distance"] as const) {
     if (key !== unknown && (!Number.isFinite(known[key]) || known[key]! <= 0)) {
       throw new RangeError("Three finite, positive known values are required.");
@@ -85,6 +85,7 @@ export const solveGravity = (
 
   let result: number;
 
+  // Despeja la variable seleccionada.
   switch (unknown) {
     case "force":
       result = gravitationalForce({ mass1, mass2, distance });
@@ -103,6 +104,7 @@ export const solveGravity = (
       break;
   }
 
+  // Comprueba que el resultado sea válido.
   if (!Number.isFinite(result) || result <= 0)
     throw new RangeError("Result is outside the numerical range.");
 

@@ -41,7 +41,9 @@ export const ExperimentPlaybackControls = ({
               setPlaying((current) => !current);
             }
           }}
-          className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#60517f] px-3 py-2 text-xs font-semibold text-[#d3c5ff] transition-colors hover:bg-[#302748] disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border
+           border-[#60517f] px-3 py-2 text-xs font-semibold text-[#d3c5ff] transition-colors hover:bg-[#302748]
+            disabled:cursor-not-allowed disabled:opacity-40"
         >
           {playing ? (
             <Pause size={16} aria-hidden="true" />
@@ -57,7 +59,9 @@ export const ExperimentPlaybackControls = ({
           type="button"
           disabled={!simulation}
           onClick={restartPlayback}
-          className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#60517f] px-3 py-2 text-xs font-semibold text-[#d3c5ff] transition-colors hover:bg-[#302748] disabled:cursor-not-allowed disabled:opacity-40"
+          className="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 
+          rounded-lg border border-[#60517f] px-3 py-2 text-xs font-semibold text-[#d3c5ff] transition-colors hover:bg-[#302748] 
+          disabled:cursor-not-allowed disabled:opacity-40"
         >
           <SkipBack size={16} aria-hidden="true" />
           {t("restart")}

@@ -1,9 +1,9 @@
 import type { ExperimentState } from "./experiment.types";
 
-// Define la distancia mínima de seguridad entre dos cuerpos.
+// Distancia mínima entre cuerpos.
 const MIN_DISTANCE = 1e-3;
 
-// Extrae únicamente las posiciones X e Y de los tres cuerpos.
+// Obtiene las posiciones X e Y de los tres cuerpos.
 export const positions = (state: readonly number[]): number[] => [
   state[0],
   state[1],
@@ -13,20 +13,20 @@ export const positions = (state: readonly number[]): number[] => [
   state[9],
 ];
 
-// Valida que el estado contenga posiciones y velocidades finitas
-// y que los cuerpos mantengan una separación mínima de seguridad.
+// Valida las posiciones, velocidades y distancias.
 export function validateExperimentState(
   state: readonly number[],
 ): asserts state is ExperimentState {
+  // Comprueba que los 12 valores sean válidos.
   if (state.length !== 12 || !state.every(Number.isFinite)) {
     throw new RangeError(
       "Las posiciones y velocidades deben ser números finitos.",
     );
   }
 
+  // Comprueba la distancia entre cada pareja de cuerpos.
   for (let i = 0; i < 3; i++) {
     for (let j = i + 1; j < 3; j++) {
-      // Identifica las posiciones de los dos cuerpos que se comparan.
       const a = 4 * i;
       const b = 4 * j;
 
