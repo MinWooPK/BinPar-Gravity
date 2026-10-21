@@ -16,13 +16,12 @@ export const GalleryIntroductionHeader = ({ onExplore }: Props) => {
         {t("title")}
       </p>
 
-      <div className="flex flex-wrap items-center justify-between gap-5">
+      <div className="flex flex-col items-center justify-between gap-5 md:flex-row md:flex-wrap">
         <p className="min-w-0 flex-1 text-sm leading-7 text-slate-300 sm:text-base">
           {t.rich("intro", {
             highlight: (children) => <Highlight>{children}</Highlight>,
           })}
         </p>
-
         <div className="flex justify-center py-2">
           <button
             type="button"

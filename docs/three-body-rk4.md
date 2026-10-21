@@ -1,190 +1,151 @@
-# Tres cuerpos: cómo funcionan RK4 y las animaciones
+# Tres Cuerpos: modelo físico, RK4 y reproducción
 
-## 1. ¿Qué hace esta parte de Gravity Lab?
+Tres Cuerpos tiene un catálogo de seis soluciones conocidas y un experimento configurable. Ambos calculan trayectorias con las ecuaciones de Newton en 2D. Comparten la derivada y el paso RK4, pero utilizan integradores adaptativos distintos, con tolerancias y límites adecuados a cada recorrido.
 
-La sección **Tres Cuerpos** muestra cómo se mueven tres cuerpos que se atraen por gravedad.
+No son vídeos ni posiciones dibujadas a mano. La integración se ejecuta antes de reproducir y la interfaz interpola las muestras calculadas.
 
-Tiene dos funcionalidades:
+## Modelo y unidades
 
-- **Galería:** reproduce seis órbitas periódicas conocidas: Lagrange, Figura de ocho, Butterfly I, Goggles, Moth I y Yin-Yang I.
-- **Experimento libre:** permite modificar masas, posiciones y velocidades para calcular una trayectoria personalizada.
+Cada cuerpo aporta `[x, y, vx, vy]`. El estado a integrar es un vector de **12 números**; las tres masas y G se pasan por separado.
 
-En los dos casos se utiliza la física de Newton y el mismo algoritmo **RK4**. No son vídeos ni animaciones con posiciones dibujadas manualmente.
-
-## 2. ¿Qué datos necesita cada cuerpo?
-
-Para calcular el movimiento, cada cuerpo tiene cuatro valores:
-
-- `x`, `y`: su posición en el plano.
-- `vx`, `vy`: su velocidad horizontal y vertical.
-
-Como hay tres cuerpos, el estado completo contiene **12 números**:
-
-```ts
-// [x, y, vx, vy] para cada uno de los tres cuerpos
-const state = [x1, y1, vx1, vy1, x2, y2, vx2, vy2, x3, y3, vx3, vy3];
-```
-
-También hacen falta las tres masas y la constante gravitatoria `G`. Las seis soluciones del catálogo usan unidades **adimensionales**, con `G = 1` y masas iguales a `1`; no son kilogramos ni metros reales.
-
-## 3. ¿Cómo se usan las masas y la constante G?
-
-**Antes de ejecutar RK4, el programa calcula la aceleración que provoca la gravedad.** Para eso aplica la ley de Newton a cada pareja de cuerpos:
-
-\[
-F = G \frac{m_1 m_2}{r^2}
-\]
-
-- **`G`** indica la intensidad de la atracción gravitatoria.
-- **`m1`, `m2` y `m3`** son las masas de los tres cuerpos.
-- **`r`** es la distancia entre los centros de dos cuerpos.
-
-Como hay **tres cuerpos**, cada uno recibe la atracción de **los otros dos**. Por ejemplo, para el cuerpo 1 se suman la aceleración que provoca el cuerpo 2 y la que provoca el cuerpo 3. Se suman teniendo en cuenta la dirección horizontal y vertical.
-
-### De la fuerza a la aceleración
-
-La segunda ley de Newton dice que `aceleración = fuerza / masa`. Por eso, al calcular la aceleración del cuerpo 1 causada por el cuerpo 2, su propia masa se cancela:
-
-\[
-a*1 = \frac{F*{12}}{m_1} = G\frac{m_2}{r^2}
-\]
-
-Esto significa que **la masa del cuerpo 2 influye en cuánto acelera el cuerpo 1**. Y, al mismo tiempo, la masa del cuerpo 1 influye en cuánto acelera el cuerpo 2.
-
-En `newtonian-physics.ts`, la función `derivative()` calcula las aceleraciones en los ejes X e Y:
-
-```ts
-const dx = state[b] - state[a];
-const dy = state[b + 1] - state[a + 1];
-const squaredDistance = dx * dx + dy * dy;
-const inverseCube = 1 / (squaredDistance * Math.sqrt(squaredDistance));
-
-result[a + 2] += G * masses[second] * dx * inverseCube;
-result[a + 3] += G * masses[second] * dy * inverseCube;
-result[b + 2] -= G * masses[first] * dx * inverseCube;
-result[b + 3] -= G * masses[first] * dy * inverseCube;
-```
-
-**¿Por qué aparece una distancia al cubo?** La fuerza sigue la ley del inverso del cuadrado (`1 / r²`). En el código se multiplica además por `dx` o `dy` para obtener la dirección de la aceleración en cada eje; por eso aparece `1 / r³` en esa fórmula vectorial.
-
-### ¿Qué valores uso en Gravity Lab?
-
-|        | Seis órbitas de la galería | Experimento libre   |
-| ------ | -------------------------- | ------------------- |
-| `G`    | `1`                        | La elige el usuario |
-| Masa 1 | `1`                        | La elige el usuario |
-| Masa 2 | `1`                        | La elige el usuario |
-| Masa 3 | `1`                        | La elige el usuario |
-
-En el catálogo, `G = 1` y las masas iguales a `1` son **unidades normalizadas** para reproducir las condiciones iniciales conocidas. **No significa que la constante física real sea 1.** En el laboratorio educativo de dos cuerpos se emplea la constante real `G = 6,67430 × 10⁻¹¹` en unidades SI.
-
-En el experimento libre, al cambiar una masa o `G` cambian las aceleraciones y, por tanto, **la trayectoria que calcula RK4**. Una trayectoria nueva no tiene por qué ser periódica.
-
-**Para recordarlo:** primero `derivative()` calcula las aceleraciones con masas, distancias y `G`; después `rk4Step()` utiliza esas aceleraciones para avanzar el movimiento.
-
-## 4. ¿Para qué sirve RK4?
-
-La gravedad cambia continuamente la velocidad y la posición de cada cuerpo. No podemos saber todas sus posiciones futuras con una fórmula sencilla.
-
-**RK4 (Runge-Kutta de cuarto orden)** es un método numérico que calcula una aproximación del siguiente estado avanzando poco a poco en el tiempo.
-
-Para avanzar un paso, calcula cuatro estimaciones:
-
-1. **`k1`:** cómo está cambiando el sistema al comenzar.
-2. **`k2`:** cómo cambiaría a mitad del intervalo.
-3. **`k3`:** vuelve a estimarlo en la mitad con los datos de `k2`.
-4. **`k4`:** estima el cambio al final del intervalo.
-
-Después combina esas cuatro estimaciones, dando más peso a las dos centrales.
+La derivada devuelve velocidades para las componentes de posición y aceleraciones para las de velocidad. Para cada pareja, utiliza la separación entre cuerpos y suma contribuciones iguales y opuestas a la fuerza, teniendo en cuenta las masas al obtener la aceleración:
 
 ```text
-Estado actual
-    ↓
-Calcular k1, k2, k3 y k4
-    ↓
-Combinar las cuatro estimaciones
-    ↓
-Siguiente posición y velocidad de los tres cuerpos
+a_i = G · suma sobre j ≠ i de [m_j · (r_j − r_i) / |r_j − r_i|³]
 ```
 
-La función `derivative()` devuelve las velocidades y aceleraciones calculadas a partir del estado actual, las masas y `G`. La función `rk4Step()` utiliza esos cambios para aproximar el siguiente estado.
+El factor cúbico corresponde a la expresión vectorial: al multiplicarlo por el vector de separación se obtiene la dependencia de magnitud `1/r²`.
 
-Ambas están en `src/features/three-body/domain/newtonian-physics.ts`.
+| Propiedad                | Catálogo                     | Experimento libre                         |
+| ------------------------ | ---------------------------- | ----------------------------------------- |
+| G                        | 1                            | Positiva, configurable                    |
+| Masas                    | 1, 1, 1                      | Tres masas positivas configurables        |
+| Posiciones y velocidades | Condiciones de cada solución | Configurables por cuerpo                  |
+| Tiempo de integración    | Período conocido/refinado    | Duración elegida, mayor que 0 y hasta 100 |
+| Unidades                 | Adimensionales               | Normalizadas, sin conversión a SI         |
 
-## 5. ¿Qué significa RK4 adaptativo?
+Que G valga 1 en estas unidades no modifica la constante física real. El módulo de Gravedad, por separado, trabaja en kg, m y N con `G = 6,67430 × 10⁻¹¹ N·m²/kg²`.
 
-Si dos cuerpos pasan muy cerca, su movimiento puede cambiar rápidamente. En esos momentos un paso de tiempo demasiado grande puede producir errores.
+Los cuerpos son masas puntuales y solo actúa su atracción newtoniana. No hay suavizado de la fuerza, tratamiento de colisiones, relatividad ni integración de una Tierra 3D: el modelo Three.js de la portada es visual.
 
-Por eso, `orbit-integration.ts` no utiliza siempre el mismo tamaño de paso:
+## RK4 y control adaptativo
 
-1. Calcula el avance con **un paso completo**.
-2. Calcula el mismo intervalo con **dos medios pasos**.
-3. Compara los resultados para estimar el error.
-4. Si el error es pequeño, acepta el resultado; si es grande, reduce el paso y vuelve a intentarlo.
+`rk4Step` aproxima el siguiente estado mediante cuatro evaluaciones de la derivada: inicio, dos estimaciones intermedias y final del intervalo. Combina esos cambios con los pesos `1, 2, 2, 1` divididos entre 6.
 
-Además, aplica una pequeña corrección numérica llamada **extrapolación de Richardson**.
+Cada integrador adaptativo:
 
-**Idea importante:** cuanto más delicado es el movimiento, más pequeños pueden ser los pasos para mantener la precisión.
+1. Calcula un paso completo y dos medios pasos RK4.
+2. Estima la corrección con `(dosMediosPasos − pasoCompleto) / 15`.
+3. Normaliza el error usando tolerancias absoluta y relativa por componente.
+4. Acepta el estado corregido si el error está dentro de la tolerancia; en caso contrario reduce el paso y reintenta.
+5. Ajusta el paso siguiente y comprueba finitud y límites de trabajo.
 
-El integrador también mide aspectos como la variación de energía y la diferencia entre el estado final y el inicial. Son comprobaciones para evaluar el resultado, no trucos para forzar que la órbita se cierre.
+La corrección de Richardson mejora la aproximación; no mueve artificialmente los cuerpos para cerrar la curva.
 
-## 6. ¿Cómo se reproducen las seis órbitas?
+| Configuración actual               | Catálogo | Experimento libre |
+| ---------------------------------- | -------- | ----------------- |
+| Tolerancia relativa                | `2e-12`  | `1e-8`            |
+| Tolerancia absoluta                | `2e-13`  | `1e-9`            |
+| Máximo de intentos de paso         | 100.000  | 150.000           |
+| Muestras de posiciones por defecto | 1.200    | 601               |
+| Rango admitido de muestras         | 2–20.000 | 2–2.000           |
 
-Los datos de `data/orbits.ts` contienen las condiciones iniciales y el período de cada solución conocida.
+Los pasos internos varían según el error; las muestras de posiciones para dibujar están espaciadas uniformemente en tiempo. Un límite de tolerancia local no garantiza un error global máximo ni conservación exacta a largo plazo.
 
-El proceso es:
+## Catálogo de seis órbitas
 
-1. `integrateOrbit()` calcula la trayectoria usando RK4 adaptativo.
-2. Guarda **1.200 muestras** de posiciones, repartidas a lo largo del período.
-3. `prepareOrbitPlayback()` convierte esas posiciones físicas a coordenadas para un SVG.
-4. `OrbitAnimation.tsx` dibuja las trayectorias y los tres cuerpos.
-5. `requestAnimationFrame()` actualiza su posición mientras la animación está reproduciéndose.
+| Solución       | Slug del detalle |
+| -------------- | ---------------- |
+| Lagrange       | `lagrange`       |
+| Figura de ocho | `figura-de-ocho` |
+| Butterfly I    | `butterfly-i`    |
+| Goggles        | `goggles`        |
+| Moth I         | `moth-i`         |
+| Yin-Yang I     | `yin-yang-i`     |
 
-La animación utiliza **interpolación** para colocar los cuerpos entre dos muestras y conseguir un movimiento fluido. Los cálculos físicos se preparan antes de reproducir; no se vuelve a ejecutar RK4 en cada fotograma.
+Los detalles están en `/{locale}/three-body/{slug}`. El recorrido principal tiene Descubre, Comprende, Galería y Experimenta; la configuración libre pertenece a la etapa **04**, no a la 03.
 
-Los datos preparados se guardan en una **caché del servidor**, para no recalcular la misma órbita innecesariamente.
+`data/orbits.ts` separa `publishedOrbits` de `orbits`, el catálogo efectivo. Para Butterfly I, Goggles, Moth I y Yin-Yang I, este último sustituye velocidades y período por los valores almacenados en `data/refinements.json`. No se ejecuta una búsqueda de esos refinamientos en tiempo de uso. Los campos `seedClosure` y `refinedClosure` del JSON son datos guardados, no resultados recalculados por la interfaz.
 
-Como estas seis soluciones son periódicas, el reproductor puede volver al principio al alcanzar su período.
+Lagrange parte de un triángulo equilátero de radio al baricentro 1, con lado √3 y `ω² = 1/√3`; sus velocidades se construyen como `ω(−y, x)`. Las soluciones colineales parten de posiciones `(−1, 0)`, `(1, 0)`, `(0, 0)` y velocidades que compensan el momento total. Figura de ocho conserva su configuración específica.
 
-## 7. ¿Cómo funciona el experimento libre?
+Las referencias de procedencia y las convenciones están en cada definición del catálogo. El detalle presenta condiciones iniciales y un enlace a su fuente; no se deben mezclar semillas y períodos de variantes diferentes, especialmente en Yin-Yang I.
 
-El usuario puede introducir una configuración diferente y pulsar **«Ejecutar simulación»**.
+## Preparación y animación del catálogo
 
-- `experiment-simulation.ts` calcula una nueva trayectoria con el mismo `rk4Step()`.
-- `experiment.worker.ts` ejecuta el cálculo en un **Web Worker**, para no bloquear la interfaz mientras trabaja.
-- `periodicity-detection.ts` analiza si los cuerpos vuelven aproximadamente a sus posiciones **y velocidades** iniciales.
-- `ExperimentAnimation.tsx` muestra el movimiento y, si están activadas, sus estelas.
+`getOrbitPlayback` se ejecuta en el servidor:
 
-**Diferencia importante:** una trayectoria personalizada no tiene por qué ser periódica. Por eso, su animación no la repite automáticamente como si fuera una de las seis soluciones conocidas.
+1. Busca el slug en una caché `Map` del proceso.
+2. Obtiene la definición efectiva e integra hasta su período con `integrateOrbit`.
+3. `prepareOrbitPlayback` adapta las muestras al SVG y redondea solo las coordenadas visuales a tres decimales.
+4. Guarda y devuelve slug, período y posiciones para el cliente.
 
-El detector puede encontrar un **retorno aproximado** dentro del tiempo simulado; no demuestra matemáticamente que la órbita se vaya a repetir para siempre.
+La caché no se comparte entre procesos. `ThreeBodyScreen` prepara las seis soluciones; los detalles utilizan la misma función.
 
-## 8. ¿Estoy descubriendo órbitas nuevas?
+`useOrbitAnimationPlayback` interpola posiciones según el tiempo y actualiza transformaciones SVG mediante referencias y `requestAnimationFrame`. A 1× avanza una unidad de tiempo del modelo por segundo. La reproducción vuelve al comienzo mediante el período conocido; ese bucle visual no es una comprobación matemática del cierre.
 
-**No de forma automática.**
+Las trayectorias completas permanecen dibujadas y cada cuerpo conserva su color. El reproductor permite pausa, reinicio y velocidad; suspende el avance cuando no está visible o la pestaña está oculta. No ejecuta RK4 por fotograma.
 
-En la galería reproduzco soluciones ya publicadas usando sus condiciones iniciales. En el experimento libre, el usuario puede probar configuraciones propias y ver si parecen producir un movimiento periódico.
+## Experimento libre
 
-El proyecto **no incluye un algoritmo que busque automáticamente nuevas condiciones iniciales** hasta encontrar una órbita periódica desconocida.
+El formulario conserva los campos como texto en `ThreeBodyExperimentProvider`. `parseExperimentDraft` los convierte a números y `experimentConfigurationError` comprueba finitud, G y masas positivas, duración y separación inicial.
 
-## 9. Archivos principales que debo conocer
+La interfaz exige una separación inicial de al menos **0,05** unidades. Durante la integración, `validateExperimentState` rechaza estados con separación menor de **0,001**. Son límites numéricos, no radios físicos de los cuerpos. También se aborta ante valores no finitos, pasos demasiado pequeños o exceso de intentos.
 
-| Archivo                                                   | Para qué sirve                                           |
-| --------------------------------------------------------- | -------------------------------------------------------- |
-| `data/orbits.ts`                                          | Datos iniciales y períodos de las seis soluciones.       |
-| `domain/newtonian-physics.ts`                             | Gravedad de Newton y función `rk4Step()`.                |
-| `domain/orbit-integration.ts`                             | Integración adaptativa, muestras y control de precisión. |
-| `application/orbitPlayback.ts`                            | Adaptación de coordenadas e interpolación para el SVG.   |
-| `presentation/components/shared/OrbitAnimation.tsx`       | Animación de las órbitas conocidas.                      |
-| `domain/experiment-simulation.ts`                         | Cálculo del experimento personalizado.                   |
-| `presentation/components/experiment/experiment.worker.ts` | Cálculo fuera del hilo principal.                        |
-| `domain/periodicity-detection.ts`                         | Análisis de posibles retornos periódicos.                |
+Al ejecutar:
 
-### ¿Cómo puedo probarlo?
+1. `useExperimentSimulation` valida y copia la configuración.
+2. Crea un Worker de módulo desde `experiment.worker.ts` y envía un identificador de solicitud.
+3. `simulateExperiment` calcula las posiciones y conserva internamente estados aceptados con sus tiempos y velocidades.
+4. El Worker devuelve únicamente `duration`, `samples` y `bounds`; no envía los estados completos ni un informe de periodicidad.
+5. El hook termina el Worker y entrega la trayectoria a `ExperimentAnimation`.
 
-1. Abre Figura de ocho y comprueba pausa, reproducción, reinicio y velocidad.
-2. Abre otra solución y observa que cambia la trayectoria, aunque se reutilizan el mismo integrador y el mismo reproductor.
-3. En **Experimenta**, cambia una velocidad, ejecuta la simulación y comprueba que aparece una trayectoria nueva.
-4. Revisa si el análisis de periodicidad informa de un retorno aproximado o de que no se ha encontrado.
+Cambiar datos físicos invalida el resultado y termina cualquier cálculo activo. Seleccionar otro cuerpo sin editarlo no cambia la revisión física. Los identificadores evitan aceptar una respuesta de un cálculo anterior. Si el Worker no puede iniciarse o falla, se muestra un error; no hay un integrador alternativo en el hilo principal.
 
-**Resumen para recordar:** las **masas y G** determinan la atracción; **Newton** permite calcular las aceleraciones; **RK4** calcula cómo evolucionan las posiciones y velocidades; **SVG** dibuja el resultado. La física y la animación están separadas.
+El reproductor interpola posiciones y dibuja estelas hasta el tiempo seleccionado. A 1× recorre toda la duración en unos **12 segundos**: no comparte la escala temporal del catálogo. Se pausa al salir de la etapa o al ocultar la pestaña y se detiene al llegar al final. Reiniciar la reproducción vuelve a utilizar la trayectoria existente; modificar parámetros requiere ejecutar otra vez.
+
+## Qué se comprueba sobre periodicidad
+
+El catálogo calcula diagnósticos internos mediante `orbit-invariants.ts`:
+
+- `closure`: diferencia cuadrática media, expresada como raíz, entre los 12 componentes del estado final e inicial.
+- `positionClosure`: medida equivalente para las seis coordenadas de posición.
+- Variación relativa máxima de energía y variación absoluta máxima del momento angular.
+- Magnitud máxima del momento lineal, posición del centro de masas, separación mínima y pasos aceptados/rechazados.
+
+Estas medidas evalúan el cálculo al finalizar un período ya proporcionado. **No estiman un período desconocido ni buscan retornos en una trayectoria arbitraria.** Además, `prepareOrbitPlayback` no incluye esos diagnósticos en los datos enviados al reproductor.
+
+El experimento libre **no contiene actualmente un detector de periodicidad aproximada**, aunque el dominio conserve estados completos y exporte una función para refinarlos en otro instante. No hay una llamada del Worker o de la interfaz que busque candidatos y confirme retornos de posiciones y velocidades.
+
+Un posible detector de retorno aproximado tendría que comprobar el estado completo con tolerancias e informar de sus límites; un retorno aislado seguiría sin demostrar periodicidad indefinida. Esa funcionalidad no debe presentarse como implementada. Tampoco existe una búsqueda automática de condiciones iniciales ni descubrimiento automático de nuevas órbitas.
+
+## Rutas actuales
+
+Todas las rutas siguientes son relativas a `src/features/three-body/`:
+
+| Archivo o directorio                                                                  | Responsabilidad                                       |
+| ------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `data/orbits.ts`, `data/refinements.json`                                             | Definiciones y refinamientos almacenados              |
+| `domain/newtonian-physics/newtonian-derivative.ts`                                    | Velocidades y aceleraciones de Newton                 |
+| `domain/newtonian-physics/rk4-step.ts`                                                | Paso RK4 compartido                                   |
+| `domain/orbit-integration/integrate-orbit.ts`                                         | Integración del catálogo y resultado con diagnósticos |
+| `domain/orbit-integration/orbit-adaptive-integrator.ts`                               | Pasos adaptativos del catálogo                        |
+| `domain/orbit-integration/orbit-invariants.ts`                                        | Conservación y cierre                                 |
+| `domain/experiment-simulation/experiment-trajectory.ts`                               | Trayectoria del experimento libre                     |
+| `domain/experiment-simulation/adaptive-integrator.ts`                                 | Integrador adaptativo y refinamiento de estado        |
+| `application/experimentConfiguration.ts`                                              | Validación previa de la configuración                 |
+| `application/orbitPlayback.ts`                                                        | Proyección visual e interpolación del catálogo        |
+| `infrastructure/orbitPlayback.ts`                                                     | Integración y caché en servidor                       |
+| `presentation/components/shared/orbit-animation/useOrbitAnimationPlayback.ts`         | Reproducción SVG del catálogo                         |
+| `presentation/components/experiment/experiment.worker.ts`                             | Cálculo del experimento fuera del hilo principal      |
+| `presentation/components/experiment/three-body-experiment/useExperimentSimulation.ts` | Worker, cancelación y resultado                       |
+| `presentation/components/experiment/three-body-experiment/useExperimentPlayback.ts`   | Tiempo y controles de reproducción libre              |
+| `presentation/components/experiment/ExperimentAnimation.tsx`                          | Posiciones y estelas del experimento                  |
+
+`domain/newtonian-physics.ts`, `domain/orbit-integration.ts` y `domain/experiment-simulation.ts` son entradas de reexportación; la implementación está en los subdirectorios de la tabla.
+
+## Verificación
+
+`tests/orbit-integration.test.ts` genera muestras de las seis órbitas y comprueba estructura, finitud y entradas inválidas. `tests/experiment-simulation.test.ts` comprueba trayectorias, cambios al modificar una masa y rechazo de algunos parámetros inválidos. `tests/experiment-draft.test.ts` cubre edición, selección y restablecimiento.
+
+Estas pruebas no certifican conservación física a largo plazo, estabilidad de toda configuración ni detección de periodicidad. Para revisar la interfaz, reproduce varias órbitas, prueba pausa/reinicio/velocidad y ejecuta una configuración libre. Cambia después un parámetro para comprobar la invalidación y repite la ejecución. Ninguna de estas operaciones necesita IA ni credenciales.

@@ -1,23 +1,34 @@
-# Propuestas del Tutor IA en Gravity Lab
+# Propuestas del Tutor IA
 
-## ¿Qué hace esta funcionalidad?
+El tutor de Gravedad puede devolver una explicación y una propuesta para modificar masas o distancia. La propuesta se presenta como una tarjeta pendiente: **recibirla no modifica el laboratorio**. El código calcula la comparación de fuerzas y solo aplica los parámetros después de la confirmación del usuario.
 
-El tutor puede explicar la gravedad y **proponer cambios en el simulador** cuando el usuario se lo pide.
+## Dónde se permiten cambios
 
-Por ejemplo, si escribimos «Duplica la primera masa», el tutor puede proponer pasar de **40 kg a 80 kg**.
+`TutorProvider` se monta en el layout de Gravedad. Inicio y Tres Cuerpos no muestran el tutor, y el contrato actual de `/api/ai` no admite sus contextos.
 
-**La IA no cambia los valores directamente.** Primero muestra una propuesta y el usuario decide si quiere aplicarla o cancelarla.
+| Contexto de Gravedad                                                    | Comportamiento                                                                                   |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Bienvenida (`stage: null`), Descubre y Experimenta                      | Una pregunta libre puede producir una propuesta validada                                         |
+| Comprende                                                               | Solo explicación; se descartan propuestas                                                        |
+| Comprueba                                                               | Solo ayuda conceptual; se descartan propuestas y no se envía automáticamente el ejercicio actual |
+| Intenciones `explain_formula`, `explain_experiment` y `explain_context` | Solo explicación, incluso en una etapa que admite cambios                                        |
 
-## ¿Cómo funciona?
+El prompt pide propuestas únicamente ante una solicitud explícita de modificación. Esa interpretación depende del modelo; los límites técnicos, las restricciones por etapa y la confirmación se aplican además en código.
 
-1. El usuario escribe una pregunta en el chat de Gravedad.
-2. La aplicación envía la consulta y los datos actuales del simulador a `/api/ai`.
-3. El servidor consulta a OpenAI. La respuesta puede incluir una explicación y una propuesta de parámetros.
-4. La aplicación comprueba que la propuesta tenga el formato correcto y que los valores estén dentro de los límites permitidos.
-5. Si es válida, aparece una tarjeta que compara los valores actuales con los nuevos y muestra cómo cambiaría la fuerza gravitatoria.
-6. El usuario pulsa **Aplicar cambios** o **Cancelar**. Solo al aplicar se actualizan el simulador y la fórmula.
+## Flujo de una propuesta
 
-Una propuesta puede tener este aspecto:
+1. La interfaz envía idioma, modo, mensajes recientes, etapa y parámetros actuales a `POST /api/ai`.
+2. El servidor valida la petición y prepara el contexto físico. La fuerza actual y los ejemplos numéricos se calculan con el dominio.
+3. OpenAI devuelve JSON con `text` y `proposal`. `parseTutorReply` descarta propuestas en contextos de solo lectura y valida las demás.
+4. El cliente vuelve a analizar la respuesta y guarda, junto a la propuesta, los parámetros base, el contexto completo y el puerto/revisión desde los que se solicitó.
+5. `TutorProposalCard` muestra valores anteriores/nuevos y fuerzas calculadas con `gravitationalForce`.
+6. Al pulsar Aplicar, `decideTutorProposal` comprueba que la propuesta sigue pendiente y corresponde al laboratorio actual. El reducer vuelve a comprobar la revisión antes de actualizar los parámetros y reconstruir la fórmula.
+
+Cancelar cambia su estado a `cancelled` sin modificar parámetros. Una confirmación válida produce `applied`; una propuesta que perdió vigencia pasa a `stale`. Una propuesta con datos inválidos se rechaza y no se ofrece como acción ejecutable.
+
+## Contrato y unidades
+
+La única acción admitida es `set_gravity_parameters`:
 
 ```json
 {
@@ -30,34 +41,44 @@ Una propuesta puede tener este aspecto:
 }
 ```
 
-`null` significa que ese parámetro mantiene su valor actual.
+`null` conserva el parámetro actual. Deben estar presentes las tres claves y existir al menos un cambio real. Se rechazan acciones o propiedades ajenas al contrato.
+
+| Parámetro        | Unidad          | Rango  | Incremento admitido |
+| ---------------- | --------------- | ------ | ------------------- |
+| `mass1`, `mass2` | kg              | 10–100 | 1 kg                |
+| `distance`       | m entre centros | 5–20   | 0,1 m               |
+
+No se permite modificar G, F, la incógnita ni respuestas de práctica. No se recorta silenciosamente un valor fuera del rango.
+
+## Protección frente a propuestas antiguas
+
+Antes de aplicar se comprueban la identidad de la función de aplicación, la revisión de origen, el contexto serializado y la igualdad de los parámetros base. El contexto vigente tampoco puede ser Comprende o Comprueba.
+
+Por eso, modificar un slider, restablecer el laboratorio o cambiar a otra etapa puede impedir aplicar una tarjeta anterior. Volver manualmente a los mismos valores no garantiza recuperarla: la revisión puede haber cambiado.
+
+Las propuestas viven en memoria y no se guardan en `localStorage`; al recargar se restaura el texto del historial, pero no una autorización pendiente para modificar el laboratorio. Los mensajes históricos tampoco se consideran parámetros actuales.
 
 ## Archivos principales
 
-| Archivo                                                                     | Responsabilidad                                               |
-| --------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| `src/app/api/ai/route.ts`                                                   | Recibe la petición del chat y devuelve la respuesta.          |
-| `src/features/ai/infrastructure/openaiTutor.ts`                             | Se comunica con el modelo de OpenAI.                          |
-| `src/features/gravity/application/gravityProposal.ts`                       | Comprueba si los valores propuestos son válidos.              |
-| `src/features/ai/presentation/components/TutorProposalCard.tsx`             | Muestra los cambios propuestos y los botones de confirmación. |
-| `src/features/gravity/presentation/providers/GravityParametersProvider.tsx` | Comparte y actualiza el estado del simulador.                 |
-| `src/features/gravity/application/gravityState.ts`                          | Aplica la propuesta mediante el reducer.                      |
+| Archivo desde la raíz                                                      | Responsabilidad                                          |
+| -------------------------------------------------------------------------- | -------------------------------------------------------- |
+| `src/app/api/ai/route.ts`                                                  | Validación HTTP, configuración, cuotas y respuesta       |
+| `src/features/ai/infrastructure/openaiTutor.ts`                            | Solicitud estructurada al proveedor                      |
+| `src/features/ai/application/tutorResponse.ts`                             | Validación de respuesta y restricciones por contexto     |
+| `src/features/gravity/application/gravityProposal.ts`                      | Contrato, rangos, incrementos y resolución de parámetros |
+| `src/features/ai/application/tutorProposal.ts`                             | Decisión y vigencia de la propuesta                      |
+| `src/features/ai/presentation/hooks/useTutorRequests.ts`                   | Solicitud, cancelación y captura del origen              |
+| `src/features/ai/presentation/components/tutor-chat/TutorProposalCard.tsx` | Tarjeta y confirmación                                   |
+| `src/features/gravity/application/gravityState.ts`                         | Comprobación final de revisión y actualización           |
 
-## ¿Qué medidas de seguridad tiene?
+## Verificación manual
 
-- La IA solo puede proponer cambios en **masa 1, masa 2 y distancia**.
-- Los valores deben respetar los límites del laboratorio.
-- El usuario debe confirmar la propuesta.
-- Si el simulador ha cambiado desde que se creó la propuesta, se impide aplicar una propuesta antigua.
-- La fuerza gravitatoria la calcula el código de la aplicación, **no la IA**.
+Con `OPENAI_API_KEY` y `OPENAI_MODEL` configuradas:
 
-## ¿Cómo puedo probarlo?
+1. En Experimenta, restablece el laboratorio y pide por el chat «Duplica la masa 1 y explícame qué ocurre».
+2. Si el modelo propone el cambio, comprueba la comparación de **40 a 80 kg** y que la fuerza propuesta es el doble. El simulador debe seguir en 40 kg hasta confirmar.
+3. Aplica y comprueba que se actualizan sliders, fórmula y fuerza.
+4. Solicita otra propuesta; antes de aceptarla, modifica un slider. Aplicar la tarjeta anterior debe marcarla como obsoleta sin sobrescribir el laboratorio.
+5. Comprueba Cancelar y que en Comprende, Comprueba y las ayudas educativas no se ofrecen propuestas aplicables.
 
-1. Abre la etapa **Experimenta** de Gravedad.
-2. Restablece los valores del simulador.
-3. Abre el tutor y escribe: **«Duplica la masa 1 y explícame qué ocurre»**.
-4. Comprueba que aparece una tarjeta con el cambio de 40 kg a 80 kg.
-5. Antes de confirmar, comprueba que el simulador **no ha cambiado**.
-6. Pulsa **Aplicar cambios** y comprueba que se actualizan los valores y la fuerza.
-
-Para esta prueba, el tutor debe estar configurado con las variables de entorno de OpenAI.
+`tests/tutor-proposals.test.ts` y `tests/gravity-tutor-scope.test.ts` cubren partes del contrato y la confirmación sin consultar a OpenAI. La generación real de una tarjeta y la calidad de su texto necesitan comprobación con el proveedor.
