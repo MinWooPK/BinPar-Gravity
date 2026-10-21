@@ -1,0 +1,46 @@
+// Define el formato de respuesta del Tutor IA.
+export const tutorResponseFormat = {
+  type: "json_schema",
+  name: "gravity_tutor_reply",
+  strict: true,
+
+  schema: {
+    type: "object",
+    properties: {
+      // Texto generado por la IA.
+      text: { type: "string" },
+
+      // Cambios propuestos o null si solo explica.
+      proposal: {
+        anyOf: [
+          { type: "null" },
+          {
+            type: "object",
+            properties: {
+              action: {
+                type: "string",
+                enum: ["set_gravity_parameters"],
+              },
+
+              // Parámetros que puede modificar la IA.
+              parameters: {
+                type: "object",
+                properties: {
+                  mass1: { type: ["number", "null"] },
+                  mass2: { type: ["number", "null"] },
+                  distance: { type: ["number", "null"] },
+                },
+                required: ["mass1", "mass2", "distance"],
+                additionalProperties: false,
+              },
+            },
+            required: ["action", "parameters"],
+            additionalProperties: false,
+          },
+        ],
+      },
+    },
+    required: ["text", "proposal"],
+    additionalProperties: false,
+  },
+} as const;

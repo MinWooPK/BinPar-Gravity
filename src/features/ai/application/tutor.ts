@@ -1,0 +1,5 @@
+export const TUTOR_MAX_MESSAGES = 12;
+export const TUTOR_MAX_MESSAGE_LENGTH = 1200;
+export const TUTOR_MAX_TOTAL_MESSAGE_LENGTH = 6000;
+export const TUTOR_MAX_BODY_BYTES = 32_768;
+export const TUTOR_TIMEOUT_MS = 25_000;
