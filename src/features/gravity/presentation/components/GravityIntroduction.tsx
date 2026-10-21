@@ -7,14 +7,8 @@ import {
   GravityFormulaEducation,
 } from "./understanding/GravityFormula";
 import { gravityStageById } from "../../application/gravityJourney";
-import { gravityJourneyStyles as journeyStyles } from "./GravityJourney.styles";
 import { GravityContentTabs } from "./shared/GravityContentTabs";
 import { GravityStageLayout } from "./shared/GravityStageLayout";
-
-const styles = {
-  introduction:
-    "flex [flex:1] flex-col min-w-0 [min-height:min-content] text-lab-text",
-} as const;
 
 export const GravityIntroduction = () => {
   const t = useTranslations("Gravity");
@@ -23,7 +17,7 @@ export const GravityIntroduction = () => {
   return (
     <section
       aria-label={t(stage.title)}
-      className={`${styles.introduction} ${journeyStyles.stage}`}
+      className="flex [flex:1] flex-col min-w-0 [min-height:min-content] text-lab-text min-w-0 [padding-block:.25rem] [scroll-margin-top:var(--gravity-stage-offset)]"
     >
       <GravityStageLayout contentLabel="formula" compact={false}>
         <GravityContentTabs

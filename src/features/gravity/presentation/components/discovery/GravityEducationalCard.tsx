@@ -4,23 +4,6 @@ import { useId, useRef, useState, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import { GravityEveryday } from "./GravityEveryday";
 import { GravityPrinciples } from "./GravityPrinciples";
-import css from "./GravityEducationalCard.module.css";
-
-// Define los estilos de la tarjeta educativa y sus diferentes secciones.
-const styles = {
-  card: "min-w-0 [padding:16px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] min-[1024px]:flex min-[1024px]:flex-col [@media(max-width:600px)]:[padding:16px_12px]",
-  heading:
-    "[margin:0_0_10px] text-lab-text [font-size:clamp(1.25rem,_2vw,_1.5rem)] font-semibold [line-height:1.25] [letter-spacing:-.025em] [overflow-wrap:anywhere] min-[1024px]:shrink-0",
-  tabs: "grid [grid-template-columns:repeat(4,_minmax(0,_1fr))] [gap:6px] [margin-bottom:12px] min-[1024px]:shrink-0 [@media(max-width:600px)]:[gap:5px] [@media(max-width:360px)]:[grid-template-columns:repeat(2,_minmax(0,_1fr))]",
-  tab: `${css["tab"]} min-w-0 [min-height:44px] [padding:8px_5px] [border:1px_solid_#30364b] [border-radius:8px] bg-lab-surface [color:#bac2d6] [font-size:.875rem] font-medium [line-height:1.4] [overflow-wrap:anywhere] cursor-pointer [transition:color_160ms,_background_160ms,_border-color_160ms]`,
-  content: `${css["content"]} min-w-0`,
-  overview: `${css["overview"]} min-[1024px]:flex min-[1024px]:[flex:1] min-[1024px]:flex-col`,
-  history: `${css["history"]} min-[1024px]:flex min-[1024px]:[flex:1] min-[1024px]:flex-col`,
-  timeline: `${css["timeline"]} grid [gap:8px] m-0 p-0 [list-style:none] min-[1024px]:[flex:1] min-[1024px]:[align-content:space-between]`,
-  diagram: `${css["diagram"]} [margin:12px_0] [padding:6px_0_8px] [border:1px_solid_#29344b] [border-radius:10px] [background:#0b1120] min-[1024px]:flex min-[1024px]:[flex:1] min-[1024px]:flex-col`,
-  historyNote:
-    "[margin:8px_0_0] [padding:10px_12px] [border:1px_solid_#294543] [border-radius:8px] [background:#5ee7d508] [color:#b8d3d2] [font-size:.875rem] [line-height:1.5]",
-} as const;
 
 // Define las cuatro pestañas disponibles en la sección educativa.
 const topics = [
@@ -80,18 +63,18 @@ export const GravityEducationalCard = () => {
 
   return (
     <section
-      className={styles.card}
+      className="min-w-0 [padding:16px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] min-[1024px]:flex min-[1024px]:flex-col [@media(max-width:600px)]:[padding:16px_12px]"
       aria-labelledby={`${id}-heading`}
       data-discovery-education
     >
-      <h2 id={`${id}-heading`} className={styles.heading}>
+      <h2 id={`${id}-heading`} className="[margin:0_0_10px] text-lab-text [font-size:clamp(1.25rem,_2vw,_1.5rem)] font-semibold [line-height:1.25] [letter-spacing:-.025em] [overflow-wrap:anywhere] min-[1024px]:shrink-0">
         {t("discoveryTitle")}
       </h2>
 
       <div
         role="tablist"
         aria-labelledby={`${id}-heading`}
-        className={styles.tabs}
+        className="grid [grid-template-columns:repeat(4,_minmax(0,_1fr))] [gap:6px] [margin-bottom:12px] min-[1024px]:shrink-0 [@media(max-width:600px)]:[gap:5px] [@media(max-width:360px)]:[grid-template-columns:repeat(2,_minmax(0,_1fr))]"
       >
         {topics.map((topic, index) => (
           <button
@@ -105,7 +88,7 @@ export const GravityEducationalCard = () => {
             aria-controls={`${id}-panel-${topic.id}`}
             aria-selected={selected === topic.id}
             tabIndex={selected === topic.id ? 0 : -1}
-            className={styles.tab}
+            className="min-w-0 [min-height:44px] [padding:8px_5px] [border:1px_solid_#30364b] [border-radius:8px] bg-lab-surface [color:#bac2d6] [font-size:.875rem] font-medium [line-height:1.4] [overflow-wrap:anywhere] cursor-pointer [transition:color_160ms,_background_160ms,_border-color_160ms] [&:hover]:[color:#f2f2fa] [&:hover]:[border-color:#aa97ff70] [&:hover]:[background:#1b2032] [&[aria-selected=true]]:[color:#e4dcff] [&[aria-selected=true]]:[border-color:#aa97ff90] [&[aria-selected=true]]:[background:#aa97ff18] [&:focus-visible]:[outline:2px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:3px] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]"
             onClick={() => setSelected(topic.id)}
             onKeyDown={(event) => handleKeyDown(event, index)}
           >
@@ -122,10 +105,10 @@ export const GravityEducationalCard = () => {
           aria-labelledby={`${id}-tab-${topic.id}`}
           tabIndex={0}
           hidden={selected !== topic.id}
-          className={styles.content}
+          className="min-w-0 [&:focus-visible]:[outline:2px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:3px] [&[hidden]]:[display:none] [&:not([hidden])]:[animation:lab-gravity-education-enter_180ms_ease-out_both] [@media_(min-width:_1024px)]:[&:not([hidden])]:[display:flex] [@media_(min-width:_1024px)]:[&:not([hidden])]:[flex:1] [@media_(min-width:_1024px)]:[&:not([hidden])]:[flex-direction:column] [@media_(prefers-reduced-motion:_reduce)]:[&:not([hidden])]:[animation:none]"
         >
           {topic.id === "what" && (
-            <div className={styles.overview}>
+            <div className="min-[1024px]:flex min-[1024px]:[flex:1] min-[1024px]:flex-col [&_h3]:[margin:0_0_10px] [&_h3]:[color:#e4dcff] [&_h3]:[font-size:1.125rem] [&_h3]:[font-weight:600] [&_h3]:[line-height:1.4] [&_h3]:[letter-spacing:-.015em] [&_h3]:[text-wrap:balance] [&_>_p]:[margin:0] [&_>_p]:[color:#b2bad0] [&_>_p]:[font-size:.9375rem] [&_>_p]:[line-height:1.5]">
               <h3>{t("discoveryDefinition")}</h3>
               <p>{t("discoveryExplanation")}</p>
               <EarthMoonDiagram id={id} />
@@ -138,9 +121,9 @@ export const GravityEducationalCard = () => {
           {topic.id === "examples" && <GravityEveryday />}
 
           {topic.id === "history" && (
-            <div className={styles.history}>
+            <div className="min-[1024px]:flex min-[1024px]:[flex:1] min-[1024px]:flex-col [&_h3]:[margin:0_0_10px] [&_h3]:[color:#e4dcff] [&_h3]:[font-size:1.125rem] [&_h3]:[font-weight:600] [&_h3]:[line-height:1.4] [&_h3]:[letter-spacing:-.015em] [&_h3]:[text-wrap:balance]">
               <h3>{t("discoveryHistoryTitle")}</h3>
-              <ol className={styles.timeline}>
+              <ol className="grid [gap:8px] m-0 p-0 [list-style:none] min-[1024px]:[flex:1] min-[1024px]:[align-content:space-between] [&_p]:[margin:0] [&_p]:[color:#b2bad0] [&_p]:[font-size:.9375rem] [&_p]:[line-height:1.5] [&_li]:[padding-left:12px] [&_li]:[border-left:2px_solid_#746392] [&_h4]:[margin:0_0_3px] [&_h4]:[color:#e4e8f2] [&_h4]:[font-size:.9375rem] [&_h4]:[font-weight:600] [&_h4]:[line-height:1.4]">
                 {(["Galileo", "Kepler", "Newton"] as const).map((scientist) => (
                   <li key={scientist}>
                     <h4>{t(`discoveryHistory${scientist}Title`)}</h4>
@@ -148,7 +131,7 @@ export const GravityEducationalCard = () => {
                   </li>
                 ))}
               </ol>
-              <p className={styles.historyNote}>
+              <p className="[margin:8px_0_0] [padding:10px_12px] [border:1px_solid_#294543] [border-radius:8px] [background:#5ee7d508] [color:#b8d3d2] [font-size:.875rem] [line-height:1.5]">
                 {t("discoveryHistoryConstant")}
               </p>
             </div>
@@ -165,7 +148,7 @@ const EarthMoonDiagram = ({ id }: { id: string }) => {
   const t = useTranslations("Gravity");
 
   return (
-    <figure className={styles.diagram}>
+    <figure className="[margin:12px_0] [padding:6px_0_8px] [border:1px_solid_#29344b] [border-radius:10px] [background:#0b1120] min-[1024px]:flex min-[1024px]:[flex:1] min-[1024px]:flex-col [&_svg]:[display:block] [&_svg]:[width:100%] [&_svg]:[height:clamp(104px,_15vh,_132px)] [&_figcaption]:[margin:0] [&_figcaption]:[padding:0_10px] [&_figcaption]:[color:#a4b0c7] [&_figcaption]:[font-size:.875rem] [&_figcaption]:[line-height:1.4] [&_figcaption]:[text-align:center] [@media_(min-width:_1024px)]:[&_svg]:[flex:1_1_0] [@media_(min-width:_1024px)]:[&_svg]:[height:clamp(104px,_18dvh,_180px)] [@media_(min-width:_1024px)]:[&_svg]:[min-height:104px]">
       <svg
         viewBox="0 0 460 150"
         role="img"

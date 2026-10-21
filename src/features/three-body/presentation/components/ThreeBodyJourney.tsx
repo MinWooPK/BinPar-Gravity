@@ -18,8 +18,6 @@ import { useGalleryState } from "../providers/GalleryProvider";
 import { getThreeBodyStage, threeBodyStages } from "../../application/journey";
 import type { ThreeBodyStageId } from "../../types/journey.types";
 import { ThreeBodyJourneyNavigation } from "./ThreeBodyJourneyNavigation";
-import { threeBodyJourneyStyles as styles } from "./ThreeBodyJourney.styles";
-import { threeBodyStyles as galleryStyles } from "./gallery/ThreeBody.styles";
 import { ThreeBodyExperiment } from "./experiment/ThreeBodyExperiment";
 
 // Gestiona la navegación entre las etapas del problema de los tres cuerpos,
@@ -189,22 +187,22 @@ export const ThreeBodyJourney = ({
 
   return (
     <div
-      className={styles.screen}
+      className="lab-three-body-journey-screen relative [z-index:1] flex [flex:1] flex-col w-full [max-width:80rem] min-w-0 [min-height:calc(100dvh_-_var(--site-header-height,_64px)_-_84px)] [margin-inline:auto] [padding:clamp(.5rem,_1svh,_1rem)_1rem_1rem] min-[640px]:[padding-inline:1.5rem] min-[1100px]:[padding-inline:2rem]"
       data-three-body-journey
       data-active-stage={activeStage ?? "welcome"}
     >
 
       <div
-        className={styles.view}
+        className="flex [flex:1] flex-col min-w-0 [&&]:[animation:lab-three-body-journey-enter_200ms_ease-out_both] [&[data-leaving=true]]:[animation:lab-three-body-journey-exit_100ms_ease-in_both] [&[data-leaving=true]]:pointer-events-none min-[1024px]:[&[data-introduction=true]]:grid min-[1024px]:[&[data-introduction=true]]:[grid-template-columns:minmax(0,_1.6fr)_minmax(0,_1fr)] min-[1024px]:[&[data-introduction=true]]:items-center min-[1024px]:[&[data-introduction=true]]:[gap:clamp(2rem,_5vw,_5rem)] [@media_(prefers-reduced-motion:_reduce)]:[&&]:animate-none [@media_(prefers-reduced-motion:_reduce)]:[&[data-leaving=true]]:animate-none"
         data-introduction={activeStage === null}
         data-leaving={leaving}
         aria-busy={leaving}
       >
         {activeStage === null ? (
-          <header className={styles.hero}>
-            <p className={styles.eyebrow}>{t("eyebrow")}</p>
+          <header className="min-w-0 [padding-block:clamp(2rem,_6vh,_5rem)] [&_h1]:m-0 [&_h1]:[color:#f8fafc] [&_h1]:[font-size:clamp(3.25rem,_6.5vw,_6rem)] [&_h1]:[font-weight:800] [&_h1]:[line-height:1.05] [&_h1]:[letter-spacing:-0.065em] [&_h1]:[overflow-wrap:anywhere]">
+            <p className="[margin:0_0_clamp(1.5rem,_4vh,_3rem)] [color:#b8b0d6] [font-size:clamp(.75rem,_1.1vw,_.95rem)] font-bold [letter-spacing:.23em] uppercase">{t("eyebrow")}</p>
             <h1>{t("title")}</h1>
-            <p className={styles.description}>{t("description")}</p>
+            <p className="[max-width:65rem] [margin:clamp(1.5rem,_4vh,_3rem)_0_0] [color:#cbd5e1] [font-size:clamp(1rem,_1.5vw,_1.25rem)] [line-height:1.7]">{t("description")}</p>
           </header>
         ) : (
           <h1 className="sr-only">{t("title")}</h1>
@@ -223,16 +221,16 @@ export const ThreeBodyJourney = ({
             tabIndex={-1}
             aria-label={`${stage.number} — ${t(stage.title)}`}
             hidden={activeStage !== stage.id}
-            className={`${styles.panel} ${
+            className={`min-w-0 [&[hidden]]:hidden [&:not([hidden])]:flex [&:not([hidden])]:[flex:1] [&:not([hidden])]:flex-col [&:not([hidden])]:[animation:lab-three-body-journey-panel-enter_200ms_ease-out_both] [&:focus-visible]:[outline:2px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:4px] [&:focus-visible]:[border-radius:8px] [@media_(prefers-reduced-motion:_reduce)]:[&:not([hidden])]:animate-none ${
               stage.id !== "discover"
-                ? `${galleryStyles.page} ${galleryStyles.stagePage}`
+                ? `lab-three-body-gallery-page [&&]:relative [&&]:[z-index:1] [&&]:[width:min(100%_-_2rem,_80rem)] [&&]:min-w-0 [&&]:[margin-inline:auto] [&&]:[padding-block:2.5rem_4rem] [&&]:[color:#f2f2fa] [&_:is(h1,_h2,_p)]:[overflow-wrap:anywhere] [&_:is(a,_button,_select,_input):focus-visible]:[outline:3px_solid_#c7baff] [&_:is(a,_button,_select,_input):focus-visible]:[outline-offset:4px] min-[640px]:[&&]:[width:min(100%_-_3rem,_80rem)] min-[640px]:[&&]:[padding-top:3.5rem] [&&&]:w-full [&&&]:m-0 [&&&]:p-0`
                 : ""
             }`}
           >
             {stage.id === "discover" ? (
               discovery
             ) : stage.id === "understand" ? (
-              <div className={galleryStyles.gallery}>
+              <div className="lab-three-body-gallery-gallery min-w-0 [margin-top:0] [&_:is(h2,_p)]:[overflow-wrap:anywhere] [&_:is(a,_button,_select,_input):focus-visible]:[outline:3px_solid_#c7baff] [&_:is(a,_button,_select,_input):focus-visible]:[outline-offset:4px]">
                 <GalleryIntroduction
                   onExplore={() => selectStage("gallery", true)}
                 />

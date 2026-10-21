@@ -1,6 +1,5 @@
 import type { SVGProps } from "react";
 
-// Lucide 0.468.0, ISC/MIT. See ../lucide-LICENSE.txt.
 export const CircleHelp = (props: SVGProps<SVGSVGElement>) => (
   <svg
     viewBox="0 0 24 24"

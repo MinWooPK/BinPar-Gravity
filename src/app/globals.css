@@ -42,6 +42,57 @@ body {
   to { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes lab-starfield-nebula-float {
+  from { transform: translate3d(-1%, 0, 0) scale(1); }
+  to { transform: translate3d(1.5%, -1%, 0) scale(1.035); }
+}
+
+/* These document-level rules apply only while the Home screen is mounted. */
+body:has(.lab-home-screen) {
+  height: 100svh;
+  height: 100dvh;
+}
+
+main:has(.lab-home-screen) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+body:has(.lab-home-screen) header,
+body:has(.lab-home-screen) footer {
+  background: transparent;
+  border-color: transparent;
+}
+
+body:has(.lab-home-screen) footer {
+  position: relative;
+  z-index: 1;
+}
+
+html:has(.lab-home-screen) {
+  scrollbar-width: none;
+}
+
+html:has(.lab-home-screen)::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes lab-home-back-nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-4px); }
+}
+
+@keyframes lab-home-forward-nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(4px); }
+}
+
+@keyframes lab-home-view-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .page-enter {
   animation: page-enter 450ms ease-out both;
 }
@@ -56,4 +107,196 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .page-enter, .page-enter-delayed { animation: none; }
+}
+
+/* Gravity journey: document scrollers and educational transitions. */
+body:has(.lab-gravity-journey-screen) {
+  height: 100svh;
+  height: 100dvh;
+}
+
+main:has(.lab-gravity-journey-screen) {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+html:has(.lab-gravity-journey-screen) {
+  scrollbar-width: none;
+}
+
+html:has(.lab-gravity-journey-screen)::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes lab-gravity-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 1023px) {
+  body:has(.lab-gravity-journey-screen) {
+    height: auto;
+  }
+
+  html:has(.lab-gravity-journey-screen) {
+    scroll-padding-bottom: max(5rem, calc(env(safe-area-inset-bottom) + 4rem));
+  }
+}
+
+/* Stages 01–03 grow with their content; the introduction and practice retain
+   their existing viewport layout. */
+body:has(
+  .lab-gravity-journey-workspace:is(
+    [data-active-stage="gravity-discovery"],
+    [data-active-stage="gravity-understanding"],
+    [data-active-stage="gravity-laboratory"]
+  )
+) {
+  height: auto;
+}
+
+main:has(
+  .lab-gravity-journey-workspace:is(
+    [data-active-stage="gravity-discovery"],
+    [data-active-stage="gravity-understanding"],
+    [data-active-stage="gravity-laboratory"]
+  )
+) {
+  flex: 1 0 auto;
+  min-height: min-content;
+}
+
+.lab-gravity-journey-workspace:is(
+    [data-active-stage="gravity-discovery"],
+    [data-active-stage="gravity-understanding"],
+    [data-active-stage="gravity-laboratory"]
+  )
+  > .lab-gravity-journey-viewport {
+  flex: 1 0 auto;
+  min-height: min-content;
+  overflow: visible;
+}
+
+.lab-gravity-journey-workspace:is(
+    [data-active-stage="gravity-discovery"],
+    [data-active-stage="gravity-understanding"],
+    [data-active-stage="gravity-laboratory"]
+  )
+  .lab-gravity-journey-panel:not([hidden]) {
+  min-height: 0;
+}
+
+@keyframes lab-gravity-education-enter {
+  from { opacity: 0; transform: translateY(3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes lab-gravity-example-enter {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Formula warning, calculator drawer and responsive panel transitions. */
+@keyframes lab-gravity-formula-range-warning-appear {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lab-gravity-formula-access-formula-enter {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes lab-gravity-split-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Three-body journey: document layout and scoped stage/detail transitions. */
+main:has(.lab-three-body-journey-screen) {
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes lab-three-body-journey-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes lab-three-body-journey-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes lab-three-body-journey-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lab-three-body-discovery-topic-enter {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes lab-three-body-detail-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -4,21 +4,6 @@ import { useId, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import { Icon } from "@/components/icons";
-import css from "./GravityEveryday.module.css";
-
-// Define los estilos de la sección de ejemplos cotidianos.
-const styles = {
-  section: "min-w-0 [padding-top:14px] [border-top:1px_solid_#30364b]",
-  heading: `${css["heading"]} [margin-bottom:12px]`,
-  eyebrow:
-    "[margin:0_0_4px] [color:#b8b0d6] [font-size:.75rem] font-semibold [line-height:1.5] [letter-spacing:.1em] uppercase",
-  description: `${css["description"]} [margin:6px_0_0] [color:#b2bad0] [font-size:1rem] [line-height:1.5]`,
-  exampleTabs:
-    "grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] [gap:6px] [margin-bottom:10px]",
-  exampleTab: `${css["exampleTab"]} min-w-0 [min-height:44px] [padding:8px] [border:1px_solid_#30364b] [border-radius:8px] bg-lab-surface [color:#bac2d6] [font-size:1rem] font-medium [line-height:1.4] [overflow-wrap:anywhere] cursor-pointer [transition:color_160ms,_background_160ms,_border-color_160ms] [@media(max-width:600px)]:[padding-inline:6px]`,
-  example: `${css["example"]} grid [grid-template-columns:40px_minmax(0,_1fr)] [align-items:start] [gap:12px] min-w-0 [min-height:108px] [padding:14px] [border:1px_solid_#30364b] [border-radius:10px] bg-lab-surface [@media(max-width:600px)]:min-h-0 [@media(max-width:360px)]:[gap:10px] [@media(max-width:360px)]:[padding:12px]`,
-  illustration: `${css["illustration"]} grid [place-items:center] [width:40px] [height:40px] [border-radius:9px] [color:#b9a8ff] [background:#aa97ff10]`,
-} as const;
 
 // Define los tres ejemplos de gravedad disponibles.
 const examples = ["fall", "moon", "objects"] as const;
@@ -85,17 +70,17 @@ export const GravityEveryday = () => {
   };
 
   return (
-    <section aria-labelledby={`${id}-heading`} className={styles.section}>
-      <div className={styles.heading}>
-        <p className={styles.eyebrow}>{t("everydayEyebrow")}</p>
+    <section aria-labelledby={`${id}-heading`} className="min-w-0 [padding-top:14px] [border-top:1px_solid_#30364b]">
+      <div className="[margin-bottom:12px] [&_h3]:[margin:0] [&_h3]:[color:#f2f2fa] [&_h3]:[font-size:1rem] [&_h3]:[font-weight:600] [&_h3]:[line-height:1.4] [&_h3]:[overflow-wrap:anywhere]">
+        <p className="[margin:0_0_4px] [color:#b8b0d6] [font-size:.75rem] font-semibold [line-height:1.5] [letter-spacing:.1em] uppercase">{t("everydayEyebrow")}</p>
         <h3 id={`${id}-heading`}>{t("everydayTitle")}</h3>
-        <p className={styles.description}>{t("everydayDescription")}</p>
+        <p className="[margin:6px_0_0] [color:#b2bad0] [font-size:1rem] [line-height:1.5] [@media_(max-width:_600px)]:[&]:[font-size:1rem]">{t("everydayDescription")}</p>
       </div>
 
       <div
         role="tablist"
         aria-labelledby={`${id}-heading`}
-        className={styles.exampleTabs}
+        className="grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] [gap:6px] [margin-bottom:10px]"
       >
         {examples.map((example, index) => (
           <button
@@ -109,7 +94,7 @@ export const GravityEveryday = () => {
             aria-controls={`${id}-panel-${example}`}
             aria-selected={selectedIndex === index}
             tabIndex={selectedIndex === index ? 0 : -1}
-            className={styles.exampleTab}
+            className="min-w-0 [min-height:44px] [padding:8px] [border:1px_solid_#30364b] [border-radius:8px] bg-lab-surface [color:#bac2d6] [font-size:1rem] font-medium [line-height:1.4] [overflow-wrap:anywhere] cursor-pointer [transition:color_160ms,_background_160ms,_border-color_160ms] [@media(max-width:600px)]:[padding-inline:6px] [&:hover]:[color:#f2f2fa] [&:hover]:[border-color:#aa97ff70] [&:hover]:[background:#1b2032] [&[aria-selected=true]]:[color:#e4dcff] [&[aria-selected=true]]:[border-color:#aa97ff90] [&[aria-selected=true]]:[background:#aa97ff18] [&:focus-visible]:[outline:2px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:3px] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]"
             onClick={() => setSelectedIndex(index)}
             onKeyDown={(event) => handleKeyDown(event, index)}
           >
@@ -126,10 +111,10 @@ export const GravityEveryday = () => {
           aria-labelledby={`${id}-tab-${example}`}
           tabIndex={0}
           hidden={selectedIndex !== index}
-          className={styles.example}
+          className="grid [grid-template-columns:40px_minmax(0,_1fr)] [align-items:start] [gap:12px] min-w-0 [min-height:108px] [padding:14px] [border:1px_solid_#30364b] [border-radius:10px] bg-lab-surface [@media(max-width:600px)]:min-h-0 [@media(max-width:360px)]:[gap:10px] [@media(max-width:360px)]:[padding:12px] [&:focus-visible]:[outline:2px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:3px] [&[hidden]]:[display:none] [&:not([hidden])]:[animation:lab-gravity-example-enter_180ms_ease-out_both] [&_>_div]:[min-width:0] [&_h4]:[margin:0_0_5px] [&_h4]:[color:#e9e7f4] [&_h4]:[font-size:1rem] [&_h4]:[font-weight:600] [&_h4]:[line-height:1.4] [&_h4]:[overflow-wrap:anywhere] [&_p]:[margin:0] [&_p]:[color:#b2bad0] [&_p]:[font-size:1rem] [&_p]:[line-height:1.5] [&_p]:[overflow-wrap:anywhere] [&[data-tone=moon]_.lab-gravity-everyday-illustration]:[color:#5ee7d5] [&[data-tone=moon]_.lab-gravity-everyday-illustration]:[background:#5ee7d510] [&[data-tone=objects]_.lab-gravity-everyday-illustration]:[color:#f7bd79] [&[data-tone=objects]_.lab-gravity-everyday-illustration]:[background:#f7bd7910] [@media_(max-width:_600px)]:[&_p]:[font-size:1rem] [@media_(prefers-reduced-motion:_reduce)]:[&:not([hidden])]:[animation:none]"
           data-tone={example}
         >
-          <span className={styles.illustration} aria-hidden="true">
+          <span className="lab-gravity-everyday-illustration grid [place-items:center] [width:40px] [height:40px] [border-radius:9px] [color:#b9a8ff] [background:#aa97ff10] [&_svg]:[display:block] [&_svg]:[width:30px] [&_svg]:[height:30px]" aria-hidden="true">
             {example === "moon" ? (
               <Icon name="orbit" />
             ) : (

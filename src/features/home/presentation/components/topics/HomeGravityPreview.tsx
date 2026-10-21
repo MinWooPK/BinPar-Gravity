@@ -2,7 +2,6 @@
 
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { homeExperienceStyles as styles } from "../HomeExperience.styles";
 
 // Illustrative distance cycle, not a physics simulation. Equal, opposing arrows
 // grow with inverse-square attraction; the laboratory calculations are unchanged.
@@ -71,7 +70,10 @@ export const HomeGravityPreview = () => {
   }, [reducedMotion]);
 
   return (
-    <div ref={previewRef} className={styles.orbitPreview}>
+    <div
+      ref={previewRef}
+      className="[&>svg]:block [&>svg]:w-full [&>svg]:h-full [&>svg]:[transform:scale(1.75)] w-full h-full"
+    >
       <svg
         viewBox="0 0 320 200"
         width="320"

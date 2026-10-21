@@ -3,34 +3,6 @@
 import { useId } from "react";
 import { useTranslations } from "next-intl";
 import { TabButton, useTabs } from "@/components/ui/Tabs";
-import css from "./ThreeBodyDiscovery.module.css";
-
-const styles = {
-  layout:
-    "grid [flex:1] [grid-template-columns:repeat(2,_minmax(0,_1fr))] items-stretch [gap:clamp(20px,_2.5vw,_32px)] min-w-0 [min-height:min-content] [@media(max-width:1023px)]:[flex:none] [@media(max-width:1023px)]:[grid-template-columns:minmax(0,_1fr)] [@media(max-width:1023px)]:[gap:20px]",
-  card: "flex flex-col [gap:14px] min-w-0 [padding:18px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [color:#b2bad0] [font-size:.9375rem] [line-height:1.5] [overflow-wrap:anywhere] [@media(max-width:600px)]:[padding:16px_12px]",
-  heading:
-    "m-0 text-lab-text [font-size:clamp(1.25rem,_2vw,_1.5rem)] font-semibold [line-height:1.25] [letter-spacing:-.025em]",
-  tabs: "grid [grid-template-columns:repeat(4,_minmax(0,_1fr))] [gap:6px] [@media(max-width:600px)]:[gap:5px] [@media(max-width:360px)]:[grid-template-columns:repeat(2,_minmax(0,_1fr))]",
-  tab: `${css["tab"]} min-w-0 [padding:8px_5px] [border:1px_solid_#30364b] [border-radius:8px] bg-lab-surface [color:#bac2d6] [font-size:.875rem] font-medium [line-height:1.4] [overflow-wrap:anywhere] [transition:color_160ms,_background_160ms,_border-color_160ms]`,
-  content: `${css["content"]} min-w-0`,
-  comparison: `${css["comparison"]} grid [gap:14px] m-0`,
-  note: "[padding:10px_12px] [border:1px_solid_#294543] [border-radius:8px] [background:#5ee7d508] [color:#b8d3d2] [font-size:.875rem]",
-  steps: `${css["steps"]} grid [gap:14px] m-0 p-0 [list-style:none]`,
-  timeline: `${css["timeline"]} grid [gap:14px] m-0 p-0 [list-style:none] [flex:1] [align-content:space-between] [@media(max-width:1023px)]:[gap:18px]`,
-  stepNumber:
-    "inline-flex [flex:0_0_auto] items-center justify-center [width:26px] [height:26px] [border:1px_solid_#4a406b] [border-radius:50%] [background:#aa97ff0a] [color:#d9cdfa] [font-size:.8125rem] [font-variant-numeric:tabular-nums]",
-  science: `${css["science"]}`,
-  diagram: `${css["diagram"]} flex [flex:1] flex-col justify-center min-w-0 m-0 [padding:6px_8px_8px] [border:1px_solid_#29344b] [border-radius:10px] [background:#0b1120]`,
-  equation:
-    "flex justify-center [padding-block:0_7px] [color:#e4dfff] [font-family:Georgia,_serif] [font-size:1.875rem] [line-height:1.1]",
-  expression: `${css["expression"]} inline-flex items-center [gap:8px]`,
-  operator: "[color:#a99bbf] [font-size:.7em]",
-  fraction: `${css["fraction"]} inline-flex flex-col [font-size:.8em] text-center`,
-  conditions: `${css["conditions"]} grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] [gap:8px] m-0 [padding-top:10px] [border-top:1px_solid_#30364b]`,
-  normalized: `${css["normalized"]} [padding:9px_11px] [border:1px_solid_#294543] [border-radius:8px] [background:#5ee7d508] [color:#b8d3d2]`,
-  periodic: `${css["periodic"]} `,
-} as const;
 
 const topics = ["what", "how", "difficulty", "history"] as const;
 
@@ -44,19 +16,19 @@ export const ThreeBodyDiscovery = () => {
   );
 
   return (
-    <div className={styles.layout} data-three-body-discovery>
+    <div className="grid [flex:1] [grid-template-columns:repeat(2,_minmax(0,_1fr))] items-stretch [gap:clamp(20px,_2.5vw,_32px)] min-w-0 [min-height:min-content] [@media(max-width:1023px)]:[flex:none] [@media(max-width:1023px)]:[grid-template-columns:minmax(0,_1fr)] [@media(max-width:1023px)]:[gap:20px]" data-three-body-discovery>
       <section
-        className={styles.card}
+        className="flex flex-col [gap:14px] min-w-0 [padding:18px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [color:#b2bad0] [font-size:.9375rem] [line-height:1.5] [overflow-wrap:anywhere] [@media(max-width:600px)]:[padding:16px_12px]"
         aria-labelledby={`${id}-education`}
         data-three-body-education
       >
-        <h2 id={`${id}-education`} className={styles.heading}>
+        <h2 id={`${id}-education`} className="m-0 text-lab-text [font-size:clamp(1.25rem,_2vw,_1.5rem)] font-semibold [line-height:1.25] [letter-spacing:-.025em]">
           {t("title")}
         </h2>
         <div
           role="tablist"
           aria-labelledby={`${id}-education`}
-          className={styles.tabs}
+          className="grid [grid-template-columns:repeat(4,_minmax(0,_1fr))] [gap:6px] [@media(max-width:600px)]:[gap:5px] [@media(max-width:360px)]:[grid-template-columns:repeat(2,_minmax(0,_1fr))]"
         >
           {topics.map((topic, index) => (
             <TabButton
@@ -67,7 +39,7 @@ export const ThreeBodyDiscovery = () => {
               id={`${id}-tab-${topic}`}
               aria-controls={`${id}-panel-${topic}`}
               selected={selected === topic}
-              className={styles.tab}
+              className="min-w-0 [padding:8px_5px] [border:1px_solid_#30364b] [border-radius:8px] bg-lab-surface [color:#bac2d6] [font-size:.875rem] font-medium [line-height:1.4] [overflow-wrap:anywhere] [transition:color_160ms,_background_160ms,_border-color_160ms] [&:hover]:[color:#f2f2fa] [&:hover]:[border-color:#aa97ff70] [&:hover]:[background:#1b2032] [&[aria-selected=true]]:[color:#e4dcff] [&[aria-selected=true]]:[border-color:#aa97ff90] [&[aria-selected=true]]:[background:#aa97ff18] [&:focus-visible]:[outline:2px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:3px] [@media_(prefers-reduced-motion:_reduce)]:[&&]:[transition:none]"
               onClick={() => setSelected(topic)}
               onKeyDown={(event) => handleTabKeyDown(event, index)}
             >
@@ -83,7 +55,7 @@ export const ThreeBodyDiscovery = () => {
             aria-labelledby={`${id}-tab-${topic}`}
             tabIndex={0}
             hidden={selected !== topic}
-            className={styles.content}
+            className="min-w-0 [&:focus-visible]:[outline:2px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:3px] [&[hidden]]:hidden [&:not([hidden])]:flex [&:not([hidden])]:[flex:1] [&:not([hidden])]:flex-col [&:not([hidden])]:justify-between [&:not([hidden])]:[gap:18px] [&:not([hidden])]:[animation:lab-three-body-discovery-topic-enter_180ms_ease-out_both] [&_h3]:[margin:0_0_10px] [&_h3]:[color:#e4dcff] [&_h3]:[font-size:1.125rem] [&_h3]:font-semibold [&_h3]:[line-height:1.4] [&_h3]:[letter-spacing:-0.015em] [&_h4]:[margin:0_0_4px] [&_h4]:[color:#e4e8f2] [&_h4]:[font-size:0.9375rem] [&_h4]:font-semibold [&_h4]:[line-height:1.4] [&_p]:m-0 [@media_(max-width:_1023px)]:[&:not([hidden])]:justify-start [@media_(prefers-reduced-motion:_reduce)]:[&:not([hidden])]:animate-none"
           >
             {topic === "what" && (
               <>
@@ -91,7 +63,7 @@ export const ThreeBodyDiscovery = () => {
                   <h3>{t("what.title")}</h3>
                   <p>{t("what.description")}</p>
                 </div>
-                <dl className={styles.comparison}>
+                <dl className="grid [gap:14px] m-0 [&_>_div]:[padding-left:12px] [&_>_div]:[border-left:2px_solid_#746392] [&_dt]:[margin-bottom:5px] [&_dt]:[color:#dcd4f6] [&_dt]:font-semibold [&_dd]:m-0">
                   {(["two", "three"] as const).map((count) => (
                     <div key={count}>
                       <dt>{t(`what.${count}Title`)}</dt>
@@ -99,7 +71,7 @@ export const ThreeBodyDiscovery = () => {
                     </div>
                   ))}
                 </dl>
-                <aside className={styles.note}>
+                <aside className="[padding:10px_12px] [border:1px_solid_#294543] [border-radius:8px] [background:#5ee7d508] [color:#b8d3d2] [font-size:.875rem]">
                   <h4>{t("what.noteTitle")}</h4>
                   <p>{t("what.note")}</p>
                 </aside>
@@ -111,11 +83,11 @@ export const ThreeBodyDiscovery = () => {
                   <h3>{t("how.title")}</h3>
                   <p>{t("how.description")}</p>
                 </div>
-                <ol className={styles.steps}>
+                <ol className="grid [gap:14px] m-0 p-0 [list-style:none] [&_li]:flex [&_li]:items-start [&_li]:[gap:10px]">
                   {(["attract", "combine", "evolve"] as const).map(
                     (step, index) => (
                       <li key={step}>
-                        <span className={styles.stepNumber} aria-hidden="true">
+                        <span className="inline-flex [flex:0_0_auto] items-center justify-center [width:26px] [height:26px] [border:1px_solid_#4a406b] [border-radius:50%] [background:#aa97ff0a] [color:#d9cdfa] [font-size:.8125rem] [font-variant-numeric:tabular-nums]" aria-hidden="true">
                           {index + 1}
                         </span>
                         <div>
@@ -126,7 +98,7 @@ export const ThreeBodyDiscovery = () => {
                     ),
                   )}
                 </ol>
-                <p className={styles.note}>{t("how.note")}</p>
+                <p className="[padding:10px_12px] [border:1px_solid_#294543] [border-radius:8px] [background:#5ee7d508] [color:#b8d3d2] [font-size:.875rem]">{t("how.note")}</p>
               </>
             )}
             {topic === "difficulty" && (
@@ -135,7 +107,7 @@ export const ThreeBodyDiscovery = () => {
                   <h3>{t("difficulty.title")}</h3>
                   <p>{t("difficulty.description")}</p>
                 </div>
-                <dl className={styles.comparison}>
+                <dl className="grid [gap:14px] m-0 [&_>_div]:[padding-left:12px] [&_>_div]:[border-left:2px_solid_#746392] [&_dt]:[margin-bottom:5px] [&_dt]:[color:#dcd4f6] [&_dt]:font-semibold [&_dd]:m-0">
                   {(["chaos", "periodic"] as const).map((motion) => (
                     <div key={motion}>
                       <dt>{t(`difficulty.${motion}Title`)}</dt>
@@ -143,13 +115,13 @@ export const ThreeBodyDiscovery = () => {
                     </div>
                   ))}
                 </dl>
-                <p className={styles.note}>{t("difficulty.note")}</p>
+                <p className="[padding:10px_12px] [border:1px_solid_#294543] [border-radius:8px] [background:#5ee7d508] [color:#b8d3d2] [font-size:.875rem]">{t("difficulty.note")}</p>
               </>
             )}
             {topic === "history" && (
               <>
                 <h3>{t("history.title")}</h3>
-                <ol className={styles.timeline}>
+                <ol className="grid [gap:14px] m-0 p-0 [list-style:none] [flex:1] [align-content:space-between] [@media(max-width:1023px)]:[gap:18px] [&_li]:[padding-left:12px] [&_li]:[border-left:2px_solid_#746392]">
                   {(["newton", "lagrange", "poincare"] as const).map(
                     (scientist) => (
                       <li key={scientist}>
@@ -159,7 +131,7 @@ export const ThreeBodyDiscovery = () => {
                     ),
                   )}
                 </ol>
-                <p className={styles.note}>{t("history.note")}</p>
+                <p className="[padding:10px_12px] [border:1px_solid_#294543] [border-radius:8px] [background:#5ee7d508] [color:#b8d3d2] [font-size:.875rem]">{t("history.note")}</p>
               </>
             )}
           </div>
@@ -167,28 +139,28 @@ export const ThreeBodyDiscovery = () => {
       </section>
 
       <section
-        className={`${styles.card} ${styles.science}`}
+        className="flex flex-col [gap:14px] min-w-0 [padding:18px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [color:#b2bad0] [font-size:.9375rem] [line-height:1.5] [overflow-wrap:anywhere] [@media(max-width:600px)]:[padding:16px_12px] lab-three-body-discovery-science [&&]:[gap:8px] [&&]:[font-size:0.875rem] [&&]:[line-height:1.45] [&_p]:m-0"
         aria-labelledby={`${id}-science`}
         data-three-body-science
       >
-        <h2 id={`${id}-science`} className={styles.heading}>
+        <h2 id={`${id}-science`} className="m-0 text-lab-text [font-size:clamp(1.25rem,_2vw,_1.5rem)] font-semibold [line-height:1.25] [letter-spacing:-.025em]">
           {t("science.title")}
         </h2>
         <InteractionDiagram id={id} />
         <div>
           <div
-            className={styles.equation}
+            className="flex justify-center [padding-block:0_7px] [color:#e4dfff] [font-family:Georgia,_serif] [font-size:1.875rem] [line-height:1.1]"
             role="img"
             aria-label={t("science.lawSpoken")}
           >
-            <span aria-hidden="true" className={styles.expression}>
+            <span aria-hidden="true" className="inline-flex items-center [gap:8px] [&_sub]:[position:static] [&_sub]:[vertical-align:sub] [&_sub]:[font-size:0.6em] [&_sub]:[line-height:0] [&_sup]:[position:static] [&_sup]:[vertical-align:super] [&_sup]:[font-size:0.6em] [&_sup]:[line-height:0]">
               <span>
                 F<sub>ij</sub>
               </span>
-              <span className={styles.operator}>=</span>
+              <span className="[color:#a99bbf] [font-size:.7em]">=</span>
               <span>G</span>
-              <span className={styles.operator}>·</span>
-              <span className={styles.fraction}>
+              <span className="[color:#a99bbf] [font-size:.7em]">·</span>
+              <span className="inline-flex flex-col [font-size:.8em] text-center [&_>_span]:[padding:2px_6px] [&_>_span:first-child]:[border-bottom:1px_solid_#a99bbf]">
                 <span>
                   m<sub>i</sub> m<sub>j</sub>
                 </span>
@@ -202,7 +174,7 @@ export const ThreeBodyDiscovery = () => {
           <p>{t("science.lawDescription")}</p>
         </div>
         <dl
-          className={styles.conditions}
+          className="grid [grid-template-columns:repeat(3,_minmax(0,_1fr))] [gap:8px] m-0 [padding-top:10px] [border-top:1px_solid_#30364b] [&_dt]:[margin-bottom:4px] [&_dt]:[color:#b9c4d8] [&_dd]:m-0 [&_dd]:[color:#d8c9ff] [&_dd]:[font-family:Georgia,_serif] [&_dd]:[font-size:1rem]"
           aria-label={t("science.conditionsTitle")}
         >
           {(["masses", "positions", "velocities"] as const).map((condition) => (
@@ -218,11 +190,11 @@ export const ThreeBodyDiscovery = () => {
             </div>
           ))}
         </dl>
-        <aside className={styles.normalized}>
+        <aside className="[padding:9px_11px] [border:1px_solid_#294543] [border-radius:8px] [background:#5ee7d508] [color:#b8d3d2] [&_h3]:[margin:0_0_4px] [&_h3]:[color:#c2e7e1] [&_h3]:[font-size:0.875rem] [&_h3]:font-semibold">
           <h3>{t("science.normalizedTitle")}</h3>
           <p>{t("science.normalized")}</p>
         </aside>
-        <p className={styles.periodic}>{t("science.periodic")}</p>
+        <p className="[.lab-three-body-discovery-science_&]:[color:#b9c4d8]">{t("science.periodic")}</p>
       </section>
     </div>
   );
@@ -231,7 +203,7 @@ export const ThreeBodyDiscovery = () => {
 const InteractionDiagram = ({ id }: { id: string }) => {
   const t = useTranslations("ThreeBody.discovery.science");
   return (
-    <figure className={styles.diagram}>
+    <figure className="flex [flex:1] flex-col justify-center min-w-0 m-0 [padding:6px_8px_8px] [border:1px_solid_#29344b] [border-radius:10px] [background:#0b1120] [&_svg]:block [&_svg]:w-full [&_svg]:[height:clamp(100px,_13vh,_132px)] [&_figcaption]:[color:#aab6cd] [&_figcaption]:text-center [@media_(max-width:_1023px)]:[&_svg]:[height:150px]">
       <svg
         viewBox="45 0 410 145"
         role="img"

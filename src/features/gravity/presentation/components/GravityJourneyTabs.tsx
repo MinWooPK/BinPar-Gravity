@@ -16,7 +16,6 @@ import { useTranslations } from "next-intl";
 import { gravityStages } from "../../application/gravityJourney";
 import type { GravityStage, GravityStageId } from "../../types/journey.types";
 import { GravityJourneyNavigation } from "./GravityJourneyNavigation";
-import { gravityJourneyStyles as styles } from "./GravityJourney.styles";
 
 // Define el estado y las funciones para navegar entre las etapas educativas.
 type JourneyContextValue = {
@@ -190,7 +189,7 @@ export const GravityJourney = ({
   return (
     <JourneyContext.Provider value={value}>
       <div
-        className={styles.workspace}
+        className="lab-gravity-journey-workspace flex [flex:1] flex-col min-w-0 min-h-0 [@media(max-width:1023px)]:[flex:none] [&[data-introduction=true]]:[overflow-y:auto] [&[data-introduction=true]]:[scrollbar-width:none] [&[data-introduction=true]::-webkit-scrollbar]:[display:none] [@media_(min-width:_64rem)]:[&[data-introduction=true]]:[display:grid] [@media_(min-width:_64rem)]:[&[data-introduction=true]]:[grid-template-columns:minmax(0,_1.6fr)_minmax(0,_1fr)] [@media_(min-width:_64rem)]:[&[data-introduction=true]]:[align-items:center] [@media_(min-width:_64rem)]:[&[data-introduction=true]]:[gap:clamp(2rem,_5vw,_5rem)]"
         data-introduction={activeStage === null}
         data-active-stage={activeStage ?? undefined}
       >
@@ -210,7 +209,7 @@ export const GravityJourney = ({
 
         <div
           ref={viewportRef}
-          className={styles.viewport}
+          className="lab-gravity-journey-viewport flex flex-col [flex:1] min-w-0 min-h-0 overflow-x-auto overflow-y-auto [overscroll-behavior-y:contain] [scrollbar-width:none] [scroll-behavior:auto] [scroll-padding-block:1rem] [padding:4px_8px_8px] [@media(max-width:1023px)]:block [@media(max-width:1023px)]:[flex:none] [@media(max-width:1023px)]:[overflow:visible] [&[hidden]]:[display:none] [&::-webkit-scrollbar]:[display:none]"
           hidden={activeStage === null}
         >
           {children}
@@ -243,7 +242,7 @@ export const GravityJourneyPanel = ({
       aria-label={`${stage.number} — ${t(stage.title)}`}
       tabIndex={-1}
       hidden={activeStage !== stage.id}
-      className={`${styles.panel} ${className ?? ""}`}
+      className={`lab-gravity-journey-panel min-w-0 [&[hidden]]:[display:none] [&:not([hidden])]:[display:flex] [&:not([hidden])]:[flex:1_0_auto] [&:not([hidden])]:[flex-direction:column] [&:not([hidden])]:[min-height:100%] [&:not([hidden])]:[animation:lab-gravity-panel-enter_220ms_ease-out_both] [&:focus-visible]:[outline:2px_solid_#c0b3ff] [&:focus-visible]:[outline-offset:-3px] [&:focus-visible]:[border-radius:8px] [@media_(max-width:_1023px)]:[&:not([hidden])]:[min-height:0] [@media_(prefers-reduced-motion:_reduce)]:[&:not([hidden])]:[animation:none] ${className ?? ""}`}
     >
       {children}
     </section>

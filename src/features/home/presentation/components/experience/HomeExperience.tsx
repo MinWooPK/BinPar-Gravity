@@ -14,7 +14,6 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import Earth3D from "../scene/Earth3D";
 import { SpaceBackground } from "@/components/ui/SpaceBackground/SpaceBackground";
-import { homeExperienceStyles as styles } from "../HomeExperience.styles";
 
 type HomeView = "introduction" | "topics";
 type HomeContextValue = {
@@ -79,7 +78,7 @@ export const HomeExperience = ({
       }}
     >
       <div
-        className={styles.screen}
+        className="lab-home-screen relative [isolation:isolate] flex [flex:1] w-full min-w-0 min-h-0"
         onKeyDown={(event) => {
           if (
             event.key === "Escape" &&
@@ -91,17 +90,20 @@ export const HomeExperience = ({
           }
         }}
       >
-        <div className={styles.scenery}>
+        <div className="fixed [inset:0] [z-index:0] pointer-events-none">
           <SpaceBackground />
           {/* This layer stays mounted across views, preserving the scene and rotation. */}
-          <div className={styles.earth}>
+          <div className="absolute [inset:0] pointer-events-none [opacity:.3] min-[1024px]:[opacity:1]">
             <Earth3D />
           </div>
         </div>
-        <div ref={viewportRef} className={styles.viewport}>
+        <div
+          ref={viewportRef}
+          className="[&::-webkit-scrollbar]:hidden relative [z-index:1] flex flex-col w-full [max-width:80rem] min-w-0 min-h-0 [margin-inline:auto] [padding:1.5rem_max(1rem,_env(safe-area-inset-right))_1.5rem_max(1rem,_env(safe-area-inset-left))] overflow-x-hidden overflow-y-auto [overscroll-behavior-y:contain] [scrollbar-width:none] [scroll-behavior:auto] pointer-events-none min-[640px]:[padding:2rem_1.5rem] min-[1024px]:[padding:2rem]"
+        >
           <div
             hidden={view !== "introduction"}
-            className={`${styles.panel} ${styles.introduction}`}
+            className="[&[hidden]]:hidden [&:not([hidden])]:animate-[lab-home-view-enter_240ms_ease-out_both] motion-reduce:[&:not([hidden])]:animate-none focus-visible:[outline:2px_solid_#c0b3ff] focus-visible:outline-offset-4 focus-visible:rounded-[8px] shrink-0 w-full min-w-0 [margin-block:auto] pointer-events-auto min-[1024px]:[max-width:52%] min-[1024px]:[text-shadow:0_2px_16px_#070b14]"
           >
             {introduction}
           </div>
@@ -111,18 +113,24 @@ export const HomeExperience = ({
             aria-labelledby="explore-title"
             tabIndex={-1}
             hidden={view !== "topics"}
-            className={`${styles.panel} ${styles.topics}`}
+            className="[&[hidden]]:hidden [&:not([hidden])]:animate-[lab-home-view-enter_240ms_ease-out_both] motion-reduce:[&:not([hidden])]:animate-none focus-visible:[outline:2px_solid_#c0b3ff] focus-visible:outline-offset-4 focus-visible:rounded-[8px] shrink-0 w-full min-w-0 [margin-block:auto] pointer-events-auto [max-width:52rem]"
           >
-            <div className={styles.topicsHeader}>
+            <div className="sticky [top:0] [z-index:2] grid [grid-template-columns:auto_minmax(0,_max-content)] items-center [gap:.75rem] max-w-full [width:fit-content] [border-radius:.75rem] [background:#070b14dd]">
               <button
                 type="button"
                 aria-label={t("backToHome")}
                 onClick={() => changeView("introduction")}
-                className={styles.backButton}
+                className="group/home-back [&:hover]:bg-[#1e293b] focus-visible:[outline:2px_solid_#38bdf8] focus-visible:outline-offset-[3px] motion-reduce:[transition:none] inline-flex shrink-0 items-center justify-center [min-width:44px] [min-height:44px] [padding:.25rem_.5rem] [border:0] [border-radius:.75rem] [background:transparent] [color:#a2f3fd] [line-height:1] cursor-pointer [transition:background_180ms]"
               >
-                <ArrowLeft className={styles.backIcon} strokeWidth="2" />
+                <ArrowLeft
+                  className="motion-safe:group-hover/home-back:animate-[lab-home-back-nudge_800ms_ease-in-out_infinite] block [width:1.5rem] [height:1.5rem]"
+                  strokeWidth="2"
+                />
               </button>
-              <h2 id="explore-title" className={styles.topicsTitle}>
+              <h2
+                id="explore-title"
+                className="block [width:fit-content] min-w-0 m-0 [color:#a2f3fd] [font-family:var(--font-geist-sans),_Arial,_Helvetica,_sans-serif] [font-size:clamp(1rem,_2vw,_1.25rem)] font-bold [line-height:1.3] [letter-spacing:.05em] uppercase [overflow-wrap:anywhere]"
+              >
                 {t("exploreEyebrow")}
               </h2>
             </div>

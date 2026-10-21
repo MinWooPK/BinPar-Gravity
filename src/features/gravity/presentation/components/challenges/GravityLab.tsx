@@ -8,7 +8,6 @@ import { GravityPractice } from "../practice/GravityPractice";
 import { GravityJourneyPanel, useGravityJourney } from "../GravityJourneyTabs";
 import { GravityStageLayout } from "../shared/GravityStageLayout";
 import { gravityStageById } from "../../../application/gravityJourney";
-import { gravityJourneyStyles as journeyStyles } from "../GravityJourney.styles";
 import { useGravityParameters } from "../../providers/GravityParametersProvider";
 
 // Coordina las etapas de experimentación y práctica,
@@ -48,7 +47,7 @@ export const GravityLab = () => {
     <>
       <GravityJourneyPanel
         stage={gravityStageById["gravity-laboratory"]}
-        className={journeyStyles.stage}
+        className="min-w-0 [padding-block:.25rem] [scroll-margin-top:var(--gravity-stage-offset)]"
       >
         <GravityStageLayout contentLabel="controls">
           <GravityExperiment
@@ -61,7 +60,7 @@ export const GravityLab = () => {
 
       <GravityJourneyPanel
         stage={gravityStageById["gravity-challenges"]}
-        className={journeyStyles.stage}
+        className="min-w-0 [padding-block:.25rem] [scroll-margin-top:var(--gravity-stage-offset)]"
       >
         <GravityPractice />
       </GravityJourneyPanel>

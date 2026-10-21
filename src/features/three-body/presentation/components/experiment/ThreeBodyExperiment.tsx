@@ -454,13 +454,13 @@ export const ThreeBodyExperiment = ({
       {/* PANEL DERECHO: VISTA PREVIA Y SIMULACIÓN */}
       <section className="flex min-w-0 flex-col self-start gap-2 rounded-2xl border border-[#303b59] bg-[#0b1120] p-3">
         {/* ENCABEZADO */}
-        <div className="flex min-w-0 items-center justify-between gap-2">
+        <div className="mb-5 flex min-w-0 flex-col gap-5 sm:mb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+          {" "}
           <h3 className="min-w-0 text-base font-semibold leading-tight text-slate-100 sm:text-lg">
             {t(simulation ? "simulationTitle" : "previewTitle")}
           </h3>
-
           <div className="flex shrink-0 items-center gap-1.5">
-            {/* EJECUTAR SIMULACIÓN */}
+            {/* //EJECUTAR SIMULACIÓN */}
             <button
               type="button"
               disabled={error !== null || calculating}
@@ -490,7 +490,6 @@ export const ThreeBodyExperiment = ({
                 {calculating ? t("calculating") : t("runSimulation")}
               </span>
             </button>
-
             {/* RESTABLECER PARÁMETROS */}
             <button
               type="button"

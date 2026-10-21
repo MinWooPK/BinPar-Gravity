@@ -9,7 +9,6 @@ import {
 } from "../../../application/orbitPlayback";
 
 import type { OrbitPlayback } from "../../../types/animation.types";
-import { orbitAnimationStyles as styles } from "./OrbitAnimation.styles";
 
 // Define los colores utilizados para representar los tres cuerpos.
 export const bodyColors = ["#aa97ff", "#5ee7d5", "#f4c778"] as const;
@@ -165,7 +164,7 @@ export const OrbitAnimation = ({
   return (
     <svg
       ref={stage}
-      className={styles.stage}
+      className="block w-full [height:auto] max-w-full overflow-hidden [border-radius:inherit] [.lab-three-body-animation-player_&]:[max-height:clamp(14rem,_48vh,_30rem)] [.lab-three-body-animation-player_&]:[margin-inline:auto]"
       viewBox={viewBox}
       width="320"
       height="200"

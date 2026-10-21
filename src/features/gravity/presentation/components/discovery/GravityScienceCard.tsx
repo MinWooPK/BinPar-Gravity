@@ -3,28 +3,6 @@
 import { useId } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { GRAVITATIONAL_CONSTANT } from "../../../domain/gravitation";
-import css from "./GravityScienceCard.module.css";
-
-// Define los estilos de la tarjeta científica, la fórmula y la tabla de unidades.
-const styles = {
-  card: `${css["card"]} grid min-w-0 [align-content:space-between] [gap:8px] [padding:16px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [color:#b2bad0] [font-size:.875rem] [line-height:1.45] [overflow-wrap:anywhere] [@media(max-width:520px)]:[padding:14px]`,
-  law: "grid min-w-0 items-center gap-2 min-[1024px]:grid-cols-[auto_minmax(0,1fr)]",
-  equation:
-    "flex justify-center [padding-block:1px_7px] [color:#e4dfff] [font-family:Georgia,_serif] [font-size:2rem] [line-height:1.1]",
-  expression: "inline-flex items-center [gap:9px]",
-  operator: "[color:#a99bbf] [font-size:.7em]",
-  fraction: `${css["fraction"]} inline-flex flex-col min-w-0 text-center`,
-  constant: "min-w-0 [padding-top:8px] [border-top:1px_solid_#30364b]",
-  constantHeading:
-    "flex items-baseline justify-between flex-wrap [gap:3px_12px] [margin-bottom:5px] [@media(max-width:520px)]:[gap:3px_8px]",
-  constantValue: `${css["constantValue"]} [color:#d8c9ff] [font-size:1rem] font-medium [line-height:1.7]`,
-  unit: `${css["unit"]} whitespace-nowrap [overflow-wrap:normal]`,
-  variables: `${css["variables"]} w-full border-collapse [font-size:.875rem] [line-height:1.4]`,
-  units: `${css["units"]} [padding-top:8px] [border-top:1px_solid_#30364b]`,
-  identity: `${css["identity"]} `,
-  srOnly:
-    "absolute [width:1px] [height:1px] p-0 [margin:-1px] overflow-hidden [clip:rect(0,_0,_0,_0)] whitespace-nowrap [border:0]",
-} as const;
 
 // Define los símbolos, significados y unidades de las variables gravitatorias.
 const variables = [
@@ -60,26 +38,26 @@ export const GravityScienceCard = () => {
 
   return (
     <section
-      className={styles.card}
+      className="grid min-w-0 [align-content:space-between] [gap:8px] [padding:16px] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [color:#b2bad0] [font-size:.875rem] [line-height:1.45] [overflow-wrap:anywhere] [@media(max-width:520px)]:[padding:14px] [&_h3]:[margin:0] [&_h3]:[color:#f2f2fa] [&_h3]:[font-size:1.125rem] [&_h3]:[font-weight:600] [&_h3]:[line-height:1.35] [&_h4]:[margin:0] [&_h4]:[color:#d6dbea] [&_h4]:[font-size:0.875rem] [&_h4]:[font-weight:600] [&_p]:[margin:0]"
       aria-labelledby={`${id}-heading`}
       data-discovery-science
     >
       <h3 id={`${id}-heading`}>{t("title")}</h3>
 
-      <div className={styles.law}>
+      <div className="grid min-w-0 items-center gap-2 min-[1024px]:grid-cols-[auto_minmax(0,1fr)]">
         <div
-          className={styles.equation}
+          className="flex justify-center [padding-block:1px_7px] [color:#e4dfff] [font-family:Georgia,_serif] [font-size:2rem] [line-height:1.1]"
           role="img"
           aria-label={t("formulaSpoken")}
         >
-          <span aria-hidden="true" className={styles.expression}>
+          <span aria-hidden="true" className="inline-flex items-center [gap:9px]">
             <span>F</span>
-            <span className={styles.operator}>=</span>
+            <span className="[color:#a99bbf] [font-size:.7em]">=</span>
             <span>G</span>
-            <span className={styles.operator}>·</span>
-            <span className={styles.fraction}>
+            <span className="[color:#a99bbf] [font-size:.7em]">·</span>
+            <span className="inline-flex flex-col min-w-0 text-center [&_>_span]:[padding:2px_5px] [&_>_span:first-child]:[border-bottom:1px_solid_#a99bbf] [&_sup]:[position:static] [&_sup]:[vertical-align:super] [&_sup]:[font-size:0.55em] [&_sup]:[line-height:0]">
               <span>
-                m₁ <span className={styles.operator}>×</span> m₂
+                m₁ <span className="[color:#a99bbf] [font-size:.7em]">×</span> m₂
               </span>
               <span>
                 r<sup>2</sup>
@@ -90,11 +68,11 @@ export const GravityScienceCard = () => {
         <p>{t("scienceLawDescription")}</p>
       </div>
 
-      <div className={styles.constant}>
-        <div className={styles.constantHeading}>
+      <div className="min-w-0 [padding-top:8px] [border-top:1px_solid_#30364b]">
+        <div className="flex items-baseline justify-between flex-wrap [gap:3px_12px] [margin-bottom:5px] [@media(max-width:520px)]:[gap:3px_8px]">
           <h4>{t("scienceConstantLabel")}</h4>
-          <p className={styles.constantValue}>
-            <span className={styles.srOnly}>
+          <p className="[color:#d8c9ff] [font-size:1rem] font-medium [line-height:1.7] [&_sup]:[position:static] [&_sup]:[vertical-align:super] [&_sup]:[font-size:0.7em] [&_sup]:[line-height:0] [&_.lab-gravity-sciencecard-unit]:[display:inline-block]">
+            <span className="absolute [width:1px] [height:1px] p-0 [margin:-1px] overflow-hidden [clip:rect(0,_0,_0,_0)] whitespace-nowrap [border:0]">
               {t("scienceConstantSpoken", {
                 value: constantValue,
                 exponent: Number(exponent),
@@ -105,7 +83,7 @@ export const GravityScienceCard = () => {
                 value: constantValue,
                 exponent: Number(exponent),
                 power: (chunks) => <sup>{chunks}</sup>,
-                unit: (chunks) => <span className={styles.unit}>{chunks}</span>,
+                unit: (chunks) => <span className="lab-gravity-sciencecard-unit whitespace-nowrap [overflow-wrap:normal]">{chunks}</span>,
               })}
             </span>
           </p>
@@ -113,8 +91,8 @@ export const GravityScienceCard = () => {
         <p>{t("scienceConstantDescription")}</p>
       </div>
 
-      <table className={styles.variables}>
-        <caption className={styles.srOnly}>
+      <table className="w-full border-collapse [font-size:.875rem] [line-height:1.4] [&_th]:[padding:4px_6px] [&_th]:[border-bottom:1px_solid_#30364b] [&_th]:[text-align:left] [&_th]:[vertical-align:middle] [&_td]:[padding:4px_6px] [&_td]:[border-bottom:1px_solid_#30364b] [&_td]:[text-align:left] [&_td]:[vertical-align:middle] [&_thead_th]:[color:#b9c4d8] [&_thead_th]:[font-weight:500] [&_thead_th]:[white-space:nowrap] [&_th:first-child]:[width:1%] [&_th:first-child]:[padding-left:0] [&_th:last-child]:[width:1%] [&_th:last-child]:[padding-right:0] [&_td:last-child]:[width:1%] [&_td:last-child]:[padding-right:0] [&_tbody_th]:[color:#d8c9ff] [&_tbody_th]:[font-family:Georgia,_serif] [&_tbody_th]:[font-size:1rem] [&_tbody_th]:[font-weight:400] [&_tbody_th]:[white-space:nowrap] [&_td:last-child]:[color:#bcebe3] [&_tbody_tr:last-child_th]:[border-bottom:0] [&_tbody_tr:last-child_td]:[border-bottom:0] [@media_(max-width:_520px)]:[&_th]:[padding-inline:4px] [@media_(max-width:_520px)]:[&_td]:[padding-inline:4px]">
+        <caption className="absolute [width:1px] [height:1px] p-0 [margin:-1px] overflow-hidden [clip:rect(0,_0,_0,_0)] whitespace-nowrap [border:0]">
           {t("scienceVariablesCaption")}
         </caption>
         <thead>
@@ -129,20 +107,20 @@ export const GravityScienceCard = () => {
             <tr key={variable.symbol}>
               <th scope="row">{variable.symbol}</th>
               <td>{t(variable.meaning)}</td>
-              <td className={styles.unit}>{variable.unit}</td>
+              <td className="lab-gravity-sciencecard-unit whitespace-nowrap [overflow-wrap:normal]">{variable.unit}</td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <div className={styles.units}>
+      <div className="[padding-top:8px] [border-top:1px_solid_#30364b] [&_strong]:[color:#d6dbea] [&_strong]:[font-weight:600] [&_.lab-gravity-sciencecard-identity]:[margin-top:4px] [&_.lab-gravity-sciencecard-identity]:[color:#bcebe3] [&_.lab-gravity-sciencecard-identity]:[font-variant-numeric:tabular-nums]">
         <p>
           {t.rich("scienceUnitsExplanation", {
             highlight: (chunks) => <strong>{chunks}</strong>,
           })}
         </p>
-        <p className={styles.identity}>
-          <span className={styles.srOnly}>{t("scienceNewtonIdentity")}</span>
+        <p className="lab-gravity-sciencecard-identity">
+          <span className="absolute [width:1px] [height:1px] p-0 [margin:-1px] overflow-hidden [clip:rect(0,_0,_0,_0)] whitespace-nowrap [border:0]">{t("scienceNewtonIdentity")}</span>
           <span aria-hidden="true">1 N = 1 kg·m/s²</span>
         </p>
       </div>

@@ -9,7 +9,6 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslations } from "next-intl";
-import css from "./GravitySplitPanels.module.css";
 
 // Define los dos paneles disponibles: izquierdo y derecho.
 const sides = ["left", "right"] as const;
@@ -124,7 +123,7 @@ export const GravitySplitPanels = ({
 
       {/* Distribuye los paneles según el tamaño de pantalla. */}
       <div
-        className={css.grid}
+        className="[&]:[display:grid] [&]:[grid-template-columns:minmax(0,_1fr)] [&]:[min-width:0] [@media_(min-width:_1024px)]:[&]:[flex:1] [@media_(min-width:_1024px)]:[&]:[grid-template-columns:repeat(2,_minmax(0,_1fr))] [@media_(min-width:_1024px)]:[&]:[gap:clamp(20px,_2.5vw,_32px)] [@media_(min-width:_1024px)]:[&]:[align-items:stretch]"
         data-selected={selected}
         data-gravity-stage-layout
       >
@@ -135,17 +134,17 @@ export const GravitySplitPanels = ({
           return (
             <div
               key={side}
-              className={css.panel}
+              className="[&]:[position:relative] [&]:[min-width:0] [@media_(min-width:_1024px)]:[&]:[display:flex] [@media_(min-width:_1024px)]:[&]:[flex-direction:column] [@media_(max-width:_1023px)]:[&[data-open=false]]:[display:none] [@media_(max-width:_1023px)]:[&[data-open=true]]:[animation:lab-gravity-split-panel-enter_220ms_cubic-bezier(0.4,_0,_0.2,_1)] [@media_(prefers-reduced-motion:_reduce)]:[&[data-open=true]]:[animation:none]"
               data-side={side}
               data-open={visible}
             >
-              <div className={css.clip}>
+              <div className="[&]:[min-width:0] [&]:[border-radius:14px] [@media_(min-width:_1024px)]:[&]:[display:flex] [@media_(min-width:_1024px)]:[&]:[flex-direction:column] [@media_(min-width:_1024px)]:[&]:[flex:1] [@media_(min-width:_1024px)]:[&]:[overflow:clip]">
                 <div
                   id={`${id}-${side}`}
                   ref={(element) => {
                     contents.current[side] = element ?? undefined;
                   }}
-                  className={css.content}
+                  className="[&]:[display:flex] [&]:[flex-direction:column] [&]:[min-width:0] [&&_>_*]:[flex:1_0_auto] [&&_>_*]:[min-width:0] [@media_(min-width:_1024px)]:[&]:[flex:1_0_auto] [@media_(min-width:_1024px)]:[&]:[min-width:0] [@media_(max-width:_1023px)]:[&&_>_*]:[flex:none]"
                   tabIndex={-1}
                   inert={!visible}
                   aria-hidden={!visible}

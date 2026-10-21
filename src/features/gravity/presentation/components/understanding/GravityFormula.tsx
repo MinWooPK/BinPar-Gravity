@@ -19,7 +19,6 @@ import {
 import { useGravityFormulaInteraction } from "./GravityFormulaInteraction";
 import type { FormulaTerm } from "../../../types/formula.types";
 import { GravityFormulaLegend } from "./GravityFormulaLegend";
-import { gravityFormulaStyles as styles } from "./GravityFormula.styles";
 
 // Define las variables de la fórmula, sus símbolos, unidades y claves de traducción.
 const fields = [
@@ -96,7 +95,7 @@ export const GravityFormula = ({
   );
   // Al reiniciar solo se vuelve a montar la calculadora, no la conversación.
   return footer ? (
-    <div className={styles.card}>
+    <div className="flex flex-col justify-between min-w-0 [padding:12px] [font-size:1rem] [line-height:1.5] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [@media(max-width:520px)]:[padding:14px] in-[#gravity-understanding]:p-2.5 [&_>_*]:[flex-shrink:0] [&_button:focus-visible]:[outline:2px_solid_#c4b5fd] [&_button:focus-visible]:[outline-offset:3px] [@media_(prefers-reduced-motion:_reduce)]:[&_button]:[transition:none]">
       {content}
       {footer}
     </div>
@@ -191,7 +190,7 @@ const GravityFormulaContent = ({
 
   return (
     <section
-      className={variant === "embedded" ? styles.embedded : styles.card}
+      className={variant === "embedded" ? "flex flex-col w-full max-w-[560px] mx-auto self-start min-w-0 gap-2 p-3 text-base leading-normal [&_>_*]:[flex-shrink:0] [&_button:focus-visible]:[outline:2px_solid_#c4b5fd] [&_button:focus-visible]:[outline-offset:3px] [@media_(prefers-reduced-motion:_reduce)]:[&_button]:[transition:none]" : "flex flex-col justify-between min-w-0 [padding:12px] [font-size:1rem] [line-height:1.5] border border-solid border-lab-line [border-radius:14px] [background:linear-gradient(145deg,_#131724,_#0e121d)] [@media(max-width:520px)]:[padding:14px] in-[#gravity-understanding]:p-2.5 [&_>_*]:[flex-shrink:0] [&_button:focus-visible]:[outline:2px_solid_#c4b5fd] [&_button:focus-visible]:[outline-offset:3px] [@media_(prefers-reduced-motion:_reduce)]:[&_button]:[transition:none]"}
       aria-labelledby={`${id}-heading`}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
@@ -201,12 +200,12 @@ const GravityFormulaContent = ({
         }
       }}
     >
-      <div className={styles.header}>
+      <div className="flex items-center justify-between flex-wrap [gap:8px_12px] [&_h3]:[margin:0] [&_h3]:[color:#f2f2fa] [&_h3]:[font-size:1.125rem] [&_h3]:[font-weight:600] [&_h3]:[line-height:1.4]">
         <h3 id={`${id}-heading`}>
           {t("introFormulaTitle")} <ExplainWithAI topic="formula" />
         </h3>
 
-        <div className={`${styles.headerActions} relative`}>
+        <div className="flex flex-wrap items-center [gap:4px] min-w-0 gap-2 relative">
           {/* BOTÓN DE WARNING */}
           {rangeError && (
             <button
@@ -236,7 +235,7 @@ const GravityFormulaContent = ({
             }}
             aria-label={t("reset")}
             aria-describedby={`${id}-reset-hint`}
-            className={styles.reset}
+            className="[min-height:44px] [padding:8px_12px] [border:1px_solid_#544776] [border-radius:8px] [background:#aa97ff12] [color:#d0c1ff] [font-size:.875rem] cursor-pointer [&:hover]:[background:#aa97ff25]"
           >
             {t("resetShort")}
           </button>
@@ -247,7 +246,7 @@ const GravityFormulaContent = ({
               id={`${id}-range-warning`}
               data-formula-range-warning
               aria-labelledby={`${id}-range-heading`}
-              className={`${styles.rangeWarning2} absolute! top-full! right-0 z-50 mt-2! w-[min(380px,calc(100vw-24px))] max-h-[70dvh] overflow-y-auto shadow-2xl shadow-black/60`}
+              className="mt-3 min-w-0 space-y-3 rounded-xl border border-amber-400/60 bg-[#24191d] p-4 text-sm leading-relaxed text-amber-50/90 [overflow-wrap:anywhere] [&]:[animation:lab-gravity-formula-range-warning-appear_220ms_ease-out] [@media_(prefers-reduced-motion:_reduce)]:[&]:[animation:none] absolute! top-full! right-0 z-50 mt-2! w-[min(380px,calc(100vw-24px))] max-h-[70dvh] overflow-y-auto shadow-2xl shadow-black/60"
             >
               {/* ENCABEZADO */}
               <div className="flex items-start gap-2">
@@ -323,14 +322,14 @@ const GravityFormulaContent = ({
         {t("formulaFieldsInstruction")}
       </p>
       <p className="sr-only">{t("formulaSpoken")}</p>
-      <div className={styles.formulaControls}>
+      <div className="flex flex-col items-center gap-2">
         <GravityEquation
           id={id}
           currentValue={currentValue}
           onSelect={focusField}
         />
         <fieldset
-          className={styles.unknowns}
+          className="flex-none w-full max-w-[360px] min-w-0 m-0 p-0 [border:0] [&_legend]:[margin-bottom:6px] [&_legend]:[color:#cbd5e1] [&_legend]:[font-size:0.875rem] [&_>_div]:[display:grid] [&_>_div]:[grid-template-columns:repeat(4,_minmax(0,_1fr))] [&_>_div]:[gap:6px] [&_button]:[min-width:0] [&_button]:[min-height:40px] [&_button]:[padding:4px] [&_button]:[border:1px_solid_#3f3a53] [&_button]:[border-radius:8px] [&_button]:[background:#111624] [&_button]:[color:#cbd5e1] [&_button]:[font:inherit] [&_button]:[cursor:pointer] [&_button]:[transition:background_140ms,_border-color_140ms] [&_button[aria-pressed=true]]:[border-color:#aa97ff] [&_button[aria-pressed=true]]:[background:#aa97ff20] [&_button[aria-pressed=true]]:[color:#e4dcff] [&&_button:hover]:[border-color:#c4b5fd]"
           aria-label={t("calculateUnknown")}
         >
           <legend>{t("calculateUnknown")}</legend>
@@ -355,7 +354,7 @@ const GravityFormulaContent = ({
         </fieldset>
       </div>
       {explanation}
-      <div className={styles.fields}>
+      <div className="[margin-top:8px] grid [grid-template-columns:repeat(2,_minmax(0,_1fr))] [gap:8px] [@media(max-width:520px)]:[grid-template-columns:minmax(0,_1fr)] in-[#gravity-understanding]:mt-1 in-[#gravity-understanding]:gap-1.5">
         {fields.map((field) => {
           // Comprueba si esta variable es la incógnita.
           const calculated = unknown === field.key;
@@ -381,7 +380,7 @@ const GravityFormulaContent = ({
               data-active={isActive(field.key)}
               data-calculated={calculated}
               data-invalid={invalid}
-              className={styles.field}
+              className="min-w-0 [padding:6px_8px] [border:1px_solid_#30364b] [border-radius:10px] [background:#0d1320] [transition:border-color_140ms,_background_140ms] in-[#gravity-understanding]:py-1 [&[data-calculated=true]_.lab-gravity-formula-input-group]:[border-color:#5ee7d550] [&[data-calculated=true]_input]:[color:#95efde] [&[data-invalid=true]_.lab-gravity-formula-input-group]:[border-color:#fbbf24] [&[data-active=true]]:[border-color:#c4b5fd] [&[data-active=true]]:[background:#a997ff12] [&&[data-active=true]_.lab-gravity-formula-input-group]:[border-color:#c4b5fd] [&&[data-active=true]_.lab-gravity-formula-input-group]:[box-shadow:0_0_0_1px_#aa97ff35] [&&[data-active=true]_.lab-gravity-formula-field-title]:[color:#e4d7ff] [&[data-formula-field=mass2][data-active=true]]:[border-color:#5ee7d5] [&&[data-formula-field=mass2][data-active=true]_.lab-gravity-formula-input-group]:[border-color:#5ee7d5] [&&[data-formula-field=mass2][data-active=true]_.lab-gravity-formula-input-group]:[box-shadow:0_0_0_1px_#5ee7d530] [&&[data-formula-field=mass2][data-active=true]_.lab-gravity-formula-field-title]:[color:#a7f3e4] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]"
               onPointerEnter={(event) => {
                 if (event.pointerType === "mouse") hover(field.key);
               }}
@@ -394,11 +393,11 @@ const GravityFormulaContent = ({
             >
               <label
                 htmlFor={`${id}-input-${field.key}`}
-                className={styles.fieldTitle}
+                className="lab-gravity-formula-field-title flex items-baseline justify-between [gap:6px] [margin-bottom:4px] [color:#d6dbea] [font-size:.9375rem] font-semibold [line-height:1.3] [transition:color_140ms] [@media(max-width:520px)]:[font-size:1rem] in-[#gravity-understanding]:mb-0.5 [&_>_span]:[color:#b9a8ff] [&_>_span]:[font-family:Georgia,_serif] [&_>_span]:[font-size:1rem] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]"
               >
                 {t(field.label)} <span>{field.symbol}</span>
               </label>
-              <div className={styles.inputGroup}>
+              <div className="lab-gravity-formula-input-group flex items-center min-w-0 [min-height:44px] [border:1px_solid_#64748b] [border-radius:7px] [background:#070d1a] [transition:border-color_140ms,_box-shadow_140ms] [&_input]:[width:100%] [&_input]:[min-width:0] [&_input]:[min-height:40px] [&_input]:[padding:6px] [&_input]:[border:0] [&_input]:[border-radius:7px] [&_input]:[background:transparent] [&_input]:[color:#f8fafc] [&_input]:[font:inherit] [&&_input]:[font-size:0.875rem] [&&_input]:[line-height:1.5] [&_input]:[font-variant-numeric:tabular-nums] [&_input::placeholder]:[color:#8e9bb2] [&_input::placeholder]:[opacity:1] [&_input:focus-visible]:[outline:2px_solid_#c4b5fd] [&_input:focus-visible]:[outline-offset:3px] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]">
                 <input
                   ref={(element) => {
                     inputRefs.current[field.key] = element;
@@ -426,7 +425,7 @@ const GravityFormulaContent = ({
                     changeValue(field.key, event.target.value)
                   }
                 />
-                <span aria-hidden="true" className={styles.unit}>
+                <span aria-hidden="true" className="shrink-0 [padding:6px_8px] [border-left:1px_solid_#334155] [color:#aebbcf] [font-size:.875rem]">
                   {field.unit}
                 </span>
               </div>
@@ -436,7 +435,7 @@ const GravityFormulaContent = ({
                 })}
               </p>
               {calculated && (
-                <span id={`${id}-calculated`} className={styles.calculated}>
+                <span id={`${id}-calculated`} className="block [margin-top:4px] [color:#95efde] [font-size:.75rem] [line-height:1.4] in-[#gravity-understanding]:mt-0.5">
                   {t("automaticallyCalculated")}
                 </span>
               )}
@@ -449,7 +448,7 @@ const GravityFormulaContent = ({
       {/* {rangeError && (
         <section
           data-formula-range-warning
-          className={styles.rangeWarning}
+          className="mt-3 min-w-0 space-y-3 rounded-xl border border-amber-400/60 bg-amber-950/40 p-4 text-sm leading-relaxed text-amber-50/90 [overflow-wrap:anywhere] [&]:[animation:lab-gravity-formula-range-warning-appear_220ms_ease-out] [@media_(prefers-reduced-motion:_reduce)]:[&]:[animation:none]"
           aria-labelledby={`${id}-range-heading`}
         >
           <div className="flex items-start gap-3">
@@ -513,8 +512,8 @@ const GravityFormulaContent = ({
           rangeError
             ? "sr-only"
             : invalidFields.length > 0 || numericalError
-              ? styles.error
-              : styles.help
+              ? "[margin:10px_0_0] [font-size:.875rem] [line-height:1.5] [overflow-wrap:anywhere] [color:#fde68a]"
+              : "[min-height:1.45em] [margin:6px_0] [color:#aeb8cb] [font-size:.875rem] [line-height:1.45] in-[#gravity-understanding]:my-0.5 [&_strong]:[color:#d8c9ff] [&_strong]:[font-weight:600]"
         }
       >
         {status}
@@ -564,7 +563,7 @@ const GravityEquation = ({
         aria-pressed={selected === key}
         aria-label={`${t(field.label)} (${field.symbol})${value === null ? "" : `: ${formatValue(value)} ${field.unit}`}`}
         aria-describedby={`${id}-description-${key}`}
-        className={styles.term}
+        className="inline-flex [min-width:44px] [min-height:44px] items-center justify-center [padding:4px] [border:1px_solid_transparent] [border-radius:8px] [background:transparent] [color:inherit] [line-height:inherit] cursor-pointer [transition:background_140ms,_border-color_140ms,_color_140ms] [@media(max-width:520px)]:[padding-inline:2px] [&[data-active=true]]:[border-color:#c4b5fd] [&[data-active=true]]:[background:#aa97ff20] [&[data-active=true]]:[color:#e9d5ff] [&_sup]:[position:static] [&_sup]:[align-self:center] [&_sup]:[font-size:0.55em] [&_sup]:[line-height:1] [&_sup]:[transform:translateY(-0.4em)]"
         onPointerEnter={(event) => {
           if (event.pointerType === "mouse") hover(key);
         }}
@@ -582,19 +581,19 @@ const GravityEquation = ({
     );
   };
   return (
-    <div className={styles.equation}>
-      <span className={styles.equationLeft}>
+    <div className="flex flex-none w-full min-w-0 items-center justify-center flex-wrap [gap:8px_12px] [padding-block:4px] [color:#e4dfff] [font-family:Georgia,_serif] [font-size:clamp(1.75rem,_3vw,_2rem)] [line-height:1] [@media(max-width:520px)]:[gap:3px] [@media(max-width:520px)]:[font-size:1.75rem] in-[#gravity-understanding]:py-0">
+      <span className="inline-flex min-w-0 items-center [gap:6px]">
         {term("force")}
-        <span aria-hidden="true" className={styles.operator}>
+        <span aria-hidden="true" className="[color:#9b93b1] [font-size:.7em]">
           =
         </span>
       </span>
-      <span className={styles.equationRight}>
+      <span className="inline-flex min-w-0 items-center [gap:6px]">
         <button
           type="button"
           data-formula-variable="constant"
           data-active={active === "constant"}
-          className={styles.term}
+          className="inline-flex [min-width:44px] [min-height:44px] items-center justify-center [padding:4px] [border:1px_solid_transparent] [border-radius:8px] [background:transparent] [color:inherit] [line-height:inherit] cursor-pointer [transition:background_140ms,_border-color_140ms,_color_140ms] [@media(max-width:520px)]:[padding-inline:2px] [&[data-active=true]]:[border-color:#c4b5fd] [&[data-active=true]]:[background:#aa97ff20] [&[data-active=true]]:[color:#e9d5ff] [&_sup]:[position:static] [&_sup]:[align-self:center] [&_sup]:[font-size:0.55em] [&_sup]:[line-height:1] [&_sup]:[transform:translateY(-0.4em)]"
           aria-label={`${t("formulaConstantTitle")}. ${t("formulaConstantFixed")}`}
           aria-describedby={`${id}-constant-value ${id}-constant-description`}
           aria-pressed={selected === "constant"}
@@ -608,10 +607,10 @@ const GravityEquation = ({
         >
           G
         </button>
-        <span aria-hidden="true" className={styles.operator}>
+        <span aria-hidden="true" className="[color:#9b93b1] [font-size:.7em]">
           ×
         </span>
-        <span className={styles.fraction}>
+        <span className="inline-flex flex-col min-w-0 text-center [&_>_span]:[display:flex] [&_>_span]:[align-items:center] [&_>_span]:[justify-content:center] [&_>_span]:[gap:4px] [&_>_span:first-child]:[padding-bottom:3px] [&_>_span:first-child]:[border-bottom:1px_solid_#a99bbf] [&_>_span:last-child]:[padding-top:3px] [&_>_span_>_span]:[color:#9b93b1] [&_>_span_>_span]:[font-size:0.65em] [#gravity-understanding_&_>_span:first-child]:[padding-bottom:1px] [#gravity-understanding_&_>_span:last-child]:[padding-top:1px]">
           <span>
             {term("mass1")}
             <span aria-hidden="true">×</span>
@@ -636,7 +635,7 @@ export const GravityFormulaEducation = () => {
 
   return (
     <section
-      className={styles.embedded}
+      className="flex flex-col w-full max-w-[560px] mx-auto self-start min-w-0 gap-2 p-3 text-base leading-normal [&_>_*]:[flex-shrink:0] [&_button:focus-visible]:[outline:2px_solid_#c4b5fd] [&_button:focus-visible]:[outline-offset:3px] [@media_(prefers-reduced-motion:_reduce)]:[&_button]:[transition:none]"
       aria-labelledby={`${id}-heading`}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
@@ -645,7 +644,7 @@ export const GravityFormulaEducation = () => {
         }
       }}
     >
-      <div className={styles.header}>
+      <div className="flex items-center justify-between flex-wrap [gap:8px_12px] [&_h3]:[margin:0] [&_h3]:[color:#f2f2fa] [&_h3]:[font-size:1.125rem] [&_h3]:[font-weight:600] [&_h3]:[line-height:1.4]">
         <h3 id={`${id}-heading`}>
           {t("introFormulaTitle")} <ExplainWithAI topic="formula" />
         </h3>
@@ -657,17 +656,17 @@ export const GravityFormulaEducation = () => {
         {fields.map((field) => (
           <div
             key={field.key}
-            className={styles.field}
+            className="min-w-0 [padding:6px_8px] [border:1px_solid_#30364b] [border-radius:10px] [background:#0d1320] [transition:border-color_140ms,_background_140ms] in-[#gravity-understanding]:py-1 [&[data-calculated=true]_.lab-gravity-formula-input-group]:[border-color:#5ee7d550] [&[data-calculated=true]_input]:[color:#95efde] [&[data-invalid=true]_.lab-gravity-formula-input-group]:[border-color:#fbbf24] [&[data-active=true]]:[border-color:#c4b5fd] [&[data-active=true]]:[background:#a997ff12] [&&[data-active=true]_.lab-gravity-formula-input-group]:[border-color:#c4b5fd] [&&[data-active=true]_.lab-gravity-formula-input-group]:[box-shadow:0_0_0_1px_#aa97ff35] [&&[data-active=true]_.lab-gravity-formula-field-title]:[color:#e4d7ff] [&[data-formula-field=mass2][data-active=true]]:[border-color:#5ee7d5] [&&[data-formula-field=mass2][data-active=true]_.lab-gravity-formula-input-group]:[border-color:#5ee7d5] [&&[data-formula-field=mass2][data-active=true]_.lab-gravity-formula-input-group]:[box-shadow:0_0_0_1px_#5ee7d530] [&&[data-formula-field=mass2][data-active=true]_.lab-gravity-formula-field-title]:[color:#a7f3e4] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]"
             data-active={
               active === field.key ||
               (active === "masses" &&
                 (field.key === "mass1" || field.key === "mass2"))
             }
           >
-            <h4 className={styles.fieldTitle}>
+            <h4 className="lab-gravity-formula-field-title flex items-baseline justify-between [gap:6px] [margin-bottom:4px] [color:#d6dbea] [font-size:.9375rem] font-semibold [line-height:1.3] [transition:color_140ms] [@media(max-width:520px)]:[font-size:1rem] in-[#gravity-understanding]:mb-0.5 [&_>_span]:[color:#b9a8ff] [&_>_span]:[font-family:Georgia,_serif] [&_>_span]:[font-size:1rem] [@media_(prefers-reduced-motion:_reduce)]:[&]:[transition:none]">
               {t(field.label)} <span>{field.symbol}</span>
             </h4>
-            <p id={`${id}-description-${field.key}`} className={styles.help}>
+            <p id={`${id}-description-${field.key}`} className="[min-height:1.45em] [margin:6px_0] [color:#aeb8cb] [font-size:.875rem] [line-height:1.45] in-[#gravity-understanding]:my-0.5 [&_strong]:[color:#d8c9ff] [&_strong]:[font-weight:600]">
               {t.rich(field.description, {
                 highlight: (chunks) => <strong>{chunks}</strong>,
               })}

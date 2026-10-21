@@ -1,13 +1,8 @@
+// https:github.com/RaspberryKitty1/Starfield?utm_source=chatgpt.com
+
 "use client";
 
-// useEffect: ejecuta la lógica de animación cuando
-// el componente está montado en el navegador.
-//
-// useRef: permite acceder directamente a elementos
-// del DOM sin provocar renderizados de React.
 import { useEffect, useRef } from "react";
-
-import styles from "./SpaceStarfield.module.css";
 
 // ====================================================
 // 1. TIPO DE DATOS DE CADA ESTRELLA
@@ -470,20 +465,22 @@ export const SpaceStarfield = () => {
   // ===================================================
 
   return (
-    <div ref={rootRef} className={styles.background} aria-hidden="true">
-      {/* Nebulosa azul:
-          Su aspecto y movimiento se configuran
-          en GravityStarField.module.css */}
-      <div className={styles.nebula} />
+    <div
+      ref={rootRef}
+      className="pointer-events-none fixed inset-0 z-0 overflow-hidden [background:linear-gradient(120deg,#01050f_5%,#061026_55%,#020713_100%)]"
+      aria-hidden="true"
+    >
+      {/* Nebulosa azul; el keyframe compartido está en globals.css. */}
+      <div className="absolute -inset-[8%] animate-[lab-starfield-nebula-float_65s_ease-in-out_infinite_alternate] [background:radial-gradient(ellipse_38%_28%_at_78%_35%,rgba(38,100,186,0.25),transparent_80%),radial-gradient(ellipse_44%_37%_at_67%_52%,rgba(18,49,115,0.22),transparent_76%),radial-gradient(ellipse_25%_28%_at_90%_60%,rgba(58,92,160,0.12),transparent_75%)] blur-[18px] motion-reduce:animate-none" />
 
       {/* Canvas:
           Dibuja las estrellas animadas */}
-      <canvas ref={canvasRef} className={styles.stars} />
+      <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" />
 
       {/* Capa oscura:
           Mejora la legibilidad del contenido.
           Se configura desde CSS. */}
-      <div className={styles.dim} />
+      <div className="absolute inset-0 [background:linear-gradient(90deg,rgba(1,5,14,0.23),transparent_62%)]" />
     </div>
   );
 };
