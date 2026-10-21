@@ -3,6 +3,7 @@ import { openaiTutor } from "@/features/ai/infrastructure/openaiTutor";
 import { getTranslations } from "next-intl/server";
 import {
   createTutorLimiter,
+  isSameOriginRequest,
   readTutorBody,
   TutorBodyTooLargeError,
 } from "@/features/ai/infrastructure/requestGuard";
@@ -23,9 +24,7 @@ const limiter = createTutorLimiter();
 
 export const POST = async (request: Request) => {
   // SEGURIDAD: comprueba el origen de la petición.
-  const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin)
-    return invalidRequest(403);
+  if (!isSameOriginRequest(request)) return invalidRequest(403);
 
   // Solo acepta peticiones con contenido JSON.
   if (

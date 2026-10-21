@@ -1,4 +1,5 @@
 import {
+  isSameOriginRequest,
   readTutorBody,
   TutorBodyTooLargeError,
 } from "@/features/ai/infrastructure/requestGuard";
@@ -15,10 +16,7 @@ type RequestResult =
 export const readPracticeRequest = async (
   request: Request,
 ): Promise<RequestResult> => {
-  const origin = request.headers.get("origin");
-
-  if (origin && origin !== new URL(request.url).origin)
-    return { ok: false, status: 403 };
+  if (!isSameOriginRequest(request)) return { ok: false, status: 403 };
 
   if (
     request.headers.get("content-type")?.split(";")[0].trim() !==

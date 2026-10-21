@@ -101,6 +101,43 @@ El modelo debe admitir Responses API y el formato JSON estructurado utilizado po
 
 Sin estas variables funcionan el contenido educativo, la calculadora y Tres Cuerpos; las API de tutor y práctica responden con `503 not_configured`. Sus llamadas reales al proveedor necesitan conexión y pueden generar costes. La sesión cifrada de práctica también depende de `OPENAI_API_KEY`: rotarla invalida los tokens existentes.
 
+## Ejecutar en Docker
+
+Necesitas Docker con el motor iniciado y Docker Compose **2.24 o posterior**, que admite el archivo de entorno opcional. Desde la raíz del repositorio:
+
+```bash
+docker compose up --build
+```
+
+Abre [localhost:3000](http://localhost:3000). El puerto 3000 debe estar libre; detén antes cualquier servidor local que lo utilice. La aplicación se publica solo en la interfaz local del equipo.
+
+El contenedor puede arrancar **sin credenciales de IA** y sin crear ningún archivo de entorno. Gravedad, la calculadora, las seis órbitas y el experimento libre funcionan; solo al solicitar una respuesta del tutor o iniciar la práctica se informa de la configuración ausente.
+
+Para habilitar ambas funciones, crea `.env.local` —o utiliza el que ya tengas— con las variables indicadas en la sección anterior:
+
+```bash
+test -f .env.local || cp .env.example .env.local
+# Completa OPENAI_API_KEY y OPENAI_MODEL en .env.local.
+docker compose up --build
+```
+
+No sobrescribas un `.env.local` que ya esté configurado. Compose lo carga al crear el contenedor y puede recrearlo al cambiar las variables mediante `docker compose up -d --force-recreate`. No necesitas reconstruir la imagen por cambiar una clave o el modelo. Estas variables son del servidor: no se pasan como argumentos de construcción ni se exponen con `NEXT_PUBLIC_`.
+
+El Dockerfile utiliza **Node.js 24 Alpine**, instala con `npm ci` y el lockfile existente y genera una salida `standalone`. La imagen final ejecuta `node server.js` como usuario sin privilegios y contiene la salida necesaria, los recursos estáticos y `public/`. `.dockerignore` excluye archivos de entorno, credenciales, dependencias locales, `.next` y Git del contexto de construcción. El build necesita conexión al registro de npm y a las fuentes de Google; las consultas reales de IA necesitan acceso a OpenAI durante la ejecución.
+
+La variable interna `GRAVITY_DOCKER_BUILD=1` activa `standalone` únicamente en la etapa de construcción de la imagen. No hace falta configurarla en `.env.local` ni en Vercel: el build habitual y el despliegue de Vercel conservan su configuración de salida.
+
+```bash
+docker compose config --quiet  # Validar la configuración sin imprimir las claves.
+docker compose ps             # Estado y comprobación de salud.
+docker compose logs -f app    # Consultar los logs.
+docker compose down          # Detener y retirar el contenedor.
+```
+
+La comprobación de salud consulta `GET /api/ai`, que funciona sin credenciales y no llama a OpenAI. No valida la calidad ni disponibilidad del modelo.
+
+La validación de origen de las dos API utiliza el protocolo de la petición y su cabecera `Host`, en lugar del hostname interno de escucha de Next.js. Así admite las llamadas desde `localhost:3000` sin desactivar el rechazo de orígenes ajenos.
+
 ## Comprobaciones
 
 | Comando              | Finalidad                                  |

@@ -1,0 +1,33 @@
+# Dependencies and generated output must be built for Linux inside the image.
+**/node_modules
+**/.next
+**/coverage
+**/out
+**/build
+**/dist
+**/*.tsbuildinfo
+
+# Local environment, credentials and platform metadata.
+**/.env*
+**/.npmrc
+**/.netrc
+**/*.pem
+**/*.key
+.aws
+.ssh
+.vercel
+.git
+.agents
+.codex
+
+# Editor files, logs and temporary artifacts.
+.idea
+.vscode
+**/.DS_Store
+**/*.log
+**/*.tmp
+**/*.temp
+**/*~
+**/.cache
+tmp
+temp

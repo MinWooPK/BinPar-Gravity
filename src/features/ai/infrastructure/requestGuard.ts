@@ -8,6 +8,34 @@ export const TUTOR_MAX_CONCURRENT_REQUESTS = 4;
 
 const MAX_TRACKED_CLIENTS = 1024;
 
+// Next.js puede construir request.url con el hostname interno del contenedor.
+// Host conserva el destino de la petición del navegador, incluido su puerto.
+export const isSameOriginRequest = (request: Request): boolean => {
+  const origin = request.headers.get("origin");
+  if (!origin) return true;
+
+  try {
+    const url = new URL(request.url);
+    const host = request.headers.get("host");
+    const target = host ? new URL(`${url.protocol}//${host}`) : url;
+
+    if (
+      host &&
+      (target.username ||
+        target.password ||
+        target.pathname !== "/" ||
+        target.search ||
+        target.hash)
+    ) {
+      return false;
+    }
+
+    return origin === target.origin;
+  } catch {
+    return false;
+  }
+};
+
 // Guarda las peticiones de cada cliente.
 type Registro = {
   cantidad: number;
